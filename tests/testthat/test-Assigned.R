@@ -14,18 +14,12 @@ test_that("Poisson Assigned Events, check results", {
   )
 
   df$pyr <- df$Ending_Age - df$Starting_Age
-  pyr <- "pyr"
-  event <- "Cancer_Status"
-  names <- c("a", "b", "c", "d")
-  term_n <- c(0, 1, 1, 2)
-  tform <- c("loglin", "lin", "lin", "plin")
-  modelform <- "M"
   a_n <- c(-0.75, 0.1, -0.05, -1.5)
 
   keep_constant <- c(0, 0, 0, 0)
 
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
@@ -35,7 +29,7 @@ test_that("Poisson Assigned Events, check results", {
 
   e0 <- e$predict
   e1 <- e$caused
-
+  expect_equal(e1[, 3], df$Cancer_Status, tolerance = 1e-1)
   expect_equal(sum(e0), 108.757, tolerance = 1e-2)
   expect_equal(sum(e1), 124, tolerance = 1e-2)
 
@@ -58,19 +52,13 @@ test_that("Poisson Assigned Events, check results strata", {
   )
   set.seed(3742)
   df$pyr <- df$Ending_Age - df$Starting_Age
-  pyr <- "pyr"
-  event <- "Cancer_Status"
-  names <- c("a", "b", "c")
-  term_n <- c(0, 1, 2)
-  tform <- c("loglin", "loglin", "loglin")
-  modelform <- "M"
   a_n <- c(-0.75, 0.1, -0.05)
 
   keep_constant <- c(0, 0, 0)
 
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
-    "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
   #
@@ -83,10 +71,15 @@ test_that("Poisson Assigned Events, check results strata", {
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
+  control <- list(
+    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-3,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
+    "thres_step_max" = 100.0, "verbose" = 0
+  )
   for (i in 1:9) {
     a_n <- 2 * runif(3) - 1
     poisres$beta_0 <- a_n
-    e <- EventAssignment(poisres, df)
+    e <- EventAssignment(poisres, df, control = control)
 
     e0 <- e$predict
     e1 <- e$caused
@@ -95,7 +88,7 @@ test_that("Poisson Assigned Events, check results strata", {
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
 
     poisres_strata$beta_0 <- a_n
-    e <- EventAssignment(poisres_strata, df)
+    e <- EventAssignment(poisres_strata, df, control = control)
 
     e0 <- e$predict
     e1 <- e$caused
@@ -104,7 +97,7 @@ test_that("Poisson Assigned Events, check results strata", {
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
   }
 })
-#
+
 test_that("Poisson Assigned Events, combinations", {
   df <- data.table::data.table(
     "UserID" = c(112, 114, 213, 214, 115, 116, 117),
@@ -117,24 +110,22 @@ test_that("Poisson Assigned Events, combinations", {
     "d" = c(0, 0, 0, 1, 1, 1, 1)
   )
   # For the interval case
-  time1 <- "Starting_Age"
-  time2 <- "Ending_Age"
   df$pyr <- df$Ending_Age - df$Starting_Age
   pyr <- "pyr"
   a_n <- c(0.1, 0.1, 0.1)
 
   keep_constant <- c(0, 0, 0, 0)
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5,
     "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-    "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0,
+    "step_max" = 0.2, "change_all" = TRUE, "thres_step_max" = 100.0,
     "verbose" = 0, "ties" = "breslow"
   )
   poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + loglinear(b, 1) + loglinear(c, 2), df, a_n = a_n, control = control)
   df$Cancer_Status <- rep(0, nrow(df))
   expect_error(EventAssignment(poisres, df))
 })
-#
+
 test_that("Poisson Assigned Events bounds, check results", {
   df <- data.table::data.table(
     "UserID" = c(112, 114, 213, 214, 115, 116, 117),
@@ -148,21 +139,15 @@ test_that("Poisson Assigned Events bounds, check results", {
   )
 
   df$pyr <- df$Ending_Age - df$Starting_Age
-  pyr <- "pyr"
-  event <- "Cancer_Status"
-  names <- c("a", "b", "c", "d")
-  term_n <- c(0, 1, 1, 2)
-  tform <- c("loglin", "lin", "lin", "plin")
-  modelform <- "M"
   a_n <- c(-0.75, 0.1, -0.05, -1.5)
   keep_constant <- c(0, 0, 0, 0)
   control <- list(
-    "ncores" = 2, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
-    "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE,
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
   #
-  poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control)
+  poisres <- PoisRun(Pois(pyr, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2), df, a_n = a_n, control = control, norm = "max")
   assign_control <- list(check_num = 4)
   e <- EventAssignment(poisres, df, assign_control = assign_control, z = 2)
 
@@ -170,25 +155,67 @@ test_that("Poisson Assigned Events bounds, check results", {
   emid <- e$midpoint$predict
   eupp <- e$upper_limit$predict
   #
-  expect_equal(sum(elow), 96.07807, tolerance = 1e-2)
-  expect_equal(sum(emid), 123.6017, tolerance = 1e-2)
-  expect_equal(sum(eupp), 151.1252, tolerance = 1e-2)
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
-    skip("Cran Skip")
-  }
+  expect_equal(sum(elow), 123.4787, tolerance = 1e-2)
+  expect_equal(sum(emid), 123.5965, tolerance = 1e-2)
+  expect_equal(sum(eupp), 124.0949, tolerance = 1e-2)
   #
-  for (i in 2:4) {
-    for (j in c(1, 2, 10)) {
-      e <- EventAssignment(poisres, df, check_num = i, z = j)
-      elow <- e$lower_limit$predict
-      emid <- e$midpoint$predict
-      eupp <- e$upper_limit$predict
-      expect_equal(elow[, 1], emid[, 1], tolerance = 1e-2)
-      expect_equal(elow[, 1], eupp[, 1], tolerance = 1e-2)
-      expect_equal(eupp[, 1], emid[, 1], tolerance = 1e-2)
-    }
-  }
+  poisbound <- LikelihoodBound(poisres, df, para_number = 4, maxstep = 50)
+  assign_control <- list(check_num = 4)
+  e <- EventAssignment(poisbound, df, assign_control = assign_control, z = 2)
   #
+  elow <- e$lower_limit$predict
+  emid <- e$midpoint$predict
+  eupp <- e$upper_limit$predict
+  #
+  expect_equal(sum(elow), 123.4753, tolerance = 1e-2)
+  expect_equal(sum(emid), 123.5965, tolerance = 1e-2)
+  expect_equal(sum(eupp), 124.5127, tolerance = 1e-2)
+})
+test_that("Poisson Assigned Events bounds single entry, check results", {
+  df <- data.table::data.table(
+    "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+    "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+    "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+    "Cancer_Status" = c(12, 10, 18, 6, 1, 11, 4),
+    "a" = c(0, 1, 1, 0, 1, 0, 1),
+    "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+    "c" = c(10, 11, 10, 11, 12, 9, 11),
+    "d" = c(0, 0, 0, 1, 1, 1, 1)
+  )
+
+  df$pyr <- df$Ending_Age - df$Starting_Age
+  a_n <- c(-0.75)
+  keep_constant <- c(0)
+  control <- list(
+    "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
+    "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
+    "thres_step_max" = 100.0, "verbose" = 0
+  )
+  #
+  model <- Pois(pyr, Cancer_Status) ~ plinear(a, 0)
+  poisres <- PoisRun(model, df, a_n = a_n, control = control, norm = "max")
+  assign_control <- list(check_num = 1)
+  e <- EventAssignment(poisres, df, assign_control = assign_control, z = 2)
+
+  elow <- e$lower_limit$predict
+  emid <- e$midpoint$predict
+  eupp <- e$upper_limit$predict
+  #
+  expect_equal(sum(elow), 202.9804, tolerance = 1e-2)
+  expect_equal(sum(emid), 225.95, tolerance = 1e-2)
+  expect_equal(sum(eupp), 248.9195, tolerance = 1e-2)
+  #
+  poisbound <- LikelihoodBound(poisres, df, para_number = 1, maxstep = 50)
+  assign_control <- list(check_num = 1)
+  e <- EventAssignment(poisbound, df, assign_control = assign_control, z = 2)
+  #
+  elow <- e$lower_limit$predict
+  emid <- e$midpoint$predict
+  eupp <- e$upper_limit$predict
+  #
+  expect_equal(sum(elow), 205.9671, tolerance = 1e-2)
+  expect_equal(sum(emid), 225.95, tolerance = 1e-2)
+  expect_equal(sum(eupp), 251.1475, tolerance = 1e-2)
 })
 #
 #

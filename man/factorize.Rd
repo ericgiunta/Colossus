@@ -34,14 +34,12 @@ new_col <- val$cols
 }
 \seealso{
 Other Data Cleaning Functions: 
-\code{\link{Check_Iters}()},
 \code{\link{Date_Shift}()},
 \code{\link{Event_Count_Gen}()},
 \code{\link{Event_Time_Gen}()},
 \code{\link{Joint_Multiple_Events}()},
 \code{\link{Replace_Missing}()},
 \code{\link{Time_Since}()},
-\code{\link{apply_norm}()},
 \code{\link{gen_time_dep}()}
 }
 \concept{Data Cleaning Functions}

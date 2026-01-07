@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -79,7 +80,7 @@ g
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    Y(x)=\begin{cases} 0 &(x < 0) \\ 1 & (x \ge 0) \\ 2 &(x \ge 6) \\ 3 &(x \ge 12) \end{cases}\\
+    Y(x)=\begin{cases} 0 &(x < 0) \\ 1 & ( 6 > x \ge 0) \\ 2 &(12 > x \ge 6) \\ 3 &(x \ge 12) \end{cases}\\
 \end{aligned}
 $$
 </p>
@@ -99,7 +100,7 @@ g
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    Y(x)=\begin{cases} 1 &(x < 0) \\ 2 & (x \ge 0) \\ 3 &(x \ge 6) \\ 2 &(x \ge 12) \end{cases}\\
+    Y(x)=\begin{cases} 1 &(x < 0) \\ 2 & (6 > x \ge 0) \\ 3 &(12 > x \ge 6) \\ 2 &(x \ge 12) \end{cases}\\
 \end{aligned}
 $$
 </p>

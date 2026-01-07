@@ -23,7 +23,7 @@
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -40,6 +40,11 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     calls <- coxmodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
     #
+  } else if (is(model, "coxres")) {
+    coxmodel <- model$model
+    calls <- coxmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    coxmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -68,6 +73,9 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -139,8 +147,14 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       model_control[["gmix_theta"]] <- coxmodel$gmix_theta
     }
   }
-  if (coxmodel$strata != "NONE") {
+  if (all(coxmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
@@ -166,15 +180,37 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  int_count <- 0.0
   if (!coxmodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
     df <- norm_res$df
+    if (any(norm_weight != 1.0)) {
+      int_avg_weight <- 0.0
+      for (i in seq_along(names)) {
+        if (grepl("_int", tform[i])) {
+          int_avg_weight <- int_avg_weight + norm_weight[i]
+          int_count <- int_count + 1
+        }
+      }
+      if (int_count > 0) {
+        if (control$verbose >= 3) {
+          message("Note: Threshold max step adjusted to match new weighting")
+        }
+        control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+      }
+    }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -185,8 +221,11 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -220,7 +259,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Pois(Ending_Age, Cancer_Status) ~
@@ -233,6 +272,11 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     poismodel <- copy(model)
     calls <- poismodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
+  } else if (is(model, "poisres")) {
+    poismodel <- model$model
+    calls <- poismodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    poismodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -261,6 +305,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -283,7 +330,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   }
   # Checks that the current coxmodel is valid
   validate_poissurv(poismodel, df)
-  poismodel <- validate_formula(poismodel, df, control$verbose)
+  if (!poismodel$null) {
+    poismodel <- validate_formula(poismodel, df, control$verbose)
+  }
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -298,23 +347,42 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
-  if (length(unique(term_n)) == 1) {
-    modelform <- "M"
-  } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
-  }
-  if (poismodel$strata != "NONE") {
-    model_control["strata"] <- TRUE
-  }
-  if (cons_vec != c(0)) {
-    model_control["constraint"] <- TRUE
-  }
-  if (!missing(gradient_control)) {
-    model_control["gradient"] <- TRUE
-    for (nm in names(gradient_control)) {
-      model_control[nm] <- gradient_control[nm]
+  if (poismodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+    if (all(poismodel$strata != "NONE")) {
+      model_control["strata"] <- TRUE
+      a_n <- c(0)
+    } else {
+      event_total <- sum(df[, event0, with = F])
+      time_total <- sum(df[, pyr0, with = F])
+      avg_rate <- event_total / time_total
+      a_n <- c(log(avg_rate))
     }
+  } else {
+      if (length(unique(term_n)) == 1) {
+        modelform <- "M"
+      } else if (modelform == "GMIX") {
+        model_control[["gmix_term"]] <- poismodel$gmix_term
+        model_control[["gmix_theta"]] <- poismodel$gmix_theta
+      }
+      if (all(poismodel$strata != "NONE")) {
+        model_control["strata"] <- TRUE
+      }
+      if (ncol(cons_mat) > 1) {
+        model_control["constraint"] <- TRUE
+      }
+      if (!missing(gradient_control)) {
+        model_control["gradient"] <- TRUE
+        for (nm in names(gradient_control)) {
+          model_control[nm] <- gradient_control[nm]
+        }
+      }
   }
   model_control["single"] <- single
   model_control["observed_info"] <- observed_info
@@ -328,23 +396,52 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     }
   }
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
-  a_n <- norm_res$a_n
-  cons_mat <- norm_res$cons_mat
-  norm_weight <- norm_res$norm_weight
-  df <- norm_res$df
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  int_count <- 0.0
+  if (!poismodel$null) {
+      norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+      a_n <- norm_res$a_n
+      cons_mat <- norm_res$cons_mat
+      norm_weight <- norm_res$norm_weight
+      df <- norm_res$df
+      if (any(norm_weight != 1.0)) {
+        int_avg_weight <- 0.0
+        for (i in seq_along(names)) {
+          if (grepl("_int", tform[i])) {
+            int_avg_weight <- int_avg_weight + norm_weight[i]
+            int_count <- int_count + 1
+          }
+        }
+        if (int_count > 0) {
+          if (control$verbose >= 3) {
+            message("Note: Threshold max step adjusted to match new weighting")
+          }
+          control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+        }
+      }
+  }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
-  if (model_control[["constraint"]]) {
-    res$constraint_matrix <- cons_mat
-    res$constraint_vector <- cons_vec
+  if (!model_control$null) {
+      if (model_control[["constraint"]]) {
+        res$constraint_matrix <- cons_mat
+        res$constraint_vector <- cons_vec
+      }
+      res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -378,7 +475,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- logit(Cancer_Status) ~
@@ -391,6 +488,11 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     logitmodel <- copy(model)
     calls <- logitmodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
+  } else if (is(model, "logitres")) {
+    logitmodel <- model$model
+    calls <- logitmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    logitmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -419,6 +521,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -459,8 +564,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- logitmodel$gmix_term
+    model_control[["gmix_theta"]] <- logitmodel$gmix_theta
   }
   if (missing(link)) {
     model_control["logit_odds"] <- TRUE
@@ -488,7 +593,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       ), domain = NA)
     }
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -509,13 +614,35 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     }
   }
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  int_count <- 0.0
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- logitmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -525,7 +652,10 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -560,7 +690,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- CaseCon_Strata(Cancer_Status, e) ~
@@ -577,6 +707,11 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     calls <- caseconmodel$expres_calls
     df <- ColossusExpressionCall(calls, df)
     #
+  } else if (is(model, "caseconres")) {
+    caseconmodel <- model$model
+    calls <- caseconmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    caseconmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
     res <- get_form(model, df)
@@ -605,6 +740,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -651,19 +789,25 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
     } else if (modelform == "GMIX") {
-      model_control["gmix_term"] <- caseconmodel$gmix_term
-      model_control["gmix_theta"] <- caseconmodel$gmix_theta
+      model_control[["gmix_term"]] <- caseconmodel$gmix_term
+      model_control[["gmix_theta"]] <- caseconmodel$gmix_theta
     }
   }
-  if (caseconmodel$strata != "NONE") {
+  if (all(caseconmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   if (time1 != time2) {
     model_control[["time_risk"]] <- TRUE
   }
-  if (cons_vec != c(0)) {
-    model_control[["constraint"]] <- TRUE
-  }
+  #  if (ncol(cons_mat) > 1) {
+  #    model_control[["constraint"]] <- TRUE
+  #  }
   if (!missing(gradient_control)) {
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
@@ -683,15 +827,37 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  int_count <- 0.0
   if (!caseconmodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
     df <- norm_res$df
+    if (any(norm_weight != 1.0)) {
+      int_avg_weight <- 0.0
+      for (i in seq_along(names)) {
+        if (grepl("_int", tform[i])) {
+          int_avg_weight <- int_avg_weight + norm_weight[i]
+          int_count <- int_count + 1
+        }
+      }
+      if (int_count > 0) {
+        if (control$verbose >= 3) {
+          message("Note: Threshold max step adjusted to match new weighting")
+        }
+        control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+      }
+    }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, cens_weight, model_control, cons_mat, cons_vec)
+  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control) # , cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- caseconmodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -702,8 +868,11 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
   }
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -738,7 +907,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
@@ -781,6 +950,9 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -813,13 +985,13 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- poismodel$gmix_term
+    model_control[["gmix_theta"]] <- poismodel$gmix_theta
   }
-  if (poismodel$strata != "NONE") {
+  if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -840,13 +1012,35 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     }
   }
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  int_count <- 0.0
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
+  if (int_count > 0) {
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+  }
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
@@ -856,7 +1050,10 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -913,7 +1110,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #'   "e" = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -922,7 +1119,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
 #'   control = control
 #' )
-#' RelativeRisk(res, df)
+#' res_risk <- RelativeRisk(res, df)
 RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   #
   coxmodel <- x$model
@@ -945,6 +1142,16 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   if (any(val$ce != ce)) {
@@ -961,7 +1168,16 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   }
   control <- object$control
   model_control <- object$modelcontrol
-  Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
 }
 
 #' Performs Cox Proportional Hazard model plots
@@ -990,7 +1206,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 #'   "d" = c(0, 0, 0, 1, 1, 1, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
 #'   "halfmax" = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -1006,7 +1222,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 #'   )), "studyid" = "UserID",
 #'   "verbose" = FALSE
 #' )
-#' plot(res, df, plot_options)
+#' res_plot <- plot(res, df, plot_options)
 plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   #
   coxmodel <- x$model
@@ -1030,6 +1246,16 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   df <- val$df
@@ -1048,6 +1274,10 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   control <- object$control
   model_control <- object$modelcontrol
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   #
   extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
@@ -1067,11 +1297,22 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
-  if (coxmodel$strata != "NONE") {
+  if (all(coxmodel$strata != "NONE")) {
     plot_options[["strat_haz"]] <- TRUE
-    plot_options$strat_col <- strat_col
+    plot_options$strat_col <- "_strata_col"
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
-  RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
+  res <- RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
 }
 
 #' Fully runs a cox or fine-gray regression model with multiple column realizations, returning the model and results
@@ -1103,7 +1344,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
+#'   "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
 #'   "halfmax" = 2, "epsilon" = 1e-6,
 #'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
 #'   "thres_step_max" = 100.0,
@@ -1147,6 +1388,9 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -1185,16 +1429,13 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
   # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
   if (coxmodel$null) {
-    model_control["null"] <- TRUE
-    #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    stop("Error: Multiple realization analysis cannot be used with a null model.")
   } else {
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
@@ -1209,13 +1450,19 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       model_control[["gmix_theta"]] <- coxmodel$gmix_theta
     }
   }
-  if (coxmodel$strata != "NONE") {
+  if (all(coxmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
   }
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control[["constraint"]] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -1246,17 +1493,21 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   if (fma) {
     coxres <- new_coxresfma(res)
   } else {
-    coxres <- new_coxres(res)
+    coxres <- new_coxresmcml(res)
   }
   coxres
 }
@@ -1290,7 +1541,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 1,
+#'   "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
 #'   "halfmax" = 2, "epsilon" = 1e-6,
 #'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
 #'   "thres_step_max" = 100.0,
@@ -1334,6 +1585,9 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (missing(control)) {
     control <- ColossusControl(...)
   } else if (is.list(control)) {
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
     control_args <- intersect(names(control), names(formals(ColossusControl)))
     control <- do.call(ColossusControl, control[control_args])
   } else {
@@ -1353,9 +1607,15 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (!missing(keep_constant)) { # assigns the paramter constant values if given
     poismodel$keep_constant <- keep_constant
   }
+  if (poismodel$null) {
+    stop("Error: Multiple realization analysis cannot be used with a null model.")
+  }
   # Checks that the current poismodel is valid
   validate_poissurv(poismodel, df)
   poismodel <- validate_formula(poismodel, df, control$verbose)
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -1373,13 +1633,13 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (length(unique(term_n)) == 1) {
     modelform <- "M"
   } else if (modelform == "GMIX") {
-    model_control["gmix_term"] <- coxmodel$gmix_term
-    model_control["gmix_theta"] <- coxmodel$gmix_theta
+    model_control[["gmix_term"]] <- poismodel$gmix_term
+    model_control[["gmix_theta"]] <- poismodel$gmix_theta
   }
-  if (poismodel$strata != "NONE") {
+  if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (cons_vec != c(0)) {
+  if (ncol(cons_mat) > 1) {
     model_control["constraint"] <- TRUE
   }
   if (!missing(gradient_control)) {
@@ -1414,13 +1674,17 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
   if (fma) {
     poisres <- new_poisresfma(res)
   } else {
-    poisres <- new_poisres(res)
+    poisres <- new_poisresmcml(res)
   }
   poisres
 }
@@ -1485,6 +1749,16 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   df <- val$df
@@ -1502,6 +1776,10 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   if (model_control[["constraint"]]) {
@@ -1539,36 +1817,79 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
     }
   }
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  if (all(strat_col != "NONE")) {
+    #
+    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+  }
   #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    int_count <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   #
   if ("bisect" %in% names(model_control)) {
-    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
     res$method <- "bisection"
   } else {
-    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
     res$method <- "Venzon-Moolgavkar"
   }
   res$model <- coxmodel
   res$beta_0 <- object$beta_0
+  res$para_number <- model_control$para_number
+  res$coxres <- object
   #
   if (tolower(norm) == "null") {
     # nothing changes
   } else if (tolower(norm) %in% c("max", "mean")) {
     # weight by the maximum value
     res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
+      } else {
+        res$Lower_Values[i] <- res$Lower_Values[i] / norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] / norm_weight[i]
+      }
+    }
   } else {
     stop(gettextf(
       "Error: Normalization arguement '%s' not valid.",
       norm
     ), domain = NA)
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   coxres <- new_coxresbound(res)
+  coxres <- validate_coxresbound(coxres, df)
   coxres
 }
 
@@ -1608,12 +1929,26 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   object <- validate_poisres(x, df)
   #
   a_n <- object$beta_0
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   if (model_control[["constraint"]]) {
@@ -1651,12 +1986,31 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
     }
   }
-  #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat), model_control)
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
   df <- norm_res$df
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    int_count <- 0.0
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+  }
   #
   if ("bisect" %in% names(model_control)) {
     res <- PoissonCurveSolver(df, pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
@@ -1667,20 +2021,35 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   res$model <- poismodel
   res$beta_0 <- object$beta_0
+  res$para_number <- model_control$para_number
+  res$poisres <- object
   #
   if (tolower(norm) == "null") {
     # nothing changes
   } else if (tolower(norm) %in% c("max", "mean")) {
     # weight by the maximum value
     res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i])) {
+        res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
+      } else {
+        res$Lower_Values[i] <- res$Lower_Values[i] / norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] / norm_weight[i]
+      }
+    }
   } else {
     stop(gettextf(
       "Error: Normalization arguement '%s' not valid.",
       norm
     ), domain = NA)
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   poisres <- new_poisresbound(res)
+  poisres <- validate_poisresbound(poisres, df)
   poisres
 }
 
@@ -1741,6 +2110,16 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   object <- validate_poisres(x, df)
   #
   if (missing(a_n)) {
@@ -1749,6 +2128,10 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   extraArgs <- list(...) # gather additional arguments
@@ -1769,7 +2152,10 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   } else {
     stop("Error: control argument must be a list")
   }
-  #
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   check_num <- 1
   z <- 2
   if (length(assign_control) > 0) {
@@ -1787,9 +2173,268 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     # Just a basic event assignment
     res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   } else {
+    a_n <- object$beta_0
+    stdev <- object$Standard_Deviation
+    #
     # running a boundary solution
-    res <- RunPoissonEventAssignment_bound(df, pyr0, event0, x, keep_constant, modelform, check_num, z, control, strat_col, model_control)
+    e_mid <- RunPoissonEventAssignment(
+      df, pyr0, event0, names, term_n,
+      tform, keep_constant, a_n, modelform,
+      control, strat_col,
+      model_control
+    )
+    if (length(names) == 1) {
+      # There is only one parameter, so we don't need to reoptimize
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] - z * stdev[check_num]
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] + z * stdev[check_num]
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names,
+        term_n, tform, keep_constant,
+        a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    } else {
+      # We need to shift the parameter, fix it, and then optimize before getting cases
+      keep_constant[check_num] <- 1
+      #
+      model_control <- object$modelcontrol
+      norm <- object$norm
+      if (!model_control$null) {
+        if (model_control[["constraint"]]) {
+          cons_mat <- object$constraint_matrix
+          cons_vec <- object$constraint_vector
+        }
+      }
+      # Start with low
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] - z * stdev[check_num]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        low_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- low_res$beta_0
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      # Now the high
+      a_n <- object$beta_0
+      a_n[check_num] <- a_n[check_num] + z * stdev[check_num]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        high_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- high_res$beta_0
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    }
+    res <- list(
+      "lower_limit" = e_low, "midpoint" = e_mid,
+      "upper_limit" = e_high
+    )
+    res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
+    names(res$parameter_info) <- c("Column", "Subterm", "term_number")
   }
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
+}
+
+#' Predicts how many events are due to baseline vs excess for a completed poisson likelihood boundary regression
+#'
+#' \code{EventAssignment.poisresbound} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate background and excess events for a solved Poisson regression
+#'
+#' @param x result object from a regression, class poisres
+#' @param assign_control control list for bounds calculated
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Poisson Wrapper Functions
+EventAssignment.poisresbound <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
+  poisres <- x$poisres
+  poismodel <- poisres$model
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  modelform <- poismodel$modelform
+  strat_col <- poismodel$strata
+  #
+  calls <- poismodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
+  object <- validate_poisres(poisres, df)
+  #
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
+  if (missing(control)) {
+    control <- object$control
+  }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
+  model_control <- object$modelcontrol
+  #
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("bound", "check_num", "z") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(assign_control)) {
+    assign_control <- extraArgs
+  } else if (is.list(assign_control)) {
+    assign_control <- c(assign_control, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  #
+  check_num <- x$para_number
+  assign_control$bound <- TRUE
+  if (!assign_control$bound) {
+    # Just a basic event assignment
+    res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  } else {
+    a_n <- object$beta_0
+    Parameter_Limits <- x$Parameter_Limits
+    #
+    # running a boundary solution
+    e_mid <- RunPoissonEventAssignment(
+      df, pyr0, event0, names, term_n,
+      tform, keep_constant, a_n, modelform,
+      control, strat_col,
+      model_control
+    )
+    if (length(names) == 1) {
+      # There is only one parameter, so we don't need to reoptimize
+      a_n <- object$beta_0
+      a_n[check_num] <- Parameter_Limits[1]
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      a_n <- object$beta_0
+      a_n[check_num] <- Parameter_Limits[2]
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names,
+        term_n, tform, keep_constant,
+        a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    } else {
+      # We need to shift the parameter, fix it, and then optimize before getting cases
+      keep_constant[check_num] <- 1
+      #
+      model_control <- object$modelcontrol
+      norm <- object$norm
+      if (!model_control$null) {
+        if (model_control[["constraint"]]) {
+          cons_mat <- object$constraint_matrix
+          cons_vec <- object$constraint_vector
+        }
+      }
+      # Start with low
+      a_n <- x$Lower_Values
+      #      a_n <- object$beta_0
+      #      a_n[check_num] <- Parameter_Limits[1]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        low_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- low_res$beta_0
+      e_low <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+      # Now the high
+      a_n <- x$Upper_Values
+      #      a_n <- object$beta_0
+      #      a_n[check_num] <- Parameter_Limits[2]
+      # Get the new optimum values
+      if (model_control[["constraint"]]) {
+        high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+      } else {
+        high_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+      }
+      a_n <- high_res$beta_0
+      e_high <- RunPoissonEventAssignment(
+        df, pyr0, event0, names, term_n,
+        tform, keep_constant, a_n, modelform,
+        control, strat_col,
+        model_control
+      )
+    }
+    res <- list(
+      "lower_limit" = e_low, "midpoint" = e_mid,
+      "upper_limit" = e_high
+    )
+  }
+  res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   res
 }
 
@@ -1850,6 +2495,16 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
       df$CONST <- 1
     }
   }
+  if (any(grepl(":intercept", names))) {
+    # one of the columns has a :intercept flag
+    for (name in names[grepl(":intercept", names)]) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
   object <- validate_poisres(x, df)
   #
   if (missing(a_n)) {
@@ -1858,6 +2513,10 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   if (missing(control)) {
     control <- object$control
   }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
   model_control <- object$modelcontrol
   #
   if ((pearson == deviance) && (pearson)) {
@@ -1865,7 +2524,14 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
-  #
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   res
 }

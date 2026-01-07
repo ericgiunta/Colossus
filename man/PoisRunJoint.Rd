@@ -66,7 +66,7 @@ df <- data.table::data.table(
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
   "halfmax" = 1
 )
 formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
@@ -78,10 +78,10 @@ res <- PoisRunJoint(formula_list, df, control = control)
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{EventAssignment.poisres}()},
+\code{\link{EventAssignment.poisresbound}()},
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunMulti}()},
-\code{\link{Residual.poisres}()},
-\code{\link{RunPoissonRegression_Omnibus}()}
+\code{\link{Residual.poisres}()}
 }
 \concept{Poisson Wrapper Functions}

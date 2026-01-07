@@ -4,12 +4,14 @@
 \alias{get_form_joint}
 \title{Interprets a Poisson joint formula and makes necessary changes to data}
 \usage{
-get_form_joint(formula_list, df)
+get_form_joint(formula_list, df, nthreads = as.numeric(detectCores())/2)
 }
 \arguments{
 \item{formula_list}{a list of formula objects, each written in Colossus notation. See the Unified Equation Representation vignette for details. Each formula should include the elements specific to the specified event column. The list can include an entry named "shared" to denote shared terms. The person-year and strata columns should be the same.}
 
 \item{df}{a data.table containing the columns of interest}
+
+\item{nthreads}{number of threads to use, do not use more threads than available on your machine}
 }
 \value{
 returns a class fully describing the model and the updated data

@@ -65,7 +65,7 @@ df <- data.table::data.table(
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
   "halfmax" = 1
 )
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -78,7 +78,6 @@ res <- CoxRun(formula, df,
 \seealso{
 Other Cox Wrapper Functions: 
 \code{\link{CoxRunMulti}()},
-\code{\link{LikelihoodBound.coxres}()},
-\code{\link{RunCoxRegression_Omnibus}()}
+\code{\link{LikelihoodBound.coxres}()}
 }
 \concept{Cox Wrapper Functions}

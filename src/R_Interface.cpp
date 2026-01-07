@@ -162,7 +162,7 @@ List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector t
             _["strata"] = model_control["strata"],
             _["basic"] = false,
             _["linear_err"] = false,
-            _["null"] = false,
+            _["null"] = model_control["null"],
             _["cr"] = false,
             _["single"] = model_control["single"],
             _["gradient"] = model_control["gradient"],
@@ -267,11 +267,11 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
             _["log_bound"] = false,
             _["cox"] = true);
     //
-    bool Surv_bool      = model_control["surv"];
+    bool Surv_bool       = model_control["surv"];
     bool Schoenfeld_bool = model_control["schoenfeld"];
-    bool Risk_bool      = model_control["risk"];
-    bool Risk_Sub_bool  = model_control["risk_subset"];
-    int uniq_v          = model_control["unique_values"];
+    bool Risk_bool       = model_control["risk"];
+    bool Risk_Sub_bool   = model_control["risk_subset"];
+    int uniq_v           = model_control["unique_values"];
     //
     //  Performs regression
     List res;
@@ -1076,154 +1076,6 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
     if (file.is_open()) {
         file.close();
     }
-}
-
-//' Generates factored columns in parallel
-//'
-//' \code{Gen_Fac_Par} Called directly from R, returns a matrix with factored columns
-//' @inheritParams CPP_template
-//'
-//' @return saves a dataframe to be used with time-dependent covariate analysis
-//' @noRd
-//'
-//  [[Rcpp::export]]
-NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, const NumericVector cols, const int nthreads) {
-    const Map<MatrixXd> df(as<Map<MatrixXd> >(df0));
-    MatrixXd Mat_Fac = MatrixXd::Zero(df.rows(), vals.size());
-    //
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < vals.size(); ijk++) {
-        double col_c = cols[ijk];
-        double val_c = vals[ijk];
-        VectorXi select_ind_all = ((df.col(col_c).array() == val_c)).cast<int>();  //  indices at risk
-        //
-        //
-        int th = 1;
-        visit_lambda(select_ind_all,
-            [&Mat_Fac, ijk, th](double v, int i, int j) {
-                if (v == th)
-                    Mat_Fac(i, ijk) = 1;
-            });
-        //
-    }
-    //
-    return (wrap(Mat_Fac));
-}
-
-//' Interface between R code and the risk check
-//'
-//' \code{cox_ph_transition_single} Called directly from R, Defines the control variables and calls the function which only calculates the log-likelihood
-//' @inheritParams CPP_template
-//'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
-//' @noRd
-//'
-//  [[Rcpp::export]]
-bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot) {
-    int verbose = Control["verbose"];
-    //
-    int nthreads = Control["ncores"];
-    double gmix_theta = model_control["gmix_theta"];
-    IntegerVector gmix_term = model_control["gmix_term"];
-    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
-    //
-    //  Performs regression
-    //----------------------------------------------------------------------------------------------------------------//
-    bool res = Check_Risk(term_n, tform, beta_0, df0, dfc, fir, modelform, verbose, KeepConstant, term_tot, nthreads, gmix_theta, gmix_term);
-    //----------------------------------------------------------------------------------------------------------------//
-    return res;
-}
-
-
-//' Generates weightings for stratified poisson regression
-//'
-//' \code{Gen_Strat_Weight} Called from within c++, assigns vector of weights
-//' @inheritParams CPP_template
-//'
-//' @return assigns weight in place and returns nothing
-//' @noRd
-//'
-//
-void Gen_Strat_Weight(string modelform, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int nthreads, const StringVector& tform, const IntegerVector& term_n, const int& term_tot) {
-    ArrayXd Pyrs  = dfs.transpose() * PyrC.col(0);
-    ArrayXd Events = dfs.transpose() * PyrC.col(1);
-    ArrayXd weight = Events.array() * Pyrs.array().pow(- 1).array();
-    //
-    //
-    s_weights = dfs * weight.matrix();
-    //
-    vector<int> lin_count(term_tot, 0);
-    vector<int> dose_count(term_tot, 0);
-    for (int ij = 0; ij < (term_n.size()); ij++) {
-        int tn = term_n[ij];
-        if (as<string>(tform[ij]) == "loglin") {  //  setting parameters to zero makes the subterm 1
-        } else if (as<string>(tform[ij]) == "lin") {  //  setting parameters to zero makes the subterm 0
-            lin_count[tn] = lin_count[tn] + 1.0;
-        } else if (as<string>(tform[ij]) == "plin") {  //  setting parameters to zero makes the subterm 1
-        } else if (as<string>(tform[ij]) == "loglin_slope") {  //  the slope paremeter sets the element to 0
-        } else if (as<string>(tform[ij]) == "loglin_top") {  //  the top parameter sets the element to 1
-            if (ij == 0) {
-                dose_count[tn] = dose_count[tn] + 1.0;
-            } else if (tform[ij - 1] != "loglin_slope") {
-                dose_count[tn] = dose_count[tn] + 1.0;
-                //
-            } else {}
-        } else if (as<string>(tform[ij]) == "lin_slope") {  //  every other dose term sets the elements to 0
-        } else if (as<string>(tform[ij]) == "lin_int") {
-        } else if (as<string>(tform[ij]) == "quad_slope") {
-        } else if (as<string>(tform[ij]) == "step_slope") {
-        } else if (as<string>(tform[ij]) == "step_int") {
-        } else if (as<string>(tform[ij]) == "lin_quad_slope") {
-        } else if (as<string>(tform[ij]) == "lin_quad_int") {
-        } else if (as<string>(tform[ij]) == "lin_exp_slope") {
-        } else if (as<string>(tform[ij]) == "lin_exp_int") {
-        } else if (as<string>(tform[ij]) == "lin_exp_exp_slope") {
-        } else {
-            throw invalid_argument("incorrect subterm type");
-        }
-    }
-    //
-    vector<double> term_val(term_tot, 0);
-    for (int ijk = 0;  ijk < term_tot; ijk++) {
-        if (dose_count[ijk] == 0) {  //  If the dose term isn't used, then the default value is 1
-            dose_count[ijk] = 1.0;
-        }
-        if (lin_count[ijk] == 0) {  //  if the linear term isn't used, the entire term is 1 times the dose term value
-            term_val[ijk] = dose_count[ijk];
-        } else {  //  if the linear term is used, the entire term is 0
-            term_val[ijk] = 0;
-        }
-    }
-    double default_val = 0;
-    if (modelform == "A") {
-        for (int i = 0;  i < term_tot; i++) {
-            default_val += term_val[i];
-        }
-    } else if (modelform == "PA") {
-        for (int i=1; i < term_tot; i++) {
-            default_val += term_val[i];
-        }
-        default_val *= term_val[0];
-    } else if (modelform == "PAE") {
-        for (int i=1; i < term_tot; i++) {
-            default_val += term_val[i];
-        }
-        default_val = (1 + default_val) * term_val[0];
-    } else if (modelform == "M") {
-        default_val = 1;
-        for (int i = 1; i < term_tot; i++) {
-            default_val *= (1+term_val[i]);
-        }
-        default_val *= term_val[0];
-    } else if (modelform == "GM") {
-        throw invalid_argument("GM isn't implemented");
-    } else {
-        throw invalid_argument("Model isn't implemented");
-    }
-    s_weights = s_weights / default_val;
-    return;
 }
 
 //' Checks the OMP flag

@@ -9,55 +9,15 @@
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Cox Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' time1 <- "Starting_Age"
-#' time2 <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
-#' # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiters" = c(5, 5, 5),
-#'   "halfmax" = 5, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3,
-#'   "step_max" = 1.0, "thres_step_max" = 100.0,
-#'   "verbose" = FALSE,
-#'   "ties" = "breslow", "double_step" = 1, "guesses" = 2
-#' )
-#' e <- RunCoxRegression_Omnibus(df, time1, time2, event,
-#'   names, term_n, tform, keep_constant,
-#'   a_n, modelform, control,
-#'   model_control = list(
-#'     "single" = FALSE,
-#'     "basic" = FALSE, "cr" = FALSE, "null" = FALSE
-#'   )
-#' )
 #' @importFrom rlang .data
 RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -123,7 +83,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
       term_n <- rep(0, length(term_n))
     }
-    if (modelform != "M") {
+    if (!(modelform %in% c("ME", "M"))) {
       if (control$verbose >= 2) {
         warning("Warning: Basic loglinear model used, but multiplicative model not used. Modelform corrected")
       }
@@ -143,7 +103,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
       term_n <- rep(0, length(term_n))
     }
-    if (modelform != "M") {
+    if (!(modelform %in% c("ME", "M"))) {
       if (control$verbose >= 2) {
         warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
       }
@@ -164,6 +124,15 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
+    if (!is.null(levels(df[[strat_col]]))) {
+      # The column is a factor, so we can convert to numbers
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    } else if (is(typeof(df[[strat_col]]), "character")) {
+      df[[strat_col]] <- factor(df[[strat_col]])
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    }
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
@@ -281,7 +250,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -329,7 +298,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -386,6 +355,16 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       if ("strat_col" %in% names(plot_options)) {
         if (plot_options$strat_col %in% names(df)) {
           # fine
+          strat_col <- plot_options$strat_col
+          if (!is.null(levels(df[[strat_col]]))) {
+            # The column is a factor, so we can convert to numbers
+            factor_lvl <- levels(df[[strat_col]])
+            df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+          } else if (is(typeof(df[[strat_col]]), "character")) {
+            df[[strat_col]] <- factor(df[[strat_col]])
+            factor_lvl <- levels(df[[strat_col]])
+            df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+          }
         } else {
           stop("Error: Stratification Column not in dataframe")
         }
@@ -602,7 +581,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -672,6 +651,15 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
+    if (!is.null(levels(df[[strat_col]]))) {
+      # The column is a factor, so we can convert to numbers
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    } else if (is(typeof(df[[strat_col]]), "character")) {
+      df[[strat_col]] <- factor(df[[strat_col]])
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    }
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
@@ -744,11 +732,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$keep_constant <- keep_constant
-  if (model_control$MCML) {
-    e$Survival_Type <- "Cox_Multidose"
-  } else {
-    e$Survival_Type <- "Cox_Multidose"
-  }
+  e$Survival_Type <- "Cox_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)
@@ -770,7 +754,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -834,7 +818,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       }
       term_n <- rep(0, length(term_n))
     }
-    if (modelform != "M") {
+    if (!(modelform %in% c("ME", "M"))) {
       if (control$verbose >= 2) {
         warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
       }
@@ -855,6 +839,15 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
     uniq <- c(0)
     ce <- c(time1, time2, event0)
   } else {
+    if (!is.null(levels(df[[strat_col]]))) {
+      # The column is a factor, so we can convert to numbers
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    } else if (is(typeof(df[[strat_col]]), "character")) {
+      df[[strat_col]] <- factor(df[[strat_col]])
+      factor_lvl <- levels(df[[strat_col]])
+      df[[strat_col]] <- as.integer(factor(df[[strat_col]], levels = factor_lvl)) - 1
+    }
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE

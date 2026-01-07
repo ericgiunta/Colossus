@@ -11,3 +11,5 @@ src/*.so
 src/Colossus.dll
 *.Rhistory
 *.txt
+*/.vscode/
+*temp.R

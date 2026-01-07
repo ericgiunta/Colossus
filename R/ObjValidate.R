@@ -231,50 +231,50 @@ validate_formula <- function(x, df, verbose = FALSE) {
     if (i < length(a)) {
       if ((a[i] == "loglin_slope")) {
         if (a[i + 1] != "loglin_top") {
-          stop("Error: loglin_top missing")
+          stop("Error: loglin_top missing") # nocov
         }
       } else if ((a[i] == "lin_slope")) {
         if (a[i + 1] != "lin_int") {
-          stop("Error: lin_int missing")
+          stop("Error: lin_int missing") # nocov
         }
       } else if ((a[i] == "step_slope")) {
         if (a[i + 1] != "step_int") {
-          stop("Error: step_int missing")
+          stop("Error: step_int missing") # nocov
         }
       } else if ((a[i] == "lin_quad_slope")) {
         if (a[i + 1] != "lin_quad_int") {
-          stop("Error: lin_quad_int missing")
+          stop("Error: lin_quad_int missing") # nocov
         }
       } else if ((a[i] == "lin_exp_slope")) {
         if (a[i + 1] != "lin_exp_int") {
-          stop("Error: lin_exp_int missing")
+          stop("Error: lin_exp_int missing") # nocov
         }
       } else if ((a[i] == "lin_exp_int")) {
         if (a[i + 1] != "lin_exp_exp_slope") {
-          stop("Error: lin_exp_exp_slope missing")
+          stop("Error: lin_exp_exp_slope missing") # nocov
         }
       }
     }
     if (i > 1) {
       if ((a[i] == "lin_int")) {
         if (a[i - 1] != "lin_slope") {
-          stop("Error: lin_slope missing")
+          stop("Error: lin_slope missing") # nocov
         }
       } else if ((a[i] == "step_int")) {
         if (a[i - 1] != "step_slope") {
-          stop("Error: step_slope missing")
+          stop("Error: step_slope missing") # nocov
         }
       } else if ((a[i] == "lin_quad_int")) {
         if (a[i - 1] != "lin_quad_slope") {
-          stop("Error: lin_quad_slope missing")
+          stop("Error: lin_quad_slope missing") # nocov
         }
       } else if ((a[i] == "lin_exp_int")) {
         if (a[i - 1] != "lin_exp_slope") {
-          stop("Error: lin_exp_slope missing")
+          stop("Error: lin_exp_slope missing") # nocov
         }
       } else if ((a[i] == "lin_exp_exp_slope")) {
         if (a[i - 1] != "lin_exp_int") {
-          stop("Error: lin_exp_int missing")
+          stop("Error: lin_exp_int missing") # nocov
         }
       }
     }
@@ -348,8 +348,10 @@ validate_formula <- function(x, df, verbose = FALSE) {
     "gmix-e", "excess-geometric-mixture"
   ))
   if (x$modelform %in% acceptable) {
-    if (x$modelform %in% c("ME", "MULTIPLICATIVE", "MULTIPLICATIVE-EXCESS")) {
+    if (x$modelform %in% c("MULTIPLICATIVE")) {
       x$modelform <- "M"
+    } else if (x$modelform %in% c("MULTIPLICATIVE-EXCESS")) {
+      x$modelform <- "ME"
     } else if (x$modelform == "ADDITIVE") {
       x$modelform <- "A"
     } else if (x$modelform == "PRODUCT-ADDITIVE") {
@@ -384,116 +386,82 @@ validate_formula <- function(x, df, verbose = FALSE) {
 
 validate_coxsurv <- function(x, df) {
   if (!is(x, "coxmodel")) {
-    stop("Error: Non cox formula used in cox regression")
+    stop("Error: Non cox formula used in cox regression") # nocov
   }
   if (x$start_age == x$end_age) {
-    stop(
-      "Error: The starting and ending interval times were set to the same column, they must be different"
-    )
+    stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (!(x$start_age %in% names(df))) {
-    stop(
-      "Error: Interval start column not in the data"
-    )
+    stop("Error: Interval start column not in the data") # nocov
   }
   if (!(x$end_age %in% names(df))) {
-    stop(
-      "Error: Interval end column not in the data"
-    )
+    stop("Error: Interval end column not in the data") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data") # nocov
   }
 }
 
 validate_poissurv <- function(x, df) {
   if (!is(x, "poismodel")) {
-    stop("Error: Non Poisson formula used in Poisson regression")
+    stop("Error: Non Poisson formula used in Poisson regression") # nocov
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (!(x$person_year %in% names(df))) {
-    stop(
-      "Error: Person-Year column not in the data"
-    )
+    stop("Error: Person-Year column not in the data") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data")
   }
 }
 
 validate_caseconsurv <- function(x, df) {
   if (!is(x, "caseconmodel")) {
-    stop("Error: Non Case-Control formula used in Case_Control regression")
+    stop("Error: Non Case-Control formula used in Case_Control regression") # nocov
   }
   if (x$start_age == x$end_age) {
     if (x$start != "NONE") {
-      stop(
-        "Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'"
-      )
+      stop("Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'") # nocov
     }
   } else {
     if (!(x$start_age %in% names(df))) {
-      stop(
-        "Error: Interval start column not in the data"
-      )
+      stop("Error: Interval start column not in the data") # nocov
     }
     if (!(x$end_age %in% names(df))) {
-      stop(
-        "Error: Interval end column not in the data"
-      )
+      stop("Error: Interval end column not in the data") # nocov
     }
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data") # nocov
   }
 }
 
 validate_logitsurv <- function(x, df) {
   if (!is(x, "logitmodel")) {
-    stop("Error: Non logistic formula used in logistic regression")
+    stop("Error: Non logistic formula used in logistic regression") # nocov
   }
   if (x$event == "") {
-    stop(
-      "Error: The event column must not be empty"
-    )
+    stop("Error: The event column must not be empty") # nocov
   }
   if (x$trials == "") {
-    stop(
-      "Error: The trials column must not be empty"
-    )
+    stop("Error: The trials column must not be empty") # nocov
   }
   if (!(x$trials %in% names(df))) {
-    stop(
-      "Error: Interval start column not in the data"
-    )
+    stop("Error: Interval start column not in the data") # nocov
   }
   if (!(x$event %in% names(df))) {
-    stop(
-      "Error: Event column not in the data"
-    )
+    stop("Error: Event column not in the data") # nocov
   }
   if (any(df[, x$event, with = FALSE] > df[, x$trials, with = FALSE])) {
-    stop("Error: In atleast one row, the number of events was larger than the number of trials")
+    stop("Error: In atleast one row, the number of events was larger than the number of trials") # nocov
   }
 }
 
@@ -511,6 +479,21 @@ validate_coxres <- function(x, df) {
   x
 }
 
+validate_coxresbound <- function(x, df) {
+  coxres <- x$coxres
+  coxmodel <- coxres$model
+  null <- coxmodel$null
+  control <- coxres$control
+  verbose <- control$verbose
+  #
+  validate_coxsurv(coxmodel, df)
+  if (!null) {
+    coxmodel <- validate_formula(coxmodel, df, verbose)
+  }
+  x$coxres$model <- coxmodel
+  x
+}
+
 validate_poisres <- function(x, df) {
   poismodel <- x$model
   control <- x$control
@@ -519,6 +502,18 @@ validate_poisres <- function(x, df) {
   validate_poissurv(poismodel, df)
   poismodel <- validate_formula(poismodel, df, verbose)
   x$model <- poismodel
+  x
+}
+
+validate_poisresbound <- function(x, df) {
+  poisres <- x$poisres
+  poismodel <- poisres$model
+  control <- poisres$control
+  verbose <- control$verbose
+  #
+  validate_poissurv(poismodel, df)
+  poismodel <- validate_formula(poismodel, df, verbose)
+  x$poisres$model <- poismodel
   x
 }
 
@@ -555,6 +550,7 @@ coxmodel <- function(start_age = "",
 poismodel <- function(person_year = "",
                       event = "",
                       strata = "",
+                      null = FALSE,
                       term_n = c(),
                       tform = c(),
                       names = c(),
@@ -567,13 +563,15 @@ poismodel <- function(person_year = "",
                       expres_calls = list(),
                       verbose = FALSE) {
   pois_obj <- list(
-    "person_year" = person_year, "event" = event, "strata" = strata,
+    "person_year" = person_year, "event" = event, "strata" = strata, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
     "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
   )
   pois_obj <- new_poismodel(pois_obj)
   validate_poissurv(pois_obj, df)
-  pois_obj <- validate_formula(pois_obj, df, verbose)
+  if (!null) {
+    pois_obj <- validate_formula(pois_obj, df, verbose)
+  }
   pois_obj
 }
 
@@ -632,9 +630,10 @@ logitmodel <- function(trials = "",
 }
 
 # ------------------------------------------------------------------------ #
-ColossusControl <- function(verbose = 0,
+ColossusControl <- function(verbose = 1,
                             lr = 0.75,
                             maxiter = 20,
+                            maxiters = c(1, 20),
                             halfmax = 5,
                             epsilon = 1e-4,
                             deriv_epsilon = 1e-4,
@@ -642,11 +641,20 @@ ColossusControl <- function(verbose = 0,
                             thres_step_max = 1.0,
                             ties = "breslow",
                             ncores = as.numeric(detectCores())) {
+  if (missing(maxiters)) {
+    maxiters <- c(1, maxiter)
+    if (maxiter < 0) {
+      maxiters <- c(-1, -1)
+    }
+  }
+  maxiters <- as.integer(maxiters)
+  maxiters[maxiters < -1] <- -1
   verbose <- Check_Verbose(verbose)
   control <- list(
     "verbose" = verbose,
     "lr" = lr,
     "maxiter" = maxiter,
+    "maxiters" = maxiters,
     "halfmax" = halfmax,
     "epsilon" = epsilon,
     "deriv_epsilon" = deriv_epsilon,
@@ -656,7 +664,7 @@ ColossusControl <- function(verbose = 0,
     "ncores" = ncores
   )
   control_def <- list(
-    "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
+    "verbose" = 1, "lr" = 0.75, "maxiter" = 20,
     "halfmax" = 5, "epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "thres_step_max" = 100.0,

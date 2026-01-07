@@ -8,11 +8,18 @@
 #' @return returns a class fully describing the model and the updated data
 #' @family Formula Interpretation
 #' @export
-get_form_joint <- function(formula_list, df) {
+get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()) / 2) {
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+    nthreads <- min(c(2, nthreads))
+  }
+  thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -36,8 +43,8 @@ get_form_joint <- function(formula_list, df) {
   for (formula_i in seq_along(formula_list)) {
     #
     formula <- formula_list[[formula_i]]
-    surv_obj <- format(formula[[2]])
-    model_obj <- paste(format(formula[[3]]), collapse = " ")
+    surv_obj <- Reduce(paste, deparse(formula[[2]]))
+    model_obj <- paste(Reduce(paste, deparse(formula[[3]])), collapse = " ")
     surv_obj <- gsub(" ", "", surv_obj)
     model_obj <- gsub(" ", "", model_obj)
     res <- get_form_list(surv_obj, model_obj, df)
@@ -50,7 +57,7 @@ get_form_joint <- function(formula_list, df) {
     model_list <- c(model_list, model_temp)
   }
   #
-  model_obj <- paste(format(formula_shared[[3]]), collapse = " ")
+  model_obj <- paste(Reduce(paste, deparse(formula_shared[[3]])), collapse = " ")
   if (model_obj != ".") {
     res <- get_form_risk(model_obj, df)
     model_share <- res$model
@@ -68,7 +75,7 @@ get_form_joint <- function(formula_list, df) {
       stop(paste("Error: The joint models need to use the same person-year column. Instead they use ", model_1$pyr, " and ", model_2$pyr, ".", sep = ""))
     }
     # The strata should match
-    if (model_1$strata != model_2$strata) {
+    if (any(model_1$strata != model_2$strata)) {
       stop(paste("Error: The joint models need to use the same stratification.", sep = ""))
     }
     # The modelform should match
@@ -150,10 +157,10 @@ get_form_joint <- function(formula_list, df) {
     if (len_1 < len_2) {
       if (len_s < len_1) {
         # 2 is longest
-        if (gmix_term_s != gmix_term_2[1:len_s]) {
+        if (any(gmix_term_s != gmix_term_2[1:len_s])) {
           stop("Error: Second model and shared model have different geometric mixture term values.")
         }
-        if (gmix_term_1 != gmix_term_2[1:len_1]) {
+        if (any(gmix_term_1 != gmix_term_2[1:len_1])) {
           stop("Error: Second model and first model have different geometric mixture term values.")
         }
         gmix_term <- gmix_term_2
@@ -161,7 +168,11 @@ get_form_joint <- function(formula_list, df) {
     }
   }
   #
-  model <- poismodel(pyr, "events", strata, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  null <- FALSE
+  model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   list(
     "model" = model, "data" = df
   )
@@ -194,13 +205,20 @@ get_form_joint <- function(formula_list, df) {
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-#' model <- get_form(formula, df)
-get_form <- function(formula, df) {
-  if (length(lapply(strsplit(format(formula), ""), function(x) which(x == "~"))[[1]]) != 1) {
+#' model <- get_form(formula, df, 1)
+get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+    nthreads <- min(c(2, nthreads))
+  }
+  thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  if (length(lapply(strsplit(Reduce(paste, deparse(formula)), ""), function(x) which(x == "~"))[[1]]) != 1) {
     stop("Error: The formula contained multiple '~', invalid formula")
   }
-  surv_obj <- format(formula[[2]])
-  model_obj <- paste(format(formula[[3]]), collapse = " ")
+  surv_obj <- Reduce(paste, deparse(formula[[2]]))
+  model_obj <- paste(Reduce(paste, deparse(formula[[3]])), collapse = " ")
   surv_obj <- gsub(" ", "", surv_obj)
   model_obj <- gsub(" ", "", model_obj)
   res <- get_form_list(surv_obj, model_obj, df)
@@ -226,12 +244,22 @@ get_form <- function(formula, df) {
   #
   expres_calls <- model$expres_calls
   #
+  if (null) {
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    modelform <- "M"
+  }
+  #
   if (grepl("cox", surv_model_type)) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("finegray", surv_model_type)) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("pois", surv_model_type)) {
-    model <- poismodel(pyr, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    # if (all(strata != "NONE")) {
+    #   Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
+    # } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("logit", surv_model_type)) || (grepl("logistic", surv_model_type))) {
@@ -239,6 +267,9 @@ get_form <- function(formula, df) {
   } else {
     stop("Error: Bad survival model type passed")
   }
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   list(
     "model" = model, "data" = df
   )
@@ -260,7 +291,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -327,6 +358,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
 #' @family Formula Interpretation
 get_form_surv <- function(surv_obj, df) {
   surv_obj <- gsub(" ", "", surv_obj)
+  surv_obj <- gsub("\"", "", surv_obj) # remove literal strings if needed
   surv_model_type <- "NONE"
   tstart <- "NONE"
   tend <- "NONE"
@@ -387,7 +419,7 @@ get_form_surv <- function(surv_obj, df) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
     event <- res$event
-    if (res$strata != "NULL") {
+    if (any(res$strata != "NULL")) {
       stop("Error: Too many columns passed to non-stratified Poisson model")
     }
   } else if (surv_type %in% c("poisson_strata", "pois_strata")) {
@@ -497,6 +529,7 @@ get_form_risk <- function(model_obj, df) {
     tform_acceptable <- c(
       "plin", "lin", "loglin", "loglin-dose", "lin-dose",
       "lin-quad-dose", "lin-exp-dose", "plinear", "product-linear", "linear",
+      "exponential", "exp",
       "loglinear", "log-linear", "loglinear-dose", "log-linear-dose", "linear-dose", "linear-piecewise",
       "quadratic", "quad", "quad-dose", "quadratic-dose",
       "step-dose", "step-piecewise",
@@ -828,7 +861,6 @@ get_form_risk <- function(model_obj, df) {
                   for (j in entries) {
                     df[[comb]] <- df[[comb]] * df[[j]]
                   }
-
                   col_name <- c(col_name, comb)
                 }
               }
@@ -849,6 +881,11 @@ get_form_risk <- function(model_obj, df) {
             }
           } else {
             # it is a factor
+            factor_arg_list <- list()
+            factor_arg_list[[1]] <- element_col
+            repeat_list <- c(list("_exp_type" = "factor"), copy(factor_arg_list))
+            repeat_list[["levels"]] <- levels(df[[element_col]])
+            expres_calls[[length(expres_calls) + 1]] <- repeat_list
             val <- factorize(df, element_col)
             df <- val$df
             col_name <- val$cols
@@ -866,7 +903,7 @@ get_form_risk <- function(model_obj, df) {
           model_terms <- c("plin")
         } else if (model_type %in% c("lin", "linear")) {
           model_terms <- c("lin")
-        } else if (model_type %in% c("loglin", "loglinear", "log-linear")) {
+        } else if (model_type %in% c("loglin", "loglinear", "log-linear", "exponential", "exp")) {
           model_terms <- c("loglin")
         } else if (model_type %in% c("loglin-dose", "loglinear-dose", "log-linear-dose")) {
           model_terms <- c("loglin_slope", "loglin_top")
@@ -885,37 +922,110 @@ get_form_risk <- function(model_obj, df) {
         }
         for (col in col_name) {
           for (model_term in model_terms) {
-            names <- c(names, col)
+            if (grepl("_int", model_term)) {
+              # we want to create a second column, for the intercept, to be normalized differently
+              new_col <- paste(col, ":intercept", sep = "")
+              if (!(new_col %in% names(df))) {
+                df[, new_col] <- df[, col, with = FALSE]
+              }
+              names <- c(names, new_col)
+            } else {
+              names <- c(names, col)
+            }
             tform <- c(tform, model_term)
             term_n <- c(term_n, term_num)
           }
         }
       }
     } else if (model_type %in% modelform_acceptable) {
-      if (model_type %in% c("m", "me", "multiplicative", "multiplicative-excess")) {
+      if (model_type %in% c("m", "multiplicative")) {
         model_type <- "M"
+      } else if (model_type %in% c("me", "multiplicative-excess")) {
+        model_type <- "ME"
       } else if (model_type %in% c("a", "additive")) {
         model_type <- "A"
       } else if (model_type %in% c("pa", "product-additive")) {
         model_type <- "PA"
       } else if (model_type %in% c("pae", "product-additive-excess")) {
         model_type <- "PAE"
-      } else if (model_type %in% c("gmix", "geometric-mixture")) {
+      } else if (model_type %in% c("gm", "gmix", "geometric-mixture")) {
         model_type <- "GMIX"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        model_paras <- tolower(strsplit(model_paras, ",")[[1]])
-        gmix_theta <- as.numeric(model_paras[1])
-        gmix_term <- ifelse(model_paras[2:length(model_paras)] == "e", 1, 0)
+        model_paras <- gsub("\"", "", model_paras) # remove literal strings if needed
+        #
+        if (is.na(model_paras) || model_paras == "") {
+          # Nothing, just give the defaults
+          gmix_theta <- 0.5
+          gmix_term <- c()
+        } else {
+          # There is something, but what?
+          if (grepl(",", model_paras)) {
+            # Multiple items
+            model_paras <- tolower(strsplit(model_paras, ",")[[1]])
+            # we need to start by checking if the first thing is a number
+            if (all(vapply(model_paras[1], function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(model_paras[1], function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
+              # Good, the first item is a number
+              gmix_theta <- as.numeric(model_paras[1])
+              para_else <- model_paras[2:length(model_paras)]
+              # Check if they are all valid
+              if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
+                gmix_term <- ifelse(para_else == "e", 1, 0)
+              } else {
+                # Remaining entry was wrong
+                stop("Error: Gmix term had an invalid option after the theta value. Please only use 'e/r'")
+              }
+            } else {
+              # wasn't a number
+              gmix_theta <- 0.5
+              para_else <- model_paras[1:length(model_paras)]
+              # Check if they are all valid
+              if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
+                gmix_term <- ifelse(para_else == "e", 1, 0)
+              } else {
+                # Remaining entry was wrong
+                stop("Error: Gmix term had an invalid option. Please only use a number or 'e/r'")
+              }
+            }
+          } else {
+            # Single Item
+            if (all(vapply(model_paras, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(model_paras, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
+              # It is a number, make it the gmix_theta
+              gmix_theta <- as.numeric(model_paras)
+              gmix_term <- c()
+            } else {
+              # it is not a number, is it a 'e' or 'r'?
+              if (grepl(tolower(model_paras), "er")) {
+                # it is an option!
+                gmix_theta <- 0.5
+                gmix_term <- ifelse(tolower(model_paras) == "e", 1, 0)
+              } else {
+                # Doesn't match anything
+                stop("Error: Gmix term had an invalid option. Please only use a number or 'e/r'")
+              }
+            }
+          }
+        }
+        #
       } else if (model_type %in% c("gmix-r", "relative-geometric-mixture")) {
         model_type <- "GMIX-R"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        model_paras <- tolower(strsplit(model_paras, ",")[[1]])
-        gmix_theta <- as.numeric(model_paras[1])
+        if (is.na(model_paras) || model_paras == "") {
+          # Nothing, just give the defaults
+          gmix_theta <- 0.5
+        } else {
+          model_paras <- tolower(strsplit(model_paras, ",")[[1]])
+          gmix_theta <- as.numeric(model_paras[1])
+        }
       } else if (model_type %in% c("gmix-e", "excess-geometric-mixture")) {
         model_type <- "GMIX-E"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        model_paras <- tolower(strsplit(model_paras, ",")[[1]])
-        gmix_theta <- as.numeric(model_paras[1])
+        if (is.na(model_paras) || model_paras == "") {
+          # Nothing, just give the defaults
+          gmix_theta <- 0.5
+        } else {
+          model_paras <- tolower(strsplit(model_paras, ",")[[1]])
+          gmix_theta <- as.numeric(model_paras[1])
+        }
       }
       if (modelform == "NONE") {
         modelform <- model_type
@@ -929,13 +1039,18 @@ get_form_risk <- function(model_obj, df) {
   if (!null) {
     term_tot <- max(term_n) + 1
     if (modelform == "NONE") {
-      modelform <- "M"
+      modelform <- "ME"
     } else if (modelform == "GMIX-R") {
       modelform <- "GMIX"
       gmix_term <- rep(0, term_tot)
     } else if (modelform == "GMIX-E") {
       modelform <- "GMIX"
       gmix_term <- rep(1, term_tot)
+    }
+    if (length(gmix_term) < term_tot) {
+      gmix_term <- c(gmix_term, rep(1.0, term_tot - length(gmix_term)))
+    } else if (length(gmix_term) > term_tot) {
+      stop("Error: The gmix option was used with more values than terms")
     }
   }
   #
@@ -1262,20 +1377,20 @@ ColossusCoxStrataSurv <- function(...) {
   strata <- "NULL"
   # Is stata a named entry?
   if ("strata" %in% argName) {
-    strata <- args$strata
+    strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCoxSurv, args[names(args) != "strata"])
   } else if (all(argName == "")) {
-    strata <- args[[length(args)]]
+    strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
-      strata <- args[[length(args)]]
+      strata <- parse_literal_string(args[[length(args)]])
       res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Error: Final entry of Cox Strata object was not named correctly")
     }
   }
-  res["strata"] <- strata
+  res[["strata"]] <- strata
   res
 }
 
@@ -1575,13 +1690,13 @@ ColossusCaseConStrataSurv <- function(...) {
   #
   if ("event" %in% argName) {
     event <- args$event
-    strata <- args[names(args) != "event"][[1]]
+    strata <- parse_literal_string(args[names(args) != "event"][[1]])
   } else if ("strata" %in% argName) {
-    strata <- args$strata
+    strata <- parse_literal_string(args$strata)
     event <- args[names(args) != "strata"][[1]]
   } else {
     event <- args[[1]]
-    strata <- args[[2]]
+    strata <- parse_literal_string(args[[2]])
   }
   #
   list("event" = event, "strata" = strata)
@@ -1608,20 +1723,20 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   strata <- "NULL"
   # Is stata a named entry?
   if ("strata" %in% argName) {
-    strata <- args$strata
+    strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCaseConTimeSurv, args[names(args) != "strata"])
   } else if (all(argName == "")) {
-    strata <- args[[length(args)]]
+    strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
   } else {
     if (argName[length(args)] == "") {
-      strata <- args[[length(args)]]
+      strata <- parse_literal_string(args[[length(args)]])
       res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
     } else {
       stop("Error: Final entry of Case Control Strata and Time object was not named correctly")
     }
   }
-  res["strata"] <- strata
+  res[["strata"]] <- strata
   res
 }
 

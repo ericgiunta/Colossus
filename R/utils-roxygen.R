@@ -194,7 +194,7 @@ NULL
 NULL
 
 #' @importFrom Rcpp evalCpp
-#' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD setDT
+#' @importFrom data.table data.table fread setkeyv copy setorderv setnames as.data.table set := .SD setDT setDTthreads
 #' @importFrom methods is
 #' @importFrom parallel detectCores
 #' @importFrom stats runif weighted.mean pnorm

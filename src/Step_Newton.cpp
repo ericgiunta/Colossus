@@ -61,7 +61,6 @@ template <typename T> int sign(T val) {
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     //
     int kept_covs = totalnum - sum(KeepConstant);
@@ -165,7 +164,6 @@ void Calc_Change_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  V
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     NumericVector Lldd_vec(kept_covs * kept_covs);
@@ -254,7 +252,6 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
     //
     int kept_covs = totalnum - sum(KeepConstant);
@@ -318,8 +315,6 @@ void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& l
             } else {
                 dbeta[ijk] = lr * Lldd_solve(ijk);
             }
-            //
-            //
             if (abs(dbeta[ijk]) > step_max) {
                 dbeta[ijk] = step_max * sign(dbeta[ijk]);
             }
@@ -338,7 +333,6 @@ void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& l
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Basic_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const  VectorXd& beta_0, const int& nthreads, const int& totalnum, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, IntegerVector KeepConstant) {
     int kept_covs = totalnum - sum(KeepConstant);
     //
@@ -435,7 +429,6 @@ void Calc_Change_Basic_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, co
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_Background(const int& nthreads, const int& totalnum, const int& group_num, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector& tform, const double& dint, const double& dslp, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, vector<double>& dstrata) {
     int kept_covs = totalnum - sum(KeepConstant);
     int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());

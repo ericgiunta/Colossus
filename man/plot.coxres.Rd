@@ -38,7 +38,7 @@ df <- data.table::data.table(
   "d" = c(0, 0, 0, 1, 1, 1, 1)
 )
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
   "halfmax" = 1
 )
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -54,6 +54,6 @@ plot_options <- list(
   )), "studyid" = "UserID",
   "verbose" = FALSE
 )
-plot(res, df, plot_options)
+res_plot <- plot(res, df, plot_options)
 }
 \concept{Plotting Wrapper Functions}

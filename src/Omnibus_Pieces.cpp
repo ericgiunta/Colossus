@@ -35,6 +35,7 @@ using std::transform;
 using std::plus;
 using std::isinf;
 using std::isnan;
+using std::setprecision;
 
 using Eigen::Map;
 using Eigen::Ref;
@@ -66,18 +67,15 @@ template <typename T> int sign(T val) {
 //' @return Updates matrices in place
 //' @noRd
 //'
-//
 void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& term_tot, double& dint, double& dslp, double& thres_step_max, double& step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, List& model_bool) {
     const int mat_row = df0.rows();
     T0 = MatrixXd::Zero(mat_row, totalnum);  //  preallocates matrix for Term column
+    R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
     if (model_bool["basic"]) {
-        R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
         Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
         RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        TTerm = MatrixXd::Zero(mat_row, 1);  //  matrix of term values
     } else if (model_bool["linear_err"]) {
-        R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
         Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
         nonDose_PLIN = MatrixXd::Constant(mat_row, 1, 1.0);  //  matrix of Loglinear subterm values
@@ -87,7 +85,6 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
         RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     } else if (model_bool["single"]) {
         Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
-        R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
         Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of the total dose term values
         nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of the total non-dose term values
         nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of Linear subterm values
@@ -97,7 +94,6 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
     } else {
         Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
         Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
         R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
         Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
         Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
@@ -123,7 +119,6 @@ void Cox_Refresh_R_TERM(const int& totalnum, const int& reqrdnum, const int& ter
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, NumericVector& Strata_vals, List& model_bool) {
     if (model_bool["strata"]) {
         Rls1 = MatrixXd::Zero(ntime, Strata_vals.size());  //  precomputes a series of sums used frequently in the log-liklihood calculations
@@ -157,8 +152,8 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+    int reqrdnum = totalnum - sum(KeepConstant);
     if (model_bool["basic"]) {
         //  Calculates the subterm and term values
         Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads);
@@ -175,6 +170,34 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         //
         TTerm = R.col(0).array();
+        if (verbose >= 4) {
+           Rcout << "C++ Note: Values checked ";
+           for (int ijk = 0; ijk < totalnum; ijk++) {
+               Rcout << beta_0[ijk] << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk checked ";
+           for (int ijk = 0; ijk < 1; ijk++) {
+               Rcout << R.col(0).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           //
+           Rcout << "C++ Note: ALL risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+               Rcout << Rdd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+       }
     } else if (model_bool["single"]) {
         //  Calculates the subterm and term values
         Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
@@ -203,60 +226,49 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
-//        Rcout << "C++ Note: values checked ";
-//        for (int ijk = 0; ijk < totalnum; ijk++) {
-//            Rcout << beta_0[ijk] << " ";
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "C++ Note: RdR checked ";
-//        for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//            Rcout << RdR.col(ijk).sum() << " ";
-//        }
-//        Rcout << " " << endl;
-//        Rcout << "C++ Note: RddR checked ";
-//        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-//            Rcout << RddR.col(ijk).sum() << " ";
-//        }
-//        Rcout << " " << endl;
-        //
-        //  if (R.minCoeff() <= 0) {
-        //     if (verbose >= 4) {
-        //         Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-        //     }
-        //  } else if (verbose >= 4) {
-        //     Rcout << "C++ Note: risk checked ";
-        //     for (int ijk = 0; ijk < 1; ijk++) {
-        //         Rcout << R.col(0).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk1 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: rdr checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << RdR.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        //         Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //     Rcout << "C++ Note: ALL risk2 checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << Rdd.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     Rcout << "C++ Note: rddr checked ";
-        //     for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-        //         Rcout << RddR.col(ijk).sum() << " ";
-        //     }
-        //     Rcout << " " << endl;
-        //     //
-        //  }
+        if (verbose >= 4) {
+           Rcout << "C++ Note: Values checked ";
+           for (int ijk = 0; ijk < totalnum; ijk++) {
+               Rcout << beta_0[ijk] << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << T0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Td0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk checked ";
+           for (int ijk = 0; ijk < 1; ijk++) {
+               Rcout << R.col(0).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           //
+           Rcout << "C++ Note: ALL risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+               Rcout << Rdd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+       }
     }
     return;
 }
@@ -269,7 +281,6 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop) {
     //  Calculates the side sum terms used
     if (model_bool["outcome_prob"]) {
@@ -326,27 +337,26 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
 //' @return Noting
 //' @noRd
 //'
-//
 void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, int verbose, List& model_bool) {
     if (verbose >= 4) {
-        Rcout << "C++ Note: df101 ";  //  prints the log-likelihoods
+        Rcout << "C++ Note: df101 " << setprecision(10);  //  prints the log-likelihoods
         for (int ij = 0; ij < reqrdnum; ij++) {
             Rcout << Ll[ij] << " ";
         }
         Rcout << " " << endl;
         if (!model_bool["single"]) {
-            Rcout << "C++ Note: df102 ";  //  prints the first derivatives
+            Rcout << "C++ Note: df102 " << setprecision(10);  //  prints the first derivatives
             for (int ij = 0; ij < reqrdnum; ij++) {
                 Rcout << Lld[ij] << " ";
             }
             Rcout << " " << endl;
             if (!model_bool["gradient"]) {
-               Rcout << "C++ Note: df103 ";  //  prints the second derivatives
+               Rcout << "C++ Note: df103 " << setprecision(10);  //  prints the second derivatives
                for (int ij = 0; ij < reqrdnum; ij++) {
                    Rcout << Lldd[ij*reqrdnum+ij] << " ";
                }
                Rcout << " " << endl;
-               Rcout << "C++ Note: ALL df103 ";  //  prints the second derivatives
+               Rcout << "C++ Note: ALL df103 " << setprecision(10);  //  prints the second derivatives
                for (int ijk = 0; ijk < reqrdnum*reqrdnum; ijk++) {
                    Rcout << Lldd[ijk] << " ";
                }
@@ -354,7 +364,7 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
             }
         }
         if (!model_bool["null"]) {
-            Rcout << "C++ Note: df104 ";  //  prints parameter values
+            Rcout << "C++ Note: df104 " << setprecision(10);  //  prints parameter values
             for (int ij = 0; ij < totalnum; ij++) {
                 Rcout << beta_0[ij] << " ";
             }
@@ -371,22 +381,21 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
 //' @return Noting
 //' @noRd
 //'
-//
 void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& group_num, const int& reqrdcond, vector<double> strata_odds, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, int verbose, List& model_bool) {
     if (verbose >= 4) {
         if (!model_bool["single"]) {
-            Rcout << "C++ Note: df105 ";  //  prints the first derivatives
+            Rcout << "C++ Note: df105 " << setprecision(10);  //  prints the first derivatives
             for (int ij = 0; ij < reqrdcond; ij++) {
                 Rcout << LldOdds[ij] << " ";
             }
             Rcout << " " << endl;
             if (!model_bool["gradient"]) {
-               Rcout << "C++ Note: df106 ";  //  prints the second derivatives
+               Rcout << "C++ Note: df106 " << setprecision(10);  //  prints the second derivatives
                for (int ij = 0; ij < reqrdcond; ij++) {
                    Rcout << LlddOdds[ij] << " ";
                }
                Rcout << " " << endl;
-               Rcout << "C++ Note: df107 ";  //  prints the second derivatives
+               Rcout << "C++ Note: df107 " << setprecision(10);  //  prints the second derivatives
                for (int ijk = 0; ijk < reqrdnum*reqrdcond; ijk++) {
                    Rcout << LlddOddsBeta[ijk] << " ";
                }
@@ -394,7 +403,7 @@ void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& gr
             }
         }
         if (!model_bool["null"]) {
-            Rcout << "C++ Note: df108 ";  //  prints parameter values
+            Rcout << "C++ Note: df108 " << setprecision(10);  //  prints parameter values
             for (int ij = 0; ij < group_num; ij++) {
                 Rcout << strata_odds[ij] << " ";
             }
@@ -411,15 +420,14 @@ void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& gr
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
-void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const MatrixXd& s_weights, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
-    int reqrdnum = totalnum - sum(KeepConstant);
+void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+//    int reqrdnum = totalnum - sum(KeepConstant);
     if (model_bool["single"]) {
         //  Calculates the subterm and term values
         Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
         //  Calculates the risk for each row
         if (model_bool["strata"]) {
-            Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
+            Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
         } else {
             Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
         }
@@ -428,7 +436,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, KeepConstant);
         //
         if (model_bool["strata"]) {
-            Make_Risks_Weighted_Gradient(modelform, tform, term_n, totalnum, fir, s_weights, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
+            Make_Risks_Weighted_Gradient(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
         } else {
             Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
         }
@@ -441,7 +449,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         Make_subterms(totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, KeepConstant);
         //  Calculates the risk for each row
         if (model_bool["strata"]) {
-            Make_Risks_Weighted(modelform, tform, term_n, totalnum, fir, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
+            Make_Risks_Weighted(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
         } else {
             Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
         }
@@ -449,40 +457,54 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
+        int reqrdnum = totalnum - sum(KeepConstant);
+        if (verbose >= 4) {
+           Rcout << "C++ Note: Values checked ";
+           for (int ijk = 0; ijk < totalnum; ijk++) {
+               Rcout << beta_0[ijk] << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << T0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Td0.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: term2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk checked ";
+           for (int ijk = 0; ijk < 1; ijk++) {
+               Rcout << R.col(0).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk1 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           Rcout << "C++ Note: risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum; ijk++) {
+               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+           //
+           Rcout << "C++ Note: ALL risk2 checked ";
+           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+               Rcout << Rdd.col(ijk).sum() << " ";
+           }
+           Rcout << " " << endl;
+       }
         //
         //
         if (R.minCoeff() <= 0) {
-            if (verbose >= 4) {
-                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-            }
-        } else if (verbose >= 4) {
-            Rcout << "C++ Note: risk checked ";
-            for (int ijk = 0; ijk < 1; ijk++) {
-                Rcout << R.col(0).sum() << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: risk1 checked ";
-            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-                Rcout << Rd.col(ijk).sum() << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: rdr checked ";
-            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-                Rcout << RdR.col(ijk).sum() << " ";
-            }
-            Rcout << " " << endl;
-            Rcout << "C++ Note: risk2 checked ";
-            for (int ijk = 0; ijk < reqrdnum; ijk++) {
-                Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-            }
-            Rcout << " " << endl;
-            //
-            Rcout << "C++ Note: ALL risk2 checked ";
-            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-               Rcout << Rdd.col(ijk).sum() << " ";
-            }
-            Rcout << " " << endl;
-            //
+            if (verbose >= 4) { Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl; }
         }
     }
     return;
@@ -499,7 +521,6 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const Ref<const MatrixXd>& PyrC, MatrixXd& dev_temp, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, double& dev) {
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
@@ -538,8 +559,7 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
 //' @return Updates matrices in place: risk, scores, etc storage matrices
 //' @noRd
 //'
-//
-void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, vector<double>& dbeta, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const double& Lstar, const int& nthreads, const int& ntime, const Ref<const MatrixXd>& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, NumericVector& Strata_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose) {
+void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& beta_best, vector<double>& beta_c, const VectorXd& cens_weight, vector<double>& dbeta, double& dev, MatrixXd& dev_temp, const int fir, const int halfmax, double& halves, int& ind0, int& iter_stop, bool& neg_limit, const IntegerVector& KeepConstant, vector<double>& Ll, double& Ll_abs_best, vector<double>& Lld, vector<double>& Lldd, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const double& Lstar, const int& nthreads, const int& ntime, const Ref<const MatrixXd>& PyrC, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const int& reqrdnum, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, NumericVector& Strata_vals, const IntegerVector& term_n, const string ties_method, const int totalnum, MatrixXd& TTerm, const int verbose) {
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -547,16 +567,18 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
         for (int ijk = 0; ijk < totalnum; ijk++) {
             int tij = term_n[ijk];
             if (TTerm.col(tij).minCoeff() <= 0) {
-                dbeta[ijk] = dbeta[ijk] / 2.0;
+                dbeta[ijk] = dbeta[ijk] / 1.5;
             } else if (isinf(TTerm.col(tij).maxCoeff())) {
-                dbeta[ijk] = dbeta[ijk] / 2.0;
+                dbeta[ijk] = dbeta[ijk] / 1.5;
             } else if (isnan(TTerm.col(tij).minCoeff())) {
-                dbeta[ijk] = dbeta[ijk] / 2.0;
+                dbeta[ijk] = dbeta[ijk] / 1.5;
             }
         }
-        halves+=0.2;
+        halves+=0.5;
+        neg_limit = true;
     } else {
         halves++;
+        neg_limit = false;
         if (model_bool["cox"]) {
             Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         } else {
@@ -569,18 +591,11 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
                 iter_stop = 1;
                 halves = halfmax;
             } else {
-            //
                 if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                    // #ifdef _OPENMP
-                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] * 0.5;  //
                     }
                 } else {  //  if improved, updates the best vector
-                    // #ifdef _OPENMP
-                    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                    // #endif
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         beta_best[ijk] = beta_c[ijk];
                     }
@@ -588,24 +603,15 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
             }
         } else {
             if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                // #ifdef _OPENMP
-                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] * 0.5;
                 }
             } else {  //  if improved, updates the best vector
-                // #ifdef _OPENMP
-                // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                // #endif
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     beta_best[ijk] = beta_c[ijk];
                 }
             }
         }
-        // #ifdef _OPENMP
-        // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        // #endif
         for (int ijk = 0; ijk < totalnum; ijk++) {
             beta_0[ijk] = beta_c[ijk];
         }
@@ -615,14 +621,13 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
 
 //' Utility function to check if risk is valid, and if so continue
 //'
-//' \code{Cox_Pois_Check_Continue} Called to perform repeated risk checks
+//' \code{Cox_Pois_Log_Loop} Called to perform repeated risk checks
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: risk, scores, etc storage matrices
 //' @noRd
 //'
-//
-void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, vector<double>& dbeta, const Ref<const MatrixXd>& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& thres_step_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, VectorXd& s_weights, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose) {
+void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vector<double>& beta_a, vector<double>& beta_c, int& bound_val, vector<double>& dbeta, const Ref<const MatrixXd>& df0, IntegerVector& dfc, double& dint, MatrixXd& Dose, double& thres_step_max, double& dslp, const int fir, const IntegerVector& gmix_term, const double& gmix_theta, int& half_check, const int halfmax, const IntegerVector& KeepConstant, vector<bool>& limit_hit, double& lr, string& modelform, MatrixXd& nonDose, MatrixXd& nonDose_LIN, MatrixXd& nonDose_LOGLIN, MatrixXd& nonDose_PLIN, const int& nthreads, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RddR, MatrixXd& RdR, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, const IntegerVector& term_n, int& term_tot, StringVector& tform, const int totalnum, MatrixXd& TTerm, const int verbose) {
     while ((R.minCoeff() <= 0) || (R.hasNaN())) {
         half_check++;
         if (half_check > halfmax) {
@@ -649,7 +654,7 @@ void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vect
             if (model_bool["cox"]) {
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             } else {
-                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             }
         }
     }
@@ -664,7 +669,6 @@ void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vect
 //' @return Updates everything in place
 //' @noRd
 //'
-//
 List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, string ties_method, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
@@ -692,6 +696,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
     MatrixXd dev_temp = MatrixXd::Zero(1, 1);
     double Lstar = 0.0;
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
+    bool neg_limit = FALSE;
     //  Calculates the subterm and term values
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
@@ -747,10 +752,13 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
             //
             Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             //
-            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
         } else {
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
+                if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
+                    break;
+                }
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -759,7 +767,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                 //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
             if (beta_best != beta_c) {  //  if the risk matrices aren't the optimal values, then they must be recalculated
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
@@ -791,7 +799,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                     convgd = TRUE;
                 }
                 Ll_comp[1] = Ll[0];
-                if (step_max < epsilon/10) {  //  if the maximum change is too low, then it ends
+                if (step_max < epsilon) {  //  if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
             }
@@ -801,7 +809,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         iter_stop = 1;
         convgd = TRUE;
     }
-    List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED");
+    List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED", _["NegativeLimit"] = neg_limit);
     //  returns a list of results
     return res_list;
 }
@@ -815,7 +823,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
 //' @noRd
 //'
 //
-List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
+List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const StringVector& tform, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, const Ref<const MatrixXd>& dfs, VectorXd& s_weights, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, const int& term_tot, double& dint, double& dslp, double thres_step_max, double step_max, const Ref<const MatrixXd>& df0, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, string modelform, const double gmix_theta, const IntegerVector& gmix_term, bool& convgd, double lr, List optim_para, int maxiter, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, const IntegerVector& term_n, const IntegerVector& dfc, const int halfmax, double epsilon, double deriv_epsilon) {
     //
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
@@ -854,8 +862,9 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
     MatrixXd Rls3 = MatrixXd::Zero(1, 1);
     NumericVector Strata_vals(1);
     string ties_method = "temp";
+    bool neg_limit = FALSE;
     //  Calculates the subterm and term values
-    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         if (verbose >= 1) {
             Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
@@ -880,12 +889,9 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
-        //
         //  calculates the initial change in parameter
-        if (model_bool["basic"]) {
-            Calc_Change_Basic(nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
-        } else if (model_bool["gradient"]) {
-                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+        if (model_bool["gradient"]) {
+            Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
         } else {
             if (model_bool["constraint"]) {
                 Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
@@ -907,12 +913,15 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                 beta_c[ij] = beta_0[ij];
             }
             //
-            Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+            Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
             //
-            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+            Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
         } else {
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
+                if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
+                    break;
+                }
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
                     beta_c[ij] = beta_0[ij];
@@ -920,8 +929,8 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                 //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                 //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, PyrC, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             }
             if (beta_best != beta_c) {  //  if the risk matrices aren't the optimal values, then they must be recalculated
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
@@ -934,7 +943,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_best[ij];
                 }
-                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 //
             }
         }
@@ -953,7 +962,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                     convgd = TRUE;
                 }
                 Ll_comp[1] = Ll[0];
-                if (step_max < epsilon/10) {  //  if the maximum change is too low, then it ends
+                if (step_max < epsilon) {  //  if the maximum change is too low, then it ends
                     iter_stop = 1;
                 }
             }
@@ -963,7 +972,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         iter_stop = 1;
         convgd = TRUE;
     }
-    List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED");
+    List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED", _["NegativeLimit"] = neg_limit);
     //  returns a list of results
     return res_list;
 }
@@ -977,7 +986,6 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
 //' @return Updates matrices in place: information matrix
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1042,7 +1050,6 @@ void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFa
 //' @return Updates matrices in place: information matrix
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1111,7 +1118,6 @@ void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix&
 //' @return Updates matrices in place: information matrix
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1184,7 +1190,6 @@ void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& Ris
 //' @return Updates matrices in place: information matrix
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatrix& RiskFail, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, const VectorXd& cens_weight, vector<double>& InMa, NumericVector& Strata_vals, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1262,7 +1267,6 @@ void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatr
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1300,7 +1304,6 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
 //' @return Updates matrices in place: Log-likelihood vectors/matrix
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant) {
     int reqrdnum = totalnum - sum(KeepConstant);
     #ifdef _OPENMP
@@ -1338,7 +1341,6 @@ void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, con
 //' @return Updates matrices in place: p, 1-p, and the associated derivatives/ratios
 //' @noRd
 //'
-//
 void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, MatrixXd& P, MatrixXd& Pd, MatrixXd& Pdd, MatrixXd& Pnot, MatrixXd& PdP, MatrixXd& PddP, MatrixXd& PnotdP, MatrixXd& PnotddP) {
     bool odds = model_bool["odds"];
     bool ident = model_bool["ident"];
@@ -1419,7 +1421,6 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, const int& nthreads, const IntegerVector& KeepConstant) {
     int reqrdnum = 1;
     reqrdnum = totalnum - sum(KeepConstant);
@@ -1498,7 +1499,6 @@ void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMat
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond) {
     int reqrdnum = totalnum - sum(KeepConstant);
 //    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());

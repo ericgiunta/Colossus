@@ -39,10 +39,10 @@ and options to calculate residuals for a solved Poisson regression
 \seealso{
 Other Poisson Wrapper Functions: 
 \code{\link{EventAssignment.poisres}()},
+\code{\link{EventAssignment.poisresbound}()},
 \code{\link{LikelihoodBound.poisres}()},
 \code{\link{PoisRun}()},
 \code{\link{PoisRunJoint}()},
-\code{\link{PoisRunMulti}()},
-\code{\link{RunPoissonRegression_Omnibus}()}
+\code{\link{PoisRunMulti}()}
 }
 \concept{Poisson Wrapper Functions}

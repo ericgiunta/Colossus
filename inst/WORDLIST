@@ -20,6 +20,7 @@ CoxCurveSolver
 coxph
 coxres
 coxresbound
+CoxRun
 cr
 csv
 CurveSolve
@@ -35,6 +36,7 @@ efron
 et
 extrema
 expres
+EventAssignment
 fg
 FITOPT
 finegray
@@ -51,6 +53,7 @@ infty
 iteratively
 Karnofsky
 LEXP
+LikelihoodBound
 lin
 linux
 logitres
@@ -87,17 +90,15 @@ plinear
 pois
 poisres
 poisresbound
+PoisRun
 poisson
 pyr
 qchi
 Raphson
+RunCoxPlots
 rmax
 rmin
 RMS
-RunCoxPlots
-RunCoxRegression
-RunPoissonEventAssignment
-RunPoissonRegression
 schoenfeld
 Schoenfeld
 SMR

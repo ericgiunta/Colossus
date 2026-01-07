@@ -4,12 +4,14 @@
 \alias{get_form}
 \title{Interprets a Colossus formula and makes necessary changes to data}
 \usage{
-get_form(formula, df)
+get_form(formula, df, nthreads = as.numeric(detectCores())/2)
 }
 \arguments{
 \item{formula}{a formula object, written in Colossus notation. See the Unified Equation Representation vignette for details.}
 
 \item{df}{a data.table containing the columns of interest}
+
+\item{nthreads}{number of threads to use, do not use more threads than available on your machine}
 }
 \value{
 returns a class fully describing the model and the updated data
@@ -34,7 +36,7 @@ df <- data.table::data.table(
 )
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
-model <- get_form(formula, df)
+model <- get_form(formula, df, 1)
 }
 \seealso{
 Other Formula Interpretation: 

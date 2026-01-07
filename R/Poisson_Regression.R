@@ -7,52 +7,15 @@
 #' @inheritParams R_template
 #'
 #' @return returns a list of the final results
-#' @export
+#' @noRd
 #' @family Poisson Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' pyr <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' strat_col <- "e"
-#' e <- RunPoissonRegression_Omnibus(
-#'   df, pyr, event, names, term_n,
-#'   tform, keep_constant,
-#'   a_n, modelform,
-#'   control, strat_col
-#' )
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -181,7 +144,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -221,19 +184,15 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
             sep = " "
           ))
         }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
       } else {
         val_cols <- c(val_cols, col)
       }
-      data.table::setkeyv(df0, c(pyr0, event0))
     }
   } else {
     df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
     val_cols <- c("a")
   }
-  data.table::setkeyv(df, c(pyr0, event0))
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -246,69 +205,14 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   }
   e <- Assigned_Event_Poisson_transition(
     as.matrix(df[, ce, with = FALSE]),
-    as.matrix(df0), term_n, tform,
+    as.matrix(df0[, val_cols,
+      with = FALSE
+    ]), term_n, tform,
     a_n, dfc, x_all, 0,
     modelform, control, keep_constant,
     term_tot, model_control
   )
   return(e)
-}
-
-#' Predicts how many events are due to baseline vs excess at the confidence bounds of a single parameter
-#'
-#' \code{RunPoissonEventAssignment_bound} uses user provided data, the results of a poisson regression, and options to calculate background and excess events
-#'
-#' @noRd
-#' @inheritParams R_template
-#' @param check_num the parameter number to check at the bounds of, indexed from 1 using the order returned by Colossus
-#' @param z Z score to use for confidence interval
-#' @family Poisson Wrapper Functions
-#' @return returns a list of the final results
-#'
-RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", alternative_model = list(), keep_constant = c(0), modelform = "M", check_num = 1, z = 2, control = list(), strat_col = "null", model_control = list()) {
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        df <- setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  names <- alternative_model$Parameter_Lists$names
-  term_n <- alternative_model$Parameter_Lists$term_n
-  tform <- alternative_model$Parameter_Lists$tforms
-  a_n <- alternative_model$beta_0
-  stdev <- alternative_model$Standard_Deviation
-  e_mid <- RunPoissonEventAssignment(
-    df, pyr0, event0, names, term_n,
-    tform, keep_constant, a_n, modelform,
-    control, strat_col,
-    model_control
-  )
-  a_n <- alternative_model$beta_0
-  a_n[check_num] <- a_n[check_num] - z * stdev[check_num]
-  e_low <- RunPoissonEventAssignment(
-    df, pyr0, event0, names, term_n,
-    tform, keep_constant, a_n, modelform,
-    control, strat_col,
-    model_control
-  )
-  a_n <- alternative_model$beta_0
-  a_n[check_num] <- a_n[check_num] + z * stdev[check_num]
-  e_high <- RunPoissonEventAssignment(
-    df, pyr0, event0, names,
-    term_n, tform, keep_constant,
-    a_n, modelform,
-    control, strat_col,
-    model_control
-  )
-  bound_results <- list(
-    "lower_limit" = e_low, "midpoint" = e_mid,
-    "upper_limit" = e_high
-  )
-  return(bound_results)
 }
 
 #' Calculates poisson residuals
@@ -321,49 +225,12 @@ RunPoissonEventAssignment_bound <- function(df, pyr0 = "pyr", event0 = "event", 
 #' @return returns a list of the final results
 #' @noRd
 #' @family Poisson Wrapper Functions
-#' @examples
-#' library(data.table)
-#' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
-#' )
-#' # For the interval case
-#' pyr <- "Ending_Age"
-#' event <- "Cancer_Status"
-#' names <- c("a", "b", "c", "d")
-#' a_n <- c(1.1, -0.1, 0.2, 0.5) # used to test at a specific point
-#' term_n <- c(0, 1, 1, 2)
-#' tform <- c("loglin", "lin", "lin", "plin")
-#' modelform <- "M"
-#' keep_constant <- c(0, 0, 0, 0)
-#' control <- list(
-#'   "ncores" = 2, "lr" = 0.75, "maxiter" = 5,
-#'   "halfmax" = 5, "epsilon" = 1e-3,
-#'   "deriv_epsilon" = 1e-3, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0, "verbose" = FALSE, "ties" = "breslow",
-#'   "double_step" = 1
-#' )
-#' strat_col <- "e"
-#' e <- RunPoissonRegression_Residual(
-#'   df, pyr, event, names, term_n,
-#'   tform, keep_constant,
-#'   a_n, modelform,
-#'   control, strat_col
-#' )
 #' @importFrom rlang .data
 RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -406,19 +273,15 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
             sep = " "
           ))
         }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
       } else {
         val_cols <- c(val_cols, col)
       }
-      data.table::setkeyv(df0, c(pyr0, event0))
     }
   } else {
     df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
     val_cols <- c("a")
   }
-  data.table::setkeyv(df, c(pyr0, event0))
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -454,7 +317,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -566,7 +429,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -680,11 +543,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
-  if (model_control$MCML) {
-    e$Survival_Type <- "Pois_Multidose"
-  } else {
-    e$Survival_Type <- "Pois_Multidose"
-  }
+  e$Survival_Type <- "Pois_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   # df <- copy(df)

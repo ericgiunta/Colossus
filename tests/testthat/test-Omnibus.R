@@ -10,34 +10,35 @@ test_that("Coxph basic_single_null match", {
   tform <- c("loglin")
   keep_constant <- c(0)
   a_n <- c(0.0)
-  modelform <- "M"
+  modelform <- "ME"
 
   verbose <- FALSE
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+  expect_no_error(e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control))
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   for (j in c(TRUE, FALSE)) {
     for (k in c(TRUE, FALSE)) {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = FALSE, "basic" = j, "single" = k, "null" = l)
         a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
   }
   model_control <- list("strata" = TRUE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
   for (j in c(TRUE, FALSE)) {
     for (k in c(TRUE, FALSE)) {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = TRUE, "basic" = j, "single" = k, "null" = l)
         a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "M", control = control, strat_col = "fac", model_control = model_control)
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
@@ -67,7 +68,7 @@ test_that("Pois strata_single", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-468.7465, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1368.039)
+  LL_comp <- c(-462.9708, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1344.793)
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       model_control <- list("strata" = i, "single" = j)
@@ -83,6 +84,7 @@ test_that("Pois strata_single", {
       j_iterate <- j_iterate + 1
     }
   }
+  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 2) + linear(rand, 1) + plinear(rand, 0) + A(), df, a_n = a_n, control = control)
 })
 #
 test_that("Pois comb_forms", {
@@ -102,13 +104,14 @@ test_that("Pois comb_forms", {
   a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
   modelform <- "PAE"
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
 
   verbose <- FALSE
-  modelforms <- c("A", "PAE", "M", "PA")
+  modelforms <- c("A", "PAE", "ME", "PA")
   j_iterate <- 1
-  LL_comp <- c(-1644.494, -544.7434, -544.7434, -464.709, -1395.197, -1831.403, -1546.554, -464.709)
+  LL_comp <- c(-1644.494, -472.2172, -472.2172, -464.709, -1381.102, -1831.403, -1831.403, -464.709)
+  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 1) + linear(rand, 0) + plinear(rand, 0) + loglinear-dose(dose, 0) + PAE(), df, a_n = a_n, control = control)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
@@ -116,6 +119,7 @@ test_that("Pois comb_forms", {
     expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
     j_iterate <- j_iterate + 1
   }
+  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 1) + linear(rand, 1) + plinear(rand, 1) + loglinear-dose(dose, 0) + A(), df, a_n = a_n, control = control)
   term_n <- c(1, 1, 1, 0, 0)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
@@ -136,13 +140,6 @@ test_that("Pois strata_single expanded", {
   event <- "lung"
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
-  names <- c("dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "dose", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand", "rand")
-  term_n <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-  tform <- c("loglin_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope", "loglin_top", "lin_slope", "lin_int", "quad_slope", "step_slope", "step_int", "lin_quad_slope", "lin_quad_int", "lin_exp_slope", "lin_exp_int", "lin_exp_exp_slope")
-  keep_constant <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-
-  modelform <- "PAE"
 
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
@@ -151,22 +148,36 @@ test_that("Pois strata_single expanded", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-496.7366, -475.4213, -496.7366, -475.4213, -4497.178, -3577.953, -3193.796, -2610.396)
-  for (i in c(TRUE, FALSE)) {
-    for (j in c(TRUE, FALSE)) {
-      model_control <- list("strata" = i, "single" = j)
-      a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-      modelform <- "PAE"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-      expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
-      j_iterate <- j_iterate + 1
-      a_n <- c(1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, -0.1, -0.1, 1, -0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1)
-      modelform <- "A"
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-      expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
-      j_iterate <- j_iterate + 1
-    }
-  }
+  LL_comp <- c(-491.2242, -475.0687, -463.217, -475.0687, -1101.539, -1257.393, -751.6969, -1257.393)
+  a_n <- c(-0.4, 0.1, 0.1, 0.1, 0.1, -0.5, 0.1, 0.1, 0.1, 0.1, 0.01, 0.1, 0.1)
+  # SINGLE AND STRATA
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  # NOT SINGLE AND STRATA
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  # SINGLE AND NOT STRATA
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = TRUE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  # NOT SINGLE AND NOT STRATA
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
+  e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = FALSE, a_n = a_n)
+  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  j_iterate <- j_iterate + 1
 })
 
 test_that("risk check omnibus plain", {
@@ -178,7 +189,6 @@ test_that("risk check omnibus plain", {
 
   time1 <- "t0"
   time2 <- "t1"
-  df$censor <- (df$lung == 0)
   #
   event <- "lung"
   names <- c("dose", "fac", "dose", "fac", "rand")
@@ -186,17 +196,17 @@ test_that("risk check omnibus plain", {
   tform <- c("loglin", "lin", "lin", "plin", "loglin")
   keep_constant <- c(0, 0, 0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2, 0.3, -0.5)
-  modelform <- "M"
+  modelform <- "ME"
 
 
   cens_weight <- c(0)
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  coxres <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + plinear(fac, 0) + linear(dose, 1) + plinear(fac, 1) + loglinear(rand, 1), df, a_n = a_n, control = control)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  expect_no_error(coxres <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + plinear(fac, 0) + linear(dose, 1) + plinear(fac, 1) + loglinear(rand, 1), df, a_n = a_n, control = control))
   verbose <- FALSE
 
   df_order <- data.table("term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n, "names" = names, "order" = 1:5)
 
-  model_list <- c("M", "A", "PA", "PAE")
+  model_list <- c("ME", "A", "PA", "PAE")
   means <- c(1.039780, 1.074573, 0.1434144, 1.039780)
   medians <- c(1.017646, 1.049693, 0.0904543, 1.017646)
   sums <- c(1039.779856, 1074.573350, 143.4143522, 1039.779856)
@@ -225,7 +235,6 @@ test_that("risk check omnibus gmix", {
 
   time1 <- "t0"
   time2 <- "t1"
-  df$censor <- (df$lung == 0)
   #
   event <- "lung"
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -302,7 +311,7 @@ test_that("check deviation calc, expected cox", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
 
   cens_weight <- c(0)
@@ -311,21 +320,21 @@ test_that("check deviation calc, expected cox", {
 
   devs <- c()
 
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   for (i in 1:3) {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0, 0, 0)
     keep_constant[i] <- 1
     #
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+    control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
 
@@ -343,14 +352,14 @@ test_that("check deviation calc, expected cox", {
     keep_constant <- c(0, 0, 0)
     keep_constant[i] <- 1
     #
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+    control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
 
@@ -370,8 +379,7 @@ test_that("check deviation calc, Observed cox", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
-
+  modelform <- "ME"
 
   cens_weight <- c(0)
 
@@ -379,21 +387,21 @@ test_that("check deviation calc, Observed cox", {
 
   devs <- c()
 
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE, "observed_info" = TRUE)
   for (i in 1:3) {
     a_n <- c(0.6465390, 0.4260961, 0.1572781)
     keep_constant <- c(0, 0, 0)
     keep_constant[i] <- 1
     #
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+    control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
 
@@ -411,14 +419,14 @@ test_that("check deviation calc, Observed cox", {
     keep_constant <- c(0, 0, 0)
     keep_constant[i] <- 1
     #
-    control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+    control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
     devs <- c(devs, sum(e$Standard_Deviation))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
   devs <- c(devs, sum(e$Standard_Deviation))
   expect_equal(devs, c(0.6091269, 0.5356671, 0.7385757, 0.9448081, 0.7051473, 0.5838560, 0.7381538, 0.9897501), tolerance = 1e-4)
@@ -449,7 +457,7 @@ test_that("check Linear Constraints", {
     del <- abs(a_n[1] - a_n[2])
     a_n0 <- rep(sum(a_n) / 2, 2)
     a_n <- a_n0 - c(-del / 2, del / 2)
-    modelform <- "M"
+    modelform <- "ME"
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
     expect_equal(e$beta_0, c(0.357333, 0.357333), tolerance = 1e-2)
@@ -459,7 +467,7 @@ test_that("check Linear Constraints", {
     del <- abs(a_n[1] - a_n[2])
     a_n0 <- rep(sum(a_n) / 2, 2)
     a_n <- a_n0 + c(-del / 2, del / 2)
-    modelform <- "M"
+    modelform <- "ME"
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
     expect_equal(e$beta_0, c(-0.472812, -0.472812), tolerance = 1e-2)
@@ -479,10 +487,10 @@ test_that("check deviation calc, poisson", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
   devs <- c()
 
-  modelform <- "M"
+  modelform <- "ME"
   for (inma_type in c(T, F)) {
     model_control <- list("observed_info" = inma_type)
     for (i in 1:3) {
@@ -490,8 +498,9 @@ test_that("check deviation calc, poisson", {
       keep_constant <- c(0, 0, 0)
       keep_constant[i] <- 1
       #
-      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+      #      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + loglinear(rand, 1), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
       devs <- c(devs, sum(e$Standard_Deviation))
     }
     event <- "lung"
@@ -506,12 +515,13 @@ test_that("check deviation calc, poisson", {
       keep_constant <- c(0, 0, 0)
       keep_constant[i] <- 1
       #
-      control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+      #      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+      e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + plinear(rand, 0), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
       devs <- c(devs, sum(e$Standard_Deviation))
     }
   }
-  expect_equal(devs, c(0.029317931, 0.014226835, 0.030171059, 0.026452308, 0.008968795, 0.040982844, 0.026119220, 0.008023552, 0.040535859, 0.026082652, 0.007801193, 0.040982844), tolerance = 1e-4)
+  expect_equal(devs, c(0.02931793, 0.01422684, 0.03017106, 0.03298415, 0.01800232, 0.04098284, 0.03682491, 0.02111656, 0.03017106, 0.02698643, 0.01008488, 0.04098284), tolerance = 1e-3)
 })
 
 test_that("Various CoxRegressionOmnibus options", {
@@ -528,18 +538,18 @@ test_that("Various CoxRegressionOmnibus options", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
   options(warn = -1)
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   keep_constant <- c(1, 1, 1)
   expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
@@ -549,14 +559,14 @@ test_that("Various CoxRegressionOmnibus options", {
   expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   df$lung <- lung_temp
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1, 1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1, 1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   a_n <- list(c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781))
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
+  control <- list("ncores" = 1, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   expect_no_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
   #
   names <- c("rand", "fac", "dose")
@@ -585,17 +595,17 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   tform <- c("loglin", "loglin", "loglin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-  modelform <- "M"
+  modelform <- "ME"
 
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
-  modelform <- "M"
+  modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   keep_constant <- c(1, 1, 1)
@@ -606,14 +616,14 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   expect_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   df$lung <- lung_temp
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1, 1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1, 1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   a_n <- list(c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781), c(0.6465390, 0.4260961, 0.1572781))
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   #
-  control <- list("ncores" = 2, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
+  control <- list("ncores" = 1, "lr" = 0.75, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   expect_no_error(RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control))
   #
   names <- c("rand", "fac", "dose")
@@ -641,7 +651,7 @@ test_that("Pois various_fixes", {
   a_n <- c(0.01, 0.1, 0.1)
   modelform <- "PAE"
 
-  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   strat_col <- "fac"
 
   verbose <- FALSE

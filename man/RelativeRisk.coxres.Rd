@@ -36,7 +36,7 @@ df <- data.table::data.table(
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
   "halfmax" = 1
 )
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
@@ -45,6 +45,6 @@ res <- CoxRun(formula, df,
   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
   control = control
 )
-RelativeRisk(res, df)
+res_risk <- RelativeRisk(res, df)
 }
 \concept{Cox Analysis Functions}

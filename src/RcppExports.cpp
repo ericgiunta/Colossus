@@ -367,41 +367,6 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// Gen_Fac_Par
-NumericMatrix Gen_Fac_Par(const NumericMatrix df0, const NumericVector vals, const NumericVector cols, const int nthreads);
-RcppExport SEXP _Colossus_Gen_Fac_Par(SEXP df0SEXP, SEXP valsSEXP, SEXP colsSEXP, SEXP nthreadsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const NumericMatrix >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type vals(valsSEXP);
-    Rcpp::traits::input_parameter< const NumericVector >::type cols(colsSEXP);
-    Rcpp::traits::input_parameter< const int >::type nthreads(nthreadsSEXP);
-    rcpp_result_gen = Rcpp::wrap(Gen_Fac_Par(df0, vals, cols, nthreads));
-    return rcpp_result_gen;
-END_RCPP
-}
-// risk_check_transition
-bool risk_check_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, List model_control, IntegerVector KeepConstant, int term_tot);
-RcppExport SEXP _Colossus_risk_check_transition(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP model_controlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
-    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
-    Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
-    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
-    rcpp_result_gen = Rcpp::wrap(risk_check_transition(term_n, tform, a_n, dfc, df0, fir, modelform, Control, model_control, KeepConstant, term_tot));
-    return rcpp_result_gen;
-END_RCPP
-}
 // OMP_Check
 bool OMP_Check();
 RcppExport SEXP _Colossus_OMP_Check() {
@@ -428,8 +393,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_caco_Omnibus_transition", (DL_FUNC) &_Colossus_caco_Omnibus_transition, 16},
     {"_Colossus_logist_Omnibus_transition", (DL_FUNC) &_Colossus_logist_Omnibus_transition, 14},
     {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 10},
-    {"_Colossus_Gen_Fac_Par", (DL_FUNC) &_Colossus_Gen_Fac_Par, 4},
-    {"_Colossus_risk_check_transition", (DL_FUNC) &_Colossus_risk_check_transition, 11},
     {"_Colossus_OMP_Check", (DL_FUNC) &_Colossus_OMP_Check, 0},
     {NULL, NULL, 0}
 };

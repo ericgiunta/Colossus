@@ -48,6 +48,9 @@ The following options can be used by the cox plotting function to select differe
 | unique_values | integer used by the risk plotting option to select how many values calculate risk at. Depending on function, either defaults to the number of unique values in the column or 2. |
 
 The following options can be used by the poisson residual function to select difference types of residuals:
+
+| Option | Description |
+| :---------: | :----------: |
 | pearson  | Boolean used by Residual.poisres to select calculating pearson residuals. Defaults to FALSE.   |
 | deviance  | Boolean used by Residual.poisres to select calculating deviance residuals. Defaults to FALSE.   |
 
@@ -61,6 +64,5 @@ If a likelihood boundary is being calculated, there are several additional contr
 | manual | Boolean which selects if the standard Venzon-Moolgavkar algorithm (FALSE) or if a modified version is used which starts by optimizing multiple points (TRUE). The manual mode is beneficial for problems with linear terms, which may have issues with local optimums. Defaults to FALSE. |
 | maxstep | Integer used by the manual search option, splits the initial step into maxstep points. Then each point is optimized with a constant boundary parameter. This is done to find the closest estimate for the boundary point. Defaults to 10. |
 | search_mult | Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect. |
-| step_size | Double used by the Curve Search functions. Sets the initial interval length used. Defaults to 0.5 |
 | bisect | Boolean to denote the bisection method of boundary solution. Solves for the optimal log-likelihood at both ends and middle of a searching interval, then updates the window until convergence. |
-
+| step_size | Double used by the bisection method. Sets the initial interval length used. Defaults to 0.5 |

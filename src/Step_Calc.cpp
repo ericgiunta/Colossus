@@ -53,6 +53,26 @@ template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
+void removeRow(MatrixXd& matrix, unsigned int rowToRemove) {
+    unsigned int numRows = matrix.rows() - 1;
+    unsigned int numCols = matrix.cols();
+
+    if (rowToRemove < numRows)
+        matrix.block(rowToRemove, 0, numRows-rowToRemove, numCols) = matrix.block(rowToRemove + 1, 0, numRows-rowToRemove, numCols);
+
+    matrix.conservativeResize(numRows, numCols);
+}
+
+void removeColumn(MatrixXd& matrix, unsigned int colToRemove) {
+    unsigned int numRows = matrix.rows();
+    unsigned int numCols = matrix.cols() - 1;
+
+    if (colToRemove < numCols)
+        matrix.block(0, colToRemove, numRows, numCols-colToRemove) = matrix.block(0, colToRemove + 1, numRows, numCols-colToRemove);
+
+    matrix.conservativeResize(numRows, numCols);
+}
+
 //' Utility function to keep intercept parameters within the range of possible values
 //'
 //' \code{Intercept_Bound} Called to update the parameter list in the event that intercepts leave the bounds of possible values
@@ -61,7 +81,6 @@ template <typename T> int sign(T val) {
 //' @return Updates vector in place: parameter vector
 //' @noRd
 //'
-//
 void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& beta_0, vector<double>& dbeta, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const IntegerVector& KeepConstant, const StringVector&  tform) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("lin_int");
@@ -97,40 +116,55 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //' @return Updates matrices in place: risk storage matrices
 //' @noRd
 //'
-//
 void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult) {
     //  starts with solved likelihoods and derivatives
     //  store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
     deriv_max = 100;
     if (step == 0) {
-        //  initial step, calculate dom/dbet and h
-        MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
-        removeRow(D0, para_number);
-        removeColumn(D0, para_number);
-        removeRow(dOmdBeta, para_number);
-        D0 = D0.inverse().matrix();
-        dOmdBeta = - 1 * D0 * dOmdBeta;
-        //
-        MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
-        removeColumn(dLdBdO, para_number);
-        double h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
-        h = mult * pow(qchi/(- 1*h), 0.5);
-        if (upper) {
-            h = abs(h)/2;
+        //  initial step
+        //  Special case if there is only one parameter
+        double h = 0.0;
+        if (totalnum == 1) {
+            //  Don't need to calculate everything else, only h
+            h = Lldd_mat(para_number, para_number);
+            //
+            h = mult * pow(qchi/(- 1*h), 0.5);
+            if (upper) {
+                h = abs(h)/2;
+            } else {
+                h = abs(h)/-2;
+            }
+            dbeta[para_number] = h;
         } else {
-            h = abs(h)/-2;
-        }
-        //  calculate first step
-        int j = 0;
-        for (int ij = 0; ij < totalnum; ij++) {
-            if (KeepConstant[ij] == 0) {
-                int pij_ind = ij - sum(head(KeepConstant, ij));
-                if (pij_ind == para_number) {
-                    dbeta[ij] = h;
-                } else {
-                    dbeta[ij] = h * dOmdBeta(j);
-                    j = j + 1;
+            //  Calculate dom/dbet and h
+            MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
+            removeRow(D0, para_number);
+            removeColumn(D0, para_number);
+            removeRow(dOmdBeta, para_number);
+            D0 = D0.inverse().matrix();
+            dOmdBeta = - 1 * D0 * dOmdBeta;
+            //
+            MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
+            removeColumn(dLdBdO, para_number);
+            h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
+            h = mult * pow(qchi/(- 1*h), 0.5);
+            if (upper) {
+                h = abs(h)/2;
+            } else {
+                h = abs(h)/-2;
+            }
+            //  calculate first step
+            int j = 0;
+            for (int ij = 0; ij < totalnum; ij++) {
+                if (KeepConstant[ij] == 0) {
+                    int pij_ind = ij - sum(head(KeepConstant, ij));
+                    if (pij_ind == para_number) {
+                        dbeta[ij] = h;
+                    } else {
+                        dbeta[ij] = h * dOmdBeta(j);
+                        j = j + 1;
+                    }
                 }
             }
         }
@@ -220,75 +254,76 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 //' @return Updates matrices in place: parameter change matrix
 //' @noRd
 //'
-//
 void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
     int kept_covs = totalnum - sum(KeepConstant_trouble);
-    NumericVector Lldd_vec(kept_covs * kept_covs);
-    NumericVector Lld_vec(kept_covs);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < kept_covs*(kept_covs + 1)/2; ijk++) {
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
+    if (kept_covs > 0) {
+        NumericVector Lldd_vec(kept_covs * kept_covs);
+        NumericVector Lld_vec(kept_covs);
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < kept_covs*(kept_covs + 1)/2; ijk++) {
+            int ij = 0;
+            int jk = ijk;
+            while (jk > ij) {
+                ij++;
+                jk -= ij;
+            }
+            int ij0 = ij;
+            int jk0 = jk;
+            if (ij >= para_number) {
+                ij0++;
+            }
+            if (jk >= para_number) {
+                jk0++;
+            }
+            Lldd_vec[jk * kept_covs + ij] = Lldd[jk0 * (kept_covs + 1) + ij0];
+            if (ij == jk) {
+                Lld_vec[ij] = Lld[ij0];
+            } else {
+                Lldd_vec[ij * kept_covs + jk] = Lldd_vec[jk0 * (kept_covs + 1) + ij0];
+            }
         }
-        int ij0 = ij;
-        int jk0 = jk;
-        if (ij >= para_number) {
-            ij0++;
+        Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
+        VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
+        VectorXd Lldd_solve = VectorXd::Zero(totalnum);
+        for (int ij = 0; ij < totalnum; ij++) {
+            if (KeepConstant_trouble[ij] == 0) {
+                int pij_ind = ij - sum(head(KeepConstant_trouble, ij));
+                Lldd_solve(ij) = Lldd_solve0(pij_ind);
+            }
         }
-        if (jk >= para_number) {
-            jk0++;
-        }
-        Lldd_vec[jk * kept_covs + ij] = Lldd[jk0 * (kept_covs + 1) + ij0];
-        if (ij == jk) {
-            Lld_vec[ij] = Lld[ij0];
-        } else {
-            Lldd_vec[ij * kept_covs + jk] = Lldd_vec[jk0 * (kept_covs + 1) + ij0];
-        }
-    }
-    Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-    const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-    VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
-    VectorXd Lldd_solve = VectorXd::Zero(totalnum);
-    for (int ij = 0; ij < totalnum; ij++) {
-        if (KeepConstant_trouble[ij] == 0) {
-            int pij_ind = ij - sum(head(KeepConstant_trouble, ij));
-            Lldd_solve(ij) = Lldd_solve0(pij_ind);
-        }
-    }
-    //
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < totalnum; ijk++) {
-        if (KeepConstant_trouble[ijk] == 0) {
-            int pjk_ind = ijk - sum(head(KeepConstant_trouble, ijk));
-            if (isnan(Lldd_solve(ijk))) {
-                if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
-                    dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+        //
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int ijk = 0; ijk < totalnum; ijk++) {
+            if (KeepConstant_trouble[ijk] == 0) {
+                int pjk_ind = ijk - sum(head(KeepConstant_trouble, ijk));
+                if (isnan(Lldd_solve(ijk))) {
+                    if (Lldd[pjk_ind*kept_covs+pjk_ind] != 0) {
+                        dbeta[ijk] = -lr * Lld[pjk_ind] / Lldd[pjk_ind*kept_covs+pjk_ind];
+                    } else {
+                        dbeta[ijk] = 0;
+                    }
                 } else {
-                    dbeta[ijk] = 0;
+                    dbeta[ijk] = lr * Lldd_solve(ijk);
+                }
+               //
+                if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  //  the threshold values use different maximum deviation values
+                    if (abs(dbeta[ijk]) > thres_step_max) {
+                        dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
+                    }
+                } else {
+                    if (abs(dbeta[ijk]) > step_max) {
+                        dbeta[ijk] = step_max * sign(dbeta[ijk]);
+                    }
                 }
             } else {
-                dbeta[ijk] = lr * Lldd_solve(ijk);
+                dbeta[ijk] = 0;
             }
-           //
-            if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  //  the threshold values use different maximum deviation values
-                if (abs(dbeta[ijk]) > thres_step_max) {
-                    dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);
-                }
-            } else {
-                if (abs(dbeta[ijk]) > step_max) {
-                    dbeta[ijk] = step_max * sign(dbeta[ijk]);
-                }
-            }
-        } else {
-            dbeta[ijk] = 0;
         }
     }
     return;

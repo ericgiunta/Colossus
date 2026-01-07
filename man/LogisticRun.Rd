@@ -68,15 +68,11 @@ df <- data.table::data.table(
   "e" = c(0, 0, 1, 0, 0, 0, 1)
 )
 control <- list(
-  "ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1),
+  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
   "halfmax" = 1
 )
 formula <- logit(Cancer_Status) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 res <- LogisticRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
-}
-\seealso{
-Other Logistic Wrapper Functions: 
-\code{\link{RunLogisticRegression_Omnibus}()}
 }
 \concept{Logistic Wrapper Functions}

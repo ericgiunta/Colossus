@@ -145,3 +145,30 @@
 
 * Logistic regression added
 * Newton step calculation now checks the predicted change in score, and moves in opposite direction if the expected score is worse
+
+# Colossus 1.4.4
+
+* Corrected factorization not being applied to factored columns
+* Fixed event assignment reordering the data
+* Multiplicative and Multiplicative-excess models are now distinct. The default is left as multiplicative-excess.
+
+# Colossus 1.4.5
+
+* Updated geometric-mixture code to apply defaults of 0.5 theta and only excess terms
+* Corrected normalization for intercept parameters
+
+# Colossus 1.4.6
+
+* Fixed bug in second derivative risk calculations, wrong correction to multi-term risk values.
+* Improved results printing. Basic regression results only print term number column when multiple terms used. Likelihood boundary results now print the limit and score when negative limit hit.
+* ncores option used for Colossus calculations now also applied to data.table operations. Previous number reset after calculations, may need to be manually reset if the regression hits an error.
+
+# Colossus 1.4.7
+
+* Updated behavior when negative risk is hit. Partial steps are now smaller, and the overall maximum step size will be checked during loop.
+* Regressions that end after hitting a negative limit will now print a warning in the result table.
+
+# Colossus 1.4.8
+
+* Updated stratified poisson modeling to correctly update background strata risk levels
+* Updated formula reading to not throw errors on long formulas

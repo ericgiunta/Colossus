@@ -16,6 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
+Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(survival)
@@ -91,7 +92,7 @@ df$cell <- factor(df$cell, levels = c(-1, 0, 1, 2, 3))
 model <- Logit(trial, status) ~ loglinear(cell)
 model <- Logit(status) ~ loglinear(cell)
 
-control <- list(verbose = 0, ncores = 2)
+control <- list(verbose = 0, ncores = 1)
 e <- LogisticRun(model, df, control = control)
 print(e)
 ```

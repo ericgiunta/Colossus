@@ -72,6 +72,7 @@ parse_literal_string <- function(string) {
       options(warn = 0)
       return(as.logical(string))
     }
+    # needs to detect numbers
     if (all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
       options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
       return(as.numeric(string))
@@ -103,7 +104,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -389,6 +390,7 @@ Def_model_control <- function(control) {
 #'
 #' \code{Check_Iters} checks the number of iterations and number of guesses, and corrects
 #'
+#' @noRd
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a list with the corrected control list and a_n
@@ -560,7 +562,7 @@ factorize <- function(df, col_list, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -633,7 +635,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -729,7 +731,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -788,7 +790,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' func_form <- c("lin")
 #' df_new <- gen_time_dep(
 #'   df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
-#'   c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 2
+#'   c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1
 #' )
 #' file.remove("test_new.csv")
 #'
@@ -796,13 +798,20 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
       }
     )
   }
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
+    nthreads <- min(c(2, nthreads))
+  }
+  thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
   dfn <- names(df)
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -861,9 +870,6 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   } else {
     fname <- paste(fname, ".csv", sep = "_")
   }
-  if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    nthreads <- 2
-  }
   Write_Time_Dep(
     x_time, x_dep, x_same, x_event, dt, fname,
     tform, tu, iscox, nthreads
@@ -874,6 +880,9 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     col.names = c(time1, time2, new_names, dfn_same, event0)
   )
   data.table::setkeyv(df_new, c(event0, time2, time1))
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
   return(df_new)
 }
 
@@ -902,7 +911,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -964,7 +973,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -1047,7 +1056,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -1195,7 +1204,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
-        df <- setDT(df)
+        setDT(df)
       },
       error = function(e) {
         df <- data.table(df)
@@ -1256,12 +1265,14 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
 #' @param input boolean if the normalization is being performed on the input values or on an output
 #' @param values list of values using during normalization
 #' @inheritParams R_template
+#' @noRd
 #' @family Data Cleaning Functions
 #' @return returns list with the normalized values
 apply_norm <- function(df, norm, names, input, values, model_control) {
   if (input) {
     a_n <- values$a_n
     cons_mat <- values$cons_mat
+    tforms <- values$tform
     if (tolower(norm) == "null") {
       # nothing changes
       norm_weight <- rep(1, length(names))
@@ -1274,6 +1285,9 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           if (val == 0.0) {
             warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
             val <- 1.0
+          } else if (tforms[i] == "step_slope") {
+            # Forcing to 1, no need to normalize this one
+            val <- 1.0
           }
           norm_weight <- c(norm_weight, val)
         }
@@ -1283,6 +1297,9 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           if (val == 0.0) {
             warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
             val <- 1.0
+          } else if (tforms[i] == "step_slope") {
+            # Forcing to 1, no need to normalize this one
+            val <- 1.0
           }
           norm_weight <- c(norm_weight, val)
         }
@@ -1291,20 +1308,31 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       }
       for (i in seq_along(names)) {
         if (typeof(a_n) != "list") {
-          a_n[i] <- a_n[i] * norm_weight[i]
+          if (grepl("_int", tforms[i])) {
+            a_n[i] <- a_n[i] / norm_weight[i]
+          } else {
+            a_n[i] <- a_n[i] * norm_weight[i]
+          }
         } else {
           for (j in seq_len(length(a_n))) {
-            a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
+            if (grepl("_int", tforms[i])) {
+              a_n[[j]][i] <- a_n[[j]][i] / norm_weight[i]
+            } else {
+              a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
+            }
           }
         }
         if (match(names[i], names)[1] == i) {
           df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
         }
-        norm_weight <- c(norm_weight, val)
       }
       if (model_control[["constraint"]] == TRUE) {
         for (i in seq_along(names)) {
-          cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
+          if (grepl("_int", tforms[i])) {
+            cons_mat[, i] <- cons_mat[, i] * norm_weight[i]
+          } else {
+            cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
+          }
         }
       }
     } else {
@@ -1323,41 +1351,79 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
     res <- values$output
     norm_weight <- values$norm_weight
     keep_constant <- res$Parameter_Lists$keep_constant
-    if (tolower(norm) == "null") {
-      # nothing changes
-    } else if (tolower(norm) %in% c("mean", "max")) {
-      # weight by the maximum value
-      if (model_control$single) {
-        for (i in seq_along(names)) {
-          res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-        }
-      } else {
-        for (i in seq_along(names)) {
-          if (keep_constant[i] == 0) {
-            i_der <- i - sum(head(keep_constant, i))
-            res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
-            res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-            res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
-            for (j in seq_along(names)) {
-              if (keep_constant[j] == 0) {
-                j_der <- j - sum(head(keep_constant, j))
-                res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
-                res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
+    tforms <- values$tform
+    if (any(norm_weight != 1.0)) {
+      if (tolower(norm) == "null") {
+        # nothing changes
+      } else if (tolower(norm) %in% c("mean", "max")) {
+        # weight by the maximum value
+        if (model_control$single) {
+          for (i in seq_along(names)) {
+            if (grepl("_int", tforms[i])) {
+              res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+            } else {
+              res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+            }
+          }
+        } else {
+          for (i in seq_along(names)) {
+            if (keep_constant[i] == 0) {
+              i_der <- i - sum(head(keep_constant, i))
+              if (grepl("_int", tforms[i])) {
+                res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
+                res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+                res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
+              } else {
+                res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
+                res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+                res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+              }
+              for (j in seq_along(names)) {
+                if (keep_constant[j] == 0) {
+                  j_der <- j - sum(head(keep_constant, j))
+                  if (grepl("_int", tforms[i])) {
+                    if (grepl("_int", tforms[j])) {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                    } else {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] * norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] / norm_weight[j]
+                    }
+                  } else {
+                    if (grepl("_int", tforms[j])) {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] / norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] * norm_weight[j]
+                    } else {
+                      res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] * norm_weight[j]
+                      res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] / norm_weight[j]
+                    }
+                  }
+                }
+              }
+            } else {
+              if (grepl("_int", tforms[i])) {
+                res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+              } else {
+                res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+              }
+            }
+          }
+          if (model_control[["constraint"]] == TRUE) {
+            for (i in seq_along(names)) {
+              if (grepl("_int", tforms[i])) {
+                res$constraint_matrix[, i] <- res$constraint_matrix[, i] / norm_weight[i]
+              } else {
+                res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
               }
             }
           }
         }
-        if (model_control[["constraint"]] == TRUE) {
-          for (i in seq_along(names)) {
-            res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
-          }
-        }
+      } else {
+        stop(gettextf(
+          "Error: Normalization arguement '%s' not valid.",
+          norm
+        ), domain = NA)
       }
-    } else {
-      stop(gettextf(
-        "Error: Normalization arguement '%s' not valid.",
-        norm
-      ), domain = NA)
     }
     output <- res
   }
@@ -1678,29 +1744,18 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
 #'   "g" = g, "h" = h, "i" = i
 #' )
 #' categ <- list(
-#'   "a" = "-1/3/5]7",
-#'   "b" = list(
-#'     lower = c(-1, 3, 6), upper = c(3, 6, 10),
-#'     name = c("low", "medium", "high")
-#'   ),
-#'   "time AS time" = list(
-#'     "day" = c(1, 1, 1, 1, 1),
-#'     "month" = c(1, 1, 1, 1, 1),
-#'     "year" = c(1899, 1903, 1910)
-#'   )
+#'   "a" = "-1/3/5]7"
 #' )
 #' summary <- list(
-#'   "c" = "count AS cases",
-#'   "a" = "mean",
-#'   "b" = "weighted_mean"
+#'   "c" = "count AS cases"
 #' )
 #' events <- list("c")
 #' pyr <- list(
-#'   entry = list(year = "f", month = "e", day = "d"),
-#'   exit = list(year = "i", month = "h", day = "g"),
+#'   entry = list(year = "f"),
+#'   exit = list(year = "i"),
 #'   unit = "years"
 #' )
-#' e <- Event_Time_Gen(table, pyr, categ, summary, events, T)
+#' e <- Event_Time_Gen(table, pyr, categ, summary, events)
 #'
 Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE) {
   df <- as_tibble(table)
@@ -2117,7 +2172,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
 #' @family Output and Information Functions
 print.coxres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2142,7 +2197,7 @@ print.coxres <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2167,7 +2222,7 @@ print.poisres <- function(x, ...) {
 #' @family Output and Information Functions
 print.caseconres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2192,7 +2247,7 @@ print.caseconres <- function(x, ...) {
 #' @family Output and Information Functions
 print.logitres <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2217,7 +2272,7 @@ print.logitres <- function(x, ...) {
 #' @family Output and Information Functions
 print.coxresbound <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2242,7 +2297,7 @@ print.coxresbound <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisresbound <- function(x, ...) {
   exargs <- list(...)
-  digits <- 2
+  digits <- 3
   if ("digits" %in% names(exargs)) {
     digits <- exargs$digits
   } else if (length(exargs) == 1) {
@@ -2263,7 +2318,7 @@ print.poisresbound <- function(x, ...) {
 #'
 #' @noRd
 #' @return return nothing, prints the results to console
-Interpret_Output <- function(out_list, digits = 2) {
+Interpret_Output <- function(out_list, digits = 3) {
   # make sure the output isn't an error
   passed <- out_list$Status
   message("|-------------------------------------------------------------------|")
@@ -2273,6 +2328,7 @@ Interpret_Output <- function(out_list, digits = 2) {
       model <- out_list$model
       modelcontrol <- out_list$modelcontrol
       para_number <- modelcontrol$para_number
+      strata <- model$strata
       #
       name <- model$names[para_number]
       tform <- model$tform[para_number]
@@ -2285,24 +2341,27 @@ Interpret_Output <- function(out_list, digits = 2) {
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal
       message("Likelihood Boundary Results")
+      if (all(strata != "NONE")) {
+        message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+      }
       message(paste("Solving for the boundary of element: ", para_number, "\nApplied to column: '", name, "'\nSubterm: ", tform, "\nTerm number: ", term_n, sep = ""))
       if (neg[1]) {
-        message("Lower limit was not found")
+        message(paste("Lower limit was not found, last step was at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
       } else {
         if (conv[1]) {
-          message(paste("Lower limit converged to at ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+          message(paste("Lower limit converged to at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
         } else {
-          message(paste("Lower limit reached ", round(limits[1], digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          message(paste("Lower limit reached ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
         }
       }
-      message(paste("Central estimate was ", round(beta_0, digits), sep = ""))
+      message(paste("Central estimate was ", format(beta_0, digits = digits), sep = ""))
       if (neg[2]) {
-        message("Upper limit was not found")
+        message(paste("Upper limit was not found, last step was at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
       } else {
         if (conv[2]) {
-          message(paste("Upper limit converged to at ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+          message(paste("Upper limit converged to at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
         } else {
-          message(paste("Upper limit reached ", round(limits[2], digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          message(paste("Upper limit reached ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
         }
       }
     } else {
@@ -2312,32 +2371,42 @@ Interpret_Output <- function(out_list, digits = 2) {
       } else if (out_list$Survival_Type == "CaseControl") {
         # case control output
         # get the model details
-        names <- out_list$Parameter_Lists$names
-        tforms <- out_list$Parameter_Lists$tforms
-        term_n <- out_list$Parameter_Lists$term_n
-        beta_0 <- out_list$beta_0
+        null_model <- out_list$modelcontrol$null
         strata_odds <- out_list$StrataOdds
-        if ("Standard_Deviation" %in% names(out_list)) {
-          stdev <- out_list$Standard_Deviation
-          pval <- 2 * pnorm(-abs(beta_0 / stdev))
-          res_table <- data.table(
-            "Covariate" = names,
-            "Subterm" = tforms,
-            "Term Number" = term_n,
-            "Central Estimate" = beta_0,
-            "Standard Error" = stdev,
-            "2-tail p-value" = pval
-          )
-        } else {
-          res_table <- data.table(
-            "Covariate" = names,
-            "Subterm" = tforms,
-            "Term Number" = term_n,
-            "Central Estimate" = beta_0
-          )
+        if (!null_model) {
+          names <- out_list$Parameter_Lists$names
+          tforms <- out_list$Parameter_Lists$tforms
+          term_n <- out_list$Parameter_Lists$term_n
+          beta_0 <- out_list$beta_0
+          keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+          if ("Standard_Deviation" %in% names(out_list)) {
+            stdev <- out_list$Standard_Deviation
+            pval <- 2 * pnorm(-abs(beta_0 / stdev))
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Constant" = keep_constant,
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
+              "Standard Error" = as.numeric(format(stdev, digits = digits)),
+              "2-tail p-value" = as.numeric(format(pval, digits = digits))
+            )
+          } else {
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Constant" = keep_constant,
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
+            )
+          }
+          if (!any(keep_constant)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Constant"], with = FALSE]
+          }
+          if (min(term_n) == max(term_n)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
+          }
         }
-        message("Final Results")
-        print(res_table)
         deviance <- out_list$Deviation
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
@@ -2346,45 +2415,89 @@ Interpret_Output <- function(out_list, digits = 2) {
         #
         freepara <- out_list$FreeParameters
         freestrata <- out_list$FreeSets
+        strata <- out_list$model$strata
+        time_model <- out_list$modelcontrol$time_risk
+        message("Final Results")
+        if (null_model) {
+          message("Null model used")
+        } else {
+          print(res_table)
+        }
         #
         message("\nMatched Case-Control Model Used")
+        if (all(strata != "NONE")) {
+          if (time_model) {
+            message("Model stratified by ", paste(shQuote(strata), " and time at risk", collapse = ", "))
+          } else {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
+        } else if (time_model) {
+          message("Model stratified by time at risk")
+        } else {
+          message("No risk grouping applied")
+        }
         message(paste("Deviance: ", round(deviance, digits), sep = ""))
         message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
         if (!is.null(converged)) {
-          message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          if (iteration == 0) {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          } else {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          }
           if (converged) {
             message("Analysis converged")
           } else {
             message("Analysis did not converge, check convergence criteria or run further")
           }
+          neg_lim <- out_list$Control_List$"Ended on Negative Limit"
+          if (neg_lim) {
+            message("Warning: The regression ended after hitting a negative risk.")
+          }
         }
       } else {
         # get the model details
-        names <- out_list$Parameter_Lists$names
-        tforms <- out_list$Parameter_Lists$tforms
-        term_n <- out_list$Parameter_Lists$term_n
-        beta_0 <- out_list$beta_0
-        if ("Standard_Deviation" %in% names(out_list)) {
-          stdev <- out_list$Standard_Deviation
-          pval <- 2 * pnorm(-abs(beta_0 / stdev))
-          res_table <- data.table(
-            "Covariate" = names,
-            "Subterm" = tforms,
-            "Term Number" = term_n,
-            "Central Estimate" = beta_0,
-            "Standard Error" = stdev,
-            "2-tail p-value" = pval
-          )
-        } else {
-          res_table <- data.table(
-            "Covariate" = names,
-            "Subterm" = tforms,
-            "Term Number" = term_n,
-            "Central Estimate" = beta_0
-          )
+        null_model <- out_list$modelcontrol$null
+        if (!null_model) {
+          ##
+          names <- out_list$Parameter_Lists$names
+          tforms <- out_list$Parameter_Lists$tforms
+          term_n <- out_list$Parameter_Lists$term_n
+          beta_0 <- out_list$beta_0
+          keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+          if ("Standard_Deviation" %in% names(out_list)) {
+            stdev <- out_list$Standard_Deviation
+            pval <- 2 * pnorm(-abs(beta_0 / stdev))
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Constant" = keep_constant,
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
+              "Standard Error" = as.numeric(format(stdev, digits = digits)),
+              "2-tail p-value" = as.numeric(format(pval, digits = digits))
+            )
+          } else {
+            res_table <- data.table(
+              "Covariate" = names,
+              "Subterm" = tforms,
+              "Term Number" = term_n,
+              "Constant" = keep_constant,
+              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
+            )
+          }
+          if (!any(keep_constant)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Constant"], with = FALSE]
+          }
+          if (min(term_n) == max(term_n)) {
+            res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
+          }
         }
         message("Final Results")
-        print(res_table)
+        if (null_model) {
+          message("Null model used")
+        } else {
+          print(res_table)
+        }
         # get the model results
         LogLik <- out_list$LogLik
         AIC <- out_list$AIC
@@ -2393,29 +2506,56 @@ Interpret_Output <- function(out_list, digits = 2) {
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
+        strata <- out_list$model$strata
+        cens_weight <- out_list$model$weight
         converged <- out_list$Converged
         if (is(out_list, "coxres")) {
-          # cox model
-          message("\nCox Model Used")
+          if (cens_weight == "NONE") {
+            # cox model
+            message("\nCox Model Used")
+          } else {
+            # fine-gray model
+            message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
-          message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          if (iteration == 0) {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          } else {
+            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+          }
           if (converged) {
             message("Analysis converged")
           } else {
             message("Analysis did not converge, check convergence criteria or run further")
+          }
+          neg_lim <- out_list$Control_List$"Ended on Negative Limit"
+          if (neg_lim) {
+            message("Warning: The regression ended after hitting a negative risk.")
           }
         }
       }
