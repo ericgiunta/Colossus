@@ -257,9 +257,12 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
     model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if (grepl("pois", surv_model_type)) {
     model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
-    # if (all(strata != "NONE")) {
-    #   Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
-    # } # verifies that a stratified model can be used
+    if (all(strata != "NONE")) {
+      if (!all(strata %in% names(df))) {
+        stop("Error: One of the strata was not in the original data.")
+      }
+      #   Check_Strata_Model(term_n, tform, modelform, gmix_term, gmix_theta)
+    } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type)) || (grepl("case_con", surv_model_type))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("logit", surv_model_type)) || (grepl("logistic", surv_model_type))) {
@@ -842,6 +845,8 @@ get_form_risk <- function(model_obj, df) {
               for (term_i in seq_along(vals)) {
                 factor_col <- vals[term_i]
                 if (is.factor(df[[factor_col]])) {
+                  val <- factorize(df, factor_col)
+                  df <- val$df
                   i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
                   level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
                   i_levels <- i_levels[i_levels != level_ref]

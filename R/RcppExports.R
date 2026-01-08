@@ -1072,24 +1072,6 @@ NULL
 #' @noRd
 NULL
 
-#' Utility function to calculate the risk and risk ratios with a weighting applied
-#'
-#' \code{Make_Risks_Weighted} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: Risk, Risk ratios
-#' @noRd
-NULL
-
-#' Utility function to calculate the risk and risk ratios with a weighting applied and gradient method
-#'
-#' \code{Make_Risks_Weighted_Gradient} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: Risk, Risk ratios
-#' @noRd
-NULL
-
 #' Utility function to calculate the risk with a weighting applied and no derivatives calculated
 #'
 #' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas

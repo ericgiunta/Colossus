@@ -426,20 +426,12 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         //  Calculates the subterm and term values
         Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
         //  Calculates the risk for each row
-        // if (model_bool["strata"]) {
-        //     Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
-        // } else {
         Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
-        // }
         //
     } else if (model_bool["gradient"]) {
         Make_subterms_Gradient(totalnum, term_n, tform, dfc, fir, T0, Td0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, KeepConstant);
         //
-        // if (model_bool["strata"]) {
-        //     Make_Risks_Weighted_Gradient(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
-        // } else {
         Make_Risks_Gradient(modelform, tform, term_n, totalnum, fir, T0, Td0, Te, R, Rd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, nthreads, KeepConstant, gmix_theta, gmix_term);
-        // }
         //
         RdR = (RdR.array().isFinite()).select(RdR, 0);
     } else {
@@ -448,11 +440,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         //
         Make_subterms(totalnum, term_n, tform, dfc, fir, T0, Td0, Tdd0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, dint, dslp, nthreads, KeepConstant);
         //  Calculates the risk for each row
-        // if (model_bool["strata"]) {
-        //     Make_Risks_Weighted(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
-        // } else {
         Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
-        // }
         //
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
