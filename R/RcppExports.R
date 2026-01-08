@@ -211,6 +211,16 @@ NULL
 #'
 NULL
 
+#' Utility function to calculate poisson log-likelihood and derivatives
+#'
+#' \code{Poisson_LogLik_Strata} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row and strata
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+NULL
+
 #' Utility function to perform null model equivalent of Calculate_Sides
 #'
 #' \code{Calculate_Null_Sides} Called to update repeated sum calculations, Uses list of event rows, Performs calculation of counts in each group

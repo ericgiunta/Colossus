@@ -35,6 +35,7 @@ using std::reduce;
 
 using Eigen::Map;
 using Eigen::Ref;
+using Eigen::ArrayXd;
 using Eigen::MatrixXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
@@ -50,6 +51,7 @@ using Rcpp::NumericMatrix;
 using Rcpp::StringVector;
 using Rcpp::List;
 using Rcpp::_;
+using Rcpp::Rcout;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -2594,10 +2596,121 @@ void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, 
                 temp = Rdd.col(ijk).array() * (CoL.array() - PyrC.col(0).array()) - PyrC.col(1).array() * RdR.col(ij).array() * RdR.col(jk).array();
                 Lldd[ij*reqrdnum+jk] = (temp.array().isFinite()).select(temp, 0).sum();
                 if (ij != jk) {
-                    Lldd[jk*reqrdnum+ij] = (temp.array().isFinite()).select(temp, 0).sum();
+                    Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
                 } else {
                     temp = Rd.col(ij).array() * (CoL.array() - PyrC.col(0).array());
                     Lld[ij] = (temp.array().isFinite()).select(temp, 0).sum();
+                }
+            }
+        }
+    }
+    return;
+}
+
+//' Utility function to calculate poisson log-likelihood and derivatives
+//'
+//' \code{Poisson_LogLik_Strata} Called to update log-likelihoods, Uses list risk matrices and person-years, Sums the log-likelihood contribution from each row and strata
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+void Poisson_LogLik_Strata(List& model_bool, const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const IntegerVector& KeepConstant) {
+    ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+    ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
+    ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
+    s_weights = dfs * weight.matrix();  //  A/B by row
+    //
+    ArrayXd A_array = dfs * Events.matrix();  //  A by row
+    ArrayXd B_array = dfs * Pyr_Risk.matrix();  //  B by row
+    //
+    const int mat_col = dfs.cols();
+    const int mat_row = dfs.rows();
+    int reqrdnum = totalnum - sum(KeepConstant);
+    // Preallocating memory for all of the B derivatives
+    MatrixXd Pyr_Rd     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd in strata
+    MatrixXd Pyr_Rdd    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd in strata
+    MatrixXd Pyr_RdR     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd/B in strata
+    MatrixXd Pyr_RddR    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd/B in strata
+    MatrixXd Bd_array   = MatrixXd::Zero(mat_row, Rd.cols());   //  Bd by row
+    MatrixXd Bdd_array  = MatrixXd::Zero(mat_row, Rdd.cols());  //  Bdd by row
+    MatrixXd BdB_array  = MatrixXd::Zero(mat_row, Rd.cols());   //  Bd/B by row
+    MatrixXd BddB_array = MatrixXd::Zero(mat_row, Rdd.cols());  //  Bdd/B by row
+    if (!model_bool["single"]) {
+        if (!model_bool["gradient"]) {
+            for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                if (ij == jk) {
+                    Pyr_Rd.col(ij) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
+                    Bd_array.col(ij) = (dfs * Pyr_Rd.col(ij).matrix()).array();
+                    //
+                    BdB_array.col(ij) = Bd_array.col(ij).array() * B_array.array().pow(-1).array();
+                    Pyr_RdR.col(ij) = Pyr_Rd.col(ij).array() * Pyr_Risk.array().pow(-1).array();
+                }
+                Pyr_Rdd.col(ijk) = (dfs.transpose() * (PyrC.col(0).array() * Rdd.col(ijk).array()).matrix()).array();
+                Bdd_array.col(ijk) = (dfs * Pyr_Rdd.col(ijk).matrix()).array();
+                //
+                BddB_array.col(ijk) = Bdd_array.col(ijk).array() * B_array.array().pow(-1).array();
+                Pyr_RddR.col(ijk) = Pyr_Rdd.col(ijk).array() * Pyr_Risk.array().pow(-1).array();
+            }
+        } else {
+            for (int ij = 0; ij < reqrdnum; ij++) {
+                Pyr_Rd.col(ij) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
+                Bd_array.col(ij) = (dfs * Pyr_Rd.col(ij).matrix()).array();
+                //
+                BdB_array.col(ij) = Bd_array.col(ij).array() * B_array.array().pow(-1).array();
+                Pyr_RdR.col(ij) = Pyr_Rd.col(ij).array() * Pyr_Risk.array().pow(-1).array();
+            }
+        }
+    }
+    fill(Ll.begin(), Ll.end(), 0.0);
+    if (!model_bool["single"]) {
+        fill(Lld.begin(), Lld.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
+    }
+    MatrixXd temp(Rd.rows(), Rd.cols());
+    temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()* s_weights.array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array()* s_weights.array());
+    fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp, 0).sum());
+    if (!model_bool["single"]) {
+        VectorXd CoL = VectorXd::Zero(Rd.rows());
+        CoL = PyrC.col(1).array() * R.col(0).array().pow(- 1).array();
+        if (model_bool["gradient"]) {
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ij = 0; ij < reqrdnum; ij++) {  //
+                VectorXd temp(Rd.rows(), 1);
+                // temp = Rd.col(ij).array() * (CoL.array() - PyrC.col(0).array());
+                temp = (Rd.col(ij).array() * CoL.array());
+                Lld[ij] = (temp.array().isFinite()).select(temp, 0).sum() - (Events.array() * Pyr_RdR.col(ij).array()).sum();
+            }
+        } else {
+            #ifdef _OPENMP
+            #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+            #endif
+            for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //
+                int ij = 0;
+                int jk = ijk;
+                while (jk > ij) {
+                    ij++;
+                    jk -= ij;
+                }
+                VectorXd temp(Rdd.rows(), 1);
+                // temp = Rdd.col(ijk).array() * (CoL.array() - PyrC.col(0).array()) - PyrC.col(1).array() * RdR.col(ij).array() * RdR.col(jk).array();
+                temp = Rdd.col(ijk).array() * CoL.array() - PyrC.col(1).array() * RdR.col(ij).array() * RdR.col(jk).array();
+                Lldd[ij*reqrdnum+jk] = (temp.array().isFinite()).select(temp, 0).sum() - (Events.array() * (Pyr_RddR.col(ijk).array() - Pyr_RdR.col(ij).array() * Pyr_RdR.col(jk).array())).sum();
+                if (ij != jk) {
+                    Lldd[jk*reqrdnum+ij] = Lldd[ij*reqrdnum+jk];
+                } else {
+                    temp = (Rd.col(ij).array() * CoL.array());
+                    Lld[ij] = (temp.array().isFinite()).select(temp, 0).sum() - (Events.array() * Pyr_RdR.col(ij).array()).sum();
                 }
             }
         }

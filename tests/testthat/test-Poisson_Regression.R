@@ -72,21 +72,21 @@ test_that("Checking pois strata default values", {
     a_n <- c(0.1, 0.1)
     model <- Pois_Strata(time, status, cell) ~ loglinear(trt, 0) + linear(karno, 1) + A()
     poisres <- PoisRun(model, df, a_n = a_n, control = control)
-    expect_equal(poisres$beta_0, c(-0.02696671, -0.96633878), tolerance = 1e-3)
+    expect_equal(poisres$beta_0, c(-0.02746393, -0.96828466), tolerance = 1e-3)
     #
     a_n <- c(-1, 1.17, -0.01)
     model <- Pois_Strata(time, status, cell) ~ loglinear(trt, 0) + loglin - dose(karno, 1) + PA()
     poisres <- PoisRun(model, df, a_n = a_n, control = control)
-    expect_equal(poisres$beta_0, c(-0.1974149, 4.7928027, -2.9691803), tolerance = 1e-3)
+    expect_equal(poisres$beta_0, c(-0.1973912, 0.1354978, -2.9692091), tolerance = 1e-3)
     #
     a_n <- c(0.1, 0.1, 0.5)
     model <- Pois_Strata(time, status, cell) ~ loglinear(trt, 0) + linear - dose(karno, 1) + PAE()
     poisres <- PoisRun(model, df, a_n = a_n, control = control)
-    expect_equal(poisres$beta_0, c(-1.702800e-01, 1.112549e-12, 9.900000e-01), tolerance = 1e-3)
+    expect_equal(poisres$beta_0, c(-1.704294e-01, -1.369429e-05, 9.900000e-01), tolerance = 1e-3)
     #
     a_n <- c(0.1, 0.1)
     model <- Pois_Strata(time, status, cell) ~ loglinear(trt, 0) + plinear(karno, 1) + GMIX()
     poisres <- PoisRun(model, df, a_n = a_n, control = control)
-    expect_equal(poisres$beta_0, c(-0.2145136, -1.9506392), tolerance = 1e-3)
+    expect_equal(poisres$beta_0, c(-0.2431597, -1.9673368), tolerance = 1e-3)
   }
 })

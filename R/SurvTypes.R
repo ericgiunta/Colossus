@@ -870,15 +870,18 @@ get_form_risk <- function(model_obj, df) {
         } else {
           # check if the column is actually a factor
           element_col <- model_paras[subterm_i]
+          if ("CONST" == element_col) {
+            if ("CONST" %in% names(df)) {
+              # fine
+            } else {
+              df$CONST <- 1
+            }
+          }
+          if (!element_col %in% names(df)) {
+            stop(paste("Error: Subterm column missing: ", col, sep = ""))
+          }
           if (is.null(levels(df[[element_col]]))) {
             col_name <- c(element_col)
-            if ("CONST" == model_paras[subterm_i]) {
-              if ("CONST" %in% names(df)) {
-                # fine
-              } else {
-                df$CONST <- 1
-              }
-            }
           } else {
             # it is a factor
             factor_arg_list <- list()

@@ -2014,19 +2014,24 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
 void Make_Risks_Weighted(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     Make_Risks(modelform, tform, term_n, totalnum, fir, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, gmix_theta, gmix_term);
-    ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();
-    ArrayXd Events = dfs.transpose() * PyrC.col(1);
-    ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();
-    s_weights = dfs * weight.matrix();
+    ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+    ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
+    ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
+    s_weights = dfs * weight.matrix();  //  A/B by row
     //
+    ArrayXd A_array = dfs * Events.matrix();  //  A by row
+    ArrayXd B_array = dfs * Pyr_Risk.matrix();  //  B by row
+    //
+    const int mat_col = dfs.cols();
+    const int mat_row = dfs.rows();
     int reqrdnum = totalnum - sum(KeepConstant);
-    R = R.array() * s_weights.array();
-    //
-    R =  (R.array().isFinite()).select(R,  - 1);
-    Rd = (Rd.array().isFinite()).select(Rd, 0);
-    Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
-    //
-    for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {  //  calculates ratios
+    // Preallocating memory for all of the B derivatives
+    MatrixXd Pyr_Rd = MatrixXd::Zero(mat_col, reqrdnum);  //  Bd in strata
+    MatrixXd Pyr_Rdd = MatrixXd::Zero(mat_col, reqrdnum*(reqrdnum + 1)/2);  //  Bdd in strata
+    MatrixXd Bd_array = MatrixXd::Zero(mat_row, reqrdnum);  //  Bd by row
+    MatrixXd Bdd_array = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  Bdd by row
+    MatrixXd BdB_array = MatrixXd::Zero(mat_row, reqrdnum);  //  Bd/B by row
+    for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {
         int ij = 0;
         int jk = ijk;
         while (jk > ij) {
@@ -2034,9 +2039,36 @@ void Make_Risks_Weighted(string modelform, const StringVector& tform, const Inte
             jk -= ij;
         }
         if (ij == jk) {
-            Rd.col(jk) = Rd.col(jk).array() * s_weights.array();
+            Pyr_Rd.col(jk) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
+            Bd_array.col(jk) = (dfs * Pyr_Rd.col(jk).matrix()).array();
+            BdB_array.col(jk) = Bd_array.col(jk).array() * B_array.array().pow(-1).array();
         }
-        Rdd.col(ijk) = Rdd.col(ijk).array() * s_weights.array();
+        Pyr_Rdd.col(ijk) = (dfs.transpose() * (PyrC.col(0).array() * Rdd.col(ijk).array()).matrix()).array();
+        Bdd_array.col(ijk) = (dfs * Pyr_Rdd.col(ijk).matrix()).array();
+    }
+    //
+    // Now we update all of the risk matrices
+    R = R.array() * s_weights.array();
+    //
+    R =  (R.array().isFinite()).select(R,  - 1);
+    Rd = (Rd.array().isFinite()).select(Rd, 0);
+    Rdd = (Rdd.array().isFinite()).select(Rdd, 0);
+    //  We can't update the first derivatives until we are finished using them for the second derivatives
+    // Start by updating the second derivatives
+    for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {  //  calculates ratios
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        Rdd.col(ijk) = s_weights.array() * B_array.col(0).array().pow(-1).array() * (B_array.col(0).array() * Rdd.col(ijk).array() - Rd.col(ij).array() * Bd_array.col(jk).array() + 2*R.col(0).array()*B_array.col(0).array().pow(-1).array()*Bd_array.col(ij).array()*Bd_array.col(jk).array() - Rd.col(jk).array() * Bd_array.col(ij).array() + R.col(0).array() * Bdd_array.col(ijk).array()).array();
+        RddR.col(ijk) = Rdd.col(ijk).array() * R.col(0).array().pow(-1).array();
+    }
+    //  Then update the first
+    for (int ij = 0; ij < reqrdnum; ij++) {  //  calculates ratios
+        Rd.col(ij) = s_weights.array() * (Rd.col(ij).array() - BdB_array.col(ij).array() * R.col(0).array()).array();
+        RdR.col(ij) = Rd.col(ij).array() * R.col(0).array().pow(-1).array();
     }
     return;
 }
@@ -2056,12 +2088,30 @@ void Make_Risks_Weighted_Gradient(string modelform, const StringVector& tform, c
     ArrayXd Events = dfs.transpose() * PyrC.col(1);
     ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();
     s_weights = dfs * weight.matrix();
+    //
+    ArrayXd A_array = dfs * Events.matrix();  //  A by row
+    ArrayXd B_array = dfs * Pyr_Risk.matrix();  //  B by row
+    //
+    const int mat_col = dfs.cols();
+    const int mat_row = dfs.rows();
     int reqrdnum = totalnum - sum(KeepConstant);
+    // Preallocating memory for all of the B derivatives
+    MatrixXd Pyr_Rd = MatrixXd::Zero(mat_col, reqrdnum);  //  Bd in strata
+    MatrixXd Bd_array = MatrixXd::Zero(mat_row, reqrdnum);  //  Bd by row
+    MatrixXd BdB_array = MatrixXd::Zero(mat_row, reqrdnum);  //  Bd/B by row
+    for (int ij = 0; ij < reqrdnum; ij++) {  //  calculates ratios
+        Pyr_Rd.col(ij) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
+        Bd_array.col(ij) = (dfs * Pyr_Rd.col(ij).matrix()).array();
+        BdB_array.col(ij) = Bd_array.col(ij).array() * B_array.array().pow(-1).array();
+    }
+    //
+    //
     R = R.array() * s_weights.array();
     R =  (R.array().isFinite()).select(R,  - 1);
     Rd = (Rd.array().isFinite()).select(Rd, 0);
     for (int ij = 0; ij < reqrdnum; ij++) {  //  calculates ratios
-        Rd.col(ij) = Rd.col(ij).array() * s_weights.array();
+        Rd.col(ij) = s_weights.array() * (Rd.col(ij).array() - BdB_array.col(ij).array() * R.col(0).array()).array();
+        RdR.col(ij) = Rd.col(ij).array() * R.col(0).array().pow(-1).array();
     }
     return;
 }
