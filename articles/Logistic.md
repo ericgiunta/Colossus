@@ -161,7 +161,7 @@ print(e)
 #> Iterations run: 11
 #> maximum step size: 9.569e-05, maximum first derivative: 3.072e-05
 #> Analysis converged
-#> Run finished in 0.024 seconds
+#> Run finished in 0.025 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(-1, -1, -1, -1)

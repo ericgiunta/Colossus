@@ -118,7 +118,7 @@ print(e1, 5)
 #> Iterations run: 8
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
-#> Run finished in 0.02588 seconds
+#> Run finished in 0.02592 seconds
 #> |-------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0),
@@ -138,7 +138,7 @@ print(e2, 5)
 #> Iterations run: 13
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
-#> Run finished in 0.02394 seconds
+#> Run finished in 0.02404 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -190,7 +190,7 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00776 seconds
+#> Run finished in 0.00781 seconds
 #> |-------------------------------------------------------------------|
 
 curve_control <- list(
@@ -213,7 +213,7 @@ print(e, 5)
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 1.9884
 #> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00743 seconds
+#> Run finished in 0.00753 seconds
 #> |-------------------------------------------------------------------|
 ```
 
@@ -253,7 +253,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00814 seconds
+#> Run finished in 0.00835 seconds
 #> |-------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -277,7 +277,7 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00871 seconds
+#> Run finished in 0.00874 seconds
 #> |-------------------------------------------------------------------|
 ```
 
