@@ -356,7 +356,8 @@ test_that("Poisson, long formula correction", {
   #
   expect_no_error(get_form_joint(list(model0, model1, "shared" = models), df)) # same strata
   expect_no_error(get_form(model0, df))
-  res <- PoisRun(model0, df)
+  control <- list(ncores = 1, maxiter = -1, maxiters = c(-1, -1))
+  res <- PoisRun(model0, df, control = control)
   expect_equal(res$strata_level, 19)
 })
 
