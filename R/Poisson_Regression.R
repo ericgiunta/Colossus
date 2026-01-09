@@ -43,53 +43,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    recur_interact <- function(x, y) {
-      if (length(y) == 1) {
-        return(paste(x, y[[1]], sep = ":"))
-      } else {
-        for (i in y[[1]]) {
-          y0 <- paste(x, i, sep = ":")
-          return(recur_interact(y0, y[2:length(y)]))
-        }
-      }
-    }
-    vals <- strat_col
-    col_name <- c()
-    if (length(vals) == 1) {
-      # factor
-      val <- factorize(df, vals)
-      df <- val$df
-      fac_names <- val$cols
-      col_name <- c(col_name, fac_names)
-    } else {
-      # there are multiple to combine
-      # get the levels for each element
-      element_levels <- list()
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        val <- factorize(df, factor_col)
-        df <- val$df
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-        element_levels[[term_i]] <- i_levels
-      }
-      combs <- c()
-      for (i in element_levels[[1]]) {
-        y0 <- i
-        combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-        for (comb in combs) {
-          #
-          entries <- strsplit(comb, ":")[[1]]
-          df[[comb]] <- 1
-          for (j in entries) {
-            df[[comb]] <- df[[comb]] * df[[j]]
-          }
-          if (min(df[[comb]]) != max(df[[comb]])) {
-            col_name <- c(col_name, comb)
-          }
-        }
-      }
-    }
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    df <- val$data
+    col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##
     df0 <- copy(df)
     val_cols <- c()
@@ -107,6 +63,11 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       } else {
         val_cols <- c(val_cols, col)
       }
+    }
+    if (control$verbose >= 3) {
+      message(paste("Note: ", length(val_cols), " strata used",
+        sep = ""
+      ))
     }
     data.table::setkeyv(df0, c(pyr0, event0))
   } else {
@@ -172,6 +133,9 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
+  if (model_control$strata == TRUE) {
+    e$strata_levels <- length(val_cols)
+  }
   e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
@@ -219,53 +183,9 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    recur_interact <- function(x, y) {
-      if (length(y) == 1) {
-        return(paste(x, y[[1]], sep = ":"))
-      } else {
-        for (i in y[[1]]) {
-          y0 <- paste(x, i, sep = ":")
-          return(recur_interact(y0, y[2:length(y)]))
-        }
-      }
-    }
-    vals <- strat_col
-    col_name <- c()
-    if (length(vals) == 1) {
-      # factor
-      val <- factorize(df, vals)
-      df <- val$df
-      fac_names <- val$cols
-      col_name <- c(col_name, fac_names)
-    } else {
-      # there are multiple to combine
-      # get the levels for each element
-      element_levels <- list()
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        val <- factorize(df, factor_col)
-        df <- val$df
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-        element_levels[[term_i]] <- i_levels
-      }
-      combs <- c()
-      for (i in element_levels[[1]]) {
-        y0 <- i
-        combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-        for (comb in combs) {
-          #
-          entries <- strsplit(comb, ":")[[1]]
-          df[[comb]] <- 1
-          for (j in entries) {
-            df[[comb]] <- df[[comb]] * df[[j]]
-          }
-          if (min(df[[comb]]) != max(df[[comb]])) {
-            col_name <- c(col_name, comb)
-          }
-        }
-      }
-    }
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    df <- val$data
+    col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##
     df0 <- copy(df)
     val_cols <- c()
@@ -354,53 +274,9 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    recur_interact <- function(x, y) {
-      if (length(y) == 1) {
-        return(paste(x, y[[1]], sep = ":"))
-      } else {
-        for (i in y[[1]]) {
-          y0 <- paste(x, i, sep = ":")
-          return(recur_interact(y0, y[2:length(y)]))
-        }
-      }
-    }
-    vals <- strat_col
-    col_name <- c()
-    if (length(vals) == 1) {
-      # factor
-      val <- factorize(df, vals)
-      df <- val$df
-      fac_names <- val$cols
-      col_name <- c(col_name, fac_names)
-    } else {
-      # there are multiple to combine
-      # get the levels for each element
-      element_levels <- list()
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        val <- factorize(df, factor_col)
-        df <- val$df
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-        element_levels[[term_i]] <- i_levels
-      }
-      combs <- c()
-      for (i in element_levels[[1]]) {
-        y0 <- i
-        combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-        for (comb in combs) {
-          #
-          entries <- strsplit(comb, ":")[[1]]
-          df[[comb]] <- 1
-          for (j in entries) {
-            df[[comb]] <- df[[comb]] * df[[j]]
-          }
-          if (min(df[[comb]]) != max(df[[comb]])) {
-            col_name <- c(col_name, comb)
-          }
-        }
-      }
-    }
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    df <- val$data
+    col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##
     df0 <- copy(df)
     val_cols <- c()
@@ -486,53 +362,9 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    recur_interact <- function(x, y) {
-      if (length(y) == 1) {
-        return(paste(x, y[[1]], sep = ":"))
-      } else {
-        for (i in y[[1]]) {
-          y0 <- paste(x, i, sep = ":")
-          return(recur_interact(y0, y[2:length(y)]))
-        }
-      }
-    }
-    vals <- strat_col
-    col_name <- c()
-    if (length(vals) == 1) {
-      # factor
-      val <- factorize(df, vals)
-      df <- val$df
-      fac_names <- val$cols
-      col_name <- c(col_name, fac_names)
-    } else {
-      # there are multiple to combine
-      # get the levels for each element
-      element_levels <- list()
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        val <- factorize(df, factor_col)
-        df <- val$df
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-        element_levels[[term_i]] <- i_levels
-      }
-      combs <- c()
-      for (i in element_levels[[1]]) {
-        y0 <- i
-        combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-        for (comb in combs) {
-          #
-          entries <- strsplit(comb, ":")[[1]]
-          df[[comb]] <- 1
-          for (j in entries) {
-            df[[comb]] <- df[[comb]] * df[[j]]
-          }
-          if (min(df[[comb]]) != max(df[[comb]])) {
-            col_name <- c(col_name, comb)
-          }
-        }
-      }
-    }
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    df <- val$data
+    col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##
     df0 <- copy(df)
     val_cols <- c()
@@ -593,6 +425,9 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
   e$modelcontrol <- model_control
+  if (model_control$strata == TRUE) {
+    e$strata_levels <- length(val_cols)
+  }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   return(e)
@@ -657,53 +492,9 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    recur_interact <- function(x, y) {
-      if (length(y) == 1) {
-        return(paste(x, y[[1]], sep = ":"))
-      } else {
-        for (i in y[[1]]) {
-          y0 <- paste(x, i, sep = ":")
-          return(recur_interact(y0, y[2:length(y)]))
-        }
-      }
-    }
-    vals <- strat_col
-    col_name <- c()
-    if (length(vals) == 1) {
-      # factor
-      val <- factorize(df, vals)
-      df <- val$df
-      fac_names <- val$cols
-      col_name <- c(col_name, fac_names)
-    } else {
-      # there are multiple to combine
-      # get the levels for each element
-      element_levels <- list()
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        val <- factorize(df, factor_col)
-        df <- val$df
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-        element_levels[[term_i]] <- i_levels
-      }
-      combs <- c()
-      for (i in element_levels[[1]]) {
-        y0 <- i
-        combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-        for (comb in combs) {
-          #
-          entries <- strsplit(comb, ":")[[1]]
-          df[[comb]] <- 1
-          for (j in entries) {
-            df[[comb]] <- df[[comb]] * df[[j]]
-          }
-          if (min(df[[comb]]) != max(df[[comb]])) {
-            col_name <- c(col_name, comb)
-          }
-        }
-      }
-    }
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    df <- val$data
+    col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##
     df0 <- copy(df)
     val_cols <- c()
@@ -778,6 +569,9 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
+  if (model_control$strata == TRUE) {
+    e$strata_levels <- length(val_cols)
+  }
   e$Survival_Type <- "Pois_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start

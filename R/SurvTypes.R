@@ -810,18 +810,16 @@ get_form_risk <- function(model_obj, df) {
               stop(paste("Error: Interaction column missing: ", col, sep = ""))
             }
           }
-
-          recur_interact <- function(x, y) {
-            if (length(y) == 1) {
-              return(paste(x, y[[1]], sep = ":"))
-            } else {
-              for (i in y[[1]]) {
-                y0 <- paste(x, i, sep = ":")
-                return(recur_interact(y0, y[2:length(y)]))
-              }
-            }
-          }
-
+          #          recur_interact <- function(x, y) {
+          #            if (length(y) == 1) {
+          #              return(paste(x, y[[1]], sep = ":"))
+          #            } else {
+          #              for (i in y[[1]]) {
+          #                y0 <- paste(x, i, sep = ":")
+          #                return(recur_interact(y0, y[2:length(y)]))
+          #              }
+          #            }
+          #          }
           interact_tables <- do.call(c, lapply(seq_along(cols), combn, x = cols, simplify = FALSE))
           col_name <- c()
           for (i_table in interact_tables) {
@@ -857,15 +855,23 @@ get_form_risk <- function(model_obj, df) {
               }
               combs <- c()
               for (i in element_levels[[1]]) {
-                y0 <- i
-                combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-                for (comb in combs) {
-                  #
-                  entries <- strsplit(comb, ":")[[1]]
-                  df[[comb]] <- 1
-                  for (j in entries) {
-                    df[[comb]] <- df[[comb]] * df[[j]]
-                  }
+                combs <- c(combs, paste(i))
+              }
+              for (i in 2:length(element_levels)) {
+                comb_temp <- copy(combs)
+                combs <- c()
+                for (k in element_levels[[i]]) {
+                  combs <- c(combs, paste(comb_temp, k, sep = ":"))
+                }
+              }
+              for (comb in combs) {
+                #
+                entries <- strsplit(comb, ":")[[1]]
+                df[[comb]] <- 1
+                for (j in entries) {
+                  df[[comb]] <- df[[comb]] * df[[j]]
+                }
+                if (max(df[[comb]]) != min(df[[comb]])) {
                   col_name <- c(col_name, comb)
                 }
               }
@@ -1187,16 +1193,16 @@ ColossusExpressionCall <- function(calls, df) {
     } else if (call["_exp_type"] == "interaction") {
       # split into the columns
       cols <- strsplit(call[[2]], "\\*")[[1]]
-      recur_interact <- function(x, y) {
-        if (length(y) == 1) {
-          return(paste(x, y[[1]], sep = ":"))
-        } else {
-          for (i in y[[1]]) {
-            y0 <- paste(x, i, sep = ":")
-            return(recur_interact(y0, y[2:length(y)]))
-          }
-        }
-      }
+      #      recur_interact <- function(x, y) {
+      #        if (length(y) == 1) {
+      #          return(paste(x, y[[1]], sep = ":"))
+      #        } else {
+      #          for (i in y[[1]]) {
+      #            y0 <- paste(x, i, sep = ":")
+      #            return(recur_interact(y0, y[2:length(y)]))
+      #          }
+      #        }
+      #      }
       interact_tables <- do.call(c, lapply(seq_along(cols), combn, x = cols, simplify = FALSE))
       for (i_table in interact_tables) {
         vals <- unlist(i_table, use.names = FALSE)
@@ -1223,15 +1229,21 @@ ColossusExpressionCall <- function(calls, df) {
           }
           combs <- c()
           for (i in element_levels[[1]]) {
-            y0 <- i
-            combs <- recur_interact(y0, element_levels[2:length(element_levels)])
-            for (comb in combs) {
-              #
-              entries <- strsplit(comb, ":")[[1]]
-              df[[comb]] <- 1
-              for (j in entries) {
-                df[[comb]] <- df[[comb]] * df[[j]]
-              }
+            combs <- c(combs, paste(i))
+          }
+          for (i in 2:length(element_levels)) {
+            comb_temp <- copy(combs)
+            combs <- c()
+            for (k in element_levels[[i]]) {
+              combs <- c(combs, paste(comb_temp, k, sep = ":"))
+            }
+          }
+          for (comb in combs) {
+            #
+            entries <- strsplit(comb, ":")[[1]]
+            df[[comb]] <- 1
+            for (j in entries) {
+              df[[comb]] <- df[[comb]] * df[[j]]
             }
           }
         }

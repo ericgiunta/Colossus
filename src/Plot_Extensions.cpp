@@ -32,6 +32,7 @@ using std::invalid_argument;
 using Eigen::Map;
 using Eigen::Ref;
 using Eigen::MatrixXd;
+using Eigen::ArrayXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
 using Eigen::VectorXi;
@@ -501,6 +502,10 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
     if (model_bool["strata"]) {
+        ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+        ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
+        ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
+        s_weights = dfs * weight.matrix();  //  A/B by row
         predict.col(0) = predict.col(0).array() * s_weights.array();;
     }
     predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
@@ -571,7 +576,11 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, St
     RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     VectorXd s_weights;
     if (model_bool["strata"]) {
-        s_weights = VectorXd::Zero(df0.rows());
+        // s_weights = VectorXd::Zero(df0.rows());
+        ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+        ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
+        ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
+        s_weights = dfs * weight.matrix();  //  A/B by row
         // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
     }
     //  ------------------------------------------------------------------------- //  initialize
@@ -580,6 +589,9 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, St
     //  ---------------------------------------------
     //
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    if (model_bool["strata"]) {
+        R = R.array() * s_weights.array();
+    }
     List res_list;
     //
     res_list = List::create(_["Risk"] = wrap(R.col(0)), _["Residual_Sum"] = wrap(R.col(0).sum()));  //  returns list of covariate values and risk

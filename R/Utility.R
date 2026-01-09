@@ -82,6 +82,98 @@ parse_literal_string <- function(string) {
   string
 }
 
+#' Calculates and applies the interaction between a list of factor columns
+#'
+#' \code{Make_Interaction_Strata} iterates through a list of factors and finds all of the valid interactions
+#'
+#' @noRd
+#' @param col_list vector of strata names
+#' @param keep_base boolean if the baseline factor values should be kept
+#' @family Data Cleaning Functions
+#' @return returns a list with the data and new columns
+Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose = TRUE), keep_base = TRUE) {
+  vals <- col_list
+  og_name <- names(df)
+  combs <- c()
+  if (length(vals) == 1) {
+    # factor
+    val <- factorize(df, vals)
+    df <- val$df
+    fac_names <- val$cols
+    combs <- c(combs, fac_names)
+  } else {
+    # there are multiple to combine
+    # get the levels for each element
+    element_levels <- list()
+    for (term_i in seq_along(vals)) {
+      factor_col <- vals[term_i]
+      val <- factorize(df, factor_col)
+      df <- val$df
+      df[[factor_col]] <- factor(df[[factor_col]])
+      i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
+      if (!keep_base) {
+        level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
+        i_levels <- i_levels[i_levels != level_ref]
+      }
+      ## We want to check that each level has events
+      i_levels_kept <- c() # make a list to keep
+      for (col in i_levels) {
+        temp <- sum(df[get(col) == 1, ][[event0]]) # get number of events
+        if (temp == 0) { # if none then we remove that data and the level column
+          if (control$verbose >= 2) {
+            warning(paste("Warning: no events for strata group:", col,
+              sep = " "
+            ))
+          }
+          df <- df[get(col) != 1, ] # remove data
+          full_name <- names(df)
+          df <- df[, full_name[full_name != col], with = FALSE] # remove column
+        } else {
+          i_levels_kept <- c(i_levels_kept, col)
+        }
+      }
+      # Only keep the levels that had events
+      element_levels[[term_i]] <- i_levels_kept
+    }
+    combs <- c(element_levels[[1]]) # grab the first level of interaction
+    for (i in 2:length(element_levels)) { # iterate over every other level
+      comb_temp <- copy(combs) # the currently kept interaction columns
+      combs <- c() # the new interactions
+      for (k in element_levels[[i]]) {
+        for (j in comb_temp) {
+          comb <- paste(j, k, sep = ":") # the new interacted level to test
+          df[[comb]] <- df[[j]] * df[[k]] # make the column
+          if (max(df[[comb]]) != 0.0) { # If there is some data in the interacted level
+            # Check if there are events
+            temp <- sum(df[get(comb) == 1, ][[event0]])
+            if (temp == 0) {
+              if (control$verbose >= 2) {
+                warning(paste("Warning: no events for strata group:", comb,
+                  sep = " "
+                ))
+              }
+              # Remove the data and level column
+              df <- df[get(comb) != 1, ]
+              full_name <- names(df)
+              df <- df[, full_name[full_name != comb], with = FALSE]
+            } else {
+              # We keep any interaction levels with data and events
+              combs <- c(combs, comb)
+            }
+          } else {
+            # There was no rows at that interaction level
+            df <- df[get(comb) != 1, ]
+            full_name <- names(df)
+            df <- df[, full_name[full_name != comb], with = FALSE]
+          }
+        }
+      }
+    }
+    df <- df[, c(og_name, combs), with = FALSE] # scale the data back down
+  }
+  return(list("data" = df, "combs" = combs))
+}
+
 #' Automatically assigns missing values in listed columns
 #'
 #' \code{Replace_Missing} checks each column and fills in NA values
@@ -2507,6 +2599,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
         strata <- out_list$model$strata
+        strata_level <- out_list$strata_levels
         cens_weight <- out_list$model$weight
         converged <- out_list$Converged
         if (is(out_list, "coxres")) {
@@ -2526,6 +2619,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           message("\nPoisson Model Used")
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+            message("Strata split into ", strata_level, " distinct levels", sep = "")
           }
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
