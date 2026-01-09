@@ -361,6 +361,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             beta_p = beta_c;  //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
+            neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
             if (model_bool["gradient"]) {
@@ -532,6 +533,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
+        neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
@@ -980,6 +982,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
             beta_p = beta_c;  //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
+            neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
             if (model_bool["gradient"]) {
@@ -1152,6 +1155,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
+        neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
@@ -1604,6 +1608,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             strata_p = strata_c;  //
             strata_a = strata_c;  //
             strata_best = strata_c;  //
+            neg_limit = FALSE;
             if (model_bool["gradient"]) {
                 Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
             } else {
@@ -1902,6 +1907,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         strata_p = strata_c;  //
         strata_a = strata_c;  //
         strata_best = strata_c;  //
+        neg_limit = FALSE;
         if (model_bool["gradient"]) {
             Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
         } else {
@@ -1997,7 +2003,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     neg_limit = TRUE;
                 } else {
                     halves++;
-                    neg_limit = FALSE;
+                    // neg_limit = FALSE;
                     Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
                     Calc_Recur_LogLik(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, RdR, RddR, dev, Ll, Lld, Lldd, Recur_Base, Recur_First, Recur_Second, strata_odds, nthreads, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta);
                     Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
@@ -2419,6 +2425,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
             beta_p = beta_c;  //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
+            neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
             if (model_bool["gradient"]) {
@@ -2642,6 +2649,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
+        neg_limit = FALSE;
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
             if (model_bool["constraint"]) {
@@ -2719,7 +2727,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                     neg_limit = TRUE;
                 } else {
                     halves++;
-                    neg_limit = FALSE;
+                    // neg_limit = FALSE;
                     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                     //
                     if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step

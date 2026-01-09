@@ -766,6 +766,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             beta_p = beta_c;  //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
+            neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
@@ -2032,6 +2033,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, co
             beta_p = beta_c;  //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
+            neg_limit = FALSE;
             //  calculates the initial change in parameter
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);

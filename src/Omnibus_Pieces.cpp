@@ -584,7 +584,7 @@ void Cox_Pois_Check_Continue(List& model_bool, VectorXd beta_0, vector<double>& 
         neg_limit = true;
     } else {
         halves++;
-        neg_limit = false;
+        // neg_limit = false;
         if (model_bool["cox"]) {
             Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         } else {
@@ -731,6 +731,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
+        neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
         if (model_bool["basic"]) {
@@ -894,6 +895,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
+        neg_limit = FALSE;
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //

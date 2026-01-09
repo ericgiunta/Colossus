@@ -86,7 +86,15 @@ $$
 $$
 </p>
 
-Only results associated with the non-stratified parameters are returned by default. An average event rate is calculated for every strata level, which weights the calculated risks. The weighting is performed so that the predicted rate when every model parameter is set to 0 equals the average strata rates. Note that this can lead to errors if the model specified predicts a rate of 0 when the model parameters are all 0. Purely linear models cannot be used with stratification currently for this reason.
+Only results associated with the non-stratified parameters are returned by default. The strata effect is calculated by taking the ratio of the events in each strata to the sum of person-years multiplied by risk in each strata. The derivatives are then written, substituting the strata effect.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \beta_{strata} = (\sum_i {event}_i) / (\sum_i P_i \cdot R_i)
+\end{aligned}
+$$
+</p>
 
 In code, this is done by adding in a list of stratification columns and using a different response term in the model. Colossus combines the list of stratification columns into a single interaction, so it does not matter if the user provides a list or combines them themselves.
 

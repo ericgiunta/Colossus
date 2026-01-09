@@ -2649,7 +2649,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           }
           neg_lim <- out_list$Control_List$"Ended on Negative Limit"
           if (neg_lim) {
-            message("Warning: The regression ended after hitting a negative risk.")
+            message("Warning: The last iteration encountered a negative risk.")
           }
         }
       }
