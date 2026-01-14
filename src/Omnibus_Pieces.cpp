@@ -535,19 +535,19 @@ void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, 
     } else {
         Poisson_LogLik_Strata(model_bool, nthreads, totalnum, dfs, PyrC, s_weights, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, KeepConstant);
         //
-        dev_temp.col(0) = PyrC.col(0).array() * R.col(0).array() * s_weights.array();
-        dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array().pow(- 1).array();
-        dev_temp.col(0) = dev_temp.col(0).array().log().array();
-        dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
-        dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array() * s_weights.array();
-        //
-        dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0), 0);
-        //
-        dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
-        dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();
-        dev_temp = (dev_temp.array().isFinite()).select(dev_temp, 0);
-        dev_temp.col(0) = (R.col(0).array() < 0).select(0, dev_temp.col(0));
-        dev = dev_temp.col(0).sum();  //  deviation calculation is split into steps
+        // dev_temp.col(0) = PyrC.col(0).array() * R.col(0).array() * s_weights.array();
+        // dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array().pow(- 1).array();
+        // dev_temp.col(0) = dev_temp.col(0).array().log().array();
+        // dev_temp.col(0) = PyrC.col(1).array() * dev_temp.col(0).array();
+        // dev_temp.col(1) = PyrC.col(1).array() - PyrC.col(0).array() * R.col(0).array() * s_weights.array();
+        // //
+        // dev_temp.col(0) = (dev_temp.col(0).array().isFinite()).select(dev_temp.col(0), 0);
+        // //
+        // dev_temp.col(0) = dev_temp.col(0).array() - dev_temp.col(1).array();
+        // dev_temp.col(0) = (2 * dev_temp.col(0).array()).array();
+        // dev_temp = (dev_temp.array().isFinite()).select(dev_temp, 0);
+        // dev_temp.col(0) = (R.col(0).array() < 0).select(0, dev_temp.col(0));
+        // dev = dev_temp.col(0).sum();  //  deviation calculation is split into steps
     }
     //
     if (model_bool["single"]) {
@@ -1262,47 +1262,47 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
 //'
 void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
     //
-    const int mat_col = dfs.cols();
-    const int mat_row = dfs.rows();
+    // const int mat_col = dfs.cols();
+    // const int mat_row = dfs.rows();
     int reqrdnum = totalnum - sum(KeepConstant);
     //
-    ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
-    ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
-    ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
-    ArrayXd s_weights = dfs * weight.matrix();  //  A/B by row
-    //
-    MatrixXd Pyr_Rd     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd in strata
-    MatrixXd Pyr_Rdd    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd in strata
-    MatrixXd Pyr_RdR     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd/B in strata
-    MatrixXd Pyr_RddR    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd/B in strata
-    for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        if (ij == jk) {
-            Pyr_Rd.col(ij) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
-            Pyr_RdR.col(ij) = Pyr_Rd.col(ij).array() * Pyr_Risk.array().pow(-1).array();
-        }
-        Pyr_Rdd.col(ijk) = (dfs.transpose() * (PyrC.col(0).array() * Rdd.col(ijk).array()).matrix()).array();
-        Pyr_RddR.col(ijk) = Pyr_Rdd.col(ijk).array() * Pyr_Risk.array().pow(-1).array();
-    }
-    //
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  totalnum*(totalnum + 1)/2
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        InMa[ij*reqrdnum+jk] = (Events.array() * (Pyr_RddR.col(ijk).array() - Pyr_RdR.col(ij).array() * Pyr_RdR.col(jk).array())).sum() - (PyrC.col(0).array() * s_weights.array() * (Rdd.col(ijk).array() - Rd.col(ij).array() * RdR.col(jk).array()).array()).array().sum();
-        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
-    }
+    // ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+    // ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
+    // ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
+    // ArrayXd s_weights = dfs * weight.matrix();  //  A/B by row
+    // //
+    // MatrixXd Pyr_Rd     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd in strata
+    // MatrixXd Pyr_Rdd    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd in strata
+    // MatrixXd Pyr_RdR     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd/B in strata
+    // MatrixXd Pyr_RddR    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd/B in strata
+    // for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {
+    //     int ij = 0;
+    //     int jk = ijk;
+    //     while (jk > ij) {
+    //         ij++;
+    //         jk -= ij;
+    //     }
+    //     if (ij == jk) {
+    //         Pyr_Rd.col(ij) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
+    //         Pyr_RdR.col(ij) = Pyr_Rd.col(ij).array() * Pyr_Risk.array().pow(-1).array();
+    //     }
+    //     Pyr_Rdd.col(ijk) = (dfs.transpose() * (PyrC.col(0).array() * Rdd.col(ijk).array()).matrix()).array();
+    //     Pyr_RddR.col(ijk) = Pyr_Rdd.col(ijk).array() * Pyr_Risk.array().pow(-1).array();
+    // }
+    // //
+    // #ifdef _OPENMP
+    // #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    // #endif
+    // for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  totalnum*(totalnum + 1)/2
+    //     int ij = 0;
+    //     int jk = ijk;
+    //     while (jk > ij) {
+    //         ij++;
+    //         jk -= ij;
+    //     }
+    //     InMa[ij*reqrdnum+jk] = (Events.array() * (Pyr_RddR.col(ijk).array() - Pyr_RdR.col(ij).array() * Pyr_RdR.col(jk).array())).sum() - (PyrC.col(0).array() * s_weights.array() * (Rdd.col(ijk).array() - Rd.col(ij).array() * RdR.col(jk).array()).array()).array().sum();
+    //     InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
+    // }
     return;
 }
 

@@ -98,100 +98,55 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
   combs <- c()
   if (length(vals) == 1) {
     # factor
-    val <- factorize(df, vals)
-    df <- val$df
-    fac_names <- val$cols
-    combs <- c(combs, fac_names)
+    df$comb_strata <- as.integer(factor(df[[vals]])) - 1
+    combs <- unique(df$comb_strata)
   } else {
     # there are multiple to combine
     # get the levels for each element
-    element_levels <- list()
-    if (!filter_df) {
-      # We aren't filtering anything, so we make a category to cover all of the previously removed data
-      df$filtered_categ <- 0
+    if (filter_df) {
+        for (term_i in seq_along(vals)) {
+          factor_col <- vals[term_i]
+          df[[factor_col]] <- factor(df[[factor_col]])
+          i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
+          if (!keep_base) {
+            level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
+            i_levels <- i_levels[i_levels != level_ref]
+          }
+              for (col in i_levels) {
+                temp <- sum(df[get(col) == 1, ][[event0]]) # get number of events
+                if (temp == 0) { # if none then we remove that data and the level column
+                  if (control$verbose >= 2) {
+                    warning(paste("Warning: no events for strata group:", col,
+                      sep = " "
+                    ))
+                  }
+                  df <- df[get(col) != 1, ] # remove data
+                }
+              }
+          }
     }
+    # We want to combine the strata values together
+    df$comb_strata <- ""
     for (term_i in seq_along(vals)) {
       factor_col <- vals[term_i]
-      val <- factorize(df, factor_col)
-      df <- val$df
-      df[[factor_col]] <- factor(df[[factor_col]])
-      i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-      if (!keep_base) {
-        level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
-        i_levels <- i_levels[i_levels != level_ref]
+      if (term_i == 1){
+        df$comb_strata <- df[[factor_col]]
+      } else {
+        df$comb_strata <- paste(df$comb_strata, df[[factor_col]], sep = ":")
       }
-      ## We want to check that each level has events
-      i_levels_kept <- c() # make a list to keep
-      for (col in i_levels) {
-        temp <- sum(df[get(col) == 1, ][[event0]]) # get number of events
+    }
+    combs <- unique(df$comb_strata)
+    if (filter_df) {
+      for (comb in combs) {
+        # We want to check if this strata has events
+        temp <- sum(df[comb_strata == comb, ][[event0]]) # get number of events
         if (temp == 0) { # if none then we remove that data and the level column
-          if (control$verbose >= 2) {
-            warning(paste("Warning: no events for strata group:", col,
-              sep = " "
-            ))
-          }
-          if (filter_df) {
-            df <- df[get(col) != 1, ] # remove data
-          } else {
-            df[get(col) != 1, "filtered_categ"] <- 1
-          }
-          full_name <- names(df)
-          df <- df[, full_name[full_name != col], with = FALSE] # remove column
-        } else {
-          i_levels_kept <- c(i_levels_kept, col)
-        }
-      }
-      # Only keep the levels that had events
-      element_levels[[term_i]] <- i_levels_kept
-    }
-    combs <- c(element_levels[[1]]) # grab the first level of interaction
-    for (i in 2:length(element_levels)) { # iterate over every other level
-      comb_temp <- copy(combs) # the currently kept interaction columns
-      combs <- c() # the new interactions
-      for (k in element_levels[[i]]) {
-        for (j in comb_temp) {
-          comb <- paste(j, k, sep = ":") # the new interacted level to test
-          df[[comb]] <- df[[j]] * df[[k]] # make the column
-          if (max(df[[comb]]) != 0.0) { # If there is some data in the interacted level
-            # Check if there are events
-            temp <- sum(df[get(comb) == 1, ][[event0]])
-            if (temp == 0) {
-              if (control$verbose >= 2) {
-                warning(paste("Warning: no events for strata group:", comb,
-                  sep = " "
-                ))
-              }
-              # Remove the data and level column
-              if (filter_df) {
-                df <- df[get(comb) != 1, ] # remove data
-              } else {
-                df[get(comb) != 1, "filtered_categ"] <- 1
-              }
-              full_name <- names(df)
-              df <- df[, full_name[full_name != comb], with = FALSE]
-            } else {
-              # We keep any interaction levels with data and events
-              combs <- c(combs, comb)
-            }
-          } else {
-            # There was no rows at that interaction level
-            if (filter_df) {
-              df <- df[get(comb) != 1, ] # remove data
-            } else {
-              df[get(comb) != 1, "filtered_categ"] <- 1
-            }
-            full_name <- names(df)
-            df <- df[, full_name[full_name != comb], with = FALSE]
-          }
+          df <- df[comb_strata != comb, ] # remove data
         }
       }
     }
-    if (!filter_df) {
-      combs <- c(combs, "filtered_categ")
-    }
-    df <- df[, c(og_name, combs), with = FALSE] # scale the data back down
   }
-  return(list("data" = df, "combs" = combs))
+  return(list("data" = df, "combs" = "comb_strata","levels" = combs))
 }
 
 #' Automatically assigns missing values in listed columns

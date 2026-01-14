@@ -2014,11 +2014,11 @@ void Make_Risks_Gradient(string modelform, const StringVector& tform, const Inte
 void Make_Risks_Weighted_Single(string modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, const MatrixXd& T0, MatrixXd& Te, MatrixXd& R, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
-    ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();
-    ArrayXd Events = dfs.transpose() * PyrC.col(1);
-    ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();
-    s_weights = dfs * weight.matrix();
-    R = R.array() * s_weights.array();
+    // ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();
+    // ArrayXd Events = dfs.transpose() * PyrC.col(1);
+    // ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();
+    // s_weights = dfs * weight.matrix();
+    // R = R.array() * s_weights.array();
     R =  (R.array().isFinite()).select(R,  - 1);
     return;
 }
