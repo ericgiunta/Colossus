@@ -89,9 +89,10 @@ parse_literal_string <- function(string) {
 #' @noRd
 #' @param col_list vector of strata names
 #' @param keep_base boolean if the baseline factor values should be kept
+#' @param filter_df boolean if the dataframe should be filtered. If false, a new category is created for any 0 case strata
 #' @family Data Cleaning Functions
 #' @return returns a list with the data and new columns
-Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose = TRUE), keep_base = TRUE) {
+Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose = TRUE), keep_base = TRUE, filter_df = TRUE) {
   vals <- col_list
   og_name <- names(df)
   combs <- c()
@@ -105,6 +106,10 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     # there are multiple to combine
     # get the levels for each element
     element_levels <- list()
+    if (!filter_df) {
+      # We aren't filtering anything, so we make a category to cover all of the previously removed data
+      df$filtered_categ <- 0
+    }
     for (term_i in seq_along(vals)) {
       factor_col <- vals[term_i]
       val <- factorize(df, factor_col)
@@ -125,7 +130,11 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
               sep = " "
             ))
           }
-          df <- df[get(col) != 1, ] # remove data
+          if (filter_df) {
+            df <- df[get(col) != 1, ] # remove data
+          } else {
+            df[get(col) != 1, "filtered_categ"] <- 1
+          }
           full_name <- names(df)
           df <- df[, full_name[full_name != col], with = FALSE] # remove column
         } else {
@@ -153,7 +162,11 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
                 ))
               }
               # Remove the data and level column
-              df <- df[get(comb) != 1, ]
+              if (filter_df) {
+                df <- df[get(comb) != 1, ] # remove data
+              } else {
+                df[get(comb) != 1, "filtered_categ"] <- 1
+              }
               full_name <- names(df)
               df <- df[, full_name[full_name != comb], with = FALSE]
             } else {
@@ -162,12 +175,19 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
             }
           } else {
             # There was no rows at that interaction level
-            df <- df[get(comb) != 1, ]
+            if (filter_df) {
+              df <- df[get(comb) != 1, ] # remove data
+            } else {
+              df[get(comb) != 1, "filtered_categ"] <- 1
+            }
             full_name <- names(df)
             df <- df[, full_name[full_name != comb], with = FALSE]
           }
         }
       }
+    }
+    if (!filter_df) {
+      combs <- c(combs, "filtered_categ")
     }
     df <- df[, c(og_name, combs), with = FALSE] # scale the data back down
   }

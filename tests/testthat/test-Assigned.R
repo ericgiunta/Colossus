@@ -36,19 +36,21 @@ test_that("Poisson Assigned Events, check results", {
   expect_equal(sum(e0[, 1:2]), sum(e0[, 3]), tolerance = 1e-2)
   expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
   #
+  expect_no_error(df$bk <- e0[, 1])
+  #
   expect_error(EventAssignment(poisres, df, bad = "wrong"))
   expect_error(EventAssignment(poisres, df, assign_control = "wrong"))
 })
 test_that("Poisson Assigned Events, check results strata", {
   df <- data.table::data.table(
-    "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-    "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-    "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-    "Cancer_Status" = c(12, 10, 18, 6, 1, 11, 4),
-    "a" = c(0, 1, 1, 0, 1, 0, 1),
-    "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-    "c" = c(10, 11, 10, 11, 12, 9, 11),
-    "d" = c(0, 0, 0, 1, 1, 1, 1)
+    "UserID" = c(112, 114, 213, 214, 115, 116, 117, 118),
+    "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18, 56),
+    "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55, 57),
+    "Cancer_Status" = c(12, 10, 18, 6, 1, 11, 4, 0),
+    "a" = c(0, 1, 1, 0, 1, 0, 1, 1),
+    "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2, 1),
+    "c" = c(10, 11, 10, 11, 12, 9, 11, 5),
+    "d" = c(0, 0, 0, 1, 1, 1, 1, 2)
   )
   set.seed(3742)
   df$pyr <- df$Ending_Age - df$Starting_Age
@@ -95,6 +97,10 @@ test_that("Poisson Assigned Events, check results strata", {
 
     expect_equal(sum(e0[, 1:2]), sum(e0[, 3]), tolerance = 1e-2)
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
+
+    #
+    #    expect_no_error(df$bk <- e0[, 1])
+    #
   }
 })
 

@@ -510,10 +510,12 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     }
     predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
     predict.col(1) = predict.col(2).array() - predict.col(0).array();
+    predict = (predict.array().isFinite()).select(predict, 0);
     //
     caused.col(0) = PyrC.col(1).array() * predict.col(0).array() / predict.col(2).array();
     caused.col(1) = PyrC.col(1).array() * predict.col(1).array() / predict.col(2).array();
     caused.col(2) = PyrC.col(1).array();
+    caused = (caused.array().isFinite()).select(caused, 0);  //  Correction to account for rows with zero predicted events, due to strata effects
     //
     res_list = List::create(_["caused"] = wrap(caused), _["predict"] = wrap(predict));
     return res_list;

@@ -1314,7 +1314,11 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         }
     } else {
         vector<double> InMa(pow(reqrdnum, 2), 0.0);
-        Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+        if (model_bool["strata"]) {
+            Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
+        } else {
+            Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+        }
         NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)

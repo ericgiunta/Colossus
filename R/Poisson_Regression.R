@@ -183,7 +183,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, filter_df = FALSE)
     df <- val$data
     col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##
@@ -274,7 +274,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, filter_df = FALSE)
     df <- val$data
     col_name <- val$combs
     ## ------------------------------------------------------------------------------- ##

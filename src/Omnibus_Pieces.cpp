@@ -40,6 +40,7 @@ using std::setprecision;
 using Eigen::Map;
 using Eigen::Ref;
 using Eigen::MatrixXd;
+using Eigen::ArrayXd;
 using Eigen::SparseMatrix;
 using Eigen::VectorXd;
 
@@ -1035,19 +1036,8 @@ void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFa
             double Rs1 = r_rd_prod/r_sum;
             double Ls1 = rd_sum0*rd_sum1/pow(r_sum, 2);
             InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+            InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
         }
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
 }
@@ -1101,21 +1091,10 @@ void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix&
                     double Rs1 = r_rd_prod/r_sum;
                     double Ls1 = rd_sum0*rd_sum1/pow(r_sum, 2);
                     InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+                    InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
                 }
             }
         }
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
 }
@@ -1175,19 +1154,8 @@ void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& Ris
             double Rs1 = r_rd_prod/r_sum;
             double Ls1 = rd_sum0*rd_sum1/pow(r_sum, 2);
             InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+            InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
         }
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
 }
@@ -1249,21 +1217,10 @@ void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatr
                     double Rs1 = r_rd_prod/r_sum;
                     double Ls1 = rd_sum0*rd_sum1/pow(r_sum, 2);
                     InMa[ij*reqrdnum+jk] += dj*(Rs1 - Ls1);
+                    InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
                 }
             }
         }
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
 }
@@ -1290,17 +1247,54 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
             jk -= ij;
         }
         InMa[ij*reqrdnum+jk] = (PyrC.col(0).array() * R.col(0).array() * RdR.col(ij).array() * RdR.col(jk).array()).array().sum();
+        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
+    return;
+}
+
+//' Utility function to calculate stratafied poisson expected information matrix
+//'
+//' \code{Expected_Inform_Matrix_Poisson_Strata} Called to update information matrix
+//' @inheritParams CPP_template
+//'
+//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @noRd
+//'
+void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
+    //
+    const int mat_col = dfs.cols();
+    const int mat_row = dfs.rows();
+    int reqrdnum = totalnum - sum(KeepConstant);
+    //
+    ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+    MatrixXd Pyr_Rd     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd in strata
+    MatrixXd Pyr_Rdd    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd in strata
+    MatrixXd Pyr_RdR     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd/B in strata
+    for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {
         int ij = 0;
         int jk = ijk;
         while (jk > ij) {
             ij++;
             jk -= ij;
         }
+        if (ij == jk) {
+            Pyr_Rd.col(ij) = (dfs.transpose() * (PyrC.col(0).array() * Rd.col(ij).array()).matrix()).array();
+            Pyr_RdR.col(ij) = Pyr_Rd.col(ij).array() * Pyr_Risk.array().pow(-1).array();
+        }
+        Pyr_Rdd.col(ijk) = (dfs.transpose() * (PyrC.col(0).array() * Rdd.col(ijk).array()).matrix()).array();
+    }
+    //
+    #ifdef _OPENMP
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+    #endif
+    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  totalnum*(totalnum + 1)/2
+        int ij = 0;
+        int jk = ijk;
+        while (jk > ij) {
+            ij++;
+            jk -= ij;
+        }
+        InMa[ij*reqrdnum+jk] = (Pyr_Rdd.col(ijk).array() - Pyr_Rd.col(ij).array() * Pyr_RdR.col(jk).array()).array().sum() - (PyrC.col(0).array() * (Rdd.col(ijk).array() - Rd.col(ij).array() * RdR.col(jk).array()).array()).array().sum();
         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
@@ -1327,17 +1321,6 @@ void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, con
             jk -= ij;
         }
         InMa[ij*reqrdnum+jk] = (CountEvent.col(1).array() * PdP.col(ij).array() * PnotdP.col(jk).array()).array().sum();
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
@@ -1567,20 +1550,9 @@ void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, cons
                     Rs3 = exp(strata_odds[group_ij]) * (Rs3l - exp(strata_odds[group_ij])*Rs3r);
                     InMa[der_ij*reqrdnum+der_jk] -= Ld3 - Rs3;
                 }
+                InMa[der_jk*reqrdnum+der_ij] = InMa[der_ij*reqrdnum+der_jk];
             }
         }
-    }
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {  //  fills second-derivative matrix
-        int ij = 0;
-        int jk = ijk;
-        while (jk > ij) {
-            ij++;
-            jk -= ij;
-        }
-        InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
 }

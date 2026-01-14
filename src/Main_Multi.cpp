@@ -1430,7 +1430,11 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
         } else {
             //
             vector<double> InMa(pow(reqrdnum, 2), 0.0);
-            Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+            if (model_bool["strata"]) {
+                Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
+            } else {
+                Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+            }
             NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
             #ifdef _OPENMP
             #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1984,7 +1988,11 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
     } else {
         //
         vector<double> InMa(pow(reqrdnum, 2), 0.0);
-        Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+        if (model_bool["strata"]) {
+            Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
+        } else {
+            Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
+        }
         NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)

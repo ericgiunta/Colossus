@@ -615,6 +615,16 @@ NULL
 #'
 NULL
 
+#' Utility function to calculate stratafied poisson expected information matrix
+#'
+#' \code{Expected_Inform_Matrix_Poisson_Strata} Called to update information matrix
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @noRd
+#'
+NULL
+
 #' Utility function to calculate logistic model expected information matrix
 #'
 #' \code{Expected_Inform_Matrix_Logist} Called to update information matrix
