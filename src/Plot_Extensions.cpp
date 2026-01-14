@@ -17,6 +17,7 @@
 
 #include "Omnibus_Pieces.h"
 #include "Calc_Repeated.h"
+#include "Grouping.h"
 #include "Subterms_Risk.h"
 #include "Colossus_types.h"
 

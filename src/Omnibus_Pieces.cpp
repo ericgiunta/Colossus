@@ -1267,9 +1267,14 @@ void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& total
     int reqrdnum = totalnum - sum(KeepConstant);
     //
     ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
+    ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
+    ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
+    ArrayXd s_weights = dfs * weight.matrix();  //  A/B by row
+    //
     MatrixXd Pyr_Rd     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd in strata
     MatrixXd Pyr_Rdd    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd in strata
     MatrixXd Pyr_RdR     = MatrixXd::Zero(mat_col, Rd.cols());   //  Bd/B in strata
+    MatrixXd Pyr_RddR    = MatrixXd::Zero(mat_col, Rdd.cols());  //  Bdd/B in strata
     for (int ijk = 0; ijk < (reqrdnum*(reqrdnum + 1)/2); ijk++) {
         int ij = 0;
         int jk = ijk;
@@ -1282,6 +1287,7 @@ void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& total
             Pyr_RdR.col(ij) = Pyr_Rd.col(ij).array() * Pyr_Risk.array().pow(-1).array();
         }
         Pyr_Rdd.col(ijk) = (dfs.transpose() * (PyrC.col(0).array() * Rdd.col(ijk).array()).matrix()).array();
+        Pyr_RddR.col(ijk) = Pyr_Rdd.col(ijk).array() * Pyr_Risk.array().pow(-1).array();
     }
     //
     #ifdef _OPENMP
@@ -1294,7 +1300,7 @@ void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& total
             ij++;
             jk -= ij;
         }
-        InMa[ij*reqrdnum+jk] = (Pyr_Rdd.col(ijk).array() - Pyr_Rd.col(ij).array() * Pyr_RdR.col(jk).array()).array().sum() - (PyrC.col(0).array() * (Rdd.col(ijk).array() - Rd.col(ij).array() * RdR.col(jk).array()).array()).array().sum();
+        InMa[ij*reqrdnum+jk] = (Events.array() * (Pyr_RddR.col(ijk).array() - Pyr_RdR.col(ij).array() * Pyr_RdR.col(jk).array())).sum() - (PyrC.col(0).array() * s_weights.array() * (Rdd.col(ijk).array() - Rd.col(ij).array() * RdR.col(jk).array()).array()).array().sum();
         InMa[jk*reqrdnum+ij] = InMa[ij*reqrdnum+jk];
     }
     return;
