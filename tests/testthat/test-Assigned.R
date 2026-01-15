@@ -78,6 +78,10 @@ test_that("Poisson Assigned Events, check results strata", {
     "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,
     "thres_step_max" = 100.0, "verbose" = 0
   )
+  res_0 <- c(166.1197, 185.6144, 310.4459, 152.3147, 124.5314, 211.6529, 287.7323, 134.2735, 169.0388)
+  res_1 <- c(29.293795245, 0.004552392, 16.705778339, 25.508603705, 0.018238072, 28.813274218, 21.602469009, 2.007582573, 0.131742868)
+  res_2 <- c(29.346103747, 0.002581566, 15.799809687, 25.554827359, 0.013333945, 28.864420253, 21.396141586, 1.838636616, 0.100627725)
+  res_3 <- c(7.063113e+00, 6.939002e-08, 8.947814e-01, 6.153431e+00, 2.769895e-06, 4.900849e+00, 1.782890e+00, 4.306711e-02, 1.069412e-04)
   for (i in 1:9) {
     a_n <- 2 * runif(3) - 1
     poisres$beta_0 <- a_n
@@ -86,6 +90,8 @@ test_that("Poisson Assigned Events, check results strata", {
     e0 <- e$predict
     e1 <- e$caused
 
+    expect_equal(sum(e0[, 1]), res_0[i], tolerance = 1e-2)
+    expect_equal(sum(e1[, 1]), res_1[i], tolerance = 1e-2)
     expect_equal(sum(e0[, 1:2]), sum(e0[, 3]), tolerance = 1e-2)
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
 
@@ -95,12 +101,10 @@ test_that("Poisson Assigned Events, check results strata", {
     e0 <- e$predict
     e1 <- e$caused
 
+    expect_equal(sum(e0[, 1]), res_2[i], tolerance = 1e-2)
+    expect_equal(sum(e1[, 1]), res_3[i], tolerance = 1e-2)
     expect_equal(sum(e0[, 1:2]), sum(e0[, 3]), tolerance = 1e-2)
     expect_equal(sum(e1[, 1:2]), sum(e1[, 3]), tolerance = 1e-2)
-
-    #
-    #    expect_no_error(df$bk <- e0[, 1])
-    #
   }
 })
 

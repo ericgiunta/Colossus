@@ -31,7 +31,7 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
 
 void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals);
 
-void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata, const int& nthreads);
+void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata_Pois, const int& nthreads);
 
 void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight);
 

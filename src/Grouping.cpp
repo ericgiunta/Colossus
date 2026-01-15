@@ -240,10 +240,10 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
 //' @return Updates matrices in place: Vectors of strings with rows at risk for each strata
 //' @noRd
 //'
-void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata, const int& nthreads) {
+void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata_Pois, const int& nthreads) {
     //
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(dfs, RiskPairs_Strata, Strata_vals)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(dfs, RiskPairs_Strata_Pois, Strata_vals)
     #endif
     for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         VectorXi select_ind_end = ((dfs.col(0).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
@@ -267,7 +267,7 @@ void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vec
             }
         }
         //
-        RiskPairs_Strata[s_ij] = indices;
+        RiskPairs_Strata_Pois[s_ij] = indices;
     }
     return;
 }

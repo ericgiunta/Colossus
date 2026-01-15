@@ -759,8 +759,8 @@ cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelf
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_pois_Omnibus_transition`, PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
+pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_transition`, PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the event assignment omnibus function
@@ -771,8 +771,8 @@ pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, mo
 #' @return list of assigned/predicted background/excess events
 #' @noRd
 #'
-Assigned_Event_Poisson_transition <- function(PyrC, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control) {
-    .Call(`_Colossus_Assigned_Event_Poisson_transition`, PyrC, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control)
+Assigned_Event_Poisson_transition <- function(PyrC, Strata_vals, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control) {
+    .Call(`_Colossus_Assigned_Event_Poisson_transition`, PyrC, Strata_vals, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control)
 }
 
 #' Interface between R code and the plotting omnibus function
@@ -819,8 +819,8 @@ cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, df0, 
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_Omnibus_CurveSearch_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_pois_Omnibus_CurveSearch_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
+pois_Omnibus_CurveSearch_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_CurveSearch_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson omnibus bounds regression function
@@ -831,8 +831,8 @@ pois_Omnibus_CurveSearch_transition <- function(PyrC, term_n, tform, a_n, dfc, d
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_Omnibus_Bounds_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
+pois_Omnibus_Bounds_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_Bounds_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson residual calculation function
@@ -843,8 +843,8 @@ pois_Omnibus_Bounds_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, f
 #' @return Poisson_Residuals output : list of residuals and sum
 #' @noRd
 #'
-pois_Residual_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control) {
-    .Call(`_Colossus_pois_Residual_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control)
+pois_Residual_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control) {
+    .Call(`_Colossus_pois_Residual_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control)
 }
 
 #' Interface between R code and the Cox PH omnibus regression function
@@ -867,8 +867,8 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #' @return LogLik_Pois output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-pois_multidose_Omnibus_transition <- function(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_pois_multidose_Omnibus_transition`, PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res)
+pois_multidose_Omnibus_transition <- function(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_multidose_Omnibus_transition`, PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the matched case-control omnibus regression function
@@ -1086,15 +1086,6 @@ NULL
 #' Utility function to calculate the risk and risk ratios for gradient method
 #'
 #' \code{Make_Risks_Gradient} Called to update risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas for gradient method
-#' @inheritParams CPP_template
-#'
-#' @return Updates matrices in place: Risk, Risk ratios
-#' @noRd
-NULL
-
-#' Utility function to calculate the risk with a weighting applied and no derivatives calculated
-#'
-#' \code{Make_Risks_Weighted_Single} Called to update weighted risk matrices, Splits into cases based on model form, Uses lists of term numbers and types to apply different derivative formulas
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Risk, Risk ratios

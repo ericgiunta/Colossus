@@ -55,9 +55,10 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     }
   } else {
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
-  data.table::setkeyv(df, c(pyr0, event0))
+  data.table::setkeyv(df, val_cols)
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -82,7 +83,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     e <- pois_Omnibus_Bounds_transition(
       as.matrix(df[, ce, with = FALSE]),
       term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
-      keep_constant, term_tot, as.matrix(df[, val_cols, with = FALSE]),
+      keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
       model_control, cons_mat, cons_vec
     )
     if ("Status" %in% names(e)) {
@@ -102,7 +103,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
         byrow = TRUE
       ), dfc, x_all, 0,
       modelform, control, keep_constant,
-      term_tot, as.matrix(df0[, val_cols,
+      term_tot, strata_vals, as.matrix(df[, val_cols,
         with = FALSE
       ]),
       model_control, cons_mat, cons_vec
@@ -177,7 +178,8 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     }
   } else {
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -190,7 +192,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     a_ns <- c(a_ns, i)
   }
   e <- Assigned_Event_Poisson_transition(
-    as.matrix(df[, ce, with = FALSE]),
+    as.matrix(df[, ce, with = FALSE]), strata_vals,
     as.matrix(df[, val_cols,
       with = FALSE
     ]), term_n, tform,
@@ -258,7 +260,8 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     }
   } else {
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -271,7 +274,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     term_n, tform, a_n[[1]],
     dfc, x_all, 0, modelform,
     control, keep_constant,
-    term_tot, as.matrix(df[, val_cols,
+    term_tot, strata_vals, as.matrix(df[, val_cols,
       with = FALSE
     ]),
     model_control
@@ -335,9 +338,10 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     }
   } else {
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
-  data.table::setkeyv(df, c(pyr0, event0))
+  data.table::setkeyv(df, val_cols)
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -365,7 +369,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e <- pois_Omnibus_CurveSearch_transition(
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
-    keep_constant, term_tot, as.matrix(df[, val_cols, with = FALSE]),
+    keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
     model_control, cons_mat, cons_vec
   )
   e$Parameter_Lists$names <- names
@@ -452,9 +456,10 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     }
   } else {
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
-  data.table::setkeyv(df, c(pyr0, event0))
+  data.table::setkeyv(df, val_cols)
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -493,7 +498,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     term_n, tform, a_n,
     as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
     0, modelform, control,
-    keep_constant, term_tot, as.matrix(df[, val_cols, with = FALSE]),
+    keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
     model_control, cons_mat, cons_vec
   )
   if ("Status" %in% names(e)) {
