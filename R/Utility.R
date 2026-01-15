@@ -2389,7 +2389,7 @@ print.poisresbound <- function(x, ...) {
 Interpret_Output <- function(out_list, digits = 3) {
   # make sure the output isn't an error
   passed <- out_list$Status
-  message("|-------------------------------------------------------------------|")
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
   if (!is.na(passed)) {
     if ("Likelihood_Goal" %in% names(out_list)) {
       # likelihood boundary output
@@ -2441,6 +2441,8 @@ Interpret_Output <- function(out_list, digits = 3) {
         # get the model details
         null_model <- out_list$modelcontrol$null
         strata_odds <- out_list$StrataOdds
+        KeptRecords <- out_list$UsedRecords
+        RemovedRecords <- out_list$RejectedRecords
         if (!null_model) {
           names <- out_list$Parameter_Lists$names
           tforms <- out_list$Parameter_Lists$tforms
@@ -2485,6 +2487,18 @@ Interpret_Output <- function(out_list, digits = 3) {
         freestrata <- out_list$FreeSets
         strata <- out_list$model$strata
         time_model <- out_list$modelcontrol$time_risk
+        #
+        modelform <- out_list$model$modelform
+        form_type <- case_when(
+          modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+          modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+          modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+          modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+          modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+          modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+          .default = "Unknown"
+        )
+        #
         message("Final Results")
         if (null_model) {
           message("Null model used")
@@ -2492,7 +2506,11 @@ Interpret_Output <- function(out_list, digits = 3) {
           print(res_table)
         }
         #
+        message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message("\nMatched Case-Control Model Used")
+        if (!null_model) {
+          message(form_type)
+        }
         if (all(strata != "NONE")) {
           if (time_model) {
             message("Model stratified by ", paste(shQuote(strata), " and time at risk", collapse = ", "))
@@ -2504,6 +2522,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         } else {
           message("No risk grouping applied")
         }
+        message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message(paste("Deviance: ", round(deviance, digits), sep = ""))
         message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
         if (!is.null(converged)) {
@@ -2522,8 +2541,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Warning: The regression ended after hitting a negative risk.")
           }
         }
+        message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
       } else {
         # get the model details
+        KeptRecords <- out_list$UsedRecords
+        RemovedRecords <- out_list$RejectedRecords
         null_model <- out_list$modelcontrol$null
         if (!null_model) {
           ##
@@ -2559,6 +2581,18 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (min(term_n) == max(term_n)) {
             res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
           }
+          #
+          modelform <- out_list$model$modelform
+          form_type <- case_when(
+            modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+            modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+            modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+            modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+            modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+            modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+            .default = "Unknown"
+          )
+          #
         }
         message("Final Results")
         if (null_model) {
@@ -2578,6 +2612,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         strata_level <- out_list$strata_levels
         cens_weight <- out_list$model$weight
         converged <- out_list$Converged
+        message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         if (is(out_list, "coxres")) {
           if (cens_weight == "NONE") {
             # cox model
@@ -2586,30 +2621,67 @@ Interpret_Output <- function(out_list, digits = 3) {
             # fine-gray model
             message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
           }
+          #
+          tstart <- out_list$model$start_age
+          tend <- out_list$model$end_age
+          event <- out_list$model$event
+          if (tstart == "right_trunc") {
+            message("Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          } else if (tend == "left_trunc") {
+            message("Entry Age Column was: '", tstart, "', Outcome Column was: '", event, "'")
+          } else {
+            message("Entry Age Column was: '", tstart, "', Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          }
+          if (cens_weight != "NONE") {
+            message("Survival Weighting Column was :'", cens_weight, "'")
+          }
+          #
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          risk_groups <- out_list$RiskGroups
+          message("Risk Groups Used: ", risk_groups)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
+          pyr_col <- out_list$model$person_year
+          evt_col <- out_list$model$event
+          message("Person-year Column: '", pyr_col, "'")
+          message("Event Column: '", evt_col, "'")
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
             message("Strata split into ", strata_level, " distinct levels", sep = "")
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
@@ -2627,6 +2699,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (neg_lim) {
             message("Warning: The last iteration encountered a negative risk.")
           }
+          message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
         }
       }
     }
@@ -2646,5 +2719,5 @@ Interpret_Output <- function(out_list, digits = 3) {
     }
     #    message(paste("Run finished in ", out_list$RunTime))
   }
-  message("|-------------------------------------------------------------------|")
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }

@@ -472,13 +472,13 @@ get_form_surv <- function(surv_obj, df) {
     if (tend == "%trunc%") {
       stop("Error: Both endpoints are truncated, not acceptable")
     }
-    tmin <- min(df[, get(tend)]) - 1
+    tmin <- min(df[[tend]]) - 1
     if (!("right_trunc" %in% names(df))) {
       df[, ":="(right_trunc = tmin)]
     }
     tstart <- "right_trunc"
   } else if (tend == "%trunc%") {
-    tmax <- max(df[, get(tstart)]) + 1
+    tmax <- max(df[[tstart]]) + 1
     if (!("left_trunc" %in% names(df))) {
       df[, ":="(left_trunc = tmax)]
     }

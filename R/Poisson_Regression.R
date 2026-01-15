@@ -12,6 +12,7 @@
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  initial_size <- nrow(df)
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -69,6 +70,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
+  run_size <- nrow(df)
   if (model_control$log_bound) {
     if ("maxiters" %in% names(control)) {
       # good
@@ -122,6 +124,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  e$UsedRecords <- run_size
+  e$RejectedRecords <- initial_size - run_size
   return(e)
 }
 
@@ -401,6 +405,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
 #' @importFrom rlang .data
 RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  initial_size <- nrow(df)
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -493,6 +498,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   dose_all <- as.matrix(df[, dose_names, with = FALSE])
+  run_size <- nrow(df)
   e <- pois_multidose_Omnibus_transition(
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, a_n,
@@ -515,6 +521,8 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$Survival_Type <- "Pois_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  e$UsedRecords <- run_size
+  e$RejectedRecords <- initial_size - run_size
   # df <- copy(df)
   return(e)
 }

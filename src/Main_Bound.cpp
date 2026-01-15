@@ -149,23 +149,24 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
     //  ------------------------------------------------------------------------- //  initialize
+    int total_risk_groups = 0;
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight);
+            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight, total_risk_groups);
         } else {
-            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals);
+            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, total_risk_groups);
         }
     } else {
         RiskFail = IntegerMatrix(ntime, 2);  //  vector giving the event rows
         //
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads);
+            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads, total_risk_groups);
         } else {
-            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads);
+            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads, total_risk_groups);
         }
     }
     //  ------------------------------------------------------------------------- //  initialize
@@ -569,21 +570,22 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
     //  ------------------------------------------------------------------------- //  initialize
+    int total_risk_groups = 0;
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight);
+            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight, total_risk_groups);
         } else {
-            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals);
+            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, total_risk_groups);
         }
     } else {
         RiskFail = IntegerMatrix(ntime, 2);  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads);
+            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads, total_risk_groups);
         } else {
-            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads);
+            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads, total_risk_groups);
         }
     }
     //  ------------------------------------------------------------------------- //  initialize
@@ -2698,23 +2700,24 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
     //  ------------------------------------------------------------------------- //  initialize
+    int total_risk_groups = 0;
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight);
+            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight, total_risk_groups);
         } else {
-            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals);
+            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, total_risk_groups);
         }
     } else {
         RiskFail = IntegerMatrix(ntime, 2);  //  vector giving the event rows
         //
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads);
+            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads, total_risk_groups);
         } else {
-            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads);
+            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads, total_risk_groups);
         }
     }
     //  ------------------------------------------------------------------------- //  initialize

@@ -77,9 +77,9 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads) {
+void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads, int& total_risk_groups) {
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail) reduction(+:total_risk_groups)
     #endif
     for (int ijk = 0; ijk < ntime; ijk++) {
         double t0 = tu[ijk];
@@ -91,6 +91,7 @@ void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatri
                 if (v == th)
                     indices_all.push_back(i + 1);
             });
+        int at_risk = indices_all.size();
         vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
         for (auto it = begin(indices_all); it != end(indices_all); ++it) {
             if (indices.size() == 0) {
@@ -111,8 +112,12 @@ void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatri
                 if (v == th)
                     indices_all.push_back(i + 1);
             });
+        int at_event = indices_all.size();
         RiskFail(ijk, 0) = indices_all[0] - 1;  //  Due to the sorting method, there is a continuous block of event rows
         RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
+        if (at_risk > at_event) {
+            total_risk_groups += 1;
+        }
     }
     return;
 }
@@ -125,10 +130,10 @@ void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatri
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads) {
+void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads, int& total_risk_groups) {
 //    vector<vector<int> > RiskPairs(ntime);
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(df_m, RiskPairs, RiskFail) reduction(+:total_risk_groups)
     #endif
     for (int ijk = 0; ijk < ntime; ijk++) {
         double t0 = tu[ijk];
@@ -142,6 +147,7 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
                 if (v == th)
                     indices_all.push_back(i + 1);
             });
+        int at_risk = indices_all.size();
         //
         vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
         for (auto it = begin(indices_all); it != end(indices_all); ++it) {
@@ -164,8 +170,12 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
                 if (v == th)
                     indices_all.push_back(i + 1);
             });
+        int at_event = indices_all.size();
         RiskFail(ijk, 0) = indices_all[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
         RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
+        if (at_risk > at_event) {
+            total_risk_groups += 1;
+        }
         //
     }
     return;
@@ -179,10 +189,10 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals) {
+void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, int& total_risk_groups) {
     //
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals) reduction(+:total_risk_groups)
     #endif
     for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int ijk = 0; ijk < ntime; ijk++) {
@@ -202,6 +212,7 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
             if (indices_end.size() > 0) {
                 RiskFail(ijk, 2*s_ij + 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(ijk, 2*s_ij + 1) = indices_end[indices_end.size() - 1] - 1;
+                int at_event = indices_end.size();
                 //
                 select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                 indices_end.clear();
@@ -210,6 +221,7 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
                         if (v == th)
                             indices_end.push_back(i + 1);
                     });
+                int at_risk = indices_end.size();
                 for (auto it = begin(indices_end); it != end(indices_end); ++it) {
                     if (indices.size() == 0) {
                         indices.push_back(*it);
@@ -223,6 +235,9 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
                 }
                 //
                 RiskPairs_Strata[ijk][s_ij] = indices;
+                if (at_risk > at_event) {
+                    total_risk_groups += 1;
+                }
             } else {
                 RiskFail(ijk, 2*s_ij + 0) = - 1;
                 RiskFail(ijk, 2*s_ij + 1) = - 1;
@@ -280,9 +295,9 @@ void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vec
 //' @return Updates matrices in place: Matrix of event rows for each event time, vectors of strings with rows at risk for each event time
 //' @noRd
 //'
-void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight) {
+void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int& total_risk_groups) {
     #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals)
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals) reduction(+:total_risk_groups)
     #endif
     for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
         for (int ijk = 0; ijk < ntime; ijk++) {
@@ -301,6 +316,7 @@ void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, In
             if (indices_end.size() > 0) {
                 RiskFail(ijk, 2*s_ij + 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(ijk, 2*s_ij + 1) = indices_end[indices_end.size() - 1] - 1;
+                int at_event = indices_end.size();
                 //
                 select_ind_end = (((((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)) || ((df_m.col(2).array() == 2) && (df_m.col(1).array() <= t0))) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                 indices_end.clear();
@@ -310,6 +326,7 @@ void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, In
                                 indices_end.push_back(i + 1);
                     });
                 //
+                int at_risk = indices_end.size();
                 for (auto it = begin(indices_end); it != end(indices_end); ++it) {
                     if (indices.size() == 0) {
                         indices.push_back(*it);
@@ -323,6 +340,9 @@ void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, In
                 }
                 //
                 RiskPairs_Strata[ijk][s_ij] = indices;
+                if (at_risk > at_event) {
+                    total_risk_groups += 1;
+                }
             } else {
                 RiskFail(ijk, 2*s_ij + 0) = - 1;
                 RiskFail(ijk, 2*s_ij + 1) = - 1;
