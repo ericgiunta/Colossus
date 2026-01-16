@@ -115,7 +115,7 @@ model <- Logit(status) ~ loglinear(cell)
 control <- list(verbose = 0, ncores = 1)
 e <- LogisticRun(model, df, control = control)
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
@@ -123,14 +123,18 @@ print(e)
 #> 2:    cell_1  loglin             2.05          0.531       1.16e-04
 #> 3:    cell_2  loglin             2.71          0.596       5.58e-06
 #> 4:    cell_3  loglin             3.26          1.019       1.39e-03
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Logisitic Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
 #> maximum step size: 1.075e-04, maximum first derivative: 3.454e-05
 #> Analysis converged
-#> Run finished in 0.027 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.025 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 In this analysis, we were using the default of the odds ratio. The
@@ -147,7 +151,7 @@ functions would give a way to define further complicated risk models.
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 e <- LogisticRun(model, df, control = control, a_n = a_n, link = "odds")
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
@@ -155,19 +159,23 @@ print(e)
 #> 2:    cell_1  loglin             2.05          0.531       1.16e-04
 #> 3:    cell_2  loglin             2.71          0.596       5.58e-06
 #> 4:    cell_3  loglin             3.26          1.019       1.39e-03
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Logisitic Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 11
 #> maximum step size: 9.569e-05, maximum first derivative: 3.072e-05
 #> Analysis converged
-#> Run finished in 0.028 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.015 seconds
+#> |--------------------------------------------------------------------------------|
 
 a_n <- c(-1, -1, -1, -1)
 e <- LogisticRun(model, df, control = control, a_n = a_n, link = "ident")
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
@@ -175,19 +183,23 @@ print(e)
 #> 2:    cell_1  loglin          -0.1214         0.0607         0.0456
 #> 3:    cell_2  loglin          -0.0645         0.0373         0.0833
 #> 4:    cell_3  loglin          -0.0377         0.0377         0.3173
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Logisitic Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 9
 #> maximum step size: 3.037e-05, maximum first derivative: 7.168e-03
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.017 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.014 seconds
+#> |--------------------------------------------------------------------------------|
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 e <- LogisticRun(model, df, control = control, a_n = a_n, link = "loglink")
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
@@ -195,12 +207,16 @@ print(e)
 #> 2:    cell_1  loglin            -2.11          0.500       2.49e-05
 #> 3:    cell_2  loglin            -2.74          0.577       2.08e-06
 #> 4:    cell_3  loglin            -3.28          1.000       1.05e-03
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Logisitic Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109
 #> Iterations run: 12
 #> maximum step size: 1.263e-04, maximum first derivative: 4.514e-05
 #> Analysis converged
-#> Run finished in 0.017 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.014 seconds
+#> |--------------------------------------------------------------------------------|
 ```

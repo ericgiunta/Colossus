@@ -559,7 +559,7 @@ as follows:</p>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model_cox</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
@@ -567,20 +567,26 @@ as follows:</p>
 <span><span class="co">#&gt; 2:         b     lin           1             14.4            NaN            NaN</span></span>
 <span><span class="co">#&gt; 3:         c     lin           1             14.4            NaN            NaN</span></span>
 <span><span class="co">#&gt; 4:         d    plin           2             31.1            477          0.948</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; Entry Age Column was: 'Starting_Age', Survival Age Column was: 'Ending_Age', Outcome Column was: 'Cancer_Status'</span></span>
+<span><span class="co">#&gt; Multiplicative Model Used: T0*T1*T2*...</span></span>
+<span><span class="co">#&gt; Risk Groups Used: 2</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 1.374,  AIC: 9.374</span></span>
 <span><span class="co">#&gt; Iterations run: 30</span></span>
 <span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 9.764e-04</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.025 seconds</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
+<span><span class="co">#&gt; Run finished in 0.024 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
 <span><span class="va">model_pois</span> <span class="op">&lt;-</span> <span class="fu">Poisson</span><span class="op">(</span><span class="va">Person_Years</span>, <span class="va">Cancer_Status</span><span class="op">)</span>  <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="va">model_pois</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
@@ -588,14 +594,20 @@ as follows:</p>
 <span><span class="co">#&gt; 2:         b     lin           1         -0.01166        0.04784       8.07e-01</span></span>
 <span><span class="co">#&gt; 3:         c     lin           1          0.00725        0.00993       4.65e-01</span></span>
 <span><span class="co">#&gt; 4:         d    plin           2         -0.84726        0.19126       9.42e-06</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Poisson Model Used</span></span>
+<span><span class="co">#&gt; Person-year Column: 'Person_Years'</span></span>
+<span><span class="co">#&gt; Event Column: 'Cancer_Status'</span></span>
+<span><span class="co">#&gt; Multiplicative Model Used: T0*T1*T2*...</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 11.992,  Deviation: 7.992,  AIC: 15.992,  BIC: 19.776</span></span>
 <span><span class="co">#&gt; Iterations run: 5</span></span>
 <span><span class="co">#&gt; maximum step size: 9.766e-04, maximum first derivative: 4.346e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
+<span><span class="co">#&gt; Records Used: 7, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.011 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">
 <colgroup>

@@ -76,7 +76,9 @@ produces three lists of matrices, for the lower limit, midpoint, and
 upper limit. At each point the standard matrices for observed and
 predicted events are produced. This method can also be applied to the
 results of a likelihood-based boundary regression to evaluate the
-distribution of cases at the likelihood-based confidence interval.
+distribution of cases at the likelihood-based confidence interval. In
+this case the parameter number and significance level are taken from the
+likelihood boundary result, and do not need to be provided.
 
 ``` r
 e <- EventAssignment(poisres, df, check_num = 2, z = 1.96)

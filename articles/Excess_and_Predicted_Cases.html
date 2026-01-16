@@ -163,7 +163,9 @@ midpoint, and upper limit. At each point the standard matrices for
 observed and predicted events are produced. This method can also be
 applied to the results of a likelihood-based boundary regression to
 evaluate the distribution of cases at the likelihood-based confidence
-interval.</p>
+interval. In this case the parameter number and significance level are
+taken from the likelihood boundary result, and do not need to be
+provided.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/EventAssignment.html">EventAssignment</a></span><span class="op">(</span><span class="va">poisres</span>, <span class="va">df</span>, check_num <span class="op">=</span> <span class="fl">2</span>, z <span class="op">=</span> <span class="fl">1.96</span><span class="op">)</span></span>
 <span></span>

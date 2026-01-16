@@ -106,40 +106,52 @@ e1 <- CoxRun(Cox(time, status) ~ loglinear(temperature, voltage, 0), df,
   a_n = a_n, control = control
 )
 print(e1, 5)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>      Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>         <char>  <char>            <num>          <num>          <num>
 #> 1: temperature  loglin          0.75995        0.39644      0.0552490
 #> 2:     voltage  loglin          1.98839        0.60631      0.0010399
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Cox Model Used
+#> Survival Age Column was: 'time', Outcome Column was: 'status'
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> Risk Groups Used: 22
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 210.77792,  AIC: 214.77792
 #> Iterations run: 8
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
-#> Run finished in 0.02938 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 64, Records Removed: 0
+#> Run finished in 0.02564 seconds
+#> |--------------------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0),
   df,
   a_n = a_n, control = control
 )
 print(e2, 5)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>      Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>         <char>  <char>            <num>          <num>          <num>
 #> 1: temperature  loglin          0.95035         0.4313       0.027563
 #> 2:     voltage    plin          8.81720         6.1906       0.154362
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Cox Model Used
+#> Survival Age Column was: 'time', Outcome Column was: 'status'
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> Risk Groups Used: 22
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 208.49028,  AIC: 212.49028
 #> Iterations run: 13
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
-#> Run finished in 0.02767 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 64, Records Removed: 0
+#> Run finished in 0.01503 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 Next, suppose we were interested in the confidence intervals. Suppose we
@@ -181,7 +193,7 @@ print("|------------------- Wald Estimate -------------------|")
 print(ci_1)
 #> [1] -0.01708172  1.53697802
 print(e, 5)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Likelihood Boundary Results
 #> Solving for the boundary of element: 1
 #> Applied to column: 'temperature'
@@ -190,8 +202,8 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00842 seconds
-#> |-------------------------------------------------------------------|
+#> Run finished in 0.00776 seconds
+#> |--------------------------------------------------------------------------------|
 
 curve_control <- list(
   "maxstep" = 100,
@@ -204,7 +216,7 @@ print("|------------------- Likelihood Bound Estimate -------------------|")
 print(ci_2)
 #> [1] 0.8000252 3.1767554
 print(e, 5)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Likelihood Boundary Results
 #> Solving for the boundary of element: 2
 #> Applied to column: 'voltage'
@@ -213,8 +225,8 @@ print(e, 5)
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 1.9884
 #> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00832 seconds
-#> |-------------------------------------------------------------------|
+#> Run finished in 0.00746 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 Next, we analyze a model with a linear effect. We would expect the
@@ -244,7 +256,7 @@ print("|------------------- Wald Estimate -------------------|")
 print(ci_1)
 #> [1] 0.1049977 1.7956959
 print(e, 5)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Likelihood Boundary Results
 #> Solving for the boundary of element: 1
 #> Applied to column: 'temperature'
@@ -253,8 +265,8 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00898 seconds
-#> |-------------------------------------------------------------------|
+#> Run finished in 0.00804 seconds
+#> |--------------------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
 curve_control <- list(
@@ -268,7 +280,7 @@ print("|------------------- Wald Estimate -------------------|")
 print(ci_2)
 #> [1] -3.316339 20.950734
 print(e, 5)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Likelihood Boundary Results
 #> Solving for the boundary of element: 2
 #> Applied to column: 'voltage'
@@ -277,8 +289,8 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00943 seconds
-#> |-------------------------------------------------------------------|
+#> Run finished in 0.00868 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 ### Illustration of Issues with Likelihood-Boundary Algorithm

@@ -333,19 +333,25 @@ control <- list(
 )
 e <- PoisRunJoint(formula_list, df, control = control)
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
 #> 1:        t0    plin           -0.184          0.385          0.631
 #> 2:    fac_e0  loglin            0.574          0.468          0.219
 #> 3:    fac_e1  loglin           -1.035          1.009          0.305
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Poisson Model Used
+#> Person-year Column: 'pyr'
+#> Event Column: 'events'
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 20.891,  Deviation: 6.436,  AIC: 12.436,  BIC: 28.346
 #> Iterations run: 10
 #> maximum step size: 4.775e-06, maximum first derivative: 1.595e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.019 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 12, Records Removed: 0
+#> Run finished in 0.017 seconds
+#> |--------------------------------------------------------------------------------|
 ```

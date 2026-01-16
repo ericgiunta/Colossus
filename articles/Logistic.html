@@ -202,7 +202,7 @@ the baseline.</p>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span>, ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LogisticRun.html">LogisticRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
@@ -210,14 +210,18 @@ the baseline.</p>
 <span><span class="co">#&gt; 2:    cell_1  loglin             2.05          0.531       1.16e-04</span></span>
 <span><span class="co">#&gt; 3:    cell_2  loglin             2.71          0.596       5.58e-06</span></span>
 <span><span class="co">#&gt; 4:    cell_3  loglin             3.26          1.019       1.39e-03</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 11</span></span>
 <span><span class="co">#&gt; maximum step size: 1.075e-04, maximum first derivative: 3.454e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.027 seconds</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
+<span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.025 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this analysis, we were using the default of the odds ratio. The
 linking function can be changed by using the “link” option. The
 following examples show the impact of using each linking function. Note
@@ -232,7 +236,7 @@ models.</p>
 <code class="sourceCode R"><span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LogisticRun.html">LogisticRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, link <span class="op">=</span> <span class="st">"odds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
@@ -240,19 +244,23 @@ models.</p>
 <span><span class="co">#&gt; 2:    cell_1  loglin             2.05          0.531       1.16e-04</span></span>
 <span><span class="co">#&gt; 3:    cell_2  loglin             2.71          0.596       5.58e-06</span></span>
 <span><span class="co">#&gt; 4:    cell_3  loglin             3.26          1.019       1.39e-03</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 11</span></span>
 <span><span class="co">#&gt; maximum step size: 9.569e-05, maximum first derivative: 3.072e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.028 seconds</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.015 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LogisticRun.html">LogisticRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, link <span class="op">=</span> <span class="st">"ident"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
@@ -260,19 +268,23 @@ models.</p>
 <span><span class="co">#&gt; 2:    cell_1  loglin          -0.1214         0.0607         0.0456</span></span>
 <span><span class="co">#&gt; 3:    cell_2  loglin          -0.0645         0.0373         0.0833</span></span>
 <span><span class="co">#&gt; 4:    cell_3  loglin          -0.0377         0.0377         0.3173</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 3.037e-05, maximum first derivative: 7.168e-03</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
-<span><span class="co">#&gt; Run finished in 0.017 seconds</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LogisticRun.html">LogisticRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, link <span class="op">=</span> <span class="st">"loglink"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
@@ -280,14 +292,18 @@ models.</p>
 <span><span class="co">#&gt; 2:    cell_1  loglin            -2.11          0.500       2.49e-05</span></span>
 <span><span class="co">#&gt; 3:    cell_2  loglin            -2.74          0.577       2.08e-06</span></span>
 <span><span class="co">#&gt; 4:    cell_3  loglin            -3.28          1.000       1.05e-03</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviation: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 12</span></span>
 <span><span class="co">#&gt; maximum step size: 1.263e-04, maximum first derivative: 4.514e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Run finished in 0.017 seconds</span></span>
-<span><span class="co">#&gt; |-------------------------------------------------------------------|</span></span></code></pre></div>
+<span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

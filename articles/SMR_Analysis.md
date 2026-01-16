@@ -78,19 +78,25 @@ e <- PoisRun(Poisson(time, status) ~ linear(erate), cancer,
   a_n = a_n, control = control
 )
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
 #> 1:     erate     lin            0.474         0.0369       9.15e-38
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Poisson Model Used
+#> Person-year Column: 'time'
+#> Event Column: 'status'
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 576.22,  Deviation: 246.22,  AIC: 248.22,  BIC: 581.649
-#> Iterations run: 13
-#> maximum step size: 1.741e-10, maximum first derivative: 1.235e-06
+#> Iterations run: 12
+#> maximum step size: 1.741e-10, maximum first derivative: 5.451e-06
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.02 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 228, Records Removed: 0
+#> Run finished in 0.019 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 In this case, we found the SMR to be 0.474, analysis of the confidence
@@ -110,20 +116,26 @@ e <- PoisRun(Poisson(time, status) ~ linear(erate, 0) + linear(sex, 1),
   a_n = a_n, control = control
 )
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
 #> 1:     erate     lin           0             0.37          0.111       0.000882
 #> 2:       sex     lin           1             0.19          0.257       0.458904
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Poisson Model Used
+#> Person-year Column: 'time'
+#> Event Column: 'status'
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 582.865,  Deviation: 252.865,  AIC: 256.865,  BIC: 593.724
 #> Iterations run: 7
 #> maximum step size: 9.313e-10, maximum first derivative: 1.416e+01
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 228, Records Removed: 0
+#> Run finished in 0.011 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 In this case, we found the SMR for sex=0 to be 0.37 and the SMR for

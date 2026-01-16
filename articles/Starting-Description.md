@@ -329,7 +329,7 @@ model_cox <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) +
 
 e <- CoxRun(model_cox, df, a_n = a_n, control = control)
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
@@ -337,20 +337,26 @@ print(e)
 #> 2:         b     lin           1             14.4            NaN            NaN
 #> 3:         c     lin           1             14.4            NaN            NaN
 #> 4:         d    plin           2             31.1            477          0.948
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Cox Model Used
+#> Entry Age Column was: 'Starting_Age', Survival Age Column was: 'Ending_Age', Outcome Column was: 'Cancer_Status'
+#> Multiplicative Model Used: T0*T1*T2*...
+#> Risk Groups Used: 2
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 1.374,  AIC: 9.374
 #> Iterations run: 30
 #> maximum step size: 1.000e+00, maximum first derivative: 9.764e-04
 #> Analysis converged
-#> Run finished in 0.025 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 6, Records Removed: 1
+#> Run finished in 0.024 seconds
+#> |--------------------------------------------------------------------------------|
 
 # or a Poisson model regression
 model_pois <- Poisson(Person_Years, Cancer_Status)  ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
 e <- PoisRun(model_pois, df, a_n = a_n, control = control)
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
@@ -358,14 +364,20 @@ print(e)
 #> 2:         b     lin           1         -0.01166        0.04784       8.07e-01
 #> 3:         c     lin           1          0.00725        0.00993       4.65e-01
 #> 4:         d    plin           2         -0.84726        0.19126       9.42e-06
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Poisson Model Used
+#> Person-year Column: 'Person_Years'
+#> Event Column: 'Cancer_Status'
+#> Multiplicative Model Used: T0*T1*T2*...
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 11.992,  Deviation: 7.992,  AIC: 15.992,  BIC: 19.776
 #> Iterations run: 5
 #> maximum step size: 9.766e-04, maximum first derivative: 4.346e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.012 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 7, Records Removed: 0
+#> Run finished in 0.011 seconds
+#> |--------------------------------------------------------------------------------|
 ```
 
 The following are output in the regression output lists:

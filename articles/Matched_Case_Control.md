@@ -162,54 +162,66 @@ e2 <- CaseControlRun(model, df, control = control, conditional_threshold = 0)
 
 
 print(e0)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
 #> 1:   karno50  loglin             0.01          0.017          0.556
 #> 2:       trt  loglin             0.01          0.700          0.989
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Matched Case-Control Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
 #> Model stratified by 'cell'
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> Deviance: 57.029
 #> 0 out of 4 matched sets used Unconditional Likelihood
 #> Iterations run: 3
 #> maximum step size: 6.104e-05, maximum first derivative: 1.465e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.028 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.023 seconds
+#> |--------------------------------------------------------------------------------|
 print(e1)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
 #> 1:   karno50  loglin             0.01         0.0171          0.558
 #> 2:       trt  loglin             0.01         0.5726          0.986
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Matched Case-Control Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
 #> Model stratified by 'cell'
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> Deviance: 59.956
 #> 1 out of 4 matched sets used Unconditional Likelihood
 #> Iterations run: 3
 #> maximum step size: 6.104e-05, maximum first derivative: 1.463e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.016 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.013 seconds
+#> |--------------------------------------------------------------------------------|
 print(e2)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>            <num>          <num>          <num>
 #> 1:   karno50  loglin             0.01         0.0172          0.561
 #> 2:       trt  loglin             0.01         0.5164          0.985
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Matched Case-Control Model Used
+#> Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...
 #> Model stratified by 'cell'
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> Deviance: 67.073
 #> 4 out of 4 matched sets used Unconditional Likelihood
 #> Iterations run: 3
 #> maximum step size: 6.104e-05, maximum first derivative: 1.498e+02
 #> Analysis did not converge, check convergence criteria or run further
-#> Run finished in 0.016 seconds
-#> |-------------------------------------------------------------------|
+#> Records Used: 137, Records Removed: 0
+#> Run finished in 0.013 seconds
+#> |--------------------------------------------------------------------------------|
 ```
