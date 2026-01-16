@@ -502,6 +502,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(), 3);
     //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
+    predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
     if (model_bool["strata"]) {
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -521,9 +522,9 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
                 s_weights.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1) = VectorXd::Constant(InGroup[i + 1]-InGroup[i] + 1, E_sum / R_sum);
             }
         }
-        predict.col(0) = predict.col(0).array() * s_weights.array();;
+        predict.col(0) = predict.col(0).array() * s_weights.array();
+        predict.col(2) = predict.col(2).array() * s_weights.array();
     }
-    predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
     predict.col(1) = predict.col(2).array() - predict.col(0).array();
     predict = (predict.array().isFinite()).select(predict, 0);
     //
