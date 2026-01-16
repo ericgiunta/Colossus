@@ -383,21 +383,22 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
     //  ------------------------------------------------------------------------- //  initialize
+    int total_risk_groups = 0;
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight);
+            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight, total_risk_groups);
         } else {
-            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals);
+            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, total_risk_groups);
         }
     } else {
         RiskFail = IntegerMatrix(ntime, 2);  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads);
+            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads, total_risk_groups);
         } else {
-            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads);
+            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads, total_risk_groups);
         }
     }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
@@ -462,7 +463,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0
 //' @return returns proportion of events due to background and excess for each term
 //' @noRd
 //'
-List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, const Ref<const MatrixXd>& PyrC, const Ref<const MatrixXd>& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
+List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     //
     int totalnum = term_n.size();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
@@ -490,26 +491,40 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
     //  ---------------------------------------------------------
     //  Calculates the risk for each row
     VectorXd s_weights;
+    vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(df0.rows());
-        // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
-        Make_Risks_Weighted_Single(modelform, tform, term_n, totalnum, fir, dfs, PyrC, s_weights, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
-    } else {
-        Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
+        Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
     }
+    Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
     //
     MatrixXd caused = MatrixXd::Zero(PyrC.rows(), 3);
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(), 3);
     //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
-    if (model_bool["strata"]) {
-        ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
-        ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
-        ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
-        s_weights = dfs * weight.matrix();  //  A/B by row
-        predict.col(0) = predict.col(0).array() * s_weights.array();;
-    }
     predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
+    if (model_bool["strata"]) {
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            double E_sum = 0;
+            double R_sum = 0;
+            //
+            vector<int> InGroup = RiskPairs_Strata_Pois[s_ij];
+            //  now has the grouping pairs
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                //
+                E_sum += PyrC.block(InGroup[i] - 1, 1, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                R_sum += (PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+            }
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                s_weights.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1) = VectorXd::Constant(InGroup[i + 1]-InGroup[i] + 1, E_sum / R_sum);
+            }
+        }
+        predict.col(0) = predict.col(0).array() * s_weights.array();
+        predict.col(2) = predict.col(2).array() * s_weights.array();
+    }
     predict.col(1) = predict.col(2).array() - predict.col(0).array();
     predict = (predict.array().isFinite()).select(predict, 0);
     //
@@ -531,7 +546,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
+List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -578,13 +593,28 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, St
     RdR = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Risk to derivative ratios
     RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     VectorXd s_weights;
+    vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
-        // s_weights = VectorXd::Zero(df0.rows());
-        ArrayXd Pyr_Risk  = dfs.transpose() * (PyrC.col(0).array() * R.col(0).array()).matrix();  // B in strata
-        ArrayXd Events = dfs.transpose() * PyrC.col(1);  //  A in strata
-        ArrayXd weight = Events.array() * Pyr_Risk.array().pow(- 1).array();  //  A/B in strata
-        s_weights = dfs * weight.matrix();  //  A/B by row
-        // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
+        Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
+        s_weights = VectorXd::Zero(df0.rows());
+        #ifdef _OPENMP
+        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            double E_sum = 0;
+            double R_sum = 0;
+            //
+            vector<int> InGroup = RiskPairs_Strata_Pois[s_ij];
+            //  now has the grouping pairs
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                //
+                E_sum += PyrC.block(InGroup[i] - 1, 1, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                R_sum += (PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+            }
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                s_weights.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1) = VectorXd::Constant(InGroup[i + 1]-InGroup[i] + 1, E_sum / R_sum);
+            }
+        }
     }
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------

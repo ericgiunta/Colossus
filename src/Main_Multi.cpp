@@ -151,21 +151,22 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
+    int total_risk_groups = 0;
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight);
+            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight, total_risk_groups);
         } else {
-            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals);
+            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, total_risk_groups);
         }
     } else {
         RiskFail = IntegerMatrix(ntime, 2);  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads);
+            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads, total_risk_groups);
         } else {
-            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads);
+            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads, total_risk_groups);
         }
     }
     //  ------------------------------------------------------------------------- //  initialize
@@ -224,6 +225,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     VectorXd s_weights(1);
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     MatrixXd dfs = MatrixXd::Zero(1, 1);
+    vector<vector<int>> RiskPairs_Strata_Pois(1);
     bool convgd = FALSE;
     bool neg_limit = FALSE;
     //
@@ -335,7 +337,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                     beta_c[ij] = beta_0[ij];
                 }
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             } else {
                 halves = 0;
                 while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
@@ -350,7 +352,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                     //  ----------------------------------------------------------------------------------------------------------//
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                    Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+                    Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                 }
                 if (beta_best != beta_c) {  //  if the risk matrices aren't the optimal values, then they must be recalculated
                     //  If it goes through every half step without improvement, then the maximum change needs to be decreased
@@ -483,9 +485,9 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     }
     List res_list;  //  = List::create(_["LogLik"] = wrap(LL_fin), _["parameters"] = wrap(beta_fin), _["error"] = wrap(std_fin));
     if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Convergance"] = wrap(conv_fin), _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Convergance"] = wrap(conv_fin), _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     } else {
-        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     }
     //  returns a list of results
     return res_list;
@@ -566,21 +568,22 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
+    int total_risk_groups = 0;
     if (model_bool["strata"]) {
         RiskFail = IntegerMatrix(ntime, 2*Strata_vals.size());  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight);
+            Make_Groups_Strata_CR(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, cens_weight, total_risk_groups);
         } else {
-            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals);
+            Make_Groups_Strata(ntime, df_m, RiskFail, RiskPairs_Strata, tu, nthreads, Strata_vals, total_risk_groups);
         }
     } else {
         RiskFail = IntegerMatrix(ntime, 2);  //  vector giving the event rows
         //  Creates matrices used to identify the event risk groups
         if (model_bool["cr"]) {
-            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads);
+            Make_Groups_CR(ntime, df_m, RiskFail, RiskPairs, tu, cens_weight, nthreads, total_risk_groups);
         } else {
-            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads);
+            Make_Groups(ntime, df_m, RiskFail, RiskPairs, tu, nthreads, total_risk_groups);
         }
     }
     //  ------------------------------------------------------------------------- //  initialize
@@ -995,7 +998,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     List res_list;
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
         //  returns a list of results
         return res_list;
     }
@@ -1074,9 +1077,9 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     }
     //
     if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     } else {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     }
     //  returns a list of results
     return res_list;
@@ -1091,7 +1094,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
 //' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
 //' @noRd
 //'
-List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1164,8 +1167,10 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
     RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     //
     VectorXd s_weights;
+    vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(mat_row);
+        Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
     }
     //
@@ -1226,7 +1231,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
     MatrixXd Rls1 = MatrixXd::Zero(1, 1);
     MatrixXd Rls2 = MatrixXd::Zero(1, 1);
     MatrixXd Rls3 = MatrixXd::Zero(1, 1);
-    NumericVector Strata_vals(1);
+//    NumericVector Strata_vals(1);
     string ties_method = "temp";
     bool convgd = FALSE;
     bool neg_limit = FALSE;
@@ -1294,7 +1299,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
         }
-        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
         //
         for (int i = 0; i < beta_0.size(); i++) {
             beta_c[i] = beta_0[i];
@@ -1326,7 +1331,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
                     beta_c[ij] = beta_0[ij];
                 }
                 Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+                Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             } else {
                 halves = 0;
                 while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
@@ -1341,7 +1346,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
                     //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
                     //  --------------------------------------------------------------------------------------------------------------------------------------------//
                     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-                    Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+                    Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                 }
                 if (beta_best != beta_c) {  //  if the risk matrices aren't the optimal values, then they must be recalculated
                     //  If it goes through every half step without improvement, then the maximum change needs to be decreased
@@ -1392,7 +1397,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
         //
         model_bool["gradient"] = false;
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
         model_bool["gradient"] = true_gradient;
         //
         a_n = beta_0;
@@ -1432,7 +1437,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
             //
             vector<double> InMa(pow(reqrdnum, 2), 0.0);
             if (model_bool["strata"]) {
-                Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
+                Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
             } else {
                 Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
             }
@@ -1479,7 +1484,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
 //' @return List of final results: standard cox outputs for the integrated solution
 //' @noRd
 //'
-List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, double lr, List optim_para, int maxiter, int halfmax, double epsilon, double step_max, double thres_step_max, double deriv_epsilon, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -1537,8 +1542,10 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
     //
     Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     VectorXd s_weights;
+    vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
         s_weights = VectorXd::Zero(mat_row);
+        Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
     }
     //  ------------------------------------------------------------------------- //  initialize
@@ -1595,7 +1602,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
     MatrixXd Rls1 = MatrixXd::Zero(1, 1);
     MatrixXd Rls2 = MatrixXd::Zero(1, 1);
     MatrixXd Rls3 = MatrixXd::Zero(1, 1);
-    NumericVector Strata_vals(1);
+//    NumericVector Strata_vals(1);
     string ties_method = "temp";
     //
     fill(Ll.begin(), Ll.end(), 0.0);
@@ -1681,7 +1688,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
         if (!model_bool["gradient"]) {
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
-        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
         //
         dev_total += dev / static_cast<double>(guesses);
         for (int i = 0; i < reqrdnum; i ++) {
@@ -1780,7 +1787,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
                     if (!model_bool["gradient"]) {
                         fill(Lldd.begin(), Lldd.end(), 0.0);
                     }
-                    Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+                    Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
                     dev_total += dev / static_cast<double>(guesses);
                     for (int i = 0; i < reqrdnum; i ++) {
                         Ll_Total[i] += Ll[i] / static_cast<double>(guesses);
@@ -1855,7 +1862,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
                         if (!model_bool["gradient"]) {
                             fill(Lldd.begin(), Lldd.end(), 0.0);
                         }
-                        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+                        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
                         dev_total += dev / static_cast<double>(guesses);
                         for (int i = 0; i < reqrdnum; i ++) {
                             Ll_Total[i] += Ll[i] / static_cast<double>(guesses);
@@ -1932,7 +1939,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
         dev_total += dev / static_cast<double>(guesses);
         for (int i = 0; i < reqrdnum; i ++) {
             Ll_Total[i] += Ll[i] / static_cast<double>(guesses);
@@ -1990,7 +1997,7 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
         //
         vector<double> InMa(pow(reqrdnum, 2), 0.0);
         if (model_bool["strata"]) {
-            Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
+            Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
         } else {
             Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
         }

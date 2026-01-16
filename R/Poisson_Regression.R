@@ -12,6 +12,7 @@
 #' @importFrom rlang .data
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  initial_size <- nrow(df)
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -45,37 +46,20 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
     df <- val$data
-    col_name <- val$combs
+    val_cols <- val$combs
+    strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
-    df0 <- copy(df)
-    val_cols <- c()
-    for (col in col_name) {
-      dftemp <- df[get(col) == 1, ]
-      temp <- sum(dftemp[, get(event0)])
-      if (temp == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:", col,
-            sep = " "
-          ))
-        }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
-      } else {
-        val_cols <- c(val_cols, col)
-      }
-    }
     if (control$verbose >= 3) {
-      message(paste("Note: ", length(val_cols), " strata used",
+      message(paste("Note: ", length(strat_col), " strata used",
         sep = ""
       ))
     }
-    data.table::setkeyv(df0, c(pyr0, event0))
   } else {
-    df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
-  data.table::setkeyv(df, c(pyr0, event0))
+  data.table::setkeyv(df, val_cols)
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -86,6 +70,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
+  run_size <- nrow(df)
   if (model_control$log_bound) {
     if ("maxiters" %in% names(control)) {
       # good
@@ -100,7 +85,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     e <- pois_Omnibus_Bounds_transition(
       as.matrix(df[, ce, with = FALSE]),
       term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
-      keep_constant, term_tot, as.matrix(df0[, val_cols, with = FALSE]),
+      keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
       model_control, cons_mat, cons_vec
     )
     if ("Status" %in% names(e)) {
@@ -120,7 +105,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
         byrow = TRUE
       ), dfc, x_all, 0,
       modelform, control, keep_constant,
-      term_tot, as.matrix(df0[, val_cols,
+      term_tot, strata_vals, as.matrix(df[, val_cols,
         with = FALSE
       ]),
       model_control, cons_mat, cons_vec
@@ -134,11 +119,13 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
   if (model_control$strata == TRUE) {
-    e$strata_levels <- length(val_cols)
+    e$strata_levels <- length(strata_vals)
   }
   e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  e$UsedRecords <- run_size
+  e$RejectedRecords <- initial_size - run_size
   return(e)
 }
 
@@ -183,29 +170,20 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, filter_df = FALSE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, FALSE)
     df <- val$data
-    col_name <- val$combs
+    val_cols <- val$combs
+    strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
-    df0 <- copy(df)
-    val_cols <- c()
-    for (col in col_name) {
-      dftemp <- df[get(col) == 1, ]
-      temp <- sum(dftemp[, get(event0)])
-      if (temp == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:", col,
-            sep = " "
-          ))
-        }
-      } else {
-        val_cols <- c(val_cols, col)
-      }
+    if (control$verbose >= 3) {
+      message(paste("Note: ", length(strat_col), " strata used",
+        sep = ""
+      ))
     }
   } else {
-    df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -218,8 +196,8 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     a_ns <- c(a_ns, i)
   }
   e <- Assigned_Event_Poisson_transition(
-    as.matrix(df[, ce, with = FALSE]),
-    as.matrix(df0[, val_cols,
+    as.matrix(df[, ce, with = FALSE]), strata_vals,
+    as.matrix(df[, val_cols,
       with = FALSE
     ]), term_n, tform,
     a_n, dfc, x_all, 0,
@@ -274,30 +252,20 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, filter_df = FALSE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, FALSE)
     df <- val$data
-    col_name <- val$combs
+    val_cols <- val$combs
+    strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
-    df0 <- copy(df)
-    val_cols <- c()
-    for (col in col_name) {
-      dftemp <- df[get(col) == 1, ]
-      temp <- sum(dftemp[, get(event0)])
-      if (temp == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:",
-            col,
-            sep = " "
-          ))
-        }
-      } else {
-        val_cols <- c(val_cols, col)
-      }
+    if (control$verbose >= 3) {
+      message(paste("Note: ", length(strat_col), " strata used",
+        sep = ""
+      ))
     }
   } else {
-    df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -310,7 +278,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     term_n, tform, a_n[[1]],
     dfc, x_all, 0, modelform,
     control, keep_constant,
-    term_tot, as.matrix(df0[, val_cols,
+    term_tot, strata_vals, as.matrix(df[, val_cols,
       with = FALSE
     ]),
     model_control
@@ -362,34 +330,22 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
-    col_name <- val$combs
+    val_cols <- val$combs
+    strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
-    df0 <- copy(df)
-    val_cols <- c()
-    for (col in col_name) {
-      dftemp <- df[get(col) == 1, ]
-      temp <- sum(dftemp[, get(event0)])
-      if (temp == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:", col,
-            sep = " "
-          ))
-        }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
-      } else {
-        val_cols <- c(val_cols, col)
-      }
-      data.table::setkeyv(df0, c(pyr0, event0))
+    if (control$verbose >= 3) {
+      message(paste("Note: ", length(strat_col), " strata used",
+        sep = ""
+      ))
     }
   } else {
-    df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
-  data.table::setkeyv(df, c(pyr0, event0))
+  data.table::setkeyv(df, val_cols)
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
@@ -417,7 +373,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e <- pois_Omnibus_CurveSearch_transition(
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
-    keep_constant, term_tot, as.matrix(df0[, val_cols, with = FALSE]),
+    keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
     model_control, cons_mat, cons_vec
   )
   e$Parameter_Lists$names <- names
@@ -426,7 +382,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   e$Survival_Type <- "Poisson"
   e$modelcontrol <- model_control
   if (model_control$strata == TRUE) {
-    e$strata_levels <- length(val_cols)
+    e$strata_levels <- length(strata_vals)
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
@@ -449,6 +405,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
 #' @importFrom rlang .data
 RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  initial_size <- nrow(df)
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -492,34 +449,22 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
-    col_name <- val$combs
+    val_cols <- val$combs
+    strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
-    df0 <- copy(df)
-    val_cols <- c()
-    for (col in col_name) {
-      dftemp <- df[get(col) == 1, ]
-      temp <- sum(dftemp[, get(event0)])
-      if (temp == 0) {
-        if (control$verbose >= 2) {
-          warning(paste("Warning: no events for strata group:", col,
-            sep = " "
-          ))
-        }
-        df <- df[get(col) != 1, ]
-        df0 <- df0[get(col) != 1, ]
-      } else {
-        val_cols <- c(val_cols, col)
-      }
-      data.table::setkeyv(df0, c(pyr0, event0))
+    if (control$verbose >= 3) {
+      message(paste("Note: ", length(strat_col), " strata used",
+        sep = ""
+      ))
     }
   } else {
-    df0 <- data.table::data.table("a" = c(0, 0))
     val <- list(cols = c("a"))
-    val_cols <- c("a")
+    val_cols <- c(event0)
+    strata_vals <- c(1)
   }
-  data.table::setkeyv(df, c(pyr0, event0))
+  data.table::setkeyv(df, val_cols)
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -553,12 +498,13 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   dose_all <- as.matrix(df[, dose_names, with = FALSE])
+  run_size <- nrow(df)
   e <- pois_multidose_Omnibus_transition(
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, a_n,
     as.matrix(dose_cols, with = FALSE), dose_index, dfc, x_all, dose_all,
     0, modelform, control,
-    keep_constant, term_tot, as.matrix(df0[, val_cols, with = FALSE]),
+    keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
     model_control, cons_mat, cons_vec
   )
   if ("Status" %in% names(e)) {
@@ -570,11 +516,13 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   if (model_control$strata == TRUE) {
-    e$strata_levels <- length(val_cols)
+    e$strata_levels <- length(strata_vals)
   }
   e$Survival_Type <- "Pois_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  e$UsedRecords <- run_size
+  e$RejectedRecords <- initial_size - run_size
   # df <- copy(df)
   return(e)
 }

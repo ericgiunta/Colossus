@@ -14,6 +14,7 @@
 #' @importFrom rlang .data
 RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  initial_size <- nrow(df)
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -54,26 +55,6 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       df$CONST <- 1
     }
   }
-  #  if (model_control$linear_err == TRUE) {
-  #    if (all(sort(unique(tform)) != c("loglin", "plin"))) {
-  #      stop("Error: Linear ERR model used, but term formula wasn't only loglin and plin")
-  #    }
-  #    if (sum(tform == "plin") > 1) {
-  #      stop("Error: Linear ERR model used, but more than one plin element was used")
-  #    }
-  #    if (length(unique(term_n)) > 1) {
-  #      if (control$verbose >= 2) {
-  #        warning("Warning: Linear ERR model used, but more than one term number used. Term numbers all set to 0")
-  #      }
-  #      term_n <- rep(0, length(term_n))
-  #    }
-  #    if (modelform != "M") {
-  #      if (control$verbose >= 2) {
-  #        warning("Warning: Linear ERR model used, but multiplicative model not used. Modelform corrected")
-  #      }
-  #      modelform <- "M"
-  #    }
-  #  }
   if (model_control$time_risk == TRUE) {
     if (model_control$strata == TRUE) {
       if (!is.null(levels(df[[strat_col]]))) {
@@ -191,6 +172,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
   }
   #
+  run_size <- nrow(df)
   e <- caco_Omnibus_transition(
     term_n, tform, a_ns, dfc, x_all, 0,
     modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
@@ -207,6 +189,8 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "CaseControl"
   func_t_end <- Sys.time()
+  e$UsedRecords <- run_size
+  e$RejectedRecords <- initial_size - run_size
   e$RunTime <- func_t_end - func_t_start
   return(e)
 }

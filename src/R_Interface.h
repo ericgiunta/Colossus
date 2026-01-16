@@ -24,21 +24,21 @@ using Rcpp::List;
 
 List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
-List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
 List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, int der_iden, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control);
 
-List Assigned_Event_Poisson_transition(MatrixXd PyrC, MatrixXd dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
+List Assigned_Event_Poisson_transition(MatrixXd PyrC, NumericVector Strata_vals, MatrixXd dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
 
 List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
 List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
-List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
-List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
-List pois_Residual_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control);
+List pois_Residual_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, Ref<MatrixXd> df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control);
 
 List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, Ref<MatrixXd> df0, MatrixXd df1, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 

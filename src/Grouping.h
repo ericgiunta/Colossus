@@ -25,15 +25,15 @@ using Rcpp::List;
 
 template <typename T> int sign(T val);
 
-void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads);
+void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads, int& total_risk_groups);
 
-void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads);
+void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads, int& total_risk_groups);
 
-void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals);
+void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, int& total_risk_groups);
 
-void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata, const int& nthreads);
+void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata_Pois, const int& nthreads);
 
-void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight);
+void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int& total_risk_groups);
 
 void Make_Match(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, vector<int>& strata_cond, const int& nthreads);
 

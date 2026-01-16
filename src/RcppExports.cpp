@@ -40,8 +40,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // pois_Omnibus_transition
-List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
-RcppExport SEXP _Colossus_pois_Omnibus_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+RcppExport SEXP _Colossus_pois_Omnibus_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nsSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP Strata_valsSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -56,21 +56,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type Lin_Sys(Lin_SysSEXP);
     Rcpp::traits::input_parameter< VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(pois_Omnibus_transition(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res));
+    rcpp_result_gen = Rcpp::wrap(pois_Omnibus_transition(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res));
     return rcpp_result_gen;
 END_RCPP
 }
 // Assigned_Event_Poisson_transition
-List Assigned_Event_Poisson_transition(MatrixXd PyrC, MatrixXd dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
-RcppExport SEXP _Colossus_Assigned_Event_Poisson_transition(SEXP PyrCSEXP, SEXP dfsSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP) {
+List Assigned_Event_Poisson_transition(MatrixXd PyrC, NumericVector Strata_vals, MatrixXd dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
+RcppExport SEXP _Colossus_Assigned_Event_Poisson_transition(SEXP PyrCSEXP, SEXP Strata_valsSEXP, SEXP dfsSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< MatrixXd >::type PyrC(PyrCSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
     Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
@@ -83,7 +85,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(Assigned_Event_Poisson_transition(PyrC, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control));
+    rcpp_result_gen = Rcpp::wrap(Assigned_Event_Poisson_transition(PyrC, Strata_vals, dfs, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -168,8 +170,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // pois_Omnibus_CurveSearch_transition
-List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
-RcppExport SEXP _Colossus_pois_Omnibus_CurveSearch_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+RcppExport SEXP _Colossus_pois_Omnibus_CurveSearch_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP Strata_valsSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -184,17 +186,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type Lin_Sys(Lin_SysSEXP);
     Rcpp::traits::input_parameter< VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(pois_Omnibus_CurveSearch_transition(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res));
+    rcpp_result_gen = Rcpp::wrap(pois_Omnibus_CurveSearch_transition(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res));
     return rcpp_result_gen;
 END_RCPP
 }
 // pois_Omnibus_Bounds_transition
-List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
-RcppExport SEXP _Colossus_pois_Omnibus_Bounds_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+RcppExport SEXP _Colossus_pois_Omnibus_Bounds_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP Strata_valsSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -209,17 +212,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type Lin_Sys(Lin_SysSEXP);
     Rcpp::traits::input_parameter< VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(pois_Omnibus_Bounds_transition(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res));
+    rcpp_result_gen = Rcpp::wrap(pois_Omnibus_Bounds_transition(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res));
     return rcpp_result_gen;
 END_RCPP
 }
 // pois_Residual_transition
-List pois_Residual_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control);
-RcppExport SEXP _Colossus_pois_Residual_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP dfsSEXP, SEXP model_controlSEXP) {
+List pois_Residual_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control);
+RcppExport SEXP _Colossus_pois_Residual_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP Strata_valsSEXP, SEXP dfsSEXP, SEXP model_controlSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -234,9 +238,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
-    rcpp_result_gen = Rcpp::wrap(pois_Residual_transition(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control));
+    rcpp_result_gen = Rcpp::wrap(pois_Residual_transition(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -271,8 +276,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // pois_multidose_Omnibus_transition
-List pois_multidose_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
-RcppExport SEXP _Colossus_pois_multidose_Omnibus_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP df1SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+List pois_multidose_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+RcppExport SEXP _Colossus_pois_multidose_Omnibus_transition(SEXP PyrCSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP df1SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP Strata_valsSEXP, SEXP dfsSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -290,11 +295,12 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Strata_vals(Strata_valsSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type dfs(dfsSEXP);
     Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
     Rcpp::traits::input_parameter< MatrixXd >::type Lin_Sys(Lin_SysSEXP);
     Rcpp::traits::input_parameter< VectorXd >::type Lin_Res(Lin_ResSEXP);
-    rcpp_result_gen = Rcpp::wrap(pois_multidose_Omnibus_transition(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, dfs, model_control, Lin_Sys, Lin_Res));
+    rcpp_result_gen = Rcpp::wrap(pois_multidose_Omnibus_transition(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -380,16 +386,16 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_cox_ph_Omnibus_transition", (DL_FUNC) &_Colossus_cox_ph_Omnibus_transition, 17},
-    {"_Colossus_pois_Omnibus_transition", (DL_FUNC) &_Colossus_pois_Omnibus_transition, 15},
-    {"_Colossus_Assigned_Event_Poisson_transition", (DL_FUNC) &_Colossus_Assigned_Event_Poisson_transition, 13},
+    {"_Colossus_pois_Omnibus_transition", (DL_FUNC) &_Colossus_pois_Omnibus_transition, 16},
+    {"_Colossus_Assigned_Event_Poisson_transition", (DL_FUNC) &_Colossus_Assigned_Event_Poisson_transition, 14},
     {"_Colossus_Plot_Omnibus_transition", (DL_FUNC) &_Colossus_Plot_Omnibus_transition, 16},
     {"_Colossus_cox_ph_Omnibus_Bounds_transition", (DL_FUNC) &_Colossus_cox_ph_Omnibus_Bounds_transition, 17},
     {"_Colossus_cox_ph_Omnibus_CurveSearch_transition", (DL_FUNC) &_Colossus_cox_ph_Omnibus_CurveSearch_transition, 17},
-    {"_Colossus_pois_Omnibus_CurveSearch_transition", (DL_FUNC) &_Colossus_pois_Omnibus_CurveSearch_transition, 15},
-    {"_Colossus_pois_Omnibus_Bounds_transition", (DL_FUNC) &_Colossus_pois_Omnibus_Bounds_transition, 15},
-    {"_Colossus_pois_Residual_transition", (DL_FUNC) &_Colossus_pois_Residual_transition, 13},
+    {"_Colossus_pois_Omnibus_CurveSearch_transition", (DL_FUNC) &_Colossus_pois_Omnibus_CurveSearch_transition, 16},
+    {"_Colossus_pois_Omnibus_Bounds_transition", (DL_FUNC) &_Colossus_pois_Omnibus_Bounds_transition, 16},
+    {"_Colossus_pois_Residual_transition", (DL_FUNC) &_Colossus_pois_Residual_transition, 14},
     {"_Colossus_cox_ph_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_cox_ph_multidose_Omnibus_transition, 20},
-    {"_Colossus_pois_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_pois_multidose_Omnibus_transition, 18},
+    {"_Colossus_pois_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_pois_multidose_Omnibus_transition, 19},
     {"_Colossus_caco_Omnibus_transition", (DL_FUNC) &_Colossus_caco_Omnibus_transition, 16},
     {"_Colossus_logist_Omnibus_transition", (DL_FUNC) &_Colossus_logist_Omnibus_transition, 14},
     {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 10},

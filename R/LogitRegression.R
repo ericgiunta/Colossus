@@ -12,6 +12,7 @@
 #' @importFrom rlang .data
 RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  initial_size <- nrow(df)
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -61,6 +62,7 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   control <- res$control
   a_n <- res$a_n
   #
+  run_size <- nrow(df)
   e <- logist_Omnibus_transition(
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, matrix(a_ns,
@@ -80,5 +82,7 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
+  e$UsedRecords <- run_size
+  e$RejectedRecords <- initial_size - run_size
   return(e)
 }

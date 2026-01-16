@@ -98,100 +98,56 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
   combs <- c()
   if (length(vals) == 1) {
     # factor
-    val <- factorize(df, vals)
-    df <- val$df
-    fac_names <- val$cols
-    combs <- c(combs, fac_names)
+    df$comb_strata <- as.integer(factor(df[[vals]])) - 1
+    combs <- unique(df$comb_strata)
   } else {
     # there are multiple to combine
     # get the levels for each element
-    element_levels <- list()
-    if (!filter_df) {
-      # We aren't filtering anything, so we make a category to cover all of the previously removed data
-      df$filtered_categ <- 0
+    if (filter_df) {
+      for (term_i in seq_along(vals)) {
+        factor_col <- vals[term_i]
+        df[[factor_col]] <- factor(df[[factor_col]])
+        i_levels <- levels(df[[factor_col]])
+        if (!keep_base) {
+          level_ref <- levels(df[[factor_col]])[1]
+          i_levels <- i_levels[i_levels != level_ref]
+        }
+        for (col in i_levels) {
+          temp <- sum(df[get(factor_col) == col, ][[event0]]) # get number of events
+          if (temp == 0) { # if none then we remove that data and the level column
+            if (control$verbose >= 2) {
+              warning(paste("Warning: no events for strata group:", col,
+                sep = " "
+              ))
+            }
+            df <- df[get(factor_col) != col, ] # remove data
+          }
+        }
+      }
     }
+    # We want to combine the strata values together
+    df$comb_strata <- ""
     for (term_i in seq_along(vals)) {
       factor_col <- vals[term_i]
-      val <- factorize(df, factor_col)
-      df <- val$df
-      df[[factor_col]] <- factor(df[[factor_col]])
-      i_levels <- paste(factor_col, levels(df[[factor_col]]), sep = "_")
-      if (!keep_base) {
-        level_ref <- paste(factor_col, levels(df[[factor_col]])[1], sep = "_")
-        i_levels <- i_levels[i_levels != level_ref]
-      }
-      ## We want to check that each level has events
-      i_levels_kept <- c() # make a list to keep
-      for (col in i_levels) {
-        temp <- sum(df[get(col) == 1, ][[event0]]) # get number of events
-        if (temp == 0) { # if none then we remove that data and the level column
-          if (control$verbose >= 2) {
-            warning(paste("Warning: no events for strata group:", col,
-              sep = " "
-            ))
-          }
-          if (filter_df) {
-            df <- df[get(col) != 1, ] # remove data
-          } else {
-            df[get(col) != 1, "filtered_categ"] <- 1
-          }
-          full_name <- names(df)
-          df <- df[, full_name[full_name != col], with = FALSE] # remove column
-        } else {
-          i_levels_kept <- c(i_levels_kept, col)
-        }
-      }
-      # Only keep the levels that had events
-      element_levels[[term_i]] <- i_levels_kept
-    }
-    combs <- c(element_levels[[1]]) # grab the first level of interaction
-    for (i in 2:length(element_levels)) { # iterate over every other level
-      comb_temp <- copy(combs) # the currently kept interaction columns
-      combs <- c() # the new interactions
-      for (k in element_levels[[i]]) {
-        for (j in comb_temp) {
-          comb <- paste(j, k, sep = ":") # the new interacted level to test
-          df[[comb]] <- df[[j]] * df[[k]] # make the column
-          if (max(df[[comb]]) != 0.0) { # If there is some data in the interacted level
-            # Check if there are events
-            temp <- sum(df[get(comb) == 1, ][[event0]])
-            if (temp == 0) {
-              if (control$verbose >= 2) {
-                warning(paste("Warning: no events for strata group:", comb,
-                  sep = " "
-                ))
-              }
-              # Remove the data and level column
-              if (filter_df) {
-                df <- df[get(comb) != 1, ] # remove data
-              } else {
-                df[get(comb) != 1, "filtered_categ"] <- 1
-              }
-              full_name <- names(df)
-              df <- df[, full_name[full_name != comb], with = FALSE]
-            } else {
-              # We keep any interaction levels with data and events
-              combs <- c(combs, comb)
-            }
-          } else {
-            # There was no rows at that interaction level
-            if (filter_df) {
-              df <- df[get(comb) != 1, ] # remove data
-            } else {
-              df[get(comb) != 1, "filtered_categ"] <- 1
-            }
-            full_name <- names(df)
-            df <- df[, full_name[full_name != comb], with = FALSE]
-          }
-        }
+      if (term_i == 1) {
+        df$comb_strata <- df[[factor_col]]
+      } else {
+        df$comb_strata <- paste(df$comb_strata, df[[factor_col]], sep = ":")
       }
     }
-    if (!filter_df) {
-      combs <- c(combs, "filtered_categ")
+    df$comb_strata <- as.integer(factor(df$comb_strata))
+    combs <- unique(df$comb_strata)
+    if (filter_df) {
+      df_end <- df[get(event0) == 1, ]
+      combs <- unique(df_end$comb_strata)
+      comb_tot <- unique(df$comb)
+      comb_remove <- comb_tot[!comb_tot %in% combs]
+      for (comb in comb_remove) {
+        df <- df["comb_strata" != comb, ] # remove data
+      }
     }
-    df <- df[, c(og_name, combs), with = FALSE] # scale the data back down
   }
-  return(list("data" = df, "combs" = combs))
+  return(list("data" = df, "combs" = "comb_strata", "levels" = combs))
 }
 
 #' Automatically assigns missing values in listed columns
@@ -2433,7 +2389,7 @@ print.poisresbound <- function(x, ...) {
 Interpret_Output <- function(out_list, digits = 3) {
   # make sure the output isn't an error
   passed <- out_list$Status
-  message("|-------------------------------------------------------------------|")
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
   if (!is.na(passed)) {
     if ("Likelihood_Goal" %in% names(out_list)) {
       # likelihood boundary output
@@ -2485,6 +2441,8 @@ Interpret_Output <- function(out_list, digits = 3) {
         # get the model details
         null_model <- out_list$modelcontrol$null
         strata_odds <- out_list$StrataOdds
+        KeptRecords <- out_list$UsedRecords
+        RemovedRecords <- out_list$RejectedRecords
         if (!null_model) {
           names <- out_list$Parameter_Lists$names
           tforms <- out_list$Parameter_Lists$tforms
@@ -2529,6 +2487,18 @@ Interpret_Output <- function(out_list, digits = 3) {
         freestrata <- out_list$FreeSets
         strata <- out_list$model$strata
         time_model <- out_list$modelcontrol$time_risk
+        #
+        modelform <- out_list$model$modelform
+        form_type <- case_when(
+          modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+          modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+          modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+          modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+          modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+          modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+          .default = "Unknown"
+        )
+        #
         message("Final Results")
         if (null_model) {
           message("Null model used")
@@ -2536,7 +2506,11 @@ Interpret_Output <- function(out_list, digits = 3) {
           print(res_table)
         }
         #
+        message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message("\nMatched Case-Control Model Used")
+        if (!null_model) {
+          message(form_type)
+        }
         if (all(strata != "NONE")) {
           if (time_model) {
             message("Model stratified by ", paste(shQuote(strata), " and time at risk", collapse = ", "))
@@ -2548,6 +2522,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         } else {
           message("No risk grouping applied")
         }
+        message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message(paste("Deviance: ", round(deviance, digits), sep = ""))
         message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
         if (!is.null(converged)) {
@@ -2566,8 +2541,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Warning: The regression ended after hitting a negative risk.")
           }
         }
+        message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
       } else {
         # get the model details
+        KeptRecords <- out_list$UsedRecords
+        RemovedRecords <- out_list$RejectedRecords
         null_model <- out_list$modelcontrol$null
         if (!null_model) {
           ##
@@ -2603,6 +2581,18 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (min(term_n) == max(term_n)) {
             res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
           }
+          #
+          modelform <- out_list$model$modelform
+          form_type <- case_when(
+            modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+            modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+            modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+            modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+            modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+            modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+            .default = "Unknown"
+          )
+          #
         }
         message("Final Results")
         if (null_model) {
@@ -2622,6 +2612,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         strata_level <- out_list$strata_levels
         cens_weight <- out_list$model$weight
         converged <- out_list$Converged
+        message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         if (is(out_list, "coxres")) {
           if (cens_weight == "NONE") {
             # cox model
@@ -2630,30 +2621,67 @@ Interpret_Output <- function(out_list, digits = 3) {
             # fine-gray model
             message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
           }
+          #
+          tstart <- out_list$model$start_age
+          tend <- out_list$model$end_age
+          event <- out_list$model$event
+          if (tstart == "right_trunc") {
+            message("Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          } else if (tend == "left_trunc") {
+            message("Entry Age Column was: '", tstart, "', Outcome Column was: '", event, "'")
+          } else {
+            message("Entry Age Column was: '", tstart, "', Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          }
+          if (cens_weight != "NONE") {
+            message("Survival Weighting Column was :'", cens_weight, "'")
+          }
+          #
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          risk_groups <- out_list$RiskGroups
+          message("Risk Groups Used: ", risk_groups)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
+          pyr_col <- out_list$model$person_year
+          evt_col <- out_list$model$event
+          message("Person-year Column: '", pyr_col, "'")
+          message("Event Column: '", evt_col, "'")
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
             message("Strata split into ", strata_level, " distinct levels", sep = "")
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
+          if (!null_model) {
+            message(form_type)
+          }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         }
         if (!is.null(converged)) {
@@ -2671,6 +2699,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (neg_lim) {
             message("Warning: The last iteration encountered a negative risk.")
           }
+          message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
         }
       }
     }
@@ -2690,5 +2719,5 @@ Interpret_Output <- function(out_list, digits = 3) {
     }
     #    message(paste("Run finished in ", out_list$RunTime))
   }
-  message("|-------------------------------------------------------------------|")
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }
