@@ -134,7 +134,7 @@ print(e)
 #> maximum step size: 9.313e-10, maximum first derivative: 1.416e+01
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 228, Records Removed: 0
-#> Run finished in 0.011 seconds
+#> Run finished in 0.02 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 

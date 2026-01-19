@@ -86,6 +86,29 @@
   formula and makes necessary changes to data
 - [`plot(`*`<coxres>`*`)`](plot.coxres.md) : Performs Cox Proportional
   Hazard model plots
+- [`plotMartingale()`](plotMartingale.md) : Generic Martingale Residual
+  Plotting function
+- [`plotMartingale(`*`<coxres>`*`)`](plotMartingale.coxres.md) :
+  Performs Cox Proportional Hazard model martingale residual plots
+- [`plotMartingale(`*`<default>`*`)`](plotMartingale.default.md) :
+  Generic Martingale Residual Plotting function, default option
+- [`plotRisk()`](plotRisk.md) : Generic Risk Plotting function
+- [`plotRisk(`*`<coxres>`*`)`](plotRisk.coxres.md) : Performs Cox
+  Proportional Hazard model hazard ratio plots
+- [`plotRisk(`*`<default>`*`)`](plotRisk.default.md) : Generic Risk
+  Plotting function, default option
+- [`plotSchoenfeld()`](plotSchoenfeld.md) : Generic Schoenfeld Residual
+  Plotting function
+- [`plotSchoenfeld(`*`<coxres>`*`)`](plotSchoenfeld.coxres.md) :
+  Performs Cox Proportional Hazard model schoenfeld residual plots
+- [`plotSchoenfeld(`*`<default>`*`)`](plotSchoenfeld.default.md) :
+  Generic Schoenfeld Residual Plotting function, default option
+- [`plotSurvival()`](plotSurvival.md) : Generic Survival Plotting
+  function
+- [`plotSurvival(`*`<coxres>`*`)`](plotSurvival.coxres.md) : Performs
+  Cox Proportional Hazard model survival plots
+- [`plotSurvival(`*`<default>`*`)`](plotSurvival.default.md) : Generic
+  Survival Plotting function, default option
 - [`print(`*`<caseconres>`*`)`](print.caseconres.md) : Prints a
   case-control regression output clearly
 - [`print(`*`<coxres>`*`)`](print.coxres.md) : Prints a cox regression

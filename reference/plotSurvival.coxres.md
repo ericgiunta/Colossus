@@ -1,13 +1,13 @@
-# Performs Cox Proportional Hazard model plots
+# Performs Cox Proportional Hazard model survival plots
 
-`plot.coxres` uses user provided data, time/event columns, vectors
-specifying the model, and options to choose and save plots
+`plotSurvival.coxres` uses user provided data, time/event columns,
+vectors specifying the model, and options to choose and save plots
 
 ## Usage
 
 ``` r
 # S3 method for class 'coxres'
-plot(x, df, plot_options, a_n = c(), ...)
+plotSurvival(x, df, plot_options, a_n = c(), ...)
 ```
 
 ## Arguments
@@ -36,16 +36,14 @@ plot(x, df, plot_options, a_n = c(), ...)
 
 ## Value
 
-saves the plots in the current directory and returns the data used for
-plots
+returns the data used for plots
 
 ## See also
 
-Other Plotting Wrapper Functions:
+Other Plotting Wrapper Functions: [`plot.coxres()`](plot.coxres.md),
 [`plotMartingale.coxres()`](plotMartingale.coxres.md),
 [`plotRisk.coxres()`](plotRisk.coxres.md),
-[`plotSchoenfeld.coxres()`](plotSchoenfeld.coxres.md),
-[`plotSurvival.coxres()`](plotSurvival.coxres.md)
+[`plotSchoenfeld.coxres()`](plotSchoenfeld.coxres.md)
 
 ## Examples
 
@@ -73,11 +71,11 @@ res <- CoxRun(formula, df,
   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
 )
 plot_options <- list(
-  "type" = c("surv", paste(tempfile(),
+  "fname" = paste(tempfile(),
     "run",
     sep = ""
-  )), "studyid" = "UserID",
+  ), "studyid" = "UserID",
   "verbose" = FALSE
 )
-res_plot <- plot(res, df, plot_options)
+res_plot <- plotSurvival(res, df, plot_options)
 ```

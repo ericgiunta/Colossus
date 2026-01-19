@@ -124,7 +124,7 @@ print(e1, 5)
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
 #> Records Used: 64, Records Removed: 0
-#> Run finished in 0.02564 seconds
+#> Run finished in 0.02542 seconds
 #> |--------------------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0),
@@ -150,7 +150,7 @@ print(e2, 5)
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
 #> Records Used: 64, Records Removed: 0
-#> Run finished in 0.01503 seconds
+#> Run finished in 0.02386 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 
@@ -202,7 +202,7 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00776 seconds
+#> Run finished in 0.00771 seconds
 #> |--------------------------------------------------------------------------------|
 
 curve_control <- list(
@@ -265,7 +265,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00804 seconds
+#> Run finished in 0.00808 seconds
 #> |--------------------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -289,7 +289,7 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00868 seconds
+#> Run finished in 0.00852 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 

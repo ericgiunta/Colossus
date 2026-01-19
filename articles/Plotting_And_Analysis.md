@@ -78,11 +78,11 @@ $$\begin{array}{r}
 
 ``` r
 plot_options <- list(
-  "type" = c("surv", paste(tempfile(), "run", sep = "")), "studyid" = "UserID",
+  "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
   "verbose" = 2, "surv_curv" = T, "martingale" = F, "strat_haz" = F, "km" = F
 )
 
-e <- plot(coxres, df, plot_options)
+e <- plotSurvival(coxres, df, plot_options)
 
 norm_surv <- e[["standard"]]
 
@@ -114,11 +114,11 @@ g
 
 ``` r
 plot_options <- list(
-  "type" = c("surv", paste(tempfile(), "run", sep = "")), "studyid" = "UserID",
+  "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
   "verbose" = 2, "surv_curv" = F, "martingale" = F, "strat_haz" = F, "km" = T
 )
 
-e <- plot(coxres, df, plot_options)
+e <- plotSurvival(coxres, df, plot_options)
 
 km <- e[["kaplin-meier"]]
 g <- ggplot2::ggplot(km, ggplot2::aes(x = .data$t_t, y = .data$n_t)) +
@@ -155,11 +155,11 @@ $$\begin{array}{r}
 
 ``` r
 plot_options <- list(
-  "type" = c("schoenfeld", paste(tempfile(), "run", sep = "")),
+  "fname" = paste(tempfile(), "run", sep = ""),
   "studyid" = "UserID", "verbose" = 2
 )
 
-res_all <- plot(coxres, df, plot_options)
+res_all <- plotSchoenfeld(coxres, df, plot_options)
 
 res_age <- res_all[["age"]]
 
@@ -229,11 +229,11 @@ $$\begin{array}{r}
 
 ``` r
 plot_options <- list(
-  "type" = c("surv", paste(tempfile(), "run", sep = "")),
+  "fname" = paste(tempfile(), "run", sep = ""),
   "studyid" = "UserID", "verbose" = 2, "surv_curv" = F,
   "martingale" = T, "strat_haz" = F, "km" = F, "cov_cols" = c("age", "sex")
 )
-res_all <- plot(coxres, df, plot_options)
+res_all <- plotMartingale(coxres, df, plot_options)
 
 res_age <- res_all[["age"]]
 
@@ -282,10 +282,10 @@ constant.
 
 ``` r
 plot_options <- list(
-  "type" = c("risk", paste(tempfile(), "run", sep = "")), "studyid" = "UserID",
+  "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
   "verbose" = 2
 )
-res_all <- plot(coxres, df, plot_options)
+res_all <- plotRisk(coxres, df, plot_options)
 
 res_age <- res_all[["age"]]
 
