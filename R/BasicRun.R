@@ -357,7 +357,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     a_n <- c(0)
     if (all(poismodel$strata != "NONE")) {
       model_control["strata"] <- TRUE
-      a_n <- c(0)
+      a_n <- c(0.0)
+      keep_constant <- c(1)
     } else {
       event_total <- sum(df[, event0, with = F])
       time_total <- sum(df[, pyr0, with = F])

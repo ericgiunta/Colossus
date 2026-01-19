@@ -29,8 +29,11 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
+  if (model_control$null == FALSE){
+    if (min(keep_constant) > 0) {
+      stop("Error: Atleast one parameter must be free")
+    }
+    # A null model can have no free parameters
   }
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")

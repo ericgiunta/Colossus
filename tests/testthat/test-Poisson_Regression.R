@@ -51,6 +51,11 @@ test_that("Pois loglin_M Strata", {
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ loglinear(dose, 0), df, control = control, a_n = a_n)
   expect_equal(e$beta_0, c(0.05476188), tolerance = 1e-1)
+  #
+  expect_no_error(e <- PoisRun(Poisson(pyr, lung) ~ null(), df, control = control))
+  expect_no_error(e_strata <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ null(), df, control = control))
+  expect_equal(e$Deviation, c(698.499), tolerance = 1e-1)
+  expect_equal(e_strata$Deviation, c(698.4339), tolerance = 1e-1)
 })
 
 test_that("Checking pois strata default values", {
