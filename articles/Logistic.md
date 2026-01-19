@@ -193,7 +193,7 @@ print(e)
 #> maximum step size: 3.037e-05, maximum first derivative: 7.168e-03
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.014 seconds
+#> Run finished in 0.015 seconds
 #> |--------------------------------------------------------------------------------|
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
