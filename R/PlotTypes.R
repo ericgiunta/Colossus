@@ -185,11 +185,12 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
 #'
 #' \code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column
 #'
+#' @param boundary z score used to indicate if risk should be evaluated at a confidence interval boundary as well. If missing or 0.0, only the central estimate is used.
 #' @inheritParams R_template
 #' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
-CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, modelform, control, keep_constant, plot_type, b, er, model_control = list()) {
+CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, modelform, control, keep_constant, plot_type, dnames, b, er, boundary, model_control = list()) {
   fir_KM <- 0
   model_control <- Def_model_control(model_control)
   dfend <- df[get(event0) == 1, ]
@@ -200,8 +201,9 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
   x_all <- as.matrix(df[, all_names, with = FALSE])
   tu <- unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE)
   table_out <- list()
-  for (fir_KM in seq_len(length(names))) {
-    lfir <- c(names[fir_KM])
+  for (fir_KM in seq_len(length(dnames))) {
+    a_n <- copy(b)
+    lfir <- c(dnames[fir_KM])
     uniq <- unlist(unique(df[, lfir, with = FALSE]), use.names = FALSE)
     der_iden <- fir_KM - 1
     model_control$risk <- TRUE
@@ -219,8 +221,44 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
     }
     x <- e$x
     y <- e$y
-    dft <- data.table::data.table("x" = x, "y" = y)
-    table_out[[names[fir_KM]]] <- dft
+    if (boundary != 0.0) {
+      # We get risk on the boundaries
+      # Start with lower
+      a_n <- copy(b) - boundary * copy(er)
+      #
+      e <- Plot_Omnibus_transition(
+        term_n, tform, a_n, dfc, x_all, 0,
+        der_iden, modelform,
+        control,
+        as.matrix(df[, ce, with = FALSE]), tu,
+        keep_constant, term_tot, c(0), c(0),
+        model_control
+      )
+      if ("Failure" %in% names(e)) {
+        stop(e)
+      }
+      y_low <- e$y
+      # Now we do upper
+      a_n <- copy(b) + boundary * copy(er)
+      #
+      e <- Plot_Omnibus_transition(
+        term_n, tform, a_n, dfc, x_all, 0,
+        der_iden, modelform,
+        control,
+        as.matrix(df[, ce, with = FALSE]), tu,
+        keep_constant, term_tot, c(0), c(0),
+        model_control
+      )
+      if ("Failure" %in% names(e)) {
+        stop(e)
+      }
+      y_high <- e$y
+      dft <- data.table::data.table("x" = x, "y" = y, "y:lower" = y_low, "y:upper" = y_high)
+      table_out[[dnames[fir_KM]]] <- dft
+    } else {
+      dft <- data.table::data.table("x" = x, "y" = y)
+      table_out[[dnames[fir_KM]]] <- dft
+    }
   }
   return(table_out)
 }

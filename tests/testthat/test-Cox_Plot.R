@@ -192,10 +192,10 @@ test_that("Coxph plot stratafied no error", {
 })
 
 test_that("Coxph risk no error", {
-  a <- c(0, 1, 2, 3, 4, 5, 6)
-  b <- c(1, 2, 3, 4, 5, 6, 7)
-  c <- c(1, 0, 1, 0, 1, 0, 0)
-  d <- c(3, 4, 5, 6, 7, 8, 9)
+  a <- c(0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7)
+  c <- c(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
   keep_constant <- c(0)
   a_n <- c(-0.1)
@@ -205,6 +205,11 @@ test_that("Coxph risk no error", {
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(ep <- plotRisk(e, df, plot_options)$d)
     expect_equal(ep$y[7], 0.5488116, tolerance = 1e-4)
+    expect_equal(names(ep), c("x", "y"))
+    #
+    expect_no_error(ep <- plotRisk(e, df, plot_options, boundary = 1.95)$d)
+    expect_equal(ep$"y:lower"[7], 0.01537157, tolerance = 1e-4)
+    expect_equal(ep$"y:upper"[7], 19.59424, tolerance = 1e-4)
   }
 })
 

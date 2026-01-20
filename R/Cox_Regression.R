@@ -430,6 +430,23 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       plot_options$time_lims <- c(min(tu), max(tu))
     }
   }
+  if (tolower(plot_type[1]) == "risk") {
+    if ("cov_cols" %in% names(plot_options)) {
+      for (cov_i in seq_along(plot_options$cov_cols)) {
+        dose_col <- unlist(plot_options$cov_cols,
+          use.names = FALSE
+        )[cov_i]
+        if (dose_col %in% names(df)) {
+          # fine
+        } else {
+          stop("Error: Covariate column " +
+            dose_col + " is not in the dataframe")
+        }
+      }
+    } else {
+      plot_options$cov_cols <- names
+    }
+  }
   for (iden_col in c("verbose", "martingale", "surv_curv", "strat_haz", "km")) {
     if (iden_col %in% names(plot_options)) {
       # fine
@@ -550,7 +567,8 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       verbose, df, event0, time1, time2,
       names, term_n, tform,
       a_n, modelform, control, keep_constant,
-      plot_type, b, er
+      plot_type, plot_options$cov_cols, b, er,
+      plot_options$boundary
     )
   } else if (tolower(plot_type[1]) == "schoenfeld") {
     age_unit <- plot_options$age_unit

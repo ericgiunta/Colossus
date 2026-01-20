@@ -1218,7 +1218,7 @@ plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
 plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "studyid", "fname") # names used in control function
+    controlargs <- c("verbose", "studyid", "fname", "cov_cols", "boundary") # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1236,6 +1236,9 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (!"fname" %in% names(plot_options)) {
     plot_options$fname <- paste(tempfile(), "run", sep = "")
+  }
+  if (!"boundary" %in% names(plot_options)) {
+    plot_options$boundary <- 0.0
   }
   plot_options$type <- c("risk", plot_options$fname)
   #
@@ -1579,7 +1582,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   #
   extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid") # names used in control function
+    controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid", "boundary") # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
