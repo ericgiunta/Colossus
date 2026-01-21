@@ -205,7 +205,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
     a_n <- copy(b)
     lfir <- c(dnames[fir_KM])
     uniq <- unlist(unique(df[, lfir, with = FALSE]), use.names = FALSE)
-    der_iden <- fir_KM - 1
+    der_iden <- match(dnames[fir_KM], names) - 1
     model_control$risk <- TRUE
     model_control$unique_values <- length(uniq)
     e <- Plot_Omnibus_transition(

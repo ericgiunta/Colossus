@@ -1143,6 +1143,12 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
       df$CONST <- 1
     }
   }
+  all_name <- c(unique(names), time1, time2, event0)
+  for (name in all_name) {
+    if (!(name %in% names(df))) {
+      df[[name]] <- 0.0
+    }
+  }
   if (any(grepl(":intercept", names))) {
     # one of the columns has a :intercept flag
     for (name in names[grepl(":intercept", names)]) {
@@ -1600,6 +1606,11 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (!"verbose" %in% names(plot_options)) {
     plot_options$verbose <- 2
+  }
+  if (length(object$model$expres_calls) > 0) {
+    if (plot_options$verbose >= 2) {
+      warning("Warning: Columns were created during model defintion. Risk plots will only depend on individual columns, not interactions")
+    }
   }
   if (!"type" %in% names(plot_options)) {
     stop("Error: Plot type wasn't given")

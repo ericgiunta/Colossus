@@ -213,6 +213,31 @@ test_that("Coxph risk no error", {
   }
 })
 
+test_that("Coxph risk no error, with interactions", {
+  a <- c(0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7)
+  c <- c(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
+  e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+  keep_constant <- c(0)
+  a_n <- c(-0.1, 0.1, 0.1, 0.2)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "a", "verbose" = 0)
+  e <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max")
+  if (system.file(package = "ggplot2") != "") {
+    df_test <- data.table(
+      a = c(0, 0, 0, 0, 0, 0, 0, 0),
+      b = c(1, 1, 1, 1, 1, 1, 1, 1),
+      c = c(0, 0, 0, 0, 0, 0, 0, 0),
+      d = c(1, 2, 3, 4, 5, 6, 7, 8),
+      e = c(0, 0, 0, 0, 0, 0, 0, 0)
+    )
+    expect_no_error(ep <- RelativeRisk(e, df_test))
+    expect_equal(ep$Risk, 1 + df_test$d * -0.1 + df_test$d * df_test$d * 0.1, tolerance = 1e-3)
+  }
+})
+
 test_that("Coxph schoenfeld no error", {
   fname <- "MULTI_COV.csv"
   colTypes <- c("double", "double", "integer", "integer", "integer")

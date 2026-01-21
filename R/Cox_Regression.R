@@ -385,7 +385,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         for (cov_i in seq_along(plot_options$cov_cols)) {
           dose_col <- unlist(plot_options$cov_cols,
             use.names = FALSE
-          )[cov_i]
+          )[[cov_i]]
           if (dose_col %in% names(df)) {
             # fine
           } else {
@@ -435,7 +435,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       for (cov_i in seq_along(plot_options$cov_cols)) {
         dose_col <- unlist(plot_options$cov_cols,
           use.names = FALSE
-        )[cov_i]
+        )[[cov_i]]
         if (dose_col %in% names(df)) {
           # fine
         } else {
