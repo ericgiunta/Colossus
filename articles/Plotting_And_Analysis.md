@@ -280,8 +280,8 @@ g
 Colossus also offers scripts that plot the relative risk by covariate
 value for each covariate in the model, assuming every other covariate is
 zero. Results for specific covariates can be requested by passing an
-optional arguement, otherwise every covariate used in the risk model is
-included. Risk at wald confidence interval boundaries can also be
+optional argument, otherwise every covariate used in the risk model is
+included. Risk at Wald confidence interval boundaries can also be
 calculated by including a ‘boundary’ option set to a z-score. In this
 example, 95 percent confidence intervals are included and plotted.
 

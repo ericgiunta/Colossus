@@ -240,3 +240,9 @@ CRAN release: 2025-12-16
 - Updated stratified poisson modeling to correctly update background
   strata risk levels
 - Updated formula reading to not throw errors on long formulas
+
+## Colossus 1.4.9
+
+- Plotting split into multiple specific functions
+- Reduced time/memory use in stratified poisson modeling
+- Bug fixes in relative risk calculation and plotting
