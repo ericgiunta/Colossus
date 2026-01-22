@@ -180,7 +180,7 @@ print(e0)
 #> maximum step size: 6.104e-05, maximum first derivative: 1.465e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.022 seconds
+#> Run finished in 0.024 seconds
 #> |--------------------------------------------------------------------------------|
 print(e1)
 #> |--------------------------------------------------------------------------------|
@@ -201,7 +201,7 @@ print(e1)
 #> maximum step size: 6.104e-05, maximum first derivative: 1.463e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.011 seconds
+#> Run finished in 0.013 seconds
 #> |--------------------------------------------------------------------------------|
 print(e2)
 #> |--------------------------------------------------------------------------------|
@@ -222,6 +222,6 @@ print(e2)
 #> maximum step size: 6.104e-05, maximum first derivative: 1.498e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.02 seconds
+#> Run finished in 0.022 seconds
 #> |--------------------------------------------------------------------------------|
 ```
