@@ -675,14 +675,39 @@ factorize <- function(df, col_list, verbose = 0) {
 #' library(data.table)
 #' # In an actual example, one would run two seperate RunCoxRegression regressions,
 #' #    assigning the results to e0 and e1
-#' e0 <- list("name" = "First Model", "LogLik" = -120)
-#' e1 <- list("name" = "New Model", "LogLik" = -100)
-#' score <- Likelihood_Ratio_Test(e1, e0)
+#' a <- c(0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6)
+#' b <- c(1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7)
+#' c <- c(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
+#' e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
+#' df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+#' keep_constant <- c(0)
+#' a_n <- c(-0.1, 0.1, 0.1, 0.2)
+#' control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
+#' alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
+#' null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
+#' score <- Likelihood_Ratio_Test(alternative_model, null_model)
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
+  alt_is_null <- alternative_model$modelcontrol$null
+  null_is_null <- null_model$modelcontrol$null
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
-    freedom <- length(alternative_model$beta_0) - length(null_model$beta_0)
-    val <- 2 * (unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE))
+    #
+    alt_is_null <- alternative_model$modelcontrol$null
+    null_is_null <- null_model$modelcontrol$null
+    if (alt_is_null) {
+      stop("Error: Alternative model shouldn't be null.")
+    } else {
+      alt_count <- length(alternative_model$beta_0) - sum(alternative_model$model$keep_constant)
+    }
+    if (alt_is_null) {
+      null_count <- 0
+    } else {
+      null_count <- length(null_model$beta_0) - sum(null_model$model$keep_constant)
+    }
+    #
+    freedom <- alt_count - null_count
+    val <- 2 * (alternative_model$LogLik - null_model$LogLik)
     pval <- pchisq(val, freedom)
     return(list("value" = val, "p value" = pval))
   } else {
@@ -2409,6 +2434,11 @@ Interpret_Output <- function(out_list, digits = 3) {
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal
       message("Likelihood Boundary Results")
+      if (is(out_list, "coxresbound")) {
+        message("Proportional Hazards Model")
+      } else if (is(out_list, "poisresbound")) {
+        message("Poisson Model")
+      }
       if (all(strata != "NONE")) {
         message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
       }
@@ -2436,7 +2466,7 @@ Interpret_Output <- function(out_list, digits = 3) {
       # Check if its a multidose problem
       if (out_list$Survival_Type == "Cox_Multidose") {
         message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
-      } else if (out_list$Survival_Type == "CaseControl") {
+      } else if (is(out_list, "caseconres")) {
         # case control output
         # get the model details
         null_model <- out_list$modelcontrol$null
@@ -2699,8 +2729,8 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (neg_lim) {
             message("Warning: The last iteration encountered a negative risk.")
           }
-          message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
         }
+        message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
       }
     }
   } else {

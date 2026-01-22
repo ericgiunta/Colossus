@@ -28,8 +28,8 @@ SystemRequirements: make, C++17
 RoxygenNote: 7.3.3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Suggests: knitr, rmarkdown, testthat, xml2, ggplot2, pandoc, spelling,
-        survival, splines, dtplyr
+Suggests: knitr, rmarkdown, testthat, xml2, pandoc, spelling,
+        survival, splines, ggplot2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Language: en-US
