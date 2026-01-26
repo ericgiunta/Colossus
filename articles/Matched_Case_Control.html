@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -244,8 +244,8 @@ Karnofsky performance score on sets matched by cancer cell type.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
-<span><span class="va">veteran</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">veteran</span><span class="op">)</span></span>
+<span><span class="va">veteran</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">veteran</span><span class="op">)</span></span>
 <span><span class="co"># Make the same adjustments as Epicure example 6.5</span></span>
 <span><span class="va">karno</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">karno</span></span>
 <span><span class="va">karno</span><span class="op">[</span><span class="fl">93</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">20</span></span>
@@ -292,7 +292,7 @@ outputs.</p>
 <span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 1.465e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.024 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
@@ -313,7 +313,7 @@ outputs.</p>
 <span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 1.463e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.011 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
@@ -334,7 +334,7 @@ outputs.</p>
 <span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 1.498e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,8 +136,8 @@ row-specific rate taken from mapping a table of external events onto the
 data.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">cancer</span>, package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
-<span><span class="va">cancer</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">cancer</span><span class="op">)</span></span>
+<span><span class="va">cancer</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/setDT.html" class="external-link">setDT</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/copy.html" class="external-link">copy</a></span><span class="op">(</span><span class="va">cancer</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">cancer</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/integer.html" class="external-link">as.integer</a></span><span class="op">(</span><span class="va">cancer</span><span class="op">$</span><span class="va">status</span> <span class="op">==</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">cancer</span><span class="op">$</span><span class="va">time</span> <span class="op">&lt;-</span> <span class="va">cancer</span><span class="op">$</span><span class="va">time</span> <span class="op">/</span> <span class="fl">100</span></span>
@@ -174,7 +174,7 @@ rate and true event rate, and set the initial parameter estimate to
 <span><span class="co">#&gt; maximum step size: 1.741e-10, maximum first derivative: 5.451e-06</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
 <span><span class="co">#&gt; Records Used: 228, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this case, we found the SMR to be 0.474, analysis of the
 confidence interval (Likelihood-based) could be performed to check if
@@ -210,7 +210,7 @@ add another element to our model and rerun the regression.</p>
 <span><span class="co">#&gt; maximum step size: 9.313e-10, maximum first derivative: 1.416e+01</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
 <span><span class="co">#&gt; Records Used: 228, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this case, we found the SMR for sex=0 to be 0.37 and the SMR for
 sex=1 to be 0.56. Once again we could further investigate the confidence

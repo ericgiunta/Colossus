@@ -133,7 +133,7 @@ print(e)
 #> maximum step size: 1.075e-04, maximum first derivative: 3.454e-05
 #> Analysis converged
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.026 seconds
+#> Run finished in 0.022 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 
@@ -169,7 +169,7 @@ print(e)
 #> maximum step size: 9.569e-05, maximum first derivative: 3.072e-05
 #> Analysis converged
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.016 seconds
+#> Run finished in 0.013 seconds
 #> |--------------------------------------------------------------------------------|
 
 a_n <- c(-1, -1, -1, -1)
@@ -193,7 +193,7 @@ print(e)
 #> maximum step size: 3.037e-05, maximum first derivative: 7.168e-03
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.015 seconds
+#> Run finished in 0.012 seconds
 #> |--------------------------------------------------------------------------------|
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
@@ -217,6 +217,6 @@ print(e)
 #> maximum step size: 1.263e-04, maximum first derivative: 4.514e-05
 #> Analysis converged
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.016 seconds
+#> Run finished in 0.012 seconds
 #> |--------------------------------------------------------------------------------|
 ```

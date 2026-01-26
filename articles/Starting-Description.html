@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.10</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -366,7 +366,7 @@ data range and creates a dummy column to reference as the interval
 endpoint. In the formula, the interval endpoints can be named “tstart”
 and “tend”. So in code, these variables would look like this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdatatable.gitlab.io/data.table/reference/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  <span class="st">"UserID"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">112</span>, <span class="fl">114</span>, <span class="fl">213</span>, <span class="fl">214</span>, <span class="fl">115</span>, <span class="fl">116</span>, <span class="fl">117</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Starting_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">20</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">21</span>, <span class="fl">20</span>, <span class="fl">18</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Ending_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">45</span>, <span class="fl">57</span>, <span class="fl">47</span>, <span class="fl">36</span>, <span class="fl">60</span>, <span class="fl">55</span><span class="op">)</span>,</span>
@@ -579,7 +579,7 @@ as follows:</p>
 <span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 9.764e-04</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -606,7 +606,7 @@ as follows:</p>
 <span><span class="co">#&gt; maximum step size: 9.766e-04, maximum first derivative: 4.346e+02</span></span>
 <span><span class="co">#&gt; Analysis did not converge, check convergence criteria or run further</span></span>
 <span><span class="co">#&gt; Records Used: 7, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.011 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">

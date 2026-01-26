@@ -38,7 +38,11 @@ df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
 keep_constant <- c(0)
 a_n <- c(-0.1, 0.1, 0.1, 0.2)
 control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
-alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
+model <- Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e))
+alternative_model <- CoxRun(model, df,
+  control = control,
+  a_n = a_n, keep_constant = c(0, 1, 0)
+)
 null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
 score <- Likelihood_Ratio_Test(alternative_model, null_model)
 ```
