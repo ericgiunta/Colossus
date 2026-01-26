@@ -166,7 +166,9 @@ test_that("Improve Ratio test", {
   control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
   alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
   null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
-  expect_equal(Likelihood_Ratio_Test(alternative_model, null_model)$value, 2.200062, tolerance = 1e-2)
+  val <- Likelihood_Ratio_Test(alternative_model, null_model)
+  expect_equal(val$Difference, 2.200062, tolerance = 1e-3)
+  expect_equal(val$'p value', 0.5319362, tolerance = 1e-3)
 })
 test_that("Worse Ratio test", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6)
@@ -195,7 +197,7 @@ test_that("Same Ratio test", {
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
   alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
-  expect_equal(Likelihood_Ratio_Test(alternative_model, alternative_model)$value, 0)
+  expect_equal(Likelihood_Ratio_Test(alternative_model, alternative_model)$Difference, 0)
 })
 test_that("No Data Ratio test", {
   a <- list("baditem" = -300)

@@ -178,3 +178,7 @@
 * Plotting split into multiple specific functions
 * Reduced time/memory use in stratified poisson modeling
 * Bug fixes in relative risk calculation and plotting
+
+# Colossus 1.4.10
+
+* Likelihood Ratio Tests probabilities corrected

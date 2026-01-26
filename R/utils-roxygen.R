@@ -60,6 +60,7 @@
 #' @param strat_col  column to stratify by if needed
 #' @param studyID  id to group by, NaN for no grouping
 #' @param surv  survival fraction of baseline
+#' @param surv_se survival fraction standard error, applying both the Greenwood estimate effect and the effect of parameter uncertainty
 #' @param t  event times
 #' @param term_n  term numbers for each element of the model
 #' @param tform  list of string function identifiers, used for linear/step

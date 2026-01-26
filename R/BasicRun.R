@@ -122,6 +122,16 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   modelform <- coxmodel$modelform
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
+  # Check that the ages and events are numeric
+  if (!is.numeric(df[[time1]])) {
+    stop(paste("Error: Age column was not numeric: ", time1, sep = ""))
+  }
+  if (!is.numeric(df[[time2]])) {
+    stop(paste("Error: Age column was not numeric: ", time2, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -344,6 +354,13 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   a_n <- poismodel$a_n
   modelform <- poismodel$modelform
   strat_col <- poismodel$strata
+  # Check that the ages and events are numeric
+  if (!is.numeric(df[[pyr0]])) {
+    stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -559,6 +576,12 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
   strat_col <- logitmodel$strata
+  if (!is.numeric(df[[trial0]])) {
+    stop(paste("Error: Trial column was not numeric: ", trial0, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -980,6 +1003,12 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   a_n <- poismodel$a_n
   modelform <- poismodel$modelform
   strat_col <- poismodel$strata
+  if (!is.numeric(df[[pyr0]])) {
+    stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()

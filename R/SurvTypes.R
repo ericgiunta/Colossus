@@ -810,16 +810,6 @@ get_form_risk <- function(model_obj, df) {
               stop(paste("Error: Interaction column missing: ", col, sep = ""))
             }
           }
-          #          recur_interact <- function(x, y) {
-          #            if (length(y) == 1) {
-          #              return(paste(x, y[[1]], sep = ":"))
-          #            } else {
-          #              for (i in y[[1]]) {
-          #                y0 <- paste(x, i, sep = ":")
-          #                return(recur_interact(y0, y[2:length(y)]))
-          #              }
-          #            }
-          #          }
           interact_tables <- do.call(c, lapply(seq_along(cols), combn, x = cols, simplify = FALSE))
           col_name <- c()
           for (i_table in interact_tables) {
@@ -1065,6 +1055,18 @@ get_form_risk <- function(model_obj, df) {
       gmix_term <- c(gmix_term, rep(1.0, term_tot - length(gmix_term)))
     } else if (length(gmix_term) > term_tot) {
       stop("Error: The gmix option was used with more values than terms")
+    }
+  }
+  # We want to check that it is in the data and not a character
+  all_name <- unique(names)
+  for (col in all_name) {
+    # Make sure it exists
+    if (!(col %in% names(df))) {
+      stop(paste("Error: Column missing from data: ", col, sep = ""))
+    }
+    # Make sure it can be a number
+    if (!is.numeric(df[[col]])) {
+      stop(paste("Error: Column was not numeric: ", col, sep = ""))
     }
   }
   #

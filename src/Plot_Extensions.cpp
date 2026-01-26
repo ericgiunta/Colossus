@@ -79,12 +79,16 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
     int ntime = tu.size();
     NumericMatrix baseline(ntime, Strata_vals.size());
     NumericMatrix hazard_error(ntime, Strata_vals.size());
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk], 2);
-    }
+    NumericMatrix greenwood_error(ntime, Strata_vals.size());
+    NumericMatrix dSdbeta(ntime*Strata_vals.size(), reqrdnum);  //  Each row is ordered by time in each strata
+//    NumericVector dSdbeta(ntime*Strata_vals.size()*reqrdnum);  //  Storing the derivative values by time x strata x beta
+//    dSdbeta.attr("dim") = Dimension(ntime, Strata_vals.size(), reqrdnum);
+//    #ifdef _OPENMP
+//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//    #endif
+//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk], 2);
+//    }
     //
     //  Iterates through the risk groups and approximates the baseline
     //
@@ -104,6 +108,7 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
                         indices_end.push_back(i + 1);
                 });
             vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
+            int dSb_iterate = ijk + s_ij*ntime;
             if (indices_end.size() > 0) {
                 int dj = indices_end[indices_end.size() - 1] - indices_end[0] + 1;  //  number of events
                 //
@@ -126,21 +131,40 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
                     }
                 }
                 double Rs1 = 0;  //  total risk
+                int drisk = 0;
                 for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
                     Rs1 += R.block(indices[i] - 1, 0, indices[i + 1]-indices[i] + 1, 1).sum();
+                    drisk += indices[i + 1]-indices[i] + 1;
                 }
                 baseline(ijk, s_ij) = dj / Rs1;  //  approximates the baseline hazard
                 hazard_error(ijk, s_ij) = dj / pow(Rs1, 2);
+                if (drisk == dj) {
+                    greenwood_error(ijk, s_ij) = 0;  //  technically infinite uncertainty, filling with zero for now
+                } else {
+                    greenwood_error(ijk, s_ij) = dj / drisk / (drisk - dj);  //  Standard representation
+                }
+                double Rs2 = 0;
+                for (int ij = 0; ij < reqrdnum; ij++) {
+                    Rs2 = 0;
+                    for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
+                        Rs2 += Rd.block(indices[i] - 1, ij, indices[i + 1]-indices[i] + 1, 1).sum();
+                    }
+                    dSdbeta(dSb_iterate, ij) = dj * Rs2 / pow(Rs1,2);
+                }
             } else {
                 baseline(ijk, s_ij) = 0;  //  approximates the baseline hazard
                 hazard_error(ijk, s_ij) = 0;
+                greenwood_error(ijk, s_ij) = 0;
+                for (int ij = 0; ij < reqrdnum; ij++) {
+                    dSdbeta(dSb_iterate, ij) = 0;
+                }
             }
         }
     }
     //
     NumericVector w_R = wrap(R.col(0));
     //  returns the baseline approximates and the risk information
-    List res_list = List::create(_["baseline"] = baseline, _["standard_error"] = hazard_error, _["Risks"] = w_R);
+    List res_list = List::create(_["baseline"] = baseline, _["standard_error"] = hazard_error, _["Risks"] = w_R, _["Green_Error"] = greenwood_error, _["Beta_Error"] = dSdbeta);
     //
     return res_list;
 }
@@ -159,12 +183,14 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
     int ntime = tu.size();
     vector<double> baseline(ntime, 0.0);
     vector<double> hazard_error(ntime, 0.0);
-    #ifdef _OPENMP
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-    #endif
-    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk], 2);
-    }
+    vector<double> greenwood_error(ntime, 0.0);
+    NumericMatrix dSdbeta(ntime, reqrdnum);
+//    #ifdef _OPENMP
+//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//    #endif
+//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk], 2);
+//    }
     //
     //  Iterates through the risk groups and approximates the baseline
     //
@@ -205,22 +231,39 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
         }
         int dj = indices_end[indices_end.size() - 1] - indices_end[0] + 1;  //  number of events
         double Rs1 = 0;  //  total risk
+        int drisk = 0;
         for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
             Rs1 += R.block(indices[i] - 1, 0, indices[i + 1]-indices[i] + 1, 1).sum();
+            drisk += indices[i + 1]-indices[i] + 1;
         }
         baseline[ijk] = dj / Rs1;  //  approximates the baseline hazard
         hazard_error[ijk] = dj / pow(Rs1, 2);
         //
+        if (drisk == dj) {
+            greenwood_error[ijk] = 0;  //  technically infinite uncertainty, filling with zero for now
+        } else {
+            greenwood_error[ijk] = dj / drisk / (drisk - dj);  //  Standard representation
+        }
+        double Rs2 = 0;
+        for (int ij = 0; ij < reqrdnum; ij++) {
+            Rs2 = 0;
+            for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
+                Rs2 += Rd.block(indices[i] - 1, ij, indices[i + 1]-indices[i] + 1, 1).sum();
+            }
+            dSdbeta(ijk, ij) = dj * Rs2 / pow(Rs1,2);
+        }
     }
     //
     NumericVector w_base = wrap(baseline);
     NumericVector w_base_er = wrap(hazard_error);
     NumericVector w_R = wrap(R.col(0));
+    NumericVector w_Green = wrap(greenwood_error);
     //  returns the baseline approximates and the risk information
-    List res_list = List::create(_["baseline"] = w_base, _["standard_error"] = w_base_er, _["Risks"] = w_R);
+    List res_list = List::create(_["baseline"] = w_base, _["standard_error"] = w_base_er, _["Risks"] = w_R, _["Green_Error"] = w_Green, _["Beta_Error"] = dSdbeta);
     //
     return res_list;
 }
+
 
 
 //' Primary Cox PH schoenfeld residual function

@@ -484,6 +484,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   control$maxiter <- maxiterc
   b <- e$beta_0
   er <- e$Standard_Deviation
+  cov_mat <- e$Covariance
   plot_table <- list()
   if (tolower(plot_type[1]) == "surv") {
     if (verbose >= 3) {
@@ -505,23 +506,44 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       h <- c()
       ch <- c()
       surv <- c()
+      surv_se <- c()
       if (verbose >= 3) {
         message("Note: writing survival data") # nocov
       }
       dft <- data.table::data.table(
         "time" = tu, "base" = e$baseline,
-        "basehaz" = e$standard_error
+        "greener" = e$Green_Error
       )
+      total_beta_error <- e$Beta_Error
+      beta_cols <- ncol(total_beta_error)
+      for (i in 1:beta_cols) {
+        dft[[paste("betaer_", i, sep = "")]] <- total_beta_error[, i]
+      }
+      # "betaer" = e$Beta_Error
+      beta_vec <- rep(0, beta_cols)
       for (i in tu) {
         t <- c(t, i)
-        temp <- sum(dft[time < i, base])
-        ch <- c(ch, temp)
+        df_temp <- dft[time < i, ]
+        ch_temp <- sum(df_temp$base)
+        ch <- c(ch, ch_temp)
         if (length(h) == 0) {
-          h <- c(temp)
+          h <- c(ch_temp)
         } else {
           h <- c(h, ch[length(ch)] - ch[length(ch) - 1])
         }
-        surv <- c(surv, exp(-1 * temp))
+        surv <- c(surv, exp(-1 * ch_temp))
+        green_temp <- sum(df_temp$greener)
+        for (i in 1:beta_cols) {
+          beta_vec[i] <- sum(df_temp[[paste("betaer_", i, sep = "")]])
+        }
+        if (beta_cols == 1) {
+          beta_temp <- beta_vec * cov_mat * beta_vec
+        } else {
+          beta_mat <- as.matrix(beta_vec, ncol = 1)
+          beta_temp <- t(beta_mat) %*% cov_mat %*% beta_mat
+          beta_temp <- beta_temp[1, 1]
+        }
+        surv_se <- c(surv_se, exp(-1 * ch_temp) * sqrt(green_temp + beta_temp))
       }
       age_unit <- plot_options$age_unit
       if (plot_options$martingale == TRUE) {
@@ -534,7 +556,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       }
       if (plot_options$surv_curv == TRUE) {
         plot_table <- CoxSurvival(
-          t, h, ch, surv, plot_type[2], verbose,
+          t, h, ch, surv, surv_se, plot_type[2], verbose,
           plot_options$time_lims, age_unit
         )
       }
