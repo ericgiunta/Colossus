@@ -4,7 +4,9 @@
 Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
-library(survival)
+if (system.file(package = "survival") != "") {
+  library(survival)
+}
 library(dplyr)
 #> 
 #> Attaching package: 'dplyr'
@@ -90,9 +92,22 @@ regressions, one fully exponential and one with a linear effect. Both
 regressions converge with similar scores.
 
 ``` r
-data(reliability, package = "survival")
-capacitor %>% setDT()
-df <- copy(capacitor)
+if (system.file(package = "survival") != "") {
+  data(reliability, package = "survival")
+  capacitor %>% setDT()
+  df <- copy(capacitor)
+} else {
+  voltage <- c(200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350, 200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350, 200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350, 200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350)
+  temperature <- c(170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180)
+  time <- c(439, 904, 1092, 1105, 572, 690, 904, 1090, 315, 315, 439, 628, 258, 258, 347, 588, 959, 1065, 1065, 1087, 216, 315, 455, 473, 241, 315, 332, 380, 241, 241, 435, 455, 1105, 1105, 1105, 1105, 1090, 1090, 1090, 1090, 628, 628, 628, 628, 588, 588, 588, 588, 1087, 1087, 1087, 1087, 473, 473, 473, 473, 380, 380, 380, 380, 455, 455, 455, 455)
+  status <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  df <- data.table(
+    "voltage" = voltage,
+    "temperature" = temperature,
+    "time" = time,
+    "status" = status
+  )
+}
 
 df$voltage <- (df$voltage - 200) / 150
 df$temperature <- (df$temperature - 170) / 10
@@ -124,7 +139,7 @@ print(e1, 5)
 #> maximum step size: 5.90475e-05, maximum first derivative: 5.22560e-05
 #> Analysis converged
 #> Records Used: 64, Records Removed: 0
-#> Run finished in 0.0219 seconds
+#> Run finished in 0.02564 seconds
 #> |--------------------------------------------------------------------------------|
 
 e2 <- CoxRun(Cox(time, status) ~ loglinear(temperature, 0) + plinear(voltage, 0),
@@ -150,7 +165,7 @@ print(e2, 5)
 #> maximum step size: 2.57874e-03, maximum first derivative: 3.62470e-05
 #> Analysis converged
 #> Records Used: 64, Records Removed: 0
-#> Run finished in 0.02151 seconds
+#> Run finished in 0.02372 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 
@@ -203,7 +218,7 @@ print(e, 5)
 #> Lower limit converged to at -0.0098967 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 0.75995
 #> Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00655 seconds
+#> Run finished in 0.00797 seconds
 #> |--------------------------------------------------------------------------------|
 
 curve_control <- list(
@@ -227,7 +242,7 @@ print(e, 5)
 #> Lower limit converged to at 0.84124 at a score of -107.30968 with of goal of -107.30969
 #> Central estimate was 1.9884
 #> Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969
-#> Run finished in 0.00628 seconds
+#> Run finished in 0.00758 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 
@@ -268,7 +283,7 @@ print(e, 5)
 #> Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587
 #> Central estimate was 0.95035
 #> Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00684 seconds
+#> Run finished in 0.00828 seconds
 #> |--------------------------------------------------------------------------------|
 
 a_n <- c(1.138152, 1.988403)
@@ -293,7 +308,7 @@ print(e, 5)
 #> Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587
 #> Central estimate was 8.8172
 #> Upper limit converged to at 34.472 at a score of -106.16587 with of goal of -106.16587
-#> Run finished in 0.00734 seconds
+#> Run finished in 0.00861 seconds
 #> |--------------------------------------------------------------------------------|
 ```
 
@@ -351,11 +366,14 @@ x <- c(-0.8, -0.784, -0.768, -0.752, -0.736, -0.72, -0.704, -0.688, -0.672, -0.6
 y <- c(-18500.53, -18499.829, -18499.273, -18498.831, -18498.482, -18498.21, -18497.995, -18497.832, -18497.71, -18497.621, -18497.56, -18497.519, -18497.498, -18497.49, -18497.4904, -18497.495, -18497.51, -18497.53, -18497.558, -18497.589, -18497.624, -18497.66, -18497.7, -18497.739, -18497.779, -18497.818, -18497.86, -18497.896, -18497.933, -18497.969, -18498.003, -18498.04, -18498.067, -18498.096, -18498.124, -18498.15, -18498.17, -18498.196, -18498.216, -18498.235, -18498.252, -18498.27, -18498.281, -18498.292, -18498.303, -18498.311, -18498.32, -18498.324, -18498.329, -18498.332, -18498.334, -18498.33, -18498.33, -18498.31, -18498.27, -18498.23, -18498.18, -18498.13, -18498.07, -18498.01, -18497.96, -18497.9, -18497.84, -18497.78, -18497.73, -18497.68, -18497.63, -18497.59, -18497.56, -18497.52, -18497.49, -18497.47, -18497.45, -18497.44, -18497.43, -18497.429487, -18497.43, -18497.43, -18497.44, -18497.45, -18497.47, -18497.5, -18497.52, -18497.56, -18497.6, -18497.64, -18497.69, -18497.74, -18497.8, -18497.86, -18497.93, -18498.0, -18498.07, -18498.15, -18498.23, -18498.32, -18498.41, -18498.5, -18498.6, -18498.7, -18498.81, -18498.92, -18499.03)
 
 df <- data.table("x" = x, "y" = y)
-
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y)) +
-  ggplot2::geom_line(color = "black", alpha = 1, "linewidth" = 1.5) +
-  ggplot2::labs(x = "Linear Parameter Value", y = "Log-Likelihood") +
-  ggplot2::ggtitle("Multi-Peak Curve")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y)) +
+    ggplot2::geom_line(color = "black", alpha = 1, "linewidth" = 1.5) +
+    ggplot2::labs(x = "Linear Parameter Value", y = "Log-Likelihood") +
+    ggplot2::ggtitle("Multi-Peak Curve")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 

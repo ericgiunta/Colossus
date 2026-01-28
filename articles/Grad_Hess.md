@@ -159,11 +159,14 @@ y <- c(-0.1, 0.9, 0.446528, 0.839821, 0.493552, 0.799313, 0.528609, 0.768118, 0.
 c <- c("standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam")
 
 df <- data.table("x" = x, "y" = y, "method" = c)
-
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
-  ggplot2::geom_line("linewidth" = 1.2) +
-  ggplot2::labs(x = "Iteration", y = "First Parameter Value") +
-  ggplot2::ggtitle("First Parameter Value Convergence")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
+    ggplot2::geom_line("linewidth" = 1.2) +
+    ggplot2::labs(x = "Iteration", y = "First Parameter Value") +
+    ggplot2::ggtitle("First Parameter Value Convergence")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -176,10 +179,14 @@ c <- c("standard", "standard", "standard", "standard", "standard", "standard", "
 
 df <- data.table("x" = x, "y" = y, "method" = c)
 
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
-  ggplot2::geom_line("linewidth" = 1.2) +
-  ggplot2::labs(x = "Iteration", y = "Second Parameter Value") +
-  ggplot2::ggtitle("Second Parameter Value Convergence")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
+    ggplot2::geom_line("linewidth" = 1.2) +
+    ggplot2::labs(x = "Iteration", y = "Second Parameter Value") +
+    ggplot2::ggtitle("Second Parameter Value Convergence")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -192,10 +199,14 @@ c <- c("standard", "standard", "standard", "standard", "standard", "standard", "
 
 df <- data.table("x" = x, "y" = y, "method" = c)
 
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
-  ggplot2::geom_line("linewidth" = 1.2) +
-  ggplot2::labs(x = "Iteration", y = "Log-Likelihood Value") +
-  ggplot2::ggtitle("Log-Likelihood Convergence")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
+    ggplot2::geom_line("linewidth" = 1.2) +
+    ggplot2::labs(x = "Iteration", y = "Log-Likelihood Value") +
+    ggplot2::ggtitle("Log-Likelihood Convergence")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -218,10 +229,14 @@ c <- c("0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "
 
 df <- data.table("x" = x, "y" = y, "LearningRate" = c)
 
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$LearningRate, color = .data$LearningRate)) +
-  ggplot2::geom_line("linewidth" = 1.2) +
-  ggplot2::labs(x = "Iteration", y = "Second Parameter") +
-  ggplot2::ggtitle("Second Parameter Convergence")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$LearningRate, color = .data$LearningRate)) +
+    ggplot2::geom_line("linewidth" = 1.2) +
+    ggplot2::labs(x = "Iteration", y = "Second Parameter") +
+    ggplot2::ggtitle("Second Parameter Convergence")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -242,10 +257,14 @@ c <- c("0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.
 
 df <- data.table("x" = x, "y" = y, "MomentumDecay" = c)
 
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$MomentumDecay, color = .data$MomentumDecay)) +
-  ggplot2::geom_line("linewidth" = 1.2) +
-  ggplot2::labs(x = "Iteration", y = "Second Parameter") +
-  ggplot2::ggtitle("Second Parameter Convergence")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$MomentumDecay, color = .data$MomentumDecay)) +
+    ggplot2::geom_line("linewidth" = 1.2) +
+    ggplot2::labs(x = "Iteration", y = "Second Parameter") +
+    ggplot2::ggtitle("Second Parameter Convergence")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -263,10 +282,14 @@ c <- c("1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "
 
 df <- data.table("x" = x, "y" = y, "Epsilon" = c)
 
-g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$Epsilon, color = .data$Epsilon)) +
-  ggplot2::geom_line("linewidth" = 1.2) +
-  ggplot2::labs(x = "Iteration", y = "Second Parameter") +
-  ggplot2::ggtitle("Second Parameter Convergence")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$Epsilon, color = .data$Epsilon)) +
+    ggplot2::geom_line("linewidth" = 1.2) +
+    ggplot2::labs(x = "Iteration", y = "Second Parameter") +
+    ggplot2::ggtitle("Second Parameter Convergence")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 

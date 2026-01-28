@@ -4,7 +4,9 @@
 Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
-library(survival)
+if (system.file(package = "survival") != "") {
+  library(survival)
+}
 library(dplyr)
 #> 
 #> Attaching package: 'dplyr'
@@ -129,9 +131,23 @@ Karnofsky performance score on sets matched by cancer cell type.
 
 ``` r
 #
-data(cancer, package = "survival")
-veteran %>% setDT()
-df <- copy(veteran)
+if (system.file(package = "survival") != "") {
+  data(cancer, package = "survival")
+  veteran %>% setDT()
+  df <- copy(veteran)
+} else {
+  karno <- c(60, 70, 60, 60, 70, 20, 40, 80, 50, 70, 60, 40, 30, 80, 70, 60, 60, 40, 80, 60, 40, 60, 60, 30, 80, 30, 50, 60, 80, 40, 20, 80, 30, 75, 70, 60, 30, 60, 80, 60, 70, 50, 50, 40, 40, 20, 70, 40, 80, 80, 50, 80, 30, 80, 50, 80, 50, 70, 60, 40, 80, 80, 70, 90, 90, 80, 80, 70, 60, 90, 80, 80, 50, 50, 70, 70, 20, 60, 90, 30, 20, 70, 90, 80, 50, 70, 60, 90, 50, 30, 70, 20, 30, 60, 40, 30, 20, 60, 70, 80, 85, 70, 70, 70, 50, 30, 40, 40, 40, 99, 80, 60, 60, 60, 60, 50, 70, 10, 40, 70, 90, 80, 50, 40, 40, 60, 70, 30, 60, 30, 60, 80, 75, 60, 70, 80, 30)
+  trt <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
+  cell <- c("squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large")
+  status <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+
+  df <- data.table(
+    "karno" = karno,
+    "trt" = trt,
+    "cell" = cell,
+    "status" = status
+  )
+}
 # Make the same adjustments as Epicure example 6.5
 karno <- df$karno
 karno[93] <- 20
@@ -180,7 +196,7 @@ print(e0)
 #> maximum step size: 6.104e-05, maximum first derivative: 1.465e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.02 seconds
+#> Run finished in 0.032 seconds
 #> |--------------------------------------------------------------------------------|
 print(e1)
 #> |--------------------------------------------------------------------------------|
@@ -201,7 +217,7 @@ print(e1)
 #> maximum step size: 6.104e-05, maximum first derivative: 1.463e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.011 seconds
+#> Run finished in 0.013 seconds
 #> |--------------------------------------------------------------------------------|
 print(e2)
 #> |--------------------------------------------------------------------------------|
@@ -222,6 +238,6 @@ print(e2)
 #> maximum step size: 6.104e-05, maximum first derivative: 1.498e+02
 #> Analysis did not converge, check convergence criteria or run further
 #> Records Used: 137, Records Removed: 0
-#> Run finished in 0.019 seconds
+#> Run finished in 0.013 seconds
 #> |--------------------------------------------------------------------------------|
 ```
