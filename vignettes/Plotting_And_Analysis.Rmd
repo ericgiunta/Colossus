@@ -18,9 +18,13 @@ knitr::opts_chunk$set(
 Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
-library(survival)
+if (system.file(package = "survival") != "") {
+  library(survival)
+}
 library(dplyr)
-library(ggplot2)
+if (system.file(package = "ggplot2") != "") {
+  library(ggplot2)
+}
 ```
 
 ## Example Setup
@@ -28,9 +32,23 @@ library(ggplot2)
 We will use analysis of the lung dataset in the survival package to visualize the different plotting methods available in Colossus.
 
 ```{r, eval=TRUE}
-data(cancer, package = "survival")
-cancer %>% setDT()
-df <- copy(cancer)
+if (system.file(package = "survival") != "") {
+  data(cancer, package = "survival")
+  cancer %>% setDT()
+  df <- copy(cancer)
+} else {
+  status <- c(2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1)
+  sex <- c(1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 1, 1, 2, 1, 1, 2, 2, 1, 1, 1, 2, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 2, 1, 2, 2, 1, 1, 1, 2, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 2, 1, 1, 2, 1, 1, 2, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 2, 1, 1, 2, 1, 1, 2, 1, 2, 2, 1, 2, 1, 1, 1, 2, 1, 2)
+  time <- c(306, 455, 1010, 210, 883, 1022, 310, 361, 218, 166, 170, 654, 728, 71, 567, 144, 613, 707, 61, 88, 301, 81, 624, 371, 394, 520, 574, 118, 390, 12, 473, 26, 533, 107, 53, 122, 814, 965, 93, 731, 460, 153, 433, 145, 583, 95, 303, 519, 643, 765, 735, 189, 53, 246, 689, 65, 5, 132, 687, 345, 444, 223, 175, 60, 163, 65, 208, 821, 428, 230, 840, 305, 11, 132, 226, 426, 705, 363, 11, 176, 791, 95, 196, 167, 806, 284, 641, 147, 740, 163, 655, 239, 88, 245, 588, 30, 179, 310, 477, 166, 559, 450, 364, 107, 177, 156, 529, 11, 429, 351, 15, 181, 283, 201, 524, 13, 212, 524, 288, 363, 442, 199, 550, 54, 558, 207, 92, 60, 551, 543, 293, 202, 353, 511, 267, 511, 371, 387, 457, 337, 201, 404, 222, 62, 458, 356, 353, 163, 31, 340, 229, 444, 315, 182, 156, 329, 364, 291, 179, 376, 384, 268, 292, 142, 413, 266, 194, 320, 181, 285, 301, 348, 197, 382, 303, 296, 180, 186, 145, 269, 300, 284, 350, 272, 292, 332, 285, 259, 110, 286, 270, 81, 131, 225, 269, 225, 243, 279, 276, 135, 79, 59, 240, 202, 235, 105, 224, 239, 237, 173, 252, 221, 185, 92, 13, 222, 192, 183, 211, 175, 197, 203, 116, 188, 191, 105, 174, 177)
+  age <- c(74, 68, 56, 57, 60, 74, 68, 71, 53, 61, 57, 68, 68, 60, 57, 67, 70, 63, 56, 57, 67, 49, 50, 58, 72, 70, 60, 70, 53, 74, 69, 73, 48, 60, 61, 62, 65, 66, 74, 64, 70, 73, 59, 60, 68, 76, 74, 63, 74, 50, 72, 63, 68, 58, 59, 62, 65, 57, 58, 64, 75, 48, 73, 65, 69, 68, 67, 64, 68, 67, 63, 48, 74, 40, 53, 71, 51, 56, 81, 73, 59, 55, 42, 44, 44, 71, 62, 61, 44, 72, 63, 70, 66, 57, 69, 72, 69, 71, 64, 70, 58, 69, 56, 63, 59, 66, 54, 67, 55, 75, 69, 44, 80, 75, 54, 76, 49, 68, 66, 80, 75, 60, 69, 72, 70, 66, 50, 64, 77, 48, 59, 53, 47, 55, 67, 74, 58, 56, 54, 56, 73, 74, 76, 65, 57, 53, 71, 54, 82, 59, 70, 60, 62, 53, 55, 69, 68, 62, 63, 56, 62, 44, 69, 63, 64, 57, 60, 46, 61, 65, 61, 58, 56, 43, 53, 59, 56, 55, 53, 74, 60, 39, 66, 65, 51, 45, 72, 58, 64, 53, 72, 52, 50, 64, 71, 70, 63, 64, 52, 60, 64, 73, 63, 50, 63, 62, 55, 50, 69, 59, 60, 67, 69, 64, 65, 65, 41, 76, 70, 57, 67, 71, 76, 77, 39, 75, 66, 58)
+
+  df <- data.table(
+    "status" = status,
+    "sex" = sex,
+    "time" = time,
+    "age" = age
+  )
+}
 
 df$UserID <- seq_len(nrow(df))
 
@@ -88,18 +106,29 @@ plot_options <- list(
 e <- plotSurvival(coxres, df, plot_options)
 
 norm_surv <- e[["standard"]]
-
-g <- ggplot(norm_surv, aes(x = .data$t, y = .data$h)) +
-  geom_point(color = "black") +
-  labs(x = "age", y = "Instantaneous Hazard")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(norm_surv, aes(x = .data$t, y = .data$h)) +
+    geom_point(color = "black") +
+    labs(x = "age", y = "Instantaneous Hazard")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
-g <- ggplot(norm_surv, aes(x = .data$t, y = .data$ch)) +
-  geom_line(color = "black", alpha = 1) +
-  labs(x = "age", y = "Cumulative Hazard")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(norm_surv, aes(x = .data$t, y = .data$ch)) +
+    geom_line(color = "black", alpha = 1) +
+    labs(x = "age", y = "Cumulative Hazard")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
-g <- ggplot(norm_surv, aes(x = .data$t, y = .data$surv)) +
-  geom_line(color = "black", alpha = 1) +
-  labs(x = "age", y = "Surviving Fraction")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(norm_surv, aes(x = .data$t, y = .data$surv)) +
+    geom_line(color = "black", alpha = 1) +
+    labs(x = "age", y = "Surviving Fraction")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 plot_options <- list(
   "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
@@ -109,9 +138,13 @@ plot_options <- list(
 e <- plotSurvival(coxres, df, plot_options)
 
 km <- e[["kaplin-meier"]]
-g <- ggplot(km, aes(x = .data$t_t, y = .data$n_t)) +
-  geom_line(color = "black", alpha = 1) +
-  labs(x = "age", y = "KM Survival")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(km, aes(x = .data$t_t, y = .data$n_t)) +
+    geom_line(color = "black", alpha = 1) +
+    labs(x = "age", y = "KM Survival")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -140,36 +173,52 @@ plot_options <- list(
 res_all <- plotSchoenfeld(coxres, df, plot_options)
 
 res_age <- res_all[["age"]]
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(res_age, aes(x = .data$time, y = .data$y)) +
+    geom_point(color = "black") +
+    labs(
+      x = paste("Survival Time", sep = ""),
+      y = paste("Schoenfeld Residual (age)", sep = " ")
+    )
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
+g
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(res_age, aes(x = .data$time, y = .data$y_scale)) +
+    geom_point(color = "black") +
+    labs(
+      x = paste("Survival Time", sep = ""),
+      y = paste("Schoenfeld Residual Scaled (age)", sep = " ")
+    )
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
+g
 
-g <- ggplot(res_age, aes(x = .data$time, y = .data$y)) +
-  geom_point(color = "black") +
-  labs(
-    x = paste("Survival Time", sep = ""),
-    y = paste("Schoenfeld Residual (age)", sep = " ")
-  )
-g
-g <- ggplot(res_age, aes(x = .data$time, y = .data$y_scale)) +
-  geom_point(color = "black") +
-  labs(
-    x = paste("Survival Time", sep = ""),
-    y = paste("Schoenfeld Residual Scaled (age)", sep = " ")
-  )
-g
 res_sex <- res_all[["sex"]]
 
-g <- ggplot(res_sex, aes(x = .data$time, y = .data$y)) +
-  geom_point(color = "black") +
-  labs(
-    x = paste("Survival Time", sep = ""),
-    y = paste("Schoenfeld Residual (sex)", sep = " ")
-  )
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(res_sex, aes(x = .data$time, y = .data$y)) +
+    geom_point(color = "black") +
+    labs(
+      x = paste("Survival Time", sep = ""),
+      y = paste("Schoenfeld Residual (sex)", sep = " ")
+    )
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
-g <- ggplot(res_sex, aes(x = .data$time, y = .data$y_scale)) +
-  geom_point(color = "black") +
-  labs(
-    x = paste("Survival Time", sep = ""),
-    y = paste("Schoenfeld Residual Scaled (sex)", sep = " ")
-  )
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(res_sex, aes(x = .data$time, y = .data$y_scale)) +
+    geom_point(color = "black") +
+    labs(
+      x = paste("Survival Time", sep = ""),
+      y = paste("Schoenfeld Residual Scaled (sex)", sep = " ")
+    )
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -195,28 +244,42 @@ res_all <- plotMartingale(coxres, df, plot_options)
 
 res_age <- res_all[["age"]]
 
-g <- ggplot() +
-  geom_point(
-    data = res_age,
-    aes(x = .data$cov_max, y = .data$res_sum, group = .data$event, color = .data$event)
-  )
-g <- g + labs(x = "Max Age", y = "Martingale Residuals")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot() +
+    geom_point(
+      data = res_age,
+      aes(x = .data$cov_max, y = .data$res_sum, group = .data$event, color = .data$event)
+    )
+  g <- g + labs(x = "Max Age", y = "Martingale Residuals")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 res_sex <- res_all[["sex"]]
-g <- ggplot() +
-  geom_point(
-    data = res_sex,
-    aes(x = .data$cov_max, y = .data$res_sum, group = .data$event, color = .data$event)
-  )
-g <- g + labs(x = "Sex", y = "Martingale Residuals")
+
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot() +
+    geom_point(
+      data = res_sex,
+      aes(x = .data$cov_max, y = .data$res_sum, group = .data$event, color = .data$event)
+    )
+  g <- g + labs(x = "Sex", y = "Martingale Residuals")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 res_surv <- res_all[["survival_time"]]
-g <- ggplot() +
-  geom_point(
-    data = res_surv,
-    aes(x = .data$time_max, y = .data$res_sum, group = .data$event, color = .data$event)
-  )
-g <- g + labs(x = "Survival Time", y = "Martingale Residuals")
+
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot() +
+    geom_point(
+      data = res_surv,
+      aes(x = .data$time_max, y = .data$res_sum, group = .data$event, color = .data$event)
+    )
+  g <- g + labs(x = "Survival Time", y = "Martingale Residuals")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
@@ -233,18 +296,27 @@ res_all <- plotRisk(coxres, df, plot_options)
 
 res_age <- res_all[["age"]]
 
-g <- ggplot(res_age, aes(x = .data$x, y = .data$y)) +
-  geom_errorbar(aes(ymin = .data$"y:lower", ymax = .data$"y:upper"), color = "black") +
-  geom_point(color = "black") +
-  labs(x = "Age", y = "Relative Risk")
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(res_age, aes(x = .data$x, y = .data$y)) +
+    geom_errorbar(aes(ymin = .data$"y:lower", ymax = .data$"y:upper"), color = "black") +
+    geom_point(color = "black") +
+    labs(x = "Age", y = "Relative Risk")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 
 
 res_sex <- res_all[["sex"]]
-g <- ggplot(res_sex, aes(x = .data$x, y = .data$y)) +
-  geom_errorbar(aes(ymin = .data$"y:lower", ymax = .data$"y:upper"), color = "black") +
-  geom_point(color = "black") +
-  labs(x = "Sex", y = "Relative Risk")
+
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(res_sex, aes(x = .data$x, y = .data$y)) +
+    geom_errorbar(aes(ymin = .data$"y:lower", ymax = .data$"y:upper"), color = "black") +
+    geom_point(color = "black") +
+    labs(x = "Sex", y = "Relative Risk")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
 g
 ```
 
