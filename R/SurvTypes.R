@@ -981,7 +981,7 @@ get_form_risk <- function(model_obj, df) {
             } else {
               # wasn't a number
               gmix_theta <- 0.5
-              para_else <- model_paras[1:length(model_paras)]
+              para_else <- model_paras[seq_along(model_paras)]
               # Check if they are all valid
               if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
                 gmix_term <- ifelse(para_else == "e", 1, 0)

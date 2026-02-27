@@ -55,11 +55,6 @@ using Rcpp::List;
 using Rcpp::_;
 using Rcpp::Rcout;
 
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
-
 //' Utility function to refresh risk and subterm matrices for Cox Omnibus function
 //'
 //' \code{Cox_Refresh_R_TERM} Called to update matrices
@@ -493,7 +488,9 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         //
         //
         if (R.minCoeff() <= 0) {
-            if (verbose >= 4) { Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl; }
+            if (verbose >= 4) {
+                Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
+            }
         }
     }
     return;

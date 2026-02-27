@@ -29,9 +29,9 @@ LogisticRun(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
 
 \item{link}{Used in logistic regression, the linking function relating the input model and event probability. Current options are "odds", "ident", and "loglink" for the odds ratio, identity, and complimentary loglink options.}
 

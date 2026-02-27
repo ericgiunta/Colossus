@@ -55,19 +55,6 @@ template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-template<typename Func>
-struct lambda_as_visitor_wrapper : Func {
-    lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
-    template<typename S, typename I>
-    void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
-};
-
-template<typename Mat, typename Func>
-void visit_lambda(const Mat& m, const Func& f) {
-    lambda_as_visitor_wrapper<Func> visitor(f);
-    m.visit(visitor);
-}
-
 //' Primary Cox PH likelihood bounds calcualtion function.
 //'
 //' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
@@ -93,17 +80,23 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "null model is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -261,7 +254,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     vector<double> ll_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     int step = -1;
     bool iter_continue = true;
@@ -516,12 +511,16 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "null model is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -682,9 +681,13 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<bool>   limit_converged(2, FALSE);
     vector<double> ll_final(2, 0.0);
     List res_list;
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING BOUNDS" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING BOUNDS" << endl;
+    }
     //  //
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     //  Now define the list of points to check
     trouble = false;
@@ -1400,12 +1403,16 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1549,7 +1556,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     vector<double> ll_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     upper = true;
     int step = -1;
     bool iter_continue = true;
@@ -1651,7 +1660,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
         }
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Lower Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -1803,12 +1814,16 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -2649,12 +2664,16 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "null model is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["constraint"]) {
-        if (verbose >= 1) { Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -2791,7 +2810,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     vector<int>    step_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     bool convgd = false;
     ///
     //  variables added for log loop code
@@ -2943,7 +2964,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  upper limit found, now solve lower limit
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Lower Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Lower Bound" << endl;
+    }
     for (int ij = 0; ij < totalnum; ij++) {
         beta_L[ij] = beta_peak[ij];
         beta_H[ij] = beta_peak[ij];
@@ -3106,22 +3129,30 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     int reqrdnum = totalnum - sum(KeepConstant);
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) { Rcout << "null model is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "null model is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
-        if (verbose >= 1) { Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["constraint"]) {
-        if (verbose >= 1) { Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -3259,7 +3290,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     vector<int>    step_final(2, 0.0);
     List res_list;
     //
-    if (verbose >= 4) { Rcout << "C++ Note: STARTING Upper Bound" << endl; }
+    if (verbose >= 4) {
+        Rcout << "C++ Note: STARTING Upper Bound" << endl;
+    }
     bool convgd = false;
     ///
     //  We need the values reserved for the upper, middle, lower estimates and scores

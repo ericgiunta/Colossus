@@ -1,4 +1,5 @@
-url: ~
+llm-docs: false
+url: https://ericgiunta.github.io/Colossus/
 template:
   bootstrap: 5
 

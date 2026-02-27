@@ -52,7 +52,7 @@ using Rcpp::Dimension;
 
 template<typename Func>
 struct lambda_as_visitor_wrapper : Func {
-    lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
+    explicit lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
     template<typename S, typename I>
     void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
 };
@@ -149,7 +149,7 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
                     for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
                         Rs2 += Rd.block(indices[i] - 1, ij, indices[i + 1]-indices[i] + 1, 1).sum();
                     }
-                    dSdbeta(dSb_iterate, ij) = dj * Rs2 / pow(Rs1,2);
+                    dSdbeta(dSb_iterate, ij) = dj * Rs2 / pow(Rs1, 2);
                 }
             } else {
                 baseline(ijk, s_ij) = 0;  //  approximates the baseline hazard
@@ -250,7 +250,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
             for (vector<double>::size_type i = 0; i < indices.size() - 1; i = i + 2) {
                 Rs2 += Rd.block(indices[i] - 1, ij, indices[i + 1]-indices[i] + 1, 1).sum();
             }
-            dSdbeta(ijk, ij) = dj * Rs2 / pow(Rs1,2);
+            dSdbeta(ijk, ij) = dj * Rs2 / pow(Rs1, 2);
         }
     }
     //

@@ -68,7 +68,6 @@ jobs:
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   win_check:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v3
       - name: Set up R

@@ -20,7 +20,7 @@
 
 \item{assign_control}{control list for bounds calculated}
 
-\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
 
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 

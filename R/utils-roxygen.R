@@ -10,10 +10,10 @@
 #' @param col_list  an array of column names that should have factor terms defined
 #' @param col_name  vector of new column names
 #' @param cols  columns to check
-#' @param control  list of parameters controlling the convergence, see the Control_Options vignette for details
+#' @param control  list of parameters controlling the convergence, see the `vignette("Control_Options")` vignette for details
 #' @param cons_mat Matrix containing coefficients for a system of linear constraints, formatted as matrix
 #' @param cons_vec Vector containing constants for a system of linear constraints, formatted as vector
-#' @param curve_control a list of control options for the likelihood boundary regression. See the Control_Options vignette for details.
+#' @param curve_control a list of control options for the likelihood boundary regression. See the `vignette("Control_Options")` vignette for details.
 #' @param dep_cols  columns that are not needed in the new dataframe
 #' @param df  a data.table containing the columns of interest
 #' @param digits  digits used for printing results
@@ -23,12 +23,12 @@
 #' @param er  standard error for the parameters
 #' @param event0  column used for event status
 #' @param factor_check  a boolean used to skip comparing columns of the form ?_? with the same initial string, which is used for factored columns
-#' @param formula a formula object, written in Colossus notation. See the Unified Equation Representation vignette for details.
-#' @param formula_list a list of formula objects, each written in Colossus notation. See the Unified Equation Representation vignette for details. Each formula should include the elements specific to the specified event column. The list can include an entry named "shared" to denote shared terms. The person-year and strata columns should be the same.
+#' @param formula a formula object, written in Colossus notation. See the `vignette("Equation_Expression")` vignette for details.
+#' @param formula_list a list of formula objects, each written in Colossus notation. See the `vignette("Equation_Expression")` vignette for details. Each formula should include the elements specific to the specified event column. The list can include an entry named "shared" to denote shared terms. The person-year and strata columns should be the same.
 #' @param fma a boolean to denote that the Frequentist Model Averaging method should be used
 #' @param fname  filename used for new dataframe
 #' @param func_form  vector of functions to apply to each time-dependent covariate. Of the form func(df, time) returning a vector of the new column value
-#' @param gradient_control a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details
+#' @param gradient_control a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the `vignette("Control_Options")` vignette for details
 #' @param h  hazards of baseline
 #' @param interactions  array of strings, each one is of form term1?*?term2" for term1 interaction of type * or + with term2, "?" dlimits
 #' @param iscox  boolean if rows not at event times should not be kept, rows are removed if true. a Cox proportional hazards model does not use rows with intervals not containing event times
@@ -37,7 +37,7 @@
 #' @param log_file file to save log to
 #' @param mcml a boolean to denote that the Monte Carlo Maximum Likelihood method should be used
 #' @param model either a formula written for the get_form function, or the model result from the get_form function.
-#' @param model_control  controls which alternative model options are used, see the Control_Options vignette for further details
+#' @param model_control  controls which alternative model options are used, see the `vignette("Control_Options")` vignette for further details
 #' @param Model_Eq  String representation of a survival model. Left-hand side details the model (cox, poisson, cox_strata, poisson_strata), time columns, event, and strata when used. The right-hand side details the subterm effects. The 'Unified Equation Representation' vignette provides more details.
 #' @param modelform  string specifying the model type: M, ME, A, PA, PAE, GMIX, GMIX-R, GMIX-E
 #' @param msv  value to replace na with, same used for every column used
@@ -51,7 +51,7 @@
 #' @param out_list  list output from a regression, used to build results table and pull out convergence values
 #' @param paras  list of formula parameters
 #' @param plot_name  plot identifier, used in filename for saved plots
-#' @param plot_options  list of parameters controlling the plot options, see RunCoxPlots() for different options
+#' @param plot_options  list of parameters controlling the plot options, see `RunCoxPlots()` for different options
 #' @param plot_type  list of parameters controlling the plot options: surv, risk, schoenfeld
 #' @param pyr0  column used for person-years per row
 #' @param realization_columns  used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization

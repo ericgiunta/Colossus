@@ -11,7 +11,7 @@ plotSurvival(x, df, plot_options, a_n = c(), ...)
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{plot_options}{list of parameters controlling the plot options, see RunCoxPlots() for different options}
+\item{plot_options}{list of parameters controlling the plot options, see \code{RunCoxPlots()} for different options}
 
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 

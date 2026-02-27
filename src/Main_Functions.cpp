@@ -54,22 +54,6 @@ using Rcpp::_;
 using Rcpp::Rcout;
 using Rcpp::Dimension;
 
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
-template<typename Func>
-struct lambda_as_visitor_wrapper : Func {
-    lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
-    template<typename S, typename I>
-    void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
-};
-
-template<typename Mat, typename Func>
-void visit_lambda(const Mat& m, const Func& f) {
-    lambda_as_visitor_wrapper<Func> visitor(f);
-    m.visit(visitor);
-}
 
 // //' checks if the model is viable
 // //'
@@ -84,7 +68,9 @@ void visit_lambda(const Mat& m, const Func& f) {
 // bool Check_Risk(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term) {
 //     //
 //     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
-//     if (verbose >= 3) { Rcout << "C++ Note: START_RISK_CHECK" << endl; }
+//     if (verbose >= 3) {
+//         Rcout << "C++ Note: START_RISK_CHECK" << endl;
+//     }
 //     //
 //     //
 //     int totalnum = term_n.size();
@@ -336,7 +322,9 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
         }
-        if (verbose >= 4) { Rcout << "C++ Note: starting guess " << guess << endl; }
+        if (verbose >= 4) {
+            Rcout << "C++ Note: starting guess " << guess << endl;
+        }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
@@ -1367,7 +1355,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     if (model_bool["constraint"]) {
-        if (verbose >= 1) { Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1583,7 +1573,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         for (int i = 0; i < group_num; i++) {
             strata_odds[i] = strata_def[i];
         }
-        if (verbose >= 4) { Rcout << "C++ Note: starting guess " << guess << endl; }
+        if (verbose >= 4) {
+            Rcout << "C++ Note: starting guess " << guess << endl;
+        }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
@@ -2402,9 +2394,15 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         //
         if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN())) {
             if (verbose >= 1) {
-                if (P.minCoeff() <= 0) { Rcout << "C++ Error: An invalid probability was detected: " << P.minCoeff() << endl; }
-                if (P.maxCoeff() >= 1) { Rcout << "C++ Error: An invalid probability was detected: " << P.maxCoeff() << endl; }
-                if (P.hasNaN()) { Rcout << "C++ Error: An invalid probability was detected" << endl; }
+                if (P.minCoeff() <= 0) {
+                    Rcout << "C++ Error: An invalid probability was detected: " << P.minCoeff() << endl;
+                }
+                if (P.maxCoeff() >= 1) {
+                    Rcout << "C++ Error: An invalid probability was detected: " << P.maxCoeff() << endl;
+                }
+                if (P.hasNaN()) {
+                    Rcout << "C++ Error: An invalid probability was detected" << endl;
+                }
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";

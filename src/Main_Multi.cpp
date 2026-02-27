@@ -54,23 +54,6 @@ using Rcpp::_;
 using Rcpp::Rcout;
 using Rcpp::Dimension;
 
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
-template<typename Func>
-struct lambda_as_visitor_wrapper : Func {
-    lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
-    template<typename S, typename I>
-    void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
-};
-
-template<typename Mat, typename Func>
-void visit_lambda(const Mat& m, const Func& f) {
-    lambda_as_visitor_wrapper<Func> visitor(f);
-    m.visit(visitor);
-}
-
 //' Primary Cox PH regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
 //'
 //' \code{LogLik_Cox_PH_Multidose_Omnibus_Serial} Performs the calls to calculation functions, Structures the Cox PH regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
@@ -101,12 +84,16 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     bool true_gradient = model_bool["gradient"];
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) { Rcout << "null model is not compatable with multi-realization method" << endl; }
+        if (verbose >= 1) {
+            Rcout << "null model is not compatable with multi-realization method" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -519,12 +506,16 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     bool true_gradient = model_bool["gradient"];
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
-        if (verbose >= 1) { Rcout << "null model is not compatable with multi-realization method" << endl; }
+        if (verbose >= 1) {
+            Rcout << "null model is not compatable with multi-realization method" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1108,7 +1099,9 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
     bool true_gradient = model_bool["gradient"];
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1500,7 +1493,9 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
     bool true_gradient = model_bool["gradient"];
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
-        if (verbose >= 1) { Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl; }
+        if (verbose >= 1) {
+            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }

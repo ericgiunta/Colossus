@@ -1,11 +1,24 @@
-pandoc: '2.5'
-pkgdown: 2.0.7
+pandoc: '3.9'
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  Alt_Distrib_Starts: Alt_Distrib_Starts.html
-  Alt_Run_opt: Alt_Run_opt.html
+  Alt_Run_Opt: Alt_Run_Opt.html
+  Control_Options: Control_Options.html
+  count_time_tables: count_time_tables.html
+  Dose_Formula_Inputs: Dose_Formula_Inputs.html
+  Equation_Expression: Equation_Expression.html
+  Excess_and_Predicted_Cases: Excess_and_Predicted_Cases.html
+  Grad_Hess: Grad_Hess.html
+  Logistic: Logistic.html
+  Matched_Case_Control: Matched_Case_Control.html
+  Multi_Realization: Multi_Realization.html
+  Plotting_And_Analysis: Plotting_And_Analysis.html
+  Script_Comparison_Epicure: Script_Comparison_Epicure.html
+  SMR_Analysis: SMR_Analysis.html
+  Starting-Description: Starting-Description.html
   Time_Dep_Cov: Time_Dep_Cov.html
-  dose_formula_inputs: dose_formula_inputs.html
-  starting-description: starting-description.html
-last_built: 2023-10-11T15:13Z
-
+  Wald_and_Log_Bound: Wald_and_Log_Bound.html
+last_built: 2026-02-27T18:53Z
+urls:
+  reference: https://ericgiunta.github.io/Colossus/reference
+  article: https://ericgiunta.github.io/Colossus/articles

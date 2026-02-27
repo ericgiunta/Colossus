@@ -98,7 +98,7 @@ print(e2, 5)
 
 Next, suppose we were interested in the confidence intervals. Suppose we want 95% confidence intervals for both the Wald and likelihood-based boundaries and for both parameters in each model.
 
-Let us start with the fully exponential model. The Wald boundary is estimated using the central estimates and standard deviations. The Likelihood boundary is solved using the LikelihoodBound function applied to the result. The parameter number needs to be provided (indexed starting at one) and an alpha level needs to be provided.
+Let us start with the fully exponential model. The Wald boundary is estimated using the central estimates and standard deviations. The Likelihood boundary is solved using the `LikelihoodBound()` function applied to the result. The parameter number needs to be provided (indexed starting at one) and an alpha level needs to be provided.
 
 Overall, the Wald and likelihood-based boundaries are not the same. The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off by less than 0.1.
 

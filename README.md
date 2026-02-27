@@ -37,9 +37,9 @@ longer tests. Currently, OpenMP support is not configured for linux
 compiling with clang.
 
 Note: From versions 1.3.1 to 1.4.1 the expected inputs changed.
-Regressions are now run with CoxRun and PoisRun and formula inputs.
-Please see the “Unified Equation Representation” vignette for more
-details.
+Regressions are now run with `CoxRun()` and `PoisRun()` and formula
+inputs. Please see the `vignette("Equation_Expression")` vignette for
+more details.
 
 ## Example
 
@@ -76,20 +76,26 @@ control <- list(
 
 e <- CoxRun(model, df, a_n = a_n, control = control)
 print(e)
-#> |-------------------------------------------------------------------|
+#> |--------------------------------------------------------------------------------|
 #> Final Results
 #>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
 #>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:         a  loglin           0         21.67085            NaN            NaN
-#> 2:         b     lin           1          0.10000            NaN            NaN
-#> 3:         c     lin           1          0.10000            NaN            NaN
-#> 4:         d    plin           2          0.10000            Inf              1
+#> 1:         a  loglin           0             44.2       1.14e+08          1.000
+#> 2:         b     lin           1             84.4       1.33e+04          0.995
+#> 3:         c     lin           1             84.4       6.81e+01          0.215
+#> 4:         d    plin           2            101.1       2.18e+03          0.963
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Cox Model Used
-#> -2*Log-Likelihood: 2.64,  AIC: 10.64
-#> Iterations run: 27
-#> maximum step size: 7.50e-01, maximum first derivative: 5.49e-10
-#> Analysis converged
-#> Run finished in 0.04 seconds
-#> |-------------------------------------------------------------------|
+#> Entry Age Column was: 'Starting_Age', Survival Age Column was: 'Ending_Age', Outcome Column was: 'Cancer_Status'
+#> Multiplicative Model Used: T0*T1*T2*...
+#> Risk Groups Used: 2
+#> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
+#> -2*Log-Likelihood: 1.331,  AIC: 9.331
+#> Iterations run: 100
+#> maximum step size: 1.000e+00, maximum first derivative: 9.863e-05
+#> Analysis did not converge, check convergence criteria or run further
+#> Records Used: 6, Records Removed: 1
+#> Run finished in 0.224 seconds
+#> |--------------------------------------------------------------------------------|
 ```

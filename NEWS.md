@@ -78,7 +78,7 @@
 
 # Colossus 1.1.5.5
 
-* Added CoxCurveSolver function to solve likelihood boundaries via bisection method
+* Added `CoxCurveSolver` function to solve likelihood boundaries via bisection method
 
 # Colossus 1.1.6
 
@@ -92,7 +92,7 @@
 
 # Colossus 1.1.8
 
-* CurveSolve functions converted to c++ functions
+* Curve solving functions converted to c++ functions
 * Testing scaled back to take up less time
 
 # Colossus 1.1.9
@@ -102,7 +102,7 @@
 # Colossus 1.1.10
 
 * Cox based functions updated to improve speed
-* Additional CurveSolve output provided to give final window width and final step
+* Additional curve solving output provided to give final window width and final step
 
 # Colossus 1.2
 
