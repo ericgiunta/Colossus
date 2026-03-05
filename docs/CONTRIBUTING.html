@@ -74,7 +74,12 @@
 <p>We use the <a href="https://style.tidyverse.org/" class="external-link">Tidyverse style guide</a> for writing R code. Functions are documented with the <a href="https://roxygen2.r-lib.org/articles/roxygen2.html" class="external-link">roxygen2</a> syntax. <code>Colossus</code> uses the <code>lower_snake_case</code> for variables and <code>CamelCase</code> for functions. R code is formatted using the styler package, to ensure consistent style. Prior to submission, please check using the style_pkg function.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">styler</span><span class="fu">::</span><span class="fu"><a href="https://styler.r-lib.org/reference/style_pkg.html" class="external-link">style_pkg</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>C++ code is checked against google’s cpplint tool.</p>
+<p>C++ code is checked against google’s <code>cpplint</code> tool, excluding warnings for line length and function size and any warnings on <code>RcppExport</code> files.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="ex">cpplint</span> <span class="at">--filter</span><span class="op">=</span>-whitespace/line_length,-readability/fn_size <span class="at">--exclude</span><span class="op">=</span>src/RcppExports.<span class="pp">*</span> src/<span class="pp">*</span>.cpp</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="ex">cpplint</span> <span class="at">--filter</span><span class="op">=</span>-whitespace/line_length,-readability/fn_size <span class="at">--exclude</span><span class="op">=</span>src/RcppExports.<span class="pp">*</span> src/<span class="pp">*</span>.h</span></code></pre></div>
+<p>Additional R code checking is performed using the <code>goodpractice</code> package and the <code>lintr</code> and <code>rcmdcheck</code> checks.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">goodpractice</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/goodpractice/reference/gp.html" class="external-link">gp</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"Colossus"</span><span class="op">)</span>, checks <span class="op">=</span> <span class="fu">goodpractice</span><span class="fu">::</span><span class="fu"><a href="https://docs.ropensci.org/goodpractice/reference/all_checks.html" class="external-link">all_checks</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">230</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="commit-messages">Commit messages<a class="anchor" aria-label="anchor" href="#commit-messages"></a></h2>
@@ -149,35 +154,35 @@
 <div class="section level4">
 <h4 id="editing-the-readme">Editing the README<a class="anchor" aria-label="anchor" href="#editing-the-readme"></a></h4>
 <p>If you want to contribute by improving the README, please edit the <code>README.Rmd</code> (not the <code>README.md</code>). Do not forget to update the <code>README.md</code> by running:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">rmarkdown</span><span class="fu">::</span><span class="fu"><a href="https://pkgs.rstudio.com/rmarkdown/reference/render.html" class="external-link">render</a></span><span class="op">(</span><span class="st">"README.Rmd"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="editing-vignettes">Editing vignettes<a class="anchor" aria-label="anchor" href="#editing-vignettes"></a></h4>
 <p>If you want to contribute by editing an existing vignette, just edit the corresponding <code>Rmd</code> file stored in the <code>vignettes/</code> folder.</p>
 <p>If you want to contribute by adding a new vignette, create a new <code>Rmd</code> file in the <code>vignettes/</code> folder and add the following header:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="pp">---</span></span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Vignette Title"</span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">output</span><span class="kw">:</span><span class="at"> rmarkdown::html_vignette</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">vignette</span><span class="kw">: </span><span class="ch">&gt;</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  %\VignetteIndexEntry{Vignette Title}</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  %\VignetteEngine{knitr::rmarkdown}</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  %\VignetteEncoding{UTF-8}</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="pp">---</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Vignette Title"</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">output</span><span class="kw">:</span><span class="at"> rmarkdown::html_vignette</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">vignette</span><span class="kw">: </span><span class="ch">&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  %\VignetteIndexEntry{Vignette Title}</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  %\VignetteEngine{knitr::rmarkdown}</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  %\VignetteEncoding{UTF-8}</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div>
 <p>If you use a new external dependency, do not forget to add it in the <code>DESCRIPTION</code> file under the section <code>Suggests</code> (only if this package is not already listed under the section <code>Imports</code>).</p>
 <p>Check the integrity of the package with:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="editing-function-documentation">Editing function documentation<a class="anchor" aria-label="anchor" href="#editing-function-documentation"></a></h4>
 <p>If you want to contribute by improving the documentation of a function, open the corresponding file in the <code>R/</code> folder and edit lines starting with <code>#'</code> (<a href="https://roxygen2.r-lib.org/articles/roxygen2.html" class="external-link">roxygen2</a> syntax).</p>
 <p>Update the documentation (<code>Rd</code> files in the <code>man/</code> folder) by running:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/document.html" class="external-link">document</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>If you use a new external dependency in the example section, do not forget to add it in the <code>DESCRIPTION</code> file under the section <code>Imports</code> (only if this package is not already listed).</p>
 <p>Check the integrity of the package with:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -185,11 +190,11 @@
 <h3 id="fix-bug">Fix bug<a class="anchor" aria-label="anchor" href="#fix-bug"></a></h3>
 <p>If you want to contribute by improving the code of a function, open and edit the corresponding file in the <code>R/</code> folder.</p>
 <p>Check the integrity of the package with:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/check.html" class="external-link">check</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>Do not forget to adapt the <a href="https://r-pkgs.org/testing-basics.html#introducing-testthat" class="external-link">unit tests</a> for the function by editing the corresponding file stored in the <code>tests/testthat/</code> folder. We use the package <a href="https://testthat.r-lib.org/" class="external-link"><code>testthat</code></a> to implement unit tests.</p>
 <p>Check your tests by running:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/test.html" class="external-link">test</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">

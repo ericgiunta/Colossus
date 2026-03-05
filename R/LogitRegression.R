@@ -38,6 +38,9 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
     a_n <- list(a_n)
   }
   df <- df[get(trial0) > 0, ]
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }

@@ -630,7 +630,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   model_control["observed_info"] <- observed_info
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
-    "gradient", "constraint", "strata", "observed_info"
+    "gradient", "constraint", "strata", "observed_info",
+    "logit_odds", "logit_ident", "logit_loglink"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {

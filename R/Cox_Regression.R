@@ -52,6 +52,12 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   time1 <- ce[1]
   time2 <- ce[2]
   ## Cox regression only uses intervals which contain an event time
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: event status is negative in atleast one interval")
+  }
+  if (max(df[, event0, with = FALSE]) > 2) {
+    stop("Error: event status is greater than 2 in atleast one interval")
+  }
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (length(tu) == 0) {
@@ -335,6 +341,12 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   plot_type <- plot_options$type
   if (plot_options$verbose >= 3) {
     message("Note: Getting Plot Info") # nocov
+  }
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: event status is negative in atleast one interval")
+  }
+  if (max(df[, event0, with = FALSE]) > 2) {
+    stop("Error: event status is greater than 2 in atleast one interval")
   }
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
@@ -660,6 +672,12 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   time1 <- ce[1]
   time2 <- ce[2]
   ## Cox regression only uses intervals which contain an event time
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: event status is negative in atleast one interval")
+  }
+  if (max(df[, event0, with = FALSE]) > 2) {
+    stop("Error: event status is greater than 2 in atleast one interval")
+  }
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (length(tu) == 0) {
@@ -836,6 +854,12 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   ## Cox regression only uses intervals which contain an event time
   time1 <- ce[1]
   time2 <- ce[2]
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: event status is negative in atleast one interval")
+  }
+  if (max(df[, event0, with = FALSE]) > 2) {
+    stop("Error: event status is greater than 2 in atleast one interval")
+  }
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (length(tu) == 0) {

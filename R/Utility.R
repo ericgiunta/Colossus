@@ -2705,6 +2705,22 @@ Interpret_Output <- function(out_list, digits = 3) {
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
+          odds <- out_list$modelcontrol$logit_odds
+          link <- "Unknown"
+          if (odds) {
+            link <- "Odds Ratio"
+          } else {
+            ident <- out_list$modelcontrol$logit_ident
+            if (ident) {
+              link <- "Identity"
+            } else {
+              loglink <- out_list$modelcontrol$logit_loglink
+              if (loglink) {
+                link <- "Complementary Log"
+              }
+            }
+          }
+          message(link, " Linking Function Used")
           if (!null_model) {
             message(form_type)
           }

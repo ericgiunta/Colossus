@@ -28,7 +28,10 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
-  df <- df[get(pyr0) > 0, ]
+  df <- df[get(pyr0) > 0, ] # filter to data with more than 0 duration
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
   if (model_control$null == FALSE) {
     if (min(keep_constant) > 0) {
       stop("Error: Atleast one parameter must be free")
@@ -157,6 +160,9 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   control$guesses <- 1
   control <- Def_Control(control)
   df <- df[get(pyr0) > 0, ]
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
   model_control <- Def_model_control(model_control)
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
@@ -239,6 +245,9 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
   model_control <- Def_model_control(model_control)
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
@@ -318,6 +327,9 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     a_n <- list(a_n)
   }
   df <- df[get(pyr0) > 0, ]
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
   if (min(keep_constant) > 0) {
     stop("Error: Atleast one parameter must be free")
   }

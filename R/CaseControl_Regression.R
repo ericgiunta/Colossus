@@ -27,6 +27,12 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   }
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
+  if (max(df[, event0, with = FALSE]) > 1) {
+    stop("Error: More than one event in atleast one row")
+  }
   if (model_control$time_risk == TRUE) {
     ce <- c(time1, time2, event0)
     t_check <- Check_Trunc(df, ce)
