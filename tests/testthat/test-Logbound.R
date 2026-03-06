@@ -105,7 +105,7 @@ test_that("Poisson strata_single log_bound", {
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     curve_control <- list("manual" = m)
     expect_no_error(LikelihoodBound(poisres, df, curve_control, control = control, bisect = FALSE))
-    expect_no_error(LikelihoodBound(poisres_s, df, curve_control, control = control))
+    expect_no_error(e <- LikelihoodBound(poisres_s, df, curve_control, control = control))
     zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
     sink(zz)
     sink(zz, type = "message")
