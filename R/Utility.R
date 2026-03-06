@@ -2521,7 +2521,12 @@ Interpret_Output <- function(out_list, digits = 3) {
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
+        delta_ll <- out_list$Control_List$Delta_LogLik
         converged <- out_list$Converged
+        #
+        iter_lim <- out_list$control$maxiter
+        step_lim <- out_list$control$epsilon
+        deriv_lim <- out_list$control$deriv_epsilon
         #
         freepara <- out_list$FreeParameters
         freestrata <- out_list$FreeSets
@@ -2570,11 +2575,18 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
           }
           if (converged) {
             message("Analysis converged")
           } else {
-            message("Analysis did not converge, check convergence criteria or run further")
+            if (iteration >= iter_lim) {
+              message("Analysis did not converge, iteration limit was hit. Regression may converge with additional iterations ('maxiter').")
+            } else if (step_max <= step_lim) {
+              message("Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').")
+            } else {
+              message("Analysis did not converge.")
+            }
           }
           neg_lim <- out_list$Control_List$"Ended on Negative Limit"
           if (neg_lim) {
@@ -2648,10 +2660,16 @@ Interpret_Output <- function(out_list, digits = 3) {
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
+        delta_ll <- out_list$Control_List$Delta_LogLik
         strata <- out_list$model$strata
         strata_level <- out_list$strata_levels
         cens_weight <- out_list$model$weight
         converged <- out_list$Converged
+        #
+        iter_lim <- out_list$control$maxiter
+        step_lim <- out_list$control$epsilon
+        deriv_lim <- out_list$control$deriv_epsilon
+        #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         if (is(out_list, "coxres")) {
           if (cens_weight == "NONE") {
@@ -2745,11 +2763,18 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
           }
           if (converged) {
             message("Analysis converged")
           } else {
-            message("Analysis did not converge, check convergence criteria or run further")
+            if (iteration >= iter_lim) {
+              message("Analysis did not converge, iteration limit was hit. Regression may converge with additional iterations ('maxiter').")
+            } else if (step_max <= step_lim) {
+              message("Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').")
+            } else {
+              message("Analysis did not converge.")
+            }
           }
           neg_lim <- out_list$Control_List$"Ended on Negative Limit"
           if (neg_lim) {

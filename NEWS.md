@@ -182,3 +182,8 @@
 # Colossus 1.4.10
 
 * Likelihood Ratio Tests probabilities corrected
+
+# Colossus 1.4.11
+
+* Convergence results now give feedback on what limit was hit
+* Convergence result now also gives a measure of the change in Log-Likelihood in the last iteration

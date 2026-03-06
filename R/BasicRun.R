@@ -2171,7 +2171,9 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   if (!("para_number" %in% names(model_control))) {
     model_control["para_number"] <- 1
   } else {
-    if (model_control["para_number"] > length(names)) {
+    if ( model_control["para_number"]%%1!=0 ) {
+      stop("Error: The paranumber used was not an integer.")
+    } else if (model_control["para_number"] > length(names)) {
       stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
     } else if (model_control["para_number"] < 1) {
       stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
@@ -2340,7 +2342,9 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   if (!("para_number" %in% names(model_control))) {
     model_control["para_number"] <- 1
   } else {
-    if (model_control["para_number"] > length(names)) {
+    if ( model_control["para_number"]%%1!=0 ) {
+      stop("Error: The paranumber used was not an integer.")
+    } else if (model_control["para_number"] > length(names)) {
       stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
     } else if (model_control["para_number"] < 1) {
       stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")

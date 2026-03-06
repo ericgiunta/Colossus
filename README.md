@@ -94,8 +94,9 @@ print(e)
 #> -2*Log-Likelihood: 1.331,  AIC: 9.331
 #> Iterations run: 100
 #> maximum step size: 1.000e+00, maximum first derivative: 9.863e-05
-#> Analysis did not converge, check convergence criteria or run further
+#> Last iteration improved the log-likelihood by: 9.960e-05
+#> Analysis did not converge, iteration limit was hit. Regression may converge with additional iterations ('maxiter').
 #> Records Used: 6, Records Removed: 1
-#> Run finished in 0.224 seconds
+#> Run finished in 0.221 seconds
 #> |--------------------------------------------------------------------------------|
 ```

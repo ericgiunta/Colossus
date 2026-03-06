@@ -702,3 +702,17 @@ test_that("Parse list", {
   split_str <- parse_literal_string(temp_str)
   expect_equal(split_str, list(x = 100))
 })
+
+## ----------------------------------------------- ##
+##  Tests to check that the default S3 functions are there
+## ----------------------------------------------- ##
+test_that("Check defaults work as intended", {
+  expect_equal("a", RelativeRisk("a"))
+  expect_equal("a", plotRisk("a"))
+  expect_equal("a", plotSchoenfeld("a"))
+  expect_equal("a", plotMartingale("a"))
+  expect_equal("a", plotSurvival("a"))
+  expect_equal("a", LikelihoodBound("a"))
+  expect_equal("a", EventAssignment("a"))
+  expect_equal("a", Residual("a"))
+})
