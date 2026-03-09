@@ -213,7 +213,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 Def_Control <- function(control) {
   control_def <- list(
     "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-4,
+    "halfmax" = 5, "epsilon" = 1e-4, "ll_epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "change_all" = TRUE, "thres_step_max" = 100.0,
     "ties" = "breslow",
@@ -287,7 +287,7 @@ Def_Control <- function(control) {
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
-    "halfmax" = 0, "epsilon" = 0.0,
+    "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,
     "deriv_epsilon" = 0.0, "step_max" = 0.0,
     "thres_step_max" = 0.0
   )
@@ -2525,6 +2525,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         converged <- out_list$Converged
         #
         iter_lim <- out_list$control$maxiter
+        ll_lim <- out_list$control$ll_epsilon
         step_lim <- out_list$control$epsilon
         deriv_lim <- out_list$control$deriv_epsilon
         #
@@ -2667,6 +2668,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         converged <- out_list$Converged
         #
         iter_lim <- out_list$control$maxiter
+        ll_lim <- out_list$control$ll_epsilon
         step_lim <- out_list$control$epsilon
         deriv_lim <- out_list$control$deriv_epsilon
         #

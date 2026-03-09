@@ -636,6 +636,7 @@ ColossusControl <- function(verbose = 1,
                             maxiters = c(1, 20),
                             halfmax = 5,
                             epsilon = 1e-4,
+                            ll_epsilon = 1e-4,
                             deriv_epsilon = 1e-4,
                             step_max = 1.0,
                             thres_step_max = 1.0,
@@ -657,6 +658,7 @@ ColossusControl <- function(verbose = 1,
     "maxiters" = maxiters,
     "halfmax" = halfmax,
     "epsilon" = epsilon,
+    "ll_epsilon" = ll_epsilon,
     "deriv_epsilon" = deriv_epsilon,
     "step_max" = step_max,
     "thres_step_max" = thres_step_max,
@@ -665,7 +667,7 @@ ColossusControl <- function(verbose = 1,
   )
   control_def <- list(
     "verbose" = 1, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-4,
+    "halfmax" = 5, "epsilon" = 1e-4, "ll_epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "thres_step_max" = 100.0,
     "ties" = "breslow",
@@ -692,7 +694,7 @@ ColossusControl <- function(verbose = 1,
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
-    "halfmax" = 0, "epsilon" = 0.0,
+    "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,
     "deriv_epsilon" = 0.0, "step_max" = 0.0,
     "thres_step_max" = 0.0
   )
