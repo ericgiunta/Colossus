@@ -44,17 +44,28 @@ test_that("basic regression with link non-fail", {
 
     control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 1)
     #
+    zz <- file(paste(tempfile(), "temp.txt", sep = ""), open = "wt")
+    sink(zz)
+    sink(zz, type = "message")
+    #
     def_rate <- log(sum(df$status) / length(df$status))
     a_n <- c(0.001, -0.95, def_rate)
     model <- logit(status) ~ plinear(karno50) + loglinear(trt, CONST)
     e <- LogisticRun(model, df, control = control, a_n = a_n, verbose = 0)
     expect_equal(e$LogLik, -44.3606, tolerance = 1e-3)
+    expect_no_error(print(e))
     e <- LogisticRun(model, df, control = control, link = "odds", a_n = a_n)
     expect_equal(e$LogLik, -44.3606, tolerance = 1e-3)
+    expect_no_error(print(e))
     e <- LogisticRun(model, df, control = control, link = "ident", a_n = a_n)
     expect_equal(e$LogLik, -74.62735, tolerance = 1e-3)
+    expect_no_error(print(e))
     e <- LogisticRun(model, df, control = control, link = "loglink", a_n = a_n)
     expect_equal(e$LogLik, -91.35022, tolerance = 1e-3)
+    expect_no_error(print(e))
+    sink(type = "message")
+    sink(NULL)
+    close(zz)
     #
     model <- logit(status) ~ plinear(karno50) + loglinear(trt, CONST)
     res <- get_form(model, df)

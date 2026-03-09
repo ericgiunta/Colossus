@@ -156,7 +156,10 @@ test_that("Checking likelihood bound", {
     df$trt <- as.integer(df$trt == 0)
     cell_lvl <- c("large", "squamous", "smallcell", "adeno")
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
-    control <- list(ncores = 1)
+    control <- list(ncores = 1, verbose = 4)
+    zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+    sink(zz)
+    sink(zz, type = "message")
     #
     res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, control = control)
     res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, norm = "max", control = control)
@@ -179,5 +182,8 @@ test_that("Checking likelihood bound", {
     #
     expect_equal(bound$Parameter_Limits, bound_max$Parameter_Limits, tolerance = 1e-3)
     expect_equal(bound$Parameter_Limits, bound_mean$Parameter_Limits, tolerance = 1e-3)
+    sink(type = "message")
+    sink(NULL)
+    close(zz)
   }
 })

@@ -7,7 +7,7 @@
 get_form_joint(formula_list, df, nthreads = as.numeric(detectCores())/2)
 }
 \arguments{
-\item{formula_list}{a list of formula objects, each written in Colossus notation. See the Unified Equation Representation vignette for details. Each formula should include the elements specific to the specified event column. The list can include an entry named "shared" to denote shared terms. The person-year and strata columns should be the same.}
+\item{formula_list}{a list of formula objects, each written in Colossus notation. See the \code{vignette("Equation_Expression")} vignette for details. Each formula should include the elements specific to the specified event column. The list can include an entry named "shared" to denote shared terms. The person-year and strata columns should be the same.}
 
 \item{df}{a data.table containing the columns of interest}
 

@@ -30,6 +30,24 @@ test_that("Basic factor application to formula", {
   expect_equal(c("loglin", "loglin"), e$tform)
 })
 
+test_that("Basic formula failures", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(1, 2, 1, 1, 2, 1, 1)
+  g <- c("a", "b", "a", "a", "b", "a", "b")
+  h <- c("1", "2", "1", "1", "1", "2", "1")
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e, "g" = g, "h" = h)
+
+  model <- Cox(a, b, c) ~ loglinear(f, factor(e)) + PA()
+  expect_error(get_form(model, df)) # missing a column
+  model <- Cox(a, b, c) ~ loglinear(g, factor(e)) + PA()
+  expect_error(get_form(model, df)) # column was a string, but not number compatable
+  model <- Cox(a, b, c) ~ loglinear(h, factor(e)) + PA()
+  expect_error(CoxRun(model, df, ncores = 1, maxiters = -1)) # column was a string, but also number compatable
+})
+
 test_that("Basic gmix application to formula", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
   b <- c(1, 2, 3, 4, 5, 6, 7)

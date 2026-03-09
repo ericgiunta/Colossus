@@ -11,9 +11,9 @@
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{curve_control}{a list of control options for the likelihood boundary regression. See the Control_Options vignette for details.}
+\item{curve_control}{a list of control options for the likelihood boundary regression. See the \code{vignette("Control_Options")} vignette for details.}
 
-\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
 
 \item{...}{extended for other necessary parameters}
 }

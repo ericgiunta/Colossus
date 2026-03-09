@@ -1,7 +1,7 @@
 //  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
 
-#ifndef SRC_STEP_CALC_H_
-#define SRC_STEP_CALC_H_
+#ifndef SRC_STEP_BOUND_H_
+#define SRC_STEP_BOUND_H_
 
 #include <string>
 #include <vector>
@@ -34,4 +34,4 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 
 void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble);
 
-#endif  //  SRC_STEP_CALC_H_
+#endif  //  SRC_STEP_BOUND_H_

@@ -7,7 +7,7 @@
 get_form(formula, df, nthreads = as.numeric(detectCores())/2)
 }
 \arguments{
-\item{formula}{a formula object, written in Colossus notation. See the Unified Equation Representation vignette for details.}
+\item{formula}{a formula object, written in Colossus notation. See the \code{vignette("Equation_Expression")} vignette for details.}
 
 \item{df}{a data.table containing the columns of interest}
 

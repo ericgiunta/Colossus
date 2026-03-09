@@ -14,3 +14,4 @@
 ^python$
 ^codecov\.yml$
 ^out.txt
+^CONTRIBUTING\.md$

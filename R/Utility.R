@@ -675,16 +675,45 @@ factorize <- function(df, col_list, verbose = 0) {
 #' library(data.table)
 #' # In an actual example, one would run two seperate RunCoxRegression regressions,
 #' #    assigning the results to e0 and e1
-#' e0 <- list("name" = "First Model", "LogLik" = -120)
-#' e1 <- list("name" = "New Model", "LogLik" = -100)
-#' score <- Likelihood_Ratio_Test(e1, e0)
+#' a <- c(0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6)
+#' b <- c(1, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 7)
+#' c <- c(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#' d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
+#' e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
+#' df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+#' keep_constant <- c(0)
+#' a_n <- c(-0.1, 0.1, 0.1, 0.2)
+#' control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
+#' model <- Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e))
+#' alternative_model <- CoxRun(model, df,
+#'   control = control,
+#'   a_n = a_n, keep_constant = c(0, 1, 0)
+#' )
+#' null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
+#' score <- Likelihood_Ratio_Test(alternative_model, null_model)
 #'
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
+  alt_is_null <- alternative_model$modelcontrol$null
+  null_is_null <- null_model$modelcontrol$null
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
-    freedom <- length(alternative_model$beta_0) - length(null_model$beta_0)
-    val <- 2 * (unlist(alternative_model["LogLik"], use.names = FALSE) - unlist(null_model["LogLik"], use.names = FALSE))
-    pval <- pchisq(val, freedom)
-    return(list("value" = val, "p value" = pval))
+    #
+    alt_is_null <- alternative_model$modelcontrol$null
+    null_is_null <- null_model$modelcontrol$null
+    if (alt_is_null) {
+      stop("Error: Alternative model shouldn't be null.")
+    } else {
+      alt_count <- length(alternative_model$beta_0) - sum(alternative_model$model$keep_constant)
+    }
+    if (alt_is_null) {
+      null_count <- 0
+    } else {
+      null_count <- length(null_model$beta_0) - sum(null_model$model$keep_constant)
+    }
+    #
+    freedom <- alt_count - null_count
+    val <- 2 * (alternative_model$LogLik - null_model$LogLik)
+    pval <- pchisq(val, freedom, lower.tail = FALSE)
+    return(list("Difference" = val, "p value" = pval))
   } else {
     stop("Error: models input did not contain LogLik values")
   }
@@ -812,6 +841,9 @@ Check_Trunc <- function(df, ce, verbose = 0) {
       stop("Error: Both endpoints are truncated, not acceptable")
     }
     tname <- ce[2]
+    if (!is.numeric(df[[tname]])) {
+      stop(paste("Error: Age column was not numeric: ", tname, sep = ""))
+    }
     tmin <- min(df[, get(tname)]) - 1
     if (!("right_trunc" %in% names(df))) {
       df[, ":="(right_trunc = tmin)]
@@ -819,6 +851,9 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     ce[1] <- "right_trunc"
   } else if (ce[2] %in% c("%trunc%", "left_trunc")) {
     tname <- ce[1]
+    if (!is.numeric(df[[tname]])) {
+      stop(paste("Error: Age column was not numeric: ", tname, sep = ""))
+    }
     tmax <- max(df[, get(tname)]) + 1
     if (!("left_trunc" %in% names(df))) {
       df[, ":="(left_trunc = tmax)]
@@ -2409,6 +2444,11 @@ Interpret_Output <- function(out_list, digits = 3) {
       lik_bound <- out_list$Likelihood_Boundary
       lik_goal <- out_list$Likelihood_Goal
       message("Likelihood Boundary Results")
+      if (is(out_list, "coxresbound")) {
+        message("Proportional Hazards Model")
+      } else if (is(out_list, "poisresbound")) {
+        message("Poisson Model")
+      }
       if (all(strata != "NONE")) {
         message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
       }
@@ -2436,7 +2476,7 @@ Interpret_Output <- function(out_list, digits = 3) {
       # Check if its a multidose problem
       if (out_list$Survival_Type == "Cox_Multidose") {
         message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
-      } else if (out_list$Survival_Type == "CaseControl") {
+      } else if (is(out_list, "caseconres")) {
         # case control output
         # get the model details
         null_model <- out_list$modelcontrol$null
@@ -2481,7 +2521,12 @@ Interpret_Output <- function(out_list, digits = 3) {
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
+        delta_ll <- out_list$Control_List$Delta_LogLik
         converged <- out_list$Converged
+        #
+        iter_lim <- out_list$control$maxiter
+        step_lim <- out_list$control$epsilon
+        deriv_lim <- out_list$control$deriv_epsilon
         #
         freepara <- out_list$FreeParameters
         freestrata <- out_list$FreeSets
@@ -2530,11 +2575,18 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
           }
           if (converged) {
             message("Analysis converged")
           } else {
-            message("Analysis did not converge, check convergence criteria or run further")
+            if (iteration >= iter_lim) {
+              message("Analysis did not converge, iteration limit was hit. Regression may converge with additional iterations ('maxiter').")
+            } else if (step_max <= step_lim) {
+              message("Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').")
+            } else {
+              message("Analysis did not converge.")
+            }
           }
           neg_lim <- out_list$Control_List$"Ended on Negative Limit"
           if (neg_lim) {
@@ -2608,10 +2660,16 @@ Interpret_Output <- function(out_list, digits = 3) {
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
+        delta_ll <- out_list$Control_List$Delta_LogLik
         strata <- out_list$model$strata
         strata_level <- out_list$strata_levels
         cens_weight <- out_list$model$weight
         converged <- out_list$Converged
+        #
+        iter_lim <- out_list$control$maxiter
+        step_lim <- out_list$control$epsilon
+        deriv_lim <- out_list$control$deriv_epsilon
+        #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         if (is(out_list, "coxres")) {
           if (cens_weight == "NONE") {
@@ -2665,6 +2723,22 @@ Interpret_Output <- function(out_list, digits = 3) {
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
+          odds <- out_list$modelcontrol$logit_odds
+          link <- "Unknown"
+          if (odds) {
+            link <- "Odds Ratio"
+          } else {
+            ident <- out_list$modelcontrol$logit_ident
+            if (ident) {
+              link <- "Identity"
+            } else {
+              loglink <- out_list$modelcontrol$logit_loglink
+              if (loglink) {
+                link <- "Complementary Log"
+              }
+            }
+          }
+          message(link, " Linking Function Used")
           if (!null_model) {
             message(form_type)
           }
@@ -2689,18 +2763,25 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
           }
           if (converged) {
             message("Analysis converged")
           } else {
-            message("Analysis did not converge, check convergence criteria or run further")
+            if (iteration >= iter_lim) {
+              message("Analysis did not converge, iteration limit was hit. Regression may converge with additional iterations ('maxiter').")
+            } else if (step_max <= step_lim) {
+              message("Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').")
+            } else {
+              message("Analysis did not converge.")
+            }
           }
           neg_lim <- out_list$Control_List$"Ended on Negative Limit"
           if (neg_lim) {
             message("Warning: The last iteration encountered a negative risk.")
           }
-          message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
         }
+        message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
       }
     }
   } else {

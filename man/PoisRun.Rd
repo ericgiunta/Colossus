@@ -28,9 +28,9 @@ PoisRun(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{control}{list of parameters controlling the convergence, see the Control_Options vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the Control_Options vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
 
 \item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
 

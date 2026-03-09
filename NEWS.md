@@ -78,7 +78,7 @@
 
 # Colossus 1.1.5.5
 
-* Added CoxCurveSolver function to solve likelihood boundaries via bisection method
+* Added `CoxCurveSolver` function to solve likelihood boundaries via bisection method
 
 # Colossus 1.1.6
 
@@ -92,7 +92,7 @@
 
 # Colossus 1.1.8
 
-* CurveSolve functions converted to c++ functions
+* Curve solving functions converted to c++ functions
 * Testing scaled back to take up less time
 
 # Colossus 1.1.9
@@ -102,7 +102,7 @@
 # Colossus 1.1.10
 
 * Cox based functions updated to improve speed
-* Additional CurveSolve output provided to give final window width and final step
+* Additional curve solving output provided to give final window width and final step
 
 # Colossus 1.2
 
@@ -172,3 +172,18 @@
 
 * Updated stratified poisson modeling to correctly update background strata risk levels
 * Updated formula reading to not throw errors on long formulas
+
+# Colossus 1.4.9
+
+* Plotting split into multiple specific functions
+* Reduced time/memory use in stratified poisson modeling
+* Bug fixes in relative risk calculation and plotting
+
+# Colossus 1.4.10
+
+* Likelihood Ratio Tests probabilities corrected
+
+# Colossus 1.4.11
+
+* Convergence results now give feedback on what limit was hit
+* Convergence result now also gives a measure of the change in Log-Likelihood in the last iteration

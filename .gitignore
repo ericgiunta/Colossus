@@ -1,12 +1,13 @@
 inst/doc
+Meta/
 doc/*
 docs/*
-Meta/
 src/*.o
 src/*.so
 *.Rcheck
 .Rproj.user/
 /doc/
+/docs/
 /Meta/
 src/Colossus.dll
 *.Rhistory

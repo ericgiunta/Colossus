@@ -122,6 +122,16 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   modelform <- coxmodel$modelform
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
+  # Check that the ages and events are numeric
+  if (!is.numeric(df[[time1]])) {
+    stop(paste("Error: Age column was not numeric: ", time1, sep = ""))
+  }
+  if (!is.numeric(df[[time2]])) {
+    stop(paste("Error: Age column was not numeric: ", time2, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -344,6 +354,13 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   a_n <- poismodel$a_n
   modelform <- poismodel$modelform
   strat_col <- poismodel$strata
+  # Check that the ages and events are numeric
+  if (!is.numeric(df[[pyr0]])) {
+    stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -357,7 +374,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     a_n <- c(0)
     if (all(poismodel$strata != "NONE")) {
       model_control["strata"] <- TRUE
-      a_n <- c(0)
+      a_n <- c(0.0)
+      keep_constant <- c(1)
     } else {
       event_total <- sum(df[, event0, with = F])
       time_total <- sum(df[, pyr0, with = F])
@@ -558,6 +576,12 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
   strat_col <- logitmodel$strata
+  if (!is.numeric(df[[trial0]])) {
+    stop(paste("Error: Trial column was not numeric: ", trial0, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -606,7 +630,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   model_control["observed_info"] <- observed_info
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
-    "gradient", "constraint", "strata", "observed_info"
+    "gradient", "constraint", "strata", "observed_info",
+    "logit_odds", "logit_ident", "logit_loglink"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {
@@ -979,6 +1004,12 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   a_n <- poismodel$a_n
   modelform <- poismodel$modelform
   strat_col <- poismodel$strata
+  if (!is.numeric(df[[pyr0]])) {
+    stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
+  }
+  if (!is.numeric(df[[event0]])) {
+    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+  }
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -1142,6 +1173,12 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
       df$CONST <- 1
     }
   }
+  all_name <- c(unique(names), time1, time2, event0)
+  for (name in all_name) {
+    if (!(name %in% names(df))) {
+      df[[name]] <- 0.0
+    }
+  }
   if (any(grepl(":intercept", names))) {
     # one of the columns has a :intercept flag
     for (name in names[grepl(":intercept", names)]) {
@@ -1177,6 +1214,306 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
+  res
+}
+
+#' Generic Risk Plotting function
+#'
+#' \code{plotRisk} Generic Risk Plotting
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotRisk <- function(x, df, plot_options, a_n = c(), ...) {
+  UseMethod("plotRisk", x)
+}
+
+#' Generic Risk Plotting function, default option
+#'
+#' \code{plotRisk.default} Generic Risk Plotting, by default nothing happens
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
+  return(x)
+}
+
+#' Performs Cox Proportional Hazard model hazard ratio plots
+#'
+#' \code{plotRisk.coxres} uses user provided data, time/event columns,
+#' vectors specifying the model, and options to choose and save plots
+#'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#'
+#' @return returns the data used for plots
+#' @family Plotting Wrapper Functions
+#' @export
+plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("verbose", "studyid", "fname", "cov_cols", "boundary") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(plot_options)) {
+    plot_options <- extraArgs
+  } else if (is.list(plot_options)) {
+    plot_options <- c(plot_options, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  if (!"fname" %in% names(plot_options)) {
+    plot_options$fname <- paste(tempfile(), "run", sep = "")
+  }
+  if (!"boundary" %in% names(plot_options)) {
+    plot_options$boundary <- 0.0
+  }
+  plot_options$type <- c("risk", plot_options$fname)
+  #
+  if (!missing(a_n)) {
+    res <- plot(x = x, df = df, plot_options = plot_options, a_n = a_n)
+  } else {
+    res <- plot(x = x, df = df, plot_options = plot_options)
+  }
+  res
+}
+
+#' Generic Schoenfeld Residual Plotting function
+#'
+#' \code{plotSchoenfeld} Generic Schoenfeld Residual Plotting
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotSchoenfeld <- function(x, df, plot_options, a_n = c(), ...) {
+  UseMethod("plotSchoenfeld", x)
+}
+
+#' Generic Schoenfeld Residual Plotting function, default option
+#'
+#' \code{plotSchoenfeld.default} Generic Schoenfeld Residual Plotting, by default nothing happens
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotSchoenfeld.default <- function(x, df, plot_options, a_n = c(), ...) {
+  return(x)
+}
+
+#' Performs Cox Proportional Hazard model schoenfeld residual plots
+#'
+#' \code{plotSchoenfeld.coxres} uses user provided data, time/event columns,
+#' vectors specifying the model, and options to choose and save plots
+#'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#'
+#' @return returns the data used for plots
+#' @family Plotting Wrapper Functions
+#' @export
+plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("verbose", "studyid", "fname") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(plot_options)) {
+    plot_options <- extraArgs
+  } else if (is.list(plot_options)) {
+    plot_options <- c(plot_options, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  if (!"fname" %in% names(plot_options)) {
+    plot_options$fname <- paste(tempfile(), "run", sep = "")
+  }
+  plot_options$type <- c("schoenfeld", plot_options$fname)
+  #
+  if (!missing(a_n)) {
+    res <- plot(x = x, df = df, plot_options = plot_options, a_n = a_n)
+  } else {
+    res <- plot(x = x, df = df, plot_options = plot_options)
+  }
+  res
+}
+
+#' Generic Martingale Residual Plotting function
+#'
+#' \code{plotMartingale} Generic Martingale Residual Plotting
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotMartingale <- function(x, df, plot_options, a_n = c(), ...) {
+  UseMethod("plotMartingale", x)
+}
+
+#' Generic Martingale Residual Plotting function, default option
+#'
+#' \code{plotMartingale.default} Generic Martingale Residual Plotting, by default nothing happens
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotMartingale.default <- function(x, df, plot_options, a_n = c(), ...) {
+  return(x)
+}
+
+#' Performs Cox Proportional Hazard model martingale residual plots
+#'
+#' \code{plotMartingale.coxres} uses user provided data, time/event columns,
+#' vectors specifying the model, and options to choose and save plots
+#'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#'
+#' @return returns the data used for plots
+#' @family Plotting Wrapper Functions
+#' @export
+plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("verbose", "age_unit", "time_lims", "cov_cols", "studyid", "fname") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(plot_options)) {
+    plot_options <- extraArgs
+  } else if (is.list(plot_options)) {
+    plot_options <- c(plot_options, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  if (!"fname" %in% names(plot_options)) {
+    plot_options$fname <- paste(tempfile(), "run", sep = "")
+  }
+  plot_options$type <- c("surv", plot_options$fname)
+  plot_options$martingale <- TRUE
+  #
+  if (!missing(a_n)) {
+    res <- plot(x = x, df = df, plot_options = plot_options, a_n = a_n)
+  } else {
+    res <- plot(x = x, df = df, plot_options = plot_options)
+  }
+  res
+}
+
+#' Generic Survival Plotting function
+#'
+#' \code{plotSurvival} Generic Survival Plotting
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotSurvival <- function(x, df, plot_options, a_n = c(), ...) {
+  UseMethod("plotSurvival", x)
+}
+
+#' Generic Survival Plotting function, default option
+#'
+#' \code{plotSurvival.default} Generic Survival Plotting, by default nothing happens
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#' @export
+plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
+  return(x)
+}
+
+#' Performs Cox Proportional Hazard model survival plots
+#'
+#' \code{plotSurvival.coxres} uses user provided data, time/event columns,
+#' vectors specifying the model, and options to choose and save plots
+#'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the named entries for the plot_options parameter
+#' @inheritParams R_template
+#'
+#' @return returns the data used for plots
+#' @family Plotting Wrapper Functions
+#' @export
+#' @examples
+#' library(data.table)
+#' ## basic example code reproduced from the starting-description vignette
+#' df <- data.table::data.table(
+#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
+#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
+#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
+#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
+#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
+#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
+#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
+#' )
+#' control <- list(
+#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
+#'   "halfmax" = 1
+#' )
+#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' res <- CoxRun(formula, df,
+#'   control = control,
+#'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
+#' )
+#' plot_options <- list(
+#'   "fname" = paste(tempfile(),
+#'     "run",
+#'     sep = ""
+#'   ), "studyid" = "UserID",
+#'   "verbose" = FALSE
+#' )
+#' res_plot <- plotSurvival(res, df, plot_options)
+plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- c("verbose", "age_unit", "time_lims", "strat_haz", "strat_col", "km", "studyid", "fname") # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(plot_options)) {
+    plot_options <- extraArgs
+  } else if (is.list(plot_options)) {
+    plot_options <- c(plot_options, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  if (!"fname" %in% names(plot_options)) {
+    plot_options$fname <- paste(tempfile(), "run", sep = "")
+  }
+  plot_options$type <- c("surv", plot_options$fname)
+  plot_options$surv_curv <- TRUE
+  #
+  if (!missing(a_n)) {
+    res <- plot(x = x, df = df, plot_options = plot_options, a_n = a_n)
+  } else {
+    res <- plot(x = x, df = df, plot_options = plot_options)
+  }
   res
 }
 
@@ -1281,7 +1618,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   #
   extraArgs <- list(...) # gather additional arguments
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid") # names used in control function
+    controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid", "boundary") # names used in control function
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1296,6 +1633,29 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
+  }
+  if (!"verbose" %in% names(plot_options)) {
+    plot_options$verbose <- 2
+  }
+  if (length(object$model$expres_calls) > 0) {
+    if (plot_options$verbose >= 2) {
+      warning("Warning: Columns were created during model defintion. Risk plots will only depend on individual columns, not interactions")
+    }
+  }
+  if (!"type" %in% names(plot_options)) {
+    stop("Error: Plot type wasn't given")
+  } else {
+    if (length(plot_options$type) == 1) {
+      plot_options$type <- c(plot_options$type, paste(tempfile(), "run", sep = ""))
+    } else if (length(plot_options$type) > 2) {
+      if (plot_options$verbose >= 2) {
+        warning("Warning: Plot type only uses the first two entries") # nocov
+      }
+    }
+    plot_options$type[1] <- tolower(plot_options$type[1])
+    if (!plot_options$type[1] %in% c("surv", "risk", "schoenfeld")) {
+      stop(paste("Error: The plot type '", plot_options$type, "' was not one of the available options."))
+    }
   }
   if (all(coxmodel$strata != "NONE")) {
     plot_options[["strat_haz"]] <- TRUE
@@ -1811,10 +2171,17 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   if (!("para_number" %in% names(model_control))) {
     model_control["para_number"] <- 1
   } else {
-    if (model_control["para_number"] > length(names)) {
-      stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
-    } else if (model_control["para_number"] < 1) {
-      stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+    para_num <- model_control$para_number
+    if (length(para_num)>0 & is.numeric(para_num)){
+        if ( para_num%%1!=0 ) {
+          stop("Error: The paranumber used was not an integer.")
+        } else if (para_num > length(names)) {
+          stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+        } else if (para_num < 1) {
+          stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+        }
+    } else {
+        stop("Error: The paranumber used was not numeric.")
     }
   }
   # ------------------------------------------------------------------------------ #
@@ -1980,10 +2347,17 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   if (!("para_number" %in% names(model_control))) {
     model_control["para_number"] <- 1
   } else {
-    if (model_control["para_number"] > length(names)) {
-      stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
-    } else if (model_control["para_number"] < 1) {
-      stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+    para_num <- model_control$para_number
+    if (length(para_num)>0 & is.numeric(para_num)){
+        if ( para_num%%1!=0 ) {
+          stop("Error: The paranumber used was not an integer.")
+        } else if (para_num > length(names)) {
+          stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+        } else if (para_num < 1) {
+          stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+        }
+    } else {
+        stop("Error: The paranumber used was not numeric.")
     }
   }
   # ------------------------------------------------------------------------------ #

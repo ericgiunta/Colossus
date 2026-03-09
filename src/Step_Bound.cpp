@@ -2,7 +2,7 @@
 
 #include <RcppEigen.h>
 
-#include "Step_Calc.h"
+#include "Step_Bound.h"
 #ifdef _OPENMP
 #include <omp.h>
 #endif

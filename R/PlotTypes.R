@@ -116,12 +116,12 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
 #' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
-CoxSurvival <- function(t, h, ch, surv, plot_name, verbose, time_lims, age_unit) {
+CoxSurvival <- function(t, h, ch, surv, surv_se, plot_name, verbose, time_lims, age_unit) {
   if (verbose >= 3) {
     message("Note: Plotting Survival Curves") # nocov
   }
   table_out <- list()
-  dft <- data.table::data.table("t" = t, "h" = h, "ch" = ch, "surv" = surv)
+  dft <- data.table::data.table("t" = t, "h" = h, "ch" = ch, "surv" = surv, "surv_se" = surv_se)
   data.table::setkeyv(dft, "t")
   dft <- dft[(t >= time_lims[1]) & (t <= time_lims[2]), ]
   table_out[["standard"]] <- dft
@@ -157,6 +157,7 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
   # number of unique individuals in total set
   t_t <- c(0)
   n_t <- c(1)
+  g_se <- c(0)
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]),
     use.names = FALSE
   )) # all event times
@@ -173,10 +174,12 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
       temp <- (t_num - t_ev) / t_num
       t_t <- c(t_t, i)
       n_t <- c(n_t, n_t[length(n_t)] * temp)
+      g_se <- c(g_se, t_ev / t_num / (t_num - t_ev))
     }
   }
+  n_se <- sqrt(cumsum(g_se)) * n_t
   table_out <- list()
-  dft <- data.table::data.table("t_t" = t_t, "n_t" = n_t)
+  dft <- data.table::data.table("t_t" = t_t, "n_t" = n_t, "n_se" = n_se)
   table_out[["kaplin-meier"]] <- dft
   return(table_out)
 }
@@ -185,11 +188,12 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
 #'
 #' \code{CoxRisk} uses user provided data, columns, and identifier to create plots of risk by covariate value for each column
 #'
+#' @param boundary z score used to indicate if risk should be evaluated at a confidence interval boundary as well. If missing or 0.0, only the central estimate is used.
 #' @inheritParams R_template
 #' @family Plotting Functions
 #' @noRd
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
-CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, modelform, control, keep_constant, plot_type, b, er, model_control = list()) {
+CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n, modelform, control, keep_constant, plot_type, dnames, b, er, boundary, model_control = list()) {
   fir_KM <- 0
   model_control <- Def_model_control(model_control)
   dfend <- df[get(event0) == 1, ]
@@ -200,10 +204,11 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
   x_all <- as.matrix(df[, all_names, with = FALSE])
   tu <- unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE)
   table_out <- list()
-  for (fir_KM in seq_len(length(names))) {
-    lfir <- c(names[fir_KM])
+  for (fir_KM in seq_len(length(dnames))) {
+    a_n <- copy(b)
+    lfir <- c(dnames[fir_KM])
     uniq <- unlist(unique(df[, lfir, with = FALSE]), use.names = FALSE)
-    der_iden <- fir_KM - 1
+    der_iden <- match(dnames[fir_KM], names) - 1
     model_control$risk <- TRUE
     model_control$unique_values <- length(uniq)
     e <- Plot_Omnibus_transition(
@@ -219,8 +224,44 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
     }
     x <- e$x
     y <- e$y
-    dft <- data.table::data.table("x" = x, "y" = y)
-    table_out[[names[fir_KM]]] <- dft
+    if (boundary != 0.0) {
+      # We get risk on the boundaries
+      # Start with lower
+      a_n <- copy(b) - boundary * copy(er)
+      #
+      e <- Plot_Omnibus_transition(
+        term_n, tform, a_n, dfc, x_all, 0,
+        der_iden, modelform,
+        control,
+        as.matrix(df[, ce, with = FALSE]), tu,
+        keep_constant, term_tot, c(0), c(0),
+        model_control
+      )
+      if ("Failure" %in% names(e)) {
+        stop(e)
+      }
+      y_low <- e$y
+      # Now we do upper
+      a_n <- copy(b) + boundary * copy(er)
+      #
+      e <- Plot_Omnibus_transition(
+        term_n, tform, a_n, dfc, x_all, 0,
+        der_iden, modelform,
+        control,
+        as.matrix(df[, ce, with = FALSE]), tu,
+        keep_constant, term_tot, c(0), c(0),
+        model_control
+      )
+      if ("Failure" %in% names(e)) {
+        stop(e)
+      }
+      y_high <- e$y
+      dft <- data.table::data.table("x" = x, "y" = y, "y:lower" = y_low, "y:upper" = y_high)
+      table_out[[dnames[fir_KM]]] <- dft
+    } else {
+      dft <- data.table::data.table("x" = x, "y" = y)
+      table_out[[dnames[fir_KM]]] <- dft
+    }
   }
   return(table_out)
 }
@@ -279,6 +320,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   plot_name <- plot_type[2]
   tt <- c()
   tsurv <- c()
+  tsurv_se <- c()
   categ <- c()
   if (verbose >= 3) {
     message(paste("Note: Starting Stratification: Calculation")) # nocov
@@ -292,6 +334,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     tu, keep_constant, term_tot, uniq, c(0),
     model_control
   )
+  cov_mat <- e$Covariance
   for (col_i in seq_along(uniq)) {
     if (verbose >= 3) {
       message(paste(
@@ -304,24 +347,56 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     h <- c()
     ch <- c()
     surv <- c()
-    dft <- data.table::data.table("time" = tu, "base" = e$baseline[, col_i])
+    surv_se <- c()
+    dft <- data.table::data.table("time" = tu, "base" = e$baseline[, col_i], "greener" = e$Green_Error[, col_i])
+    i_0 <- length(tu) * (col_i - 1) + 1
+    i_1 <- i_0 + length(tu) - 1
+    total_beta_error <- e$Beta_Error[i_0:i_1, ]
+    if (is.null(ncol(total_beta_error))) {
+      beta_cols <- 1
+      for (i in 1:beta_cols) {
+        dft[[paste("betaer_", i, sep = "")]] <- total_beta_error
+      }
+    } else {
+      beta_cols <- ncol(total_beta_error)
+      for (i in 1:beta_cols) {
+        dft[[paste("betaer_", i, sep = "")]] <- total_beta_error[, i]
+      }
+    }
+    # "betaer" = e$Beta_Error
+    beta_vec <- rep(0, beta_cols)
     for (i in tu) {
       if ((i <= time_lims[2]) && (i >= time_lims[1])) {
         t <- c(t, i)
-        temp <- sum(dft[time < i, base])
-        ch <- c(ch, temp)
+        df_temp <- dft[time < i, ]
+        ch_temp <- sum(df_temp$base)
+        ch <- c(ch, ch_temp)
         if (length(h) == 0) {
-          h <- c(temp)
+          h <- c(ch_temp)
         } else {
           h <- c(h, ch[length(ch)] - ch[length(ch)])
         }
-        surv <- c(surv, exp(-1 * temp))
+        surv <- c(surv, exp(-1 * ch_temp))
+        green_temp <- sum(df_temp$greener)
+        for (i in 1:beta_cols) {
+          beta_vec[i] <- sum(df_temp[[paste("betaer_", i, sep = "")]])
+        }
+        if (beta_cols == 1) {
+          beta_temp <- beta_vec * cov_mat * beta_vec
+        } else {
+          beta_mat <- as.matrix(beta_vec, ncol = 1)
+          beta_temp <- t(beta_mat) %*% cov_mat %*% beta_mat
+          beta_temp <- beta_temp[1, 1]
+        }
+        surv_se <- c(surv_se, exp(-1 * ch_temp) * sqrt(green_temp + beta_temp))
       }
     }
     tt <- c(tt, t)
     tsurv <- c(tsurv, surv)
+    tsurv_se <- c(tsurv_se, surv_se)
     categ <- c(categ, rep(paste(col_u), length(t)))
   }
+  #  print(tsurv)
   dft <- data.table::data.table("t" = tt, "surv" = tsurv, "cat_group" = categ)
   sbreaks <- c()
   slabels <- c()

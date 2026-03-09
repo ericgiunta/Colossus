@@ -19,7 +19,7 @@
 #include "Calc_Repeated.h"
 #include "Grouping.h"
 #include "Subterms_Risk.h"
-#include "Step_Calc.h"
+#include "Step_Bound.h"
 #include "Step_Grad.h"
 #include "Step_Newton.h"
 #include "Colossus_types.h"
@@ -54,22 +54,6 @@ using Rcpp::_;
 using Rcpp::Rcout;
 using Rcpp::Dimension;
 
-template <typename T> int sign(T val) {
-    return (T(0) < val) - (val < T(0));
-}
-
-template<typename Func>
-struct lambda_as_visitor_wrapper : Func {
-    lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
-    template<typename S, typename I>
-    void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
-};
-
-template<typename Mat, typename Func>
-void visit_lambda(const Mat& m, const Func& f) {
-    lambda_as_visitor_wrapper<Func> visitor(f);
-    m.visit(visitor);
-}
 
 // //' checks if the model is viable
 // //'
@@ -84,7 +68,9 @@ void visit_lambda(const Mat& m, const Func& f) {
 // bool Check_Risk(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term) {
 //     //
 //     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
-//     if (verbose >= 3) { Rcout << "C++ Note: START_RISK_CHECK" << endl; }
+//     if (verbose >= 3) {
+//         Rcout << "C++ Note: START_RISK_CHECK" << endl;
+//     }
 //     //
 //     //
 //     int totalnum = term_n.size();
@@ -259,6 +245,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
+    double Ll_improve = -1*Ll[0];
     double step_max0 = step_max;
     double thres_step_max0 = thres_step_max;
     //
@@ -336,7 +323,9 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
         }
-        if (verbose >= 4) { Rcout << "C++ Note: starting guess " << guess << endl; }
+        if (verbose >= 4) {
+            Rcout << "C++ Note: starting guess " << guess << endl;
+        }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
@@ -360,6 +349,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             beta_c[i] = beta_0[i];
         }
         while ((iteration < maxiter) && (iter_stop == 0)) {
+            Ll_improve = Ll[ind0];
             iteration++;
             beta_p = beta_c;  //
             beta_a = beta_c;  //
@@ -448,6 +438,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             if (dbeta_max < epsilon) {  //  if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
+            Ll_improve = Ll[ind0] - Ll_improve;
         }
         //  -----------------------------------------------
         //  Performing Full Calculation to get full second derivative matrix
@@ -532,6 +523,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         beta_c[i] = beta_0[i];
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
+        Ll_improve = Ll[ind0];
         iteration++;
         beta_p = beta_c;  //
         beta_a = beta_c;  //
@@ -623,13 +615,14 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             iter_stop = 1;
             convgd = TRUE;
         }
-        Ll_comp[1] = Ll[0];
+//        Ll_comp[1] = Ll[0];
         if (step_max < epsilon) {  //  if the maximum change is too low, then it ends
             iter_stop = 1;
         }
         if (dbeta_max < epsilon) {  //  if the maximum change is too low, then it ends
             iter_stop = 1;
         }
+        Ll_improve = Ll[ind0] - Ll_improve;
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
@@ -673,7 +666,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             Lld_worst = abs(Lld[ij]);
         }
     }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit);  //  stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP
@@ -920,6 +913,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         //  returns a list of results
         return res_list;
     }
+    double Ll_improve = -1*Ll[0];
     ///
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
@@ -983,6 +977,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
             beta_c[i] = beta_0[i];
         }
         while ((iteration < maxiter) && (iter_stop == 0)) {
+            Ll_improve = Ll[ind0];
             iteration++;
             beta_p = beta_c;  //
             beta_a = beta_c;  //
@@ -1072,7 +1067,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
             }
             if (model_bool["single"]) {
                 iter_stop = 1;
-            } else {}
+            }
+            Ll_improve = Ll[ind0] - Ll_improve;
         }
         //  -----------------------------------------------
         //  Performing Full Calculation to get full second derivative matrix
@@ -1157,6 +1153,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
+        Ll_improve = Ll[ind0];
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
@@ -1250,6 +1247,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         if (model_bool["single"]) {
             iter_stop = 1;
         }
+        Ll_improve = Ll[ind0] - Ll_improve;
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
@@ -1283,7 +1281,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         }
     }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit);  //  stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     if (model_bool["single"]) {
         res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Deviation"] = dev, _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
         //  returns a list of results
@@ -1367,7 +1365,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     if (model_bool["constraint"]) {
-        if (verbose >= 1) { Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl; }
+        if (verbose >= 1) {
+            Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl;
+        }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
     }
@@ -1483,6 +1483,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //  ------------------------------------------------------------------------- //  initialize
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
+    double Ll_improve = -1*Ll[0];
     double step_max0 = step_max;
     double thres_step_max0 = thres_step_max;
     //
@@ -1583,7 +1584,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         for (int i = 0; i < group_num; i++) {
             strata_odds[i] = strata_def[i];
         }
-        if (verbose >= 4) { Rcout << "C++ Note: starting guess " << guess << endl; }
+        if (verbose >= 4) {
+            Rcout << "C++ Note: starting guess " << guess << endl;
+        }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
@@ -1610,6 +1613,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             strata_c[i] = strata_odds[i];
         }
         while ((iteration < maxiter) && (iter_stop == 0)) {
+            Ll_improve = Ll[ind0];
             iteration++;
             beta_p = beta_c;  //
             beta_a = beta_c;  //
@@ -1785,6 +1789,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             if (dbeta_max < epsilon) {  //  if the maximum change is too low, then it ends
                 iter_stop = 1;
             }
+            Ll_improve = Ll[ind0] - Ll_improve;
         }
         if (model_bool["gradient"]) {
             beta_p = beta_best;  //
@@ -1908,6 +1913,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
+        Ll_improve = Ll[ind0];
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
         beta_p = beta_c;  //
@@ -2086,6 +2092,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         if (dbeta_max < epsilon) {  //  if the maximum change is too low, then it ends
             iter_stop = 1;
         }
+        Ll_improve = Ll[ind0] - Ll_improve;
     }
     //  ----------------------------------------------------------------------------------- //
     //               NOW WE WRAP UP
@@ -2140,7 +2147,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         //  returns a list of results
         return res_list;
     }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit);  //  stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
@@ -2345,6 +2352,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
+    double Ll_improve = -1*Ll[0];
     //
     double Ll_abs_best = 10;
     vector<double> beta_abs_best(totalnum, 0.0);
@@ -2402,9 +2410,15 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         //
         if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN())) {
             if (verbose >= 1) {
-                if (P.minCoeff() <= 0) { Rcout << "C++ Error: An invalid probability was detected: " << P.minCoeff() << endl; }
-                if (P.maxCoeff() >= 1) { Rcout << "C++ Error: An invalid probability was detected: " << P.maxCoeff() << endl; }
-                if (P.hasNaN()) { Rcout << "C++ Error: An invalid probability was detected" << endl; }
+                if (P.minCoeff() <= 0) {
+                    Rcout << "C++ Error: An invalid probability was detected: " << P.minCoeff() << endl;
+                }
+                if (P.maxCoeff() >= 1) {
+                    Rcout << "C++ Error: An invalid probability was detected: " << P.maxCoeff() << endl;
+                }
+                if (P.hasNaN()) {
+                    Rcout << "C++ Error: An invalid probability was detected" << endl;
+                }
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
@@ -2431,6 +2445,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         }
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
+            Ll_improve = Ll[ind0];
             beta_p = beta_c;  //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
@@ -2566,7 +2581,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
             }
             if (model_bool["single"]) {
                 iter_stop = 1;
-            } else {}
+            }
+            Ll_improve = Ll[ind0] - Ll_improve;
         }
         //  -----------------------------------------------
         //  Performing Full Calculation to get full second derivative matrix
@@ -2655,6 +2671,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
+        Ll_improve = Ll[ind0];
         beta_p = beta_c;  //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
@@ -2797,6 +2814,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         if (model_bool["single"]) {
             iter_stop = 1;
         }
+        Ll_improve = Ll[ind0] - Ll_improve;
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
@@ -2839,7 +2857,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         //  returns a list of results
         return res_list;
     }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit);  //  stores the total number of iterations used
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     #ifdef _OPENMP

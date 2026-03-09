@@ -23,8 +23,6 @@ using Rcpp::NumericMatrix;
 using Rcpp::StringVector;
 using Rcpp::List;
 
-template <typename T> int sign(T val);
-
 void Make_Groups(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const int& nthreads, int& total_risk_groups);
 
 void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<int> >& RiskPairs, NumericVector& tu, const VectorXd& cens_weight, const int& nthreads, int& total_risk_groups);
