@@ -2576,7 +2576,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            if (delta_ll > 0) {
+              message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            } else {
+              message("Log-likelihood was not improved")
+            }
           }
           if (converged) {
             message("Analysis converged")
@@ -2765,7 +2769,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            if (delta_ll > 0) {
+              message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            } else {
+              message("Log-likelihood was not improved")
+            }
           }
           if (converged) {
             message("Analysis converged")

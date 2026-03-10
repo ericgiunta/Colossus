@@ -1,4 +1,4 @@
-//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+//  Copyright 2022 - 2026, Eric King-Giunta and the project collaborators, Please see main R package for license and usage details
 
 #include <RcppEigen.h>
 
@@ -379,31 +379,33 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
 //'
 void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& group_num, const int& reqrdcond, vector<double> strata_odds, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, int verbose, List& model_bool) {
     if (verbose >= 4) {
-        if (!model_bool["single"]) {
-            Rcout << "C++ Note: df105 " << setprecision(10);  //  prints the first derivatives
-            for (int ij = 0; ij < reqrdcond; ij++) {
-                Rcout << LldOdds[ij] << " ";
+        if (reqrdcond > 0) {
+            if (!model_bool["single"]) {
+                Rcout << "C++ Note: df105 " << setprecision(10);  //  prints the first derivatives
+                for (int ij = 0; ij < reqrdcond; ij++) {
+                    Rcout << LldOdds[ij] << " ";
+                }
+                Rcout << " " << endl;
+                if (!model_bool["gradient"]) {
+                   Rcout << "C++ Note: df106 " << setprecision(10);  //  prints the second derivatives
+                   for (int ij = 0; ij < reqrdcond; ij++) {
+                       Rcout << LlddOdds[ij] << " ";
+                   }
+                   Rcout << " " << endl;
+                   Rcout << "C++ Note: df107 " << setprecision(10);  //  prints the second derivatives
+                   for (int ijk = 0; ijk < reqrdnum*reqrdcond; ijk++) {
+                       Rcout << LlddOddsBeta[ijk] << " ";
+                   }
+                   Rcout << " " << endl;
+                }
             }
-            Rcout << " " << endl;
-            if (!model_bool["gradient"]) {
-               Rcout << "C++ Note: df106 " << setprecision(10);  //  prints the second derivatives
-               for (int ij = 0; ij < reqrdcond; ij++) {
-                   Rcout << LlddOdds[ij] << " ";
-               }
-               Rcout << " " << endl;
-               Rcout << "C++ Note: df107 " << setprecision(10);  //  prints the second derivatives
-               for (int ijk = 0; ijk < reqrdnum*reqrdcond; ijk++) {
-                   Rcout << LlddOddsBeta[ijk] << " ";
-               }
-               Rcout << " " << endl;
+            if (!model_bool["null"]) {
+                Rcout << "C++ Note: df108 " << setprecision(10);  //  prints parameter values
+                for (int ij = 0; ij < group_num; ij++) {
+                    Rcout << strata_odds[ij] << " ";
+                }
+                Rcout << " " << endl;
             }
-        }
-        if (!model_bool["null"]) {
-            Rcout << "C++ Note: df108 " << setprecision(10);  //  prints parameter values
-            for (int ij = 0; ij < group_num; ij++) {
-                Rcout << strata_odds[ij] << " ";
-            }
-            Rcout << " " << endl;
         }
     }
 }

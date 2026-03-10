@@ -187,3 +187,4 @@
 
 * Convergence results now give feedback on what limit was hit
 * Convergence result now also gives a measure of the change in Log-Likelihood in the last iteration
+* Fixed bug in matched case-control in updating current best guesses
