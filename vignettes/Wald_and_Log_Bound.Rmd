@@ -80,7 +80,7 @@ df$voltage <- (df$voltage - 200) / 150
 df$temperature <- (df$temperature - 170) / 10
 df$time <- (df$time - 216) / (1105 - 216)
 
-control <- list("Ncores" = 1, "maxiter" = 100, "verbose" = 2)
+control <- list("ncores" = 1, "maxiter" = 100, "verbose" = 2)
 
 a_n <- c(0.01, 0.01)
 

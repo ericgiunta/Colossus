@@ -96,7 +96,7 @@ Next, the script defines the control information. The "control" variable serves 
 
 ```{r, eval=FALSE}
 control <- list(
-  "Ncores" = 1, "maxiter" = 100, "verbose" = 2,
+  "ncores" = 1, "maxiter" = 100, "verbose" = 2,
   "ll_epsilon" = 1e-9
 )
 ```
