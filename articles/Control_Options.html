@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -158,16 +158,22 @@ below this threshold.</td>
 is assumed. Defaults to 1e-4.</td>
 </tr>
 <tr class="odd">
+<td align="center">ll_epsilon</td>
+<td align="center">Largest maximum change in log-likelihood before
+convergence is assumed. The threshold is only checked when an iteration
+finds a new optimum. Defaults to 1e-4.</td>
+</tr>
+<tr class="even">
 <td align="center">step_max</td>
 <td align="center">Largest acceptable step size for non-intercept
 parameters. Defaults to 1.0.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">thres_step_max</td>
 <td align="center">Largest acceptable step size for intercept
 parameters. Defaults to 100.0.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">ties</td>
 <td align="center">Chooses between ‘breslow’ and ‘efron’ methods for
 tied event times in Cox proportional hazards regressions. Defaults to
@@ -310,7 +316,7 @@ interval length used. Defaults to 0.5</td>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Eric Giunta, NASA, NCRP, NRC.</p>
+  <p>Developed by Eric King-Giunta, NASA, NCRP, NRC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

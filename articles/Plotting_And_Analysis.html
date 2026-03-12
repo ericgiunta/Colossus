@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,7 +131,7 @@ visualize the different plotting methods available in Colossus.</p>
 <span><span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncore <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01701289</span>, <span class="op">-</span><span class="fl">0.51256478</span><span class="op">)</span></span>
 <span><span class="va">coxres</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">age</span>, <span class="va">sex</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  <span class="va">df</span>,</span>
@@ -447,7 +447,7 @@ example, 95 percent confidence intervals are included and plotted.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Eric Giunta, NASA, NCRP, NRC.</p>
+  <p>Developed by Eric King-Giunta, NASA, NCRP, NRC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

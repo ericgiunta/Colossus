@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -174,13 +174,13 @@ first level.</p>
 variable serves a similar purpose as the “FITOPT” option in Epicure.
 This control list specifies that two cores should be used to perform
 calculations in parallel, up to 100 iterations should be used, and the
-iterations should stop if the step size is below 1e-9 or the first
-derivatives are all below 1e-9. The verbose options specifies that any
-errors or warnings should be printed to the console.</p>
+iterations should stop if the change in log-likelihood is below 1e-9.
+The verbose options specifies that any errors or warnings should be
+printed to the console.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"Ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>,</span>
-<span>  <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>, <span class="st">"der_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span></span>
+<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  <span class="st">"ll_epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Finally, the regression is run and a list of the results is returned
 to a variable “e”. Regressions in Colossus return a list of results, a
@@ -208,7 +208,7 @@ summary can be printed.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Eric Giunta, NASA, NCRP, NRC.</p>
+  <p>Developed by Eric King-Giunta, NASA, NCRP, NRC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

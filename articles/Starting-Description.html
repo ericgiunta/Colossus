@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -490,10 +490,10 @@ change is below this, the regression exits</td>
 Applied to solution to zero Log-Likelihood</td>
 </tr>
 <tr class="even">
-<td align="center">deriv_epsilon</td>
-<td align="center">Minimum Log-Likelihood first derivative above
-convergence. If the largest first derivative is below this, the
-regression exits</td>
+<td align="center">ll_epsilon</td>
+<td align="center">Minimum change in Log-Likelihood above convergence.
+If a new optimum point is found and the difference is within the
+threshold, the regression exits</td>
 </tr>
 <tr class="odd">
 <td align="center">step_max</td>
@@ -531,7 +531,7 @@ parameters.</p>
 <span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>,</span>
-<span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-3</span>, <span class="st">"step_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span>  <span class="st">"dbeta_max"</span> <span class="op">=</span> <span class="fl">0.5</span>, <span class="st">"ll_epsilon"</span> <span class="op">=</span> <span class="fl">1e-4</span>, <span class="st">"step_max"</span> <span class="op">=</span> <span class="fl">1.0</span>,</span>
 <span>  <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>In this example, no parameters are held constant and 100 iterations
@@ -563,10 +563,10 @@ as follows:</p>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0             31.1        1079824          1.000</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1             14.4            NaN            NaN</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1             14.4            NaN            NaN</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2             31.1            477          0.948</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0             46.5            NaN            NaN</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.25e+10              1</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1             84.4       1.25e+10              1</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2            101.1       0.00e+00              0</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
@@ -574,13 +574,13 @@ as follows:</p>
 <span><span class="co">#&gt; Multiplicative Model Used: T0*T1*T2*...</span></span>
 <span><span class="co">#&gt; Risk Groups Used: 2</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
-<span><span class="co">#&gt; -2*Log-Likelihood: 1.374,  AIC: 9.374</span></span>
-<span><span class="co">#&gt; Iterations run: 30</span></span>
-<span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 9.764e-04</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.007e-03</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 1.331,  AIC: 9.331</span></span>
+<span><span class="co">#&gt; Iterations run: 100</span></span>
+<span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 9.863e-05</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.024 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.029 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -605,10 +605,10 @@ as follows:</p>
 <span><span class="co">#&gt; -2*Log-Likelihood: 11.992,  Deviation: 7.992,  AIC: 15.992,  BIC: 19.776</span></span>
 <span><span class="co">#&gt; Iterations run: 5</span></span>
 <span><span class="co">#&gt; maximum step size: 9.766e-04, maximum first derivative: 4.346e+02</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 0.000e+00</span></span>
+<span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
 <span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
 <span><span class="co">#&gt; Records Used: 7, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">
@@ -690,7 +690,7 @@ in greater detail in the other vignettes.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Eric Giunta, NASA, NCRP, NRC.</p>
+  <p>Developed by Eric King-Giunta, NASA, NCRP, NRC.</p>
 </div>
 
 <div class="pkgdown-footer-right">

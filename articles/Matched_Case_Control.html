@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.4.11</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -283,7 +283,7 @@ outputs.</p>
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">CaseControl_Strata</span><span class="op">(</span><span class="va">status</span>, <span class="va">cell</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">karno50</span>, <span class="va">trt</span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">2</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span>, ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="fl">0</span>, maxiters <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">6</span><span class="op">)</span>, ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">e0</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">e1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CaseControlRun.html">CaseControlRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, conditional_threshold <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
@@ -294,66 +294,66 @@ outputs.</p>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin             0.01          0.017          0.556</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin             0.01          0.700          0.989</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin          -0.0435         0.0232         0.0605</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin          -0.3658         0.7370         0.6197</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
 <span><span class="co">#&gt; Model stratified by 'cell'</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
-<span><span class="co">#&gt; Deviance: 57.029</span></span>
+<span><span class="co">#&gt; Deviance: 49.859</span></span>
 <span><span class="co">#&gt; 0 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 3</span></span>
-<span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 1.465e+02</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: -2.541e-01</span></span>
-<span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
+<span><span class="co">#&gt; Iterations run: 5</span></span>
+<span><span class="co">#&gt; maximum step size: 1.205e-03, maximum first derivative: 7.387e-02</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 2.357e-05</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.033 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.032 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin             0.01         0.0171          0.558</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin             0.01         0.5726          0.986</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin          -0.0438         0.0205         0.0324</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin          -0.3699         0.5734         0.5188</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
 <span><span class="co">#&gt; Model stratified by 'cell'</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
-<span><span class="co">#&gt; Deviance: 59.956</span></span>
+<span><span class="co">#&gt; Deviance: 52.752</span></span>
 <span><span class="co">#&gt; 1 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 3</span></span>
-<span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 1.463e+02</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: -2.567e-01</span></span>
-<span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
+<span><span class="co">#&gt; Iterations run: 5</span></span>
+<span><span class="co">#&gt; maximum step size: 1.505e-03, maximum first derivative: 6.948e-02</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.852e-05</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin             0.01         0.0172          0.561</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin             0.01         0.5164          0.985</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin          -0.0448         0.0163        0.00608</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin          -0.3767         0.5567        0.49856</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
 <span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
 <span><span class="co">#&gt; Model stratified by 'cell'</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
-<span><span class="co">#&gt; Deviance: 67.073</span></span>
+<span><span class="co">#&gt; Deviance: 59.723</span></span>
 <span><span class="co">#&gt; 4 out of 4 matched sets used Unconditional Likelihood</span></span>
-<span><span class="co">#&gt; Iterations run: 3</span></span>
-<span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 1.498e+02</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: -2.680e-01</span></span>
-<span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
+<span><span class="co">#&gt; Iterations run: 5</span></span>
+<span><span class="co">#&gt; maximum step size: 1.872e-03, maximum first derivative: 3.469e-02</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 6.414e-05</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -364,7 +364,7 @@ outputs.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Eric Giunta, NASA, NCRP, NRC.</p>
+  <p>Developed by Eric King-Giunta, NASA, NCRP, NRC.</p>
 </div>
 
 <div class="pkgdown-footer-right">
