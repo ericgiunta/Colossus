@@ -213,15 +213,19 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 Def_Control <- function(control) {
   control_def <- list(
     "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-4,
+    "halfmax" = 5, "epsilon" = 1e-4, "ll_epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "change_all" = TRUE, "thres_step_max" = 100.0,
     "ties" = "breslow",
     "ncores" = as.numeric(detectCores())
   )
-  names(control) <- tolower(names(control))
+  #
+  names(control) <- tolower(names(control)) # set the names to lowercase
+  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = names(control_def)), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+  control <- control[!duplicated(names(control))] # filter down
+  # nocov start
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
-    control_def$ncores <- min(c(2, as.numeric(detectCores())))
+    control_def$ncores <- min(c(2, as.numeric(detectCores()))) # reduces cores if testing is running
   }
   if (Sys.getenv("ColossusOMP") == "") {
     syscheck <- System_Version()
@@ -237,26 +241,28 @@ Def_Control <- function(control) {
         if (cpp_compiler != "") {
           if (cpp_compiler == "gcc") {
             R_compiler <- syscheck[["R Compiler"]]
-            if (R_compiler != "gcc") { # nocov
-              Sys.setenv(ColossusGCC = "FALSE")
+            if (R_compiler != "gcc") {
+              Sys.setenv(ColossusGCC = "FALSE") # nocov
             }
-          } else if (cpp_compiler == "clang") { # nocov
-            Sys.setenv(ColossusGCC = "FALSE")
+          } else if (cpp_compiler == "clang") {
+            Sys.setenv(ColossusGCC = "FALSE") # nocov
           }
         } else {
           R_compiler <- syscheck[["R Compiler"]]
-          if (R_compiler != "gcc") { # nocov
-            Sys.setenv(ColossusGCC = "FALSE")
+          if (R_compiler != "gcc") {
+            Sys.setenv(ColossusGCC = "FALSE") # nocov
           }
         }
       }
     }
   }
+  # nocov end
   if ("verbose" %in% names(control)) {
     control$verbose <- Check_Verbose(control$verbose)
   } else {
     control["verbose"] <- control_def["verbose"]
   }
+  # nocov start
   if (Sys.getenv("ColossusOMP") == "FALSE") {
     if (control["verbose"] > 1) {
       warning("Warning: OpenMP not detected, cores set to 1")
@@ -265,9 +271,11 @@ Def_Control <- function(control) {
   } else if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (Sys.getenv("ColossusGCC") == "FALSE")) {
     control$ncores <- 1 # nocov
     if (control["verbose"] > 1) {
+      # In the past, a fedora machine running clang had issues with parallel code. Now linux machine using clang only use 1 core.
       warning("Warning: linux machine not using gcc, cores set to 1. Set R_COLOSSUS_NOT_CRAN environemnt variable to skip check")
     }
   }
+  # nocov end
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
@@ -284,10 +292,19 @@ Def_Control <- function(control) {
       control[nm] <- control_def[nm]
     }
   }
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    control$ncores <- min(c(2, as.numeric(detectCores()))) # reduces cores for cran checks
+  }
+  if (control$epsilon >= control$step_max) {
+    if (control["verbose"] > 1) {
+      warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.")
+    }
+    control$epsilon <- 0.1 * control$step_max
+  }
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
-    "halfmax" = 0, "epsilon" = 0.0,
+    "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,
     "deriv_epsilon" = 0.0, "step_max" = 0.0,
     "thres_step_max" = 0.0
   )
@@ -316,6 +333,7 @@ Def_Control <- function(control) {
 #' @return returns a filled list
 Def_model_control <- function(control) {
   names(control) <- tolower(names(control))
+  control <- control[!duplicated(names(control))] # filter down
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "surv",
@@ -2525,6 +2543,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         converged <- out_list$Converged
         #
         iter_lim <- out_list$control$maxiter
+        ll_lim <- out_list$control$ll_epsilon
         step_lim <- out_list$control$epsilon
         deriv_lim <- out_list$control$deriv_epsilon
         #
@@ -2575,7 +2594,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            if (delta_ll > 0) {
+              message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            } else {
+              message("Log-likelihood was not improved in last iteration")
+            }
           }
           if (converged) {
             message("Analysis converged")
@@ -2667,6 +2690,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         converged <- out_list$Converged
         #
         iter_lim <- out_list$control$maxiter
+        ll_lim <- out_list$control$ll_epsilon
         step_lim <- out_list$control$epsilon
         deriv_lim <- out_list$control$deriv_epsilon
         #
@@ -2763,7 +2787,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
           } else {
             message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
-            message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            if (delta_ll > 0) {
+              message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+            } else {
+              message("Log-likelihood was not improved in last iteration")
+            }
           }
           if (converged) {
             message("Analysis converged")

@@ -534,6 +534,14 @@ coxmodel <- function(start_age = "",
                      df = data.table(),
                      expres_calls = list(),
                      verbose = FALSE) {
+  #
+  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
+  start_age <- sapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  end_age <- sapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  weight <- sapply(weight, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  #
   cox_obj <- list(
     "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "weight" = weight, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
@@ -562,6 +570,12 @@ poismodel <- function(person_year = "",
                       df = data.table(),
                       expres_calls = list(),
                       verbose = FALSE) {
+  #
+  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
+  person_year <- sapply(person_year, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  #
   pois_obj <- list(
     "person_year" = person_year, "event" = event, "strata" = strata, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
@@ -591,6 +605,13 @@ caseconmodel <- function(start_age = "",
                          df = data.table(),
                          expres_calls = list(),
                          verbose = FALSE) {
+  #
+  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
+  start_age <- sapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  end_age <- sapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  #
   casecon_obj <- list(
     "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "null" = null,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
@@ -618,6 +639,12 @@ logitmodel <- function(trials = "",
                        df = data.table(),
                        expres_calls = list(),
                        verbose = FALSE) {
+  #
+  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
+  trials <- sapply(trials, function(x) tryCatch(match.arg(x, choices = c(names(df), "CONST")), error = function(e) x))[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  #
   logit_obj <- list(
     "trials" = trials, "event" = event, "strata" = strata,
     "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
@@ -636,6 +663,7 @@ ColossusControl <- function(verbose = 1,
                             maxiters = c(1, 20),
                             halfmax = 5,
                             epsilon = 1e-4,
+                            ll_epsilon = 1e-4,
                             deriv_epsilon = 1e-4,
                             step_max = 1.0,
                             thres_step_max = 1.0,
@@ -657,6 +685,7 @@ ColossusControl <- function(verbose = 1,
     "maxiters" = maxiters,
     "halfmax" = halfmax,
     "epsilon" = epsilon,
+    "ll_epsilon" = ll_epsilon,
     "deriv_epsilon" = deriv_epsilon,
     "step_max" = step_max,
     "thres_step_max" = thres_step_max,
@@ -665,7 +694,7 @@ ColossusControl <- function(verbose = 1,
   )
   control_def <- list(
     "verbose" = 1, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-4,
+    "halfmax" = 5, "epsilon" = 1e-4, "ll_epsilon" = 1e-4,
     "deriv_epsilon" = 1e-4, "step_max" = 1.0,
     "thres_step_max" = 100.0,
     "ties" = "breslow",
@@ -692,7 +721,7 @@ ColossusControl <- function(verbose = 1,
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
-    "halfmax" = 0, "epsilon" = 0.0,
+    "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,
     "deriv_epsilon" = 0.0, "step_max" = 0.0,
     "thres_step_max" = 0.0
   )

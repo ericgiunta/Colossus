@@ -209,7 +209,7 @@ The common convergence parameters are as follows:
 | halfmax       | Maximum number of half-steps taken each iteration |
 | epsilon       | Minimum parameter change above convergence. If the change is below this, the regression exits |
 | dbeta_max     | learning rate applied to limit on the steps taken. Applied to solution to zero Log-Likelihood|
-| deriv_epsilon | Minimum Log-Likelihood first derivative above convergence. If the largest first derivative is below this, the regression exits |
+| ll_epsilon    | Minimum change in Log-Likelihood above convergence. If a new optimum point is found and the difference is within the threshold, the regression exits |
 | step_max       | Largest starting step size. Code reduces it every time halfmax is hit without finding an improvement. When step_max is below epsilon, the code exits  |
 | verbose | integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.|
 | ncores | Number of physical cores assigned, cannot be greater than the number of cores available |
@@ -222,7 +222,7 @@ keep_constant <- c(0, 0, 0, 0)
 
 control <- list(
   "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
-  "dbeta_max" = 0.5, "deriv_epsilon" = 1e-3, "step_max" = 1.0,
+  "dbeta_max" = 0.5, "ll_epsilon" = 1e-4, "step_max" = 1.0,
   "verbose" = 2
 )
 ```

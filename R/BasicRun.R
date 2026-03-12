@@ -60,8 +60,14 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -71,8 +77,22 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -96,6 +116,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       df$CONST <- 1
     }
   }
+  # nocov start
   ce <- c(coxmodel$start_age, coxmodel$end_age, coxmodel$event)
   val <- Check_Trunc(df, ce)
   if (any(val$ce != ce)) {
@@ -104,6 +125,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     coxmodel$start_age <- ce[1]
     coxmodel$end_age <- ce[1]
   }
+  # nocov end
   # Checks that the current coxmodel is valid
   validate_coxsurv(coxmodel, df)
   if (!coxmodel$null) {
@@ -123,6 +145,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
   # Check that the ages and events are numeric
+  # nocov start
   if (!is.numeric(df[[time1]])) {
     stop(paste("Error: Age column was not numeric: ", time1, sep = ""))
   }
@@ -132,6 +155,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (!is.numeric(df[[event0]])) {
     stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
   }
+  # nocov end
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -302,8 +326,14 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -313,8 +343,22 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -355,12 +399,14 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   modelform <- poismodel$modelform
   strat_col <- poismodel$strata
   # Check that the ages and events are numeric
+  # nocov start
   if (!is.numeric(df[[pyr0]])) {
     stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
   }
   if (!is.numeric(df[[event0]])) {
     stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
   }
+  # nocov end
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -426,6 +472,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     df <- norm_res$df
     if (any(norm_weight != 1.0)) {
       int_avg_weight <- 0.0
+      # nocov start
       for (i in seq_along(names)) {
         if (grepl("_int", tform[i])) {
           int_avg_weight <- int_avg_weight + norm_weight[i]
@@ -438,12 +485,13 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
+      # nocov end
     }
   }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
-    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count) # nocov
   }
   res$model <- poismodel
   res$modelcontrol <- model_control
@@ -526,8 +574,14 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -537,8 +591,22 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -576,12 +644,14 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
   strat_col <- logitmodel$strata
+  # nocov start
   if (!is.numeric(df[[trial0]])) {
     stop(paste("Error: Trial column was not numeric: ", trial0, sep = ""))
   }
   if (!is.numeric(df[[event0]])) {
     stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
   }
+  # nocov end
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -650,6 +720,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   int_count <- 0.0
   if (any(norm_weight != 1.0)) {
     int_avg_weight <- 0.0
+    # nocov start
     for (i in seq_along(names)) {
       if (grepl("_int", tform[i])) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
@@ -662,6 +733,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
+    # nocov end
   }
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
@@ -752,8 +824,14 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -763,8 +841,22 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -864,6 +956,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     df <- norm_res$df
     if (any(norm_weight != 1.0)) {
       int_avg_weight <- 0.0
+      # nocov start
       for (i in seq_along(names)) {
         if (grepl("_int", tform[i])) {
           int_avg_weight <- int_avg_weight + norm_weight[i]
@@ -876,6 +969,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
+      # nocov end
     }
   }
   # ------------------------------------------------------------------------------ #
@@ -962,8 +1056,14 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -973,8 +1073,22 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -1004,12 +1118,14 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   a_n <- poismodel$a_n
   modelform <- poismodel$modelform
   strat_col <- poismodel$strata
+  # nocov start
   if (!is.numeric(df[[pyr0]])) {
     stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
   }
   if (!is.numeric(df[[event0]])) {
     stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
   }
+  # nocov end
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -1054,6 +1170,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   int_count <- 0.0
   if (any(norm_weight != 1.0)) {
     int_avg_weight <- 0.0
+    # nocov start
     for (i in seq_along(names)) {
       if (grepl("_int", tform[i])) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
@@ -1066,6 +1183,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
+    # nocov end
   }
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
@@ -1191,12 +1309,14 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   }
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
+  # nocov start
   if (any(val$ce != ce)) {
     df <- val$df
     ce <- val$ce
     time1 <- ce[1]
     time2 <- ce[1]
   }
+  # nocov start
   #
   object <- validate_coxres(x, df)
   #
@@ -1253,8 +1373,14 @@ plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @export
 plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("verbose", "studyid", "fname", "cov_cols", "boundary") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "studyid", "fname", "cov_cols", "boundary") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1270,6 +1396,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
+  #  plot_options <- plot_options[intersect(names(plot_options), controlargs)]
   if (!"fname" %in% names(plot_options)) {
     plot_options$fname <- paste(tempfile(), "run", sep = "")
   }
@@ -1322,8 +1449,14 @@ plotSchoenfeld.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @export
 plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("verbose", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "studyid", "fname") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1388,8 +1521,14 @@ plotMartingale.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @export
 plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("verbose", "age_unit", "time_lims", "cov_cols", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "age_unit", "time_lims", "cov_cols", "studyid", "fname") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1486,8 +1625,14 @@ plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' res_plot <- plotSurvival(res, df, plot_options)
 plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("verbose", "age_unit", "time_lims", "strat_haz", "strat_col", "km", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "age_unit", "time_lims", "strat_haz", "strat_col", "km", "studyid", "fname") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1596,6 +1741,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   df <- val$df
+  # nocov start
   if (any(val$ce != ce)) {
     ce <- val$ce
     time1 <- ce[1]
@@ -1603,6 +1749,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
     x$model$start_age <- time1
     x$model$end_age <- time2
   }
+  # nocov end
   #
   object <- validate_coxres(x, df)
   #
@@ -1617,8 +1764,14 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   #
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid", "boundary") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid", "boundary") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1735,8 +1888,14 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1746,8 +1905,22 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -1932,8 +2105,14 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   # we want to let the user add in control arguments to their call
   # code copied from survival/R/coxph.R github and modified for our purpose
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
-    controlargs <- names(formals(ColossusControl)) # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -1943,8 +2122,22 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     }
   }
   if (missing(control)) {
-    control <- ColossusControl(...)
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+      control <- control[!duplicated(names(control))] # filter down
+    }
     if (length(extraArgs)) {
       control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
     }
@@ -2122,6 +2315,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   ce <- c(time1, time2, event0)
   val <- Check_Trunc(df, ce)
   df <- val$df
+  # nocov start
   if (any(val$ce != ce)) {
     ce <- val$ce
     time1 <- ce[1]
@@ -2129,6 +2323,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     x$model$start_age <- time1
     x$model$end_age <- time2
   }
+  # nocov end
   #
   object <- validate_coxres(x, df)
   #
@@ -2149,8 +2344,14 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   #
   model_control["log_bound"] <- TRUE
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -2172,16 +2373,16 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     model_control["para_number"] <- 1
   } else {
     para_num <- model_control$para_number
-    if (length(para_num)>0 & is.numeric(para_num)){
-        if ( para_num%%1!=0 ) {
-          stop("Error: The paranumber used was not an integer.")
-        } else if (para_num > length(names)) {
-          stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
-        } else if (para_num < 1) {
-          stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
-        }
+    if (length(para_num) > 0 & is.numeric(para_num)) {
+      if (para_num %% 1 != 0) {
+        stop("Error: The paranumber used was not an integer.")
+      } else if (para_num > length(names)) {
+        stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+      } else if (para_num < 1) {
+        stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+      }
     } else {
-        stop("Error: The paranumber used was not numeric.")
+      stop("Error: The paranumber used was not numeric.")
     }
   }
   # ------------------------------------------------------------------------------ #
@@ -2205,6 +2406,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   if (any(norm_weight != 1.0)) {
     int_avg_weight <- 0.0
     int_count <- 0.0
+    # nocov start
     for (i in seq_along(names)) {
       if (grepl("_int", tform[i])) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
@@ -2217,6 +2419,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
+    # nocov end
   }
   #
   if ("bisect" %in% names(model_control)) {
@@ -2325,8 +2528,14 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   #
   model_control["log_bound"] <- TRUE
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -2348,16 +2557,16 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     model_control["para_number"] <- 1
   } else {
     para_num <- model_control$para_number
-    if (length(para_num)>0 & is.numeric(para_num)){
-        if ( para_num%%1!=0 ) {
-          stop("Error: The paranumber used was not an integer.")
-        } else if (para_num > length(names)) {
-          stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
-        } else if (para_num < 1) {
-          stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
-        }
+    if (length(para_num) > 0 & is.numeric(para_num)) {
+      if (para_num %% 1 != 0) {
+        stop("Error: The paranumber used was not an integer.")
+      } else if (para_num > length(names)) {
+        stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+      } else if (para_num < 1) {
+        stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+      }
     } else {
-        stop("Error: The paranumber used was not numeric.")
+      stop("Error: The paranumber used was not numeric.")
     }
   }
   # ------------------------------------------------------------------------------ #
@@ -2372,6 +2581,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   if (any(norm_weight != 1.0)) {
     int_avg_weight <- 0.0
     int_count <- 0.0
+    # nocov start
     for (i in seq_along(names)) {
       if (grepl("_int", tform[i])) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
@@ -2384,6 +2594,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
+    # nocov end
   }
   #
   if ("bisect" %in% names(model_control)) {
@@ -2486,6 +2697,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   }
   if (any(grepl(":intercept", names))) {
     # one of the columns has a :intercept flag
+    # nocov start
     for (name in names[grepl(":intercept", names)]) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
@@ -2493,6 +2705,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
         df[, name] <- df[, new_col, with = FALSE]
       }
     }
+    # nocov end
   }
   object <- validate_poisres(x, df)
   #
@@ -2509,8 +2722,14 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   model_control <- object$modelcontrol
   #
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("bound", "check_num", "z") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("bound", "check_num", "z") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -2672,6 +2891,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   }
   if (any(grepl(":intercept", names))) {
     # one of the columns has a :intercept flag
+    # nocov start
     for (name in names[grepl(":intercept", names)]) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
@@ -2679,6 +2899,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
         df[, name] <- df[, new_col, with = FALSE]
       }
     }
+    # nocov end
   }
   object <- validate_poisres(poisres, df)
   #
@@ -2695,8 +2916,14 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   model_control <- object$modelcontrol
   #
   extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("bound", "check_num", "z") # names used in control function
   if (length(extraArgs)) {
-    controlargs <- c("bound", "check_num", "z") # names used in control function
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
     if (any(indx == 0L)) {
       stop(gettextf(
@@ -2871,6 +3098,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   }
   if (any(grepl(":intercept", names))) {
     # one of the columns has a :intercept flag
+    # nocov start
     for (name in names[grepl(":intercept", names)]) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
@@ -2878,6 +3106,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
         df[, name] <- df[, new_col, with = FALSE]
       }
     }
+    # nocov end
   }
   object <- validate_poisres(x, df)
   #

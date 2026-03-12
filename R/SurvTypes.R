@@ -258,6 +258,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   } else if (grepl("pois", surv_model_type)) {
     model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
     if (all(strata != "NONE")) {
+      strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
       if (!all(strata %in% names(df))) {
         stop("Error: One of the strata was not in the original data.")
       }
@@ -394,7 +395,15 @@ get_form_surv <- function(surv_obj, df) {
       surv_para_list[[item_name]] <- item_value
     }
   }
-  if (surv_type %in% c("cox", "coxph")) {
+  full_acceptable <- c("cox", "coxph", "cx", "cox_strata", "coxph_strata", "finegray", "fine_gray", "fg", "finegray_strata", "fine_gray_strata", "fg_strata", "poisson", "pois", "poisson_strata", "pois_strata", "casecon", "casecontrol", "case_control", "casecon_time", "casecontrol_time", "case_control_time", "casecon_strata", "casecontrol_strata", "case_control_strata", "casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata", "logit", "logistic")
+  surv_type <- match.arg(surv_type, full_acceptable)
+  ## Try to fix any issues with the survival parameter names
+  if (!is.null(names(surv_para_list))) {
+    names(surv_para_list) <- tolower(names(surv_para_list))
+    paraArgs <- c("tstart", "tend", "event", "strata", "weight", "pyr", "trials", "events") # UPDATE IF NEW OPTIONS ARE ADDED
+    names(surv_para_list) <- lapply(names(surv_para_list), function(x) tryCatch(match.arg(x, choices = paraArgs), error = function(e) x))
+  }
+  if (surv_type %in% c("cox", "coxph", "cx")) {
     res <- do.call(ColossusCoxSurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
@@ -545,6 +554,7 @@ get_form_risk <- function(model_obj, df) {
       "gmix", "geometric-mixture", "gmix-r", "relative-geometric-mixture",
       "gmix-e", "excess-geometric-mixture"
     )
+    model_type <- match.arg(model_type, c(tform_acceptable, modelform_acceptable, "null"))
     if (model_type == "null") {
       null <- TRUE
     } else if (model_type %in% tform_acceptable) {
@@ -591,6 +601,7 @@ get_form_risk <- function(model_obj, df) {
               names(factor_arg_list)[[1]] <- "x"
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
+            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
             if (!(factor_col %in% names(df))) {
               stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
             }
@@ -614,6 +625,7 @@ get_form_risk <- function(model_obj, df) {
             }
             col <- vals[1]
             raised <- vals[2]
+            col <- sapply(col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
             if (!(col %in% names(df))) {
               stop(paste("Error: Column: ", col, " not in data", sep = ""))
             }
@@ -658,6 +670,7 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use ns(), but splines not detected on system.")
             }
+            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
             if (!(factor_col %in% names(df))) {
               stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
             }
@@ -693,7 +706,7 @@ get_form_risk <- function(model_obj, df) {
             factor_arg_list <- list()
             for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
-              para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+              para_break <- sapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
               if (length(para_break) == 0) {
                 # no name, just add to list
                 factor_arg_list[[i]] <- para_cur
@@ -716,6 +729,7 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use bs(), but splines not detected on system.")
             }
+            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
             if (!(factor_col %in% names(df))) {
               stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
             }
@@ -748,7 +762,7 @@ get_form_risk <- function(model_obj, df) {
           } else {
             # ----------------------------------------------------------------------------------- #
             # generic function call
-            para_split <- lapply(strsplit(model_paras[subterm_i], ""), function(x) which(x == "("))[[1]]
+            para_split <- sapply(strsplit(model_paras[subterm_i], ""), function(x) which(x == "("))[[1]]
             exp_name <- substr(model_paras[subterm_i], 1, para_split - 1)
             factor_args <- substr(model_paras[subterm_i], para_split + 1, nchar(model_paras[subterm_i]) - 1)
             factor_args <- nested_split(factor_args)
@@ -756,7 +770,7 @@ get_form_risk <- function(model_obj, df) {
             factor_arg_list <- list()
             for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
-              para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
+              para_break <- sapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]]
               if (length(para_break) == 0) {
                 # no name, just add to list
                 factor_arg_list[[i]] <- para_cur
@@ -775,6 +789,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
               }
             }
+            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
             if (!(factor_col %in% names(df))) {
               stop(paste("Error: Column: ", factor_col, " not in data", sep = ""))
             }
@@ -804,6 +819,7 @@ get_form_risk <- function(model_obj, df) {
           #
           # split into the columns
           cols <- strsplit(model_paras[subterm_i], "\\*")[[1]]
+          cols <- sapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
           for (col in cols) {
             if (!(col %in% names(df))) {
               # good, it is in there
@@ -878,6 +894,7 @@ get_form_risk <- function(model_obj, df) {
               df$CONST <- 1
             }
           }
+          element_col <- sapply(element_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
           if (!element_col %in% names(df)) {
             stop(paste("Error: Subterm column missing: ", col, sep = ""))
           }
@@ -1058,6 +1075,7 @@ get_form_risk <- function(model_obj, df) {
     }
   }
   # We want to check that it is in the data and not a character
+  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
   all_name <- unique(names)
   for (col in all_name) {
     # Make sure it exists

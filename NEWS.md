@@ -187,3 +187,8 @@
 
 * Convergence results now give feedback on what limit was hit
 * Convergence result now also gives a measure of the change in Log-Likelihood in the last iteration
+* Fixed bug in matched case-control in updating current best guesses
+
+# Colossus 1.5
+
+* partial matching added for many user inputs: control options, subterm types, term combinations, survival types, column names, etc
