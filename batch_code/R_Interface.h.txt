@@ -1,0 +1,28 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#ifndef SRC_R_INTERFACE_H_
+#define SRC_R_INTERFACE_H_
+
+#include <string>
+
+using std::string;
+using std::vector;
+
+using Eigen::Map;
+using Eigen::Ref;
+using Eigen::MatrixXd;
+using Eigen::SparseMatrix;
+using Eigen::VectorXd;
+
+using Rcpp::as;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+
+List cox_ph_multidose_batch_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dose_index, IntegerVector dfc, MatrixXd df0, List file_data, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+
+
+#endif  //  SRC_R_INTERFACE_H_

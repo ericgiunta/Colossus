@@ -332,8 +332,6 @@ Def_Control <- function(control) {
 #' @family Data Cleaning Functions
 #' @return returns a filled list
 Def_model_control <- function(control) {
-  names(control) <- tolower(names(control))
-  control <- control[!duplicated(names(control))] # filter down
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "surv",
@@ -342,6 +340,10 @@ Def_model_control <- function(control) {
     "mcml", "observed_info", "time_risk",
     "logit_odds", "logit_ident", "logit_loglink"
   )
+  name_full_list <- c(control_def_names, "qchi", "alpha", "para_number", "maxstep", "manual", "search_mult", "step_size", "momentum", "adadelta", "adam", "momentum_decay", "learning_decay", "epsilon_decay", "constraint", "penalty_weight", "penalty_method")
+  names(control) <- tolower(names(control)) # set the names to lowercase
+  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = name_full_list), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+  control <- control[!duplicated(names(control))] # filter down
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
       # fine
@@ -655,6 +657,7 @@ factorize <- function(df, col_list, verbose = 0) {
       }
     )
   }
+  col_list <- sapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   verbose <- Check_Verbose(verbose)
   cols <- c()
   col0 <- names(df)
@@ -758,6 +761,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
     )
   }
   verbose <- Check_Verbose(verbose)
+  cols <- sapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
     terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs

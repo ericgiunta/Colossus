@@ -665,10 +665,11 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     model_control["logit_odds"] <- TRUE
   } else {
     # "logit_odds", "logit_ident", "logit_loglink"
-    link <- tolower(link)
     acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "odds", "ident", "loglink", "id", "odd", "log")
+    link <- tolower(link)
+    link <- sapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(e) x), USE.NAMES = FALSE)[[1]]
     if (link %in% acceptable) {
-      if (link %in% c("logit_odds", "odds", "Odd")) {
+      if (link %in% c("logit_odds", "odds", "odd")) {
         model_control["logit_odds"] <- TRUE
       } else if (link %in% c("logit_ident", "ident", "id")) {
         model_control["logit_ident"] <- TRUE
@@ -922,9 +923,6 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (time1 != time2) {
     model_control[["time_risk"]] <- TRUE
   }
-  #  if (ncol(cons_mat) > 1) {
-  #    model_control[["constraint"]] <- TRUE
-  #  }
   if (!missing(gradient_control)) {
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
@@ -1316,7 +1314,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
     time1 <- ce[1]
     time2 <- ce[1]
   }
-  # nocov start
+  # nocov end
   #
   object <- validate_coxres(x, df)
   #
@@ -1396,7 +1394,8 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
-  #  plot_options <- plot_options[intersect(names(plot_options), controlargs)]
+  names(plot_options) <- tolower(names(plot_options))
+  plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
     plot_options$fname <- paste(tempfile(), "run", sep = "")
   }
@@ -1472,6 +1471,8 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
+  names(plot_options) <- tolower(names(plot_options))
+  plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
     plot_options$fname <- paste(tempfile(), "run", sep = "")
   }
@@ -1544,6 +1545,8 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
+  names(plot_options) <- tolower(names(plot_options))
+  plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
     plot_options$fname <- paste(tempfile(), "run", sep = "")
   }
@@ -1648,6 +1651,8 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
+  names(plot_options) <- tolower(names(plot_options))
+  plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
     plot_options$fname <- paste(tempfile(), "run", sep = "")
   }
@@ -1787,6 +1792,8 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   } else {
     stop("Error: control argument must be a list")
   }
+  names(plot_options) <- tolower(names(plot_options))
+  plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"verbose" %in% names(plot_options)) {
     plot_options$verbose <- 2
   }
@@ -2367,6 +2374,8 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   } else {
     stop("Error: control argument must be a list")
   }
+  names(curve_control) <- tolower(names(curve_control))
+  curve_control <- curve_control[!duplicated(names(curve_control))]
   #
   model_control <- c(model_control, curve_control)
   if (!("para_number" %in% names(model_control))) {
@@ -2551,6 +2560,8 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   } else {
     stop("Error: control argument must be a list")
   }
+  names(curve_control) <- tolower(names(curve_control))
+  curve_control <- curve_control[!duplicated(names(curve_control))]
   #
   model_control <- c(model_control, curve_control)
   if (!("para_number" %in% names(model_control))) {
@@ -2745,6 +2756,8 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   } else {
     stop("Error: control argument must be a list")
   }
+  names(assign_control) <- tolower(names(assign_control))
+  assign_control <- assign_control[!duplicated(names(assign_control))]
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -2939,6 +2952,8 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   } else {
     stop("Error: control argument must be a list")
   }
+  names(assign_control) <- tolower(names(assign_control))
+  assign_control <- assign_control[!duplicated(names(assign_control))]
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -2993,8 +3008,6 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
       }
       # Start with low
       a_n <- x$Lower_Values
-      #      a_n <- object$beta_0
-      #      a_n[check_num] <- Parameter_Limits[1]
       # Get the new optimum values
       if (model_control[["constraint"]]) {
         low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
@@ -3010,8 +3023,6 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
       )
       # Now the high
       a_n <- x$Upper_Values
-      #      a_n <- object$beta_0
-      #      a_n[check_num] <- Parameter_Limits[2]
       # Get the new optimum values
       if (model_control[["constraint"]]) {
         high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)

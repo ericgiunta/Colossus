@@ -1,0 +1,393 @@
+#' Fully runs a cox or fine-gray regression model with multiple column realizations in multiple files, returning the model and results
+#'
+#' \code{CoxRunMultiBatch} uses a formula, data.table, list of realization files, and list of controls to prepare and
+#' run a Colossus cox or fine-gray regression function
+#'
+#' @param ... can include the named entries for the control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Cox Wrapper Functions
+CoxRunMultiBatch <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), realization_files = c(), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), subj_id = "ID", ...) {
+  func_t_start <- Sys.time()
+  #
+  if (missing(realization_files)){
+    stop("Error: realization files were not provided. Please list files containing the realizations.")
+  }
+  if (length(realization_files) == 0){
+    stop("Error: realization files were not provided. Please list files containing the realizations.")
+  }
+  for (index_col in realization_index){
+    if (!(index_col %in% names(df))){
+        df[, index_col] <- 1
+    }
+  }
+  #
+  if (is(model, "coxmodel")) {
+    # using already prepped formula and data
+    coxmodel <- copy(model)
+    calls <- coxmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    #
+  } else if (is(model, "formula")) {
+    # using a formula class
+    res <- get_form(model, df)
+    coxmodel <- res$model
+    df <- res$data
+  } else {
+    stop(gettextf(
+      "Error: Incorrect type used for formula, '%s', must be formula or coxmodel class",
+      class(model)
+    ))
+  }
+  # ------------------------------------------------------------------------------ #
+  # we want to let the user add in control arguments to their call
+  # code copied from survival/R/coxph.R github and modified for our purpose
+  extraArgs <- list(...) # gather additional arguments
+  if (length(extraArgs)) {
+    controlargs <- names(formals(ColossusControl)) # names used in control function
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(control)) {
+    control <- ColossusControl(...)
+  } else if (is.list(control)) {
+    control_args <- intersect(names(control), names(formals(ColossusControl)))
+    control <- do.call(ColossusControl, control[control_args])
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  if ("CONST" %in% coxmodel$names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (!missing(a_n)) {
+    coxmodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    coxmodel$keep_constant <- keep_constant
+  }
+  # Checks that the current coxmodel is valid
+  validate_coxsurv(coxmodel, df)
+  if (!coxmodel$null) {
+    coxmodel <- validate_formula(coxmodel, df, control$verbose)
+  }
+  # ------------------------------------------------------------------------------ #
+  # Pull out the actual model vectors and values
+  time1 <- coxmodel$start_age
+  time2 <- coxmodel$end_age
+  event0 <- coxmodel$event
+  names <- coxmodel$names
+  term_n <- coxmodel$term_n
+  tform <- coxmodel$tform
+  keep_constant <- coxmodel$keep_constant
+  a_n <- coxmodel$a_n
+  modelform <- coxmodel$modelform
+  strat_col <- coxmodel$strata
+  cens_weight <- coxmodel$weight
+  # ------------------------------------------------------------------------------ #
+  # We want to create the previously used model_control list, based on the input
+  model_control <- list()
+  if (coxmodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+  } else {
+    # check for basic and linear_err
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+      if (all(unique(tform) == c("loglin"))) {
+        model_control[["basic"]] <- TRUE
+      } else if (identical(sort(unique(tform)), c("loglin", "plin")) && sum(tform == "plin") == 1) {
+        model_control[["linear_err"]] <- TRUE
+      }
+    } else if (modelform == "GMIX") {
+      model_control[["gmix_term"]] <- coxmodel$gmix_term
+      model_control[["gmix_theta"]] <- coxmodel$gmix_theta
+    }
+  }
+  if (coxmodel$strata != "NONE") {
+    model_control[["strata"]] <- TRUE
+  }
+  if (coxmodel$weight != "NONE") {
+    model_control[["cr"]] <- TRUE
+  }
+  if (cons_vec != c(0)) {
+    model_control[["constraint"]] <- TRUE
+  }
+  if (!missing(gradient_control)) {
+    model_control["gradient"] <- TRUE
+    for (nm in names(gradient_control)) {
+      model_control[nm] <- gradient_control[nm]
+    }
+  }
+  if (fma != mcml) {
+    model_control["mcml"] <- mcml
+    fma <- !mcml
+  } else {
+    if (fma) {
+      stop("Error: Do not select both fma and mcml, only pick one")
+    } else {
+      model_control["mcml"] <- mcml
+    }
+  }
+  model_control["single"] <- single
+  model_control["observed_info"] <- observed_info
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  # ------------------------------------------------------------------------------ #
+  res <- RunCoxRegression_Omnibus_MultidoseBatch(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, realization_files = realization_files, control = control, strat_col = strat_col, cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec, subj_id = subj_id)
+  res$model <- coxmodel
+  res$modelcontrol <- model_control
+  res$control <- control
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
+  # ------------------------------------------------------------------------------ #
+  if (fma) {
+    coxres <- new_coxresfma(res)
+  } else {
+    coxres <- new_coxres(res)
+  }
+  coxres
+}
+
+#' Performs Cox Proportional Hazards regression using the omnibus function with multiple column realizations stored in batch files
+#'
+#' \code{RunCoxRegression_Omnibus_MultidoseBatch} uses user provided data, realizations in files, time/event columns,
+#'       vectors specifying the model, and options to control the convergence
+#'       and starting positions. Used for 2DMC column uncertainty methods.
+#'       Returns optimized parameters, log-likelihood, and standard deviation for each realization.
+#'       Has additional options for using stratification,
+#'       multiplicative loglinear 1-term,
+#'       competing risks, and calculation without derivatives
+#'
+#' @inheritParams R_template
+#'
+#' @noRd
+#' @return returns a list of the final results for each realization
+#' @family Cox Wrapper Functions
+#' @importFrom rlang .data
+RunCoxRegression_Omnibus_MultidoseBatch <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), realization_files = c(), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0), subj_id = "ID") {
+  func_t_start <- Sys.time()
+  e <- list()
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        df <- setDT(df)
+      },
+      error = function(e) {
+        df <- data.table(df)
+      }
+    )
+  }
+  #
+  control <- Def_Control(control)
+  nthread <- control$ncores
+  model_control <- Def_model_control(model_control)
+  if (min(keep_constant) > 0) {
+    stop("Error: Atleast one parameter must be free")
+  }
+  #
+  to_remove <- c("CONST", "%trunc%")
+  to_keep <- c(time1, time2, event0, names, realization_index, as.vector(realization_columns), subj_id)
+  if (model_control$cr == TRUE) {
+    to_keep <- c(to_keep, cens_weight)
+  }
+  if (model_control$strata == TRUE) {
+    to_keep <- c(to_keep, strat_col)
+  }
+  to_keep <- unique(to_keep)
+  to_keep <- to_keep[!to_keep %in% to_remove]
+  to_keep <- to_keep[to_keep %in% names(df)]
+  df <- df[, to_keep, with = FALSE]
+  #
+  ce <- c(time1, time2, event0)
+  t_check <- Check_Trunc(df, ce)
+  df <- t_check$df
+  ce <- t_check$ce
+  time1 <- ce[1]
+  time2 <- ce[2]
+  ## Cox regression only uses intervals which contain an event time
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (length(tu) == 0) {
+    stop("Error: no events")
+  }
+  # remove rows that end before first event
+  df <- df[get(time2) >= tu[1], ]
+  # remove rows that start after the last event
+  df <- df[get(time1) <= tu[length(tu)], ]
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (model_control$cr == TRUE) {
+    if (cens_weight %in% names(df)) {
+      # good
+    } else if (length(cens_weight) < nrow(df)) {
+      stop("Error: censoring weight column not in the dataframe.")
+    }
+  } else {
+    df[[cens_weight]] <- 1
+  }
+  if ("MCML" %in% names(model_control)) {
+    # fine
+  } else {
+    model_control$MCML <- FALSE
+  }
+  if (model_control$strata == FALSE) {
+    data.table::setkeyv(df, c(event0, time2, time1))
+    uniq <- c(0)
+    ce <- c(time1, time2, event0)
+  } else {
+    dfend <- df[get(event0) == 1, ]
+    uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
+      use.names = FALSE
+    )
+    df <- df[get(strat_col) %in% uniq_end, ]
+    uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
+      use.names = FALSE
+    ))
+    if (control$verbose >= 3) {
+      message(paste("Note:", length(uniq), " strata used",
+        sep = " "
+      )) # nocov
+    }
+    data.table::setkeyv(df, c(strat_col, event0, time2, time1))
+    ce <- c(time1, time2, event0, strat_col)
+  }
+  dfend <- df[get(event0) == 1, ]
+  tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+  if (length(tu) == 0) {
+    stop("Error: no events")
+  }
+  if (control$verbose >= 3) {
+    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+  }
+  all_names <- unique(names)
+  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+  # replace_missing equivalent for the realization columns
+  if (length(realization_index) == length(realization_columns[, 1])) {
+    # pass
+  } else {
+    # the number of columns per realization does not match the number of indexes provided
+    stop(paste("Error:", length(realization_index),
+      " column indexes provided, but ",
+      length(realization_columns[, 1]),
+      " rows of realizations columns provided",
+      sep = " "
+    ))
+  }
+  dfc <- match(names, all_names)
+  #
+  dose_index <- match(realization_index, all_names)
+  file_data <- list()
+  if (time1 == "right_trunc"){
+    join_cols <- c(subj_id, time2)
+  } else {
+    join_cols <- c(subj_id, time1)
+  }
+  # Now we want to prepare every realization column file
+  df_base <- df[, join_cols, with = FALSE]
+  setkeyv(df_base, join_cols, physical = FALSE)
+  file_start <- Sys.time()
+  times <- rep(0,2)
+  for (f in realization_files){
+    if (file.exists(f)){
+        df_dose <- fread(f, nThread = nthread, key = join_cols)
+        df_dose <- df_dose[df_base]#left_join(df_base, df_dose, by = join_cols)
+        # we want to figure out which realizations are in the file
+        to_keep <- names(df_dose)
+        to_keep <- to_keep[to_keep %in% as.vector(realization_columns)] # get columns that are in the realizations
+        if (length(to_keep) == 0){
+            stop(paste("Error: File: '",f,"' did not contain any realization columns.", sep=""))
+        }
+        new_dose <- df_dose[, to_keep, with = FALSE]
+        new_dose_names <- names(new_dose)
+        first_real_match <- match(new_dose_names, realization_columns[1,]) # list of realization indexes from first column
+        # check if it matches all of the other realization rows
+        for (i in seq_len(nrow(realization_columns)-1)+1){
+            new_match <- match(new_dose_names, realization_columns[i,])
+            if (!all(first_real_match %in% new_match)){
+                stop(paste("Error: file '", f, "' missing realization data. Every realization column in the first row of the realization matrix should be represented for each subsequent row. Are the columns names unique?", sep=""))
+            }
+        }
+        # Now construct the data
+        kept_cols <- first_real_match[!is.na(first_real_match)]
+        batch_columns <- matrix(realization_columns[, kept_cols], nrow = nrow(realization_columns))
+        dose_names <- unique(as.vector(batch_columns))
+        dose_cols <- matrix(match(batch_columns, dose_names), nrow = nrow(batch_columns))
+        dose_all <- transpose(df_dose[, dose_names, with = FALSE])
+        file_count <- length(file_data)
+        new_name <- paste(file_count, "_prepared.csv", sep = "")
+        file_data[[new_name]] <- dose_cols
+        fwrite(dose_all, new_name, row.names = FALSE, col.names = FALSE, nThread = nthread) # each row of the matrix is now a column, ordered by column now
+#        print("--------------------------------------------")
+    } else {
+        stop(paste("Error: file '",f,"' did not exist.", sep = ""))
+    }
+  }
+  file_end <- Sys.time()
+#  print(file_end - file_start)
+  if (all(realization_index %in% all_names)) {
+    # pass
+  } else {
+    stop(paste("Error: Atleast one realization column provided was not used in the model", sep = " "))
+  }
+  dfc <- match(names, all_names)
+  term_tot <- max(term_n) + 1
+  x_all <- as.matrix(df[, all_names, with = FALSE])
+  run_start <- Sys.time()
+  e <- cox_ph_multidose_batch_Omnibus_transition(
+    term_n, tform, a_n, dose_index, dfc, x_all, file_data,
+    0, modelform, control,
+    as.matrix(df[, ce, with = FALSE]), tu,
+    keep_constant, term_tot, uniq, df[[cens_weight]], model_control,
+    cons_mat, cons_vec
+  )
+  run_end <- Sys.time()
+  for (i in names(file_data)){
+    file.remove(i)
+  }
+  if ("Status" %in% names(e)) {
+    if (e$Status != "PASSED") {
+      stop(e$Status)
+    }
+  }
+  e$Parameter_Lists$names <- names
+  e$Parameter_Lists$modelformula <- modelform
+  e$Parameter_Lists$keep_constant <- keep_constant
+  if (model_control$MCML) {
+    e$Survival_Type <- "Cox_Multidose"
+  } else {
+    e$Survival_Type <- "Cox_Multidose"
+  }
+  func_t_end <- Sys.time()
+  e$RunTime <- func_t_end - func_t_start
+  print(c(file_end - file_start, run_end - run_start, func_t_end - func_t_start))
+  return(e)
+}

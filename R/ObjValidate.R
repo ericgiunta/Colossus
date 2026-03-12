@@ -388,17 +388,23 @@ validate_coxsurv <- function(x, df) {
   if (!is(x, "coxmodel")) {
     stop("Error: Non cox formula used in cox regression") # nocov
   }
-  if (x$start_age == x$end_age) {
-    stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
-  }
-  if (x$event == "") {
+  if ((x$event == "") || (is.null(x$event))) {
     stop("Error: The event column must not be empty") # nocov
+  }
+  if ((x$start_age == "") || (is.null(x$start_age))) {
+    stop("Error: Interval start column must not be empty") # nocov
+  }
+  if ((x$end_age == "") || (is.null(x$end_age))) {
+    stop("Error: Interval end column must not be empty") # nocov
   }
   if (!(x$start_age %in% names(df))) {
     stop("Error: Interval start column not in the data") # nocov
   }
   if (!(x$end_age %in% names(df))) {
     stop("Error: Interval end column not in the data") # nocov
+  }
+  if (x$start_age == x$end_age) {
+    stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
   }
   if (!(x$event %in% names(df))) {
     stop("Error: Event column not in the data") # nocov
@@ -409,8 +415,11 @@ validate_poissurv <- function(x, df) {
   if (!is(x, "poismodel")) {
     stop("Error: Non Poisson formula used in Poisson regression") # nocov
   }
-  if (x$event == "") {
+  if ((x$event == "") || (is.null(x$event))) {
     stop("Error: The event column must not be empty") # nocov
+  }
+  if ((x$person_year == "") || (is.null(x$person_year))) {
+    stop("Error: Person-Year column must not be empty") # nocov
   }
   if (!(x$person_year %in% names(df))) {
     stop("Error: Person-Year column not in the data") # nocov
@@ -535,12 +544,11 @@ coxmodel <- function(start_age = "",
                      expres_calls = list(),
                      verbose = FALSE) {
   #
-  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
-  start_age <- sapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  end_age <- sapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
-  weight <- sapply(weight, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
+  start_age <- sapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  end_age <- sapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
+  weight <- sapply(weight, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
   #
   cox_obj <- list(
     "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "weight" = weight, "null" = null,
@@ -571,10 +579,9 @@ poismodel <- function(person_year = "",
                       expres_calls = list(),
                       verbose = FALSE) {
   #
-  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
-  person_year <- sapply(person_year, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  person_year <- sapply(person_year, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   #
   pois_obj <- list(
     "person_year" = person_year, "event" = event, "strata" = strata, "null" = null,
@@ -606,11 +613,10 @@ caseconmodel <- function(start_age = "",
                          expres_calls = list(),
                          verbose = FALSE) {
   #
-  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
-  start_age <- sapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  end_age <- sapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  start_age <- sapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  end_age <- sapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   #
   casecon_obj <- list(
     "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "null" = null,
@@ -640,10 +646,9 @@ logitmodel <- function(trials = "",
                        expres_calls = list(),
                        verbose = FALSE) {
   #
-  #  names <- sapply(names, function(x) tryCatch(match.arg(x, choices = names(df)), error=function(e) x))
-  trials <- sapply(trials, function(x) tryCatch(match.arg(x, choices = c(names(df), "CONST")), error = function(e) x))[[1]]
-  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))[[1]]
-  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+  trials <- sapply(trials, function(x) tryCatch(match.arg(x, choices = c(names(df), "CONST")), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  event <- sapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+  strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   #
   logit_obj <- list(
     "trials" = trials, "event" = event, "strata" = strata,
@@ -719,6 +724,7 @@ ColossusControl <- function(verbose = 1,
     }
   }
   control["ties"] <- tolower(control["ties"])
+  control["ties"] <- sapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(e) x), USE.NAMES = FALSE)[[1]]
   control_min <- list(
     "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
     "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,

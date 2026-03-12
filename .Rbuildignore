@@ -12,6 +12,7 @@
 ^\.github$
 ^excess_test$
 ^python$
+^batch_code$
 ^codecov\.yml$
 ^out.txt
 ^CONTRIBUTING\.md$
