@@ -249,6 +249,7 @@ test_that("Coxph schoenfeld no error", {
   plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "t0", "verbose" = 0)
   e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(a, b, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
+    expect_error(plotSchoenfeld(e, df, plot_options, verbose = 0, wrongname = T))
     expect_no_error(ep <- plotSchoenfeld(e, df, plot_options, verbose = 0)$b)
     expect_equal(ep$y[16], 9.999993e-01, tolerance = 1e-4)
   }
@@ -267,7 +268,8 @@ test_that("Coxph martingale no error", {
   plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "e", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(ep <- plotMartingale(e, df, plot_options, verbose = 0)$d)
+    expect_error(plotMartingale(e, df, plot_options, verbose = 0, wrongname = T))
+    expect_no_error(ep <- plotMartingale(e, df, plot_options, verb = 0)$d)
     expect_equal(ep$res_sum[2], -0.2262094, tolerance = 1e-4)
   }
 })

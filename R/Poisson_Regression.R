@@ -13,6 +13,7 @@
 RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -23,6 +24,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   if (typeof(a_n) != "list") {
@@ -56,9 +58,11 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
+      # nocov start
       message(paste("Note: ", length(strat_col), " strata used",
         sep = ""
       ))
+      # nocov end
     }
   } else {
     val <- list(cols = c("a"))
@@ -145,6 +149,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
 #' @return returns a list of the final results
 #'
 RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -155,6 +160,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   control$maxiters <- c(1, control$maxiter)
   control$guesses <- 1
@@ -185,9 +191,11 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
+      # nocov start
       message(paste("Note: ", length(strat_col), " strata used",
         sep = ""
       ))
+      # nocov end
     }
   } else {
     val <- list(cols = c("a"))
@@ -228,6 +236,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
 RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -238,6 +247,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
       }
     )
   }
+  # nocov end
   cons_mat <- as.matrix(c(0))
   cons_vec <- c(0)
   control <- Def_Control(control)
@@ -270,9 +280,11 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
+      # nocov start
       message(paste("Note: ", length(strat_col), " strata used",
         sep = ""
       ))
+      # nocov end
     }
   } else {
     val <- list(cols = c("a"))
@@ -311,6 +323,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' @importFrom rlang .data
 PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -321,6 +334,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   if (typeof(a_n) != "list") {
@@ -351,9 +365,11 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
     strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
+      # nocov start
       message(paste("Note: ", length(strat_col), " strata used",
         sep = ""
       ))
+      # nocov end
     }
   } else {
     val <- list(cols = c("a"))
@@ -421,6 +437,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
 RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -431,6 +448,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
       }
     )
   }
+  # nocov end
   #
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
@@ -470,9 +488,11 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     strata_vals <- val$levels
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
+      # nocov start
       message(paste("Note: ", length(strat_col), " strata used",
         sep = ""
       ))
+      # nocov end
     }
   } else {
     val <- list(cols = c("a"))

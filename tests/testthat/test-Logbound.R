@@ -31,6 +31,23 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   expect_error(LikelihoodBound(coxres, df, para_number = -1))
   expect_error(LikelihoodBound(coxres, df, para_number = 100))
   #
+  a_n <- c(-0.1, -0.1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  curve_control <- list("bisect" = TRUE)
+  expect_no_error(e <- LikelihoodBound(coxres, df, curve_control, control = control, bisect = FALSE))
+  expect_no_error(LikelihoodBound(coxres_s, df, curve_control, control = control))
+  expect_no_error(LikelihoodBound(coxres_c, df, curve_control, control = control))
+  expect_no_error(LikelihoodBound(coxres_sc, df, curve_control, control = control))
+  zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+  sink(zz)
+  sink(zz, type = "message")
+  print(e)
+  sink(type = "message")
+  sink(NULL)
+  close(zz)
+  a_n <- c(-0.1, -0.1)
+  control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "efron")
+  #
   for (m in c(TRUE, FALSE)) {
     a_n <- c(-0.1, -0.1)
     control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")

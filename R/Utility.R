@@ -116,9 +116,11 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
           temp <- sum(df[get(factor_col) == col, ][[event0]]) # get number of events
           if (temp == 0) { # if none then we remove that data and the level column
             if (control$verbose >= 2) {
+              # nocov start
               warning(paste("Warning: no events for strata group:", col,
                 sep = " "
               ))
+              # nocov end
             }
             df <- df[get(factor_col) != col, ] # remove data
           }
@@ -169,6 +171,7 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
 #' )
 #' df <- Replace_Missing(df, c("Starting_Age", "Ending_Age"), 70)
 Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -179,6 +182,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   if (is.na(msv)) {
     stop("Error: The missing-value replacement is also NA")
@@ -279,12 +283,14 @@ Def_Control <- function(control) {
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
+        # nocov start
         if (control$ncores > control_def$ncores) {
           stop(paste("Error: Cores Requested:", control["ncores"],
             ", Cores Available:", control_def["ncores"],
             sep = " "
-          )) # nocov
+          ))
         }
+        # nocov end
       } else if (nm == "verbose") {
         control$verbose <- Check_Verbose(control$verbose)
       }
@@ -292,9 +298,11 @@ Def_Control <- function(control) {
       control[nm] <- control_def[nm]
     }
   }
+  # nocov start
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     control$ncores <- min(c(2, as.numeric(detectCores()))) # reduces cores for cran checks
   }
+  # nocov end
   if (control$epsilon >= control$step_max) {
     if (control["verbose"] > 1) {
       warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.")
@@ -487,13 +495,15 @@ Check_Iters <- function(control, a_n) {
     if (length(control$maxiters) == length(a_n) + 1) {
       # all good, it matches
     } else {
-      if (control$verbose >= 3) { # nocov
+      if (control$verbose >= 3) {
+        # nocov start
         message(paste("Note: Initial starts:", length(a_n),
           ", Number of iterations provided:",
           length(control$maxiters),
           ". Colossus requires one more iteration counts than number of guesses (for best guess)",
           sep = " "
-        )) # nocov
+        ))
+        # nocov end
       }
       if (length(control$maxiters) < length(a_n) + 1) {
         additional <- length(a_n) + 1 - length(control$maxiters)
@@ -647,6 +657,7 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
 #' new_col <- val$cols
 #'
 factorize <- function(df, col_list, verbose = 0) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -657,6 +668,7 @@ factorize <- function(df, col_list, verbose = 0) {
       }
     )
   }
+  # nocov end
   col_list <- sapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   verbose <- Check_Verbose(verbose)
   cols <- c()
@@ -750,6 +762,7 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #' @family Data Cleaning Functions
 #' @return returns the usable columns
 Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FALSE) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -760,6 +773,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   cols <- sapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   if (length(cols) > 1) {
@@ -847,6 +861,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
 Check_Trunc <- function(df, ce, verbose = 0) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -857,6 +872,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   if (ce[1] %in% c("%trunc%", "right_trunc")) {
     if (ce[2] %in% c("%trunc%", "left_trunc")) {
@@ -920,6 +936,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' file.remove("test_new.csv")
 #'
 gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form, fname, tform, nthreads = as.numeric(detectCores())) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -930,6 +947,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
       }
     )
   }
+  # nocov end
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
@@ -1033,6 +1051,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' df <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -1043,6 +1062,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
       }
     )
   }
+  # nocov end
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]],
     df[[match(dcol0[2], names(df))]],
@@ -1095,6 +1115,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
 #' df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 #'
 Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -1105,6 +1126,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
       }
     )
   }
+  # nocov end
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]], df[[match(
     dcol0[2],
@@ -1178,6 +1200,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
 #' )
 #'
 Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list()) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -1188,6 +1211,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       }
     )
   }
+  # nocov end
   # filling missing values
   for (i in names(name_list)) {
     temp0 <- unlist(name_list[i], use.names = FALSE)
@@ -1326,6 +1350,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
 #' @family Data Cleaning Functions
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 interact_them <- function(df, interactions, new_names, verbose = 0) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -1336,6 +1361,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   cols <- c()
   for (i in seq_len(length(interactions))) {

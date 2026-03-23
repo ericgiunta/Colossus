@@ -234,7 +234,9 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       }
       if (int_count > 0) {
         if (control$verbose >= 3) {
+          # nocov start
           message("Note: Threshold max step adjusted to match new weighting")
+          # nocov end
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
@@ -481,7 +483,9 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       }
       if (int_count > 0) {
         if (control$verbose >= 3) {
+          # nocov start
           message("Note: Threshold max step adjusted to match new weighting")
+          # nocov end
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
@@ -730,7 +734,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     }
     if (int_count > 0) {
       if (control$verbose >= 3) {
+        # nocov start
         message("Note: Threshold max step adjusted to match new weighting")
+        # nocov end
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
@@ -963,7 +969,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       }
       if (int_count > 0) {
         if (control$verbose >= 3) {
+          # nocov start
           message("Note: Threshold max step adjusted to match new weighting")
+          # nocov end
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
@@ -1177,7 +1185,9 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     }
     if (int_count > 0) {
       if (control$verbose >= 3) {
+        # nocov start
         message("Note: Threshold max step adjusted to match new weighting")
+        # nocov end
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
@@ -1799,7 +1809,9 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (length(object$model$expres_calls) > 0) {
     if (plot_options$verbose >= 2) {
+      # nocov start
       warning("Warning: Columns were created during model defintion. Risk plots will only depend on individual columns, not interactions")
+      # nocov end
     }
   }
   if (!"type" %in% names(plot_options)) {

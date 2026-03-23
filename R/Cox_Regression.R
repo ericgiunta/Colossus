@@ -15,6 +15,7 @@
 RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -25,6 +26,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   if (typeof(a_n) != "list") {
@@ -75,6 +77,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       df$CONST <- 1
     }
   }
+  # nocov start
   if (model_control$basic == TRUE) {
     if (all(unique(tform) == c("loglin"))) {
       # good
@@ -117,6 +120,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       modelform <- "M"
     }
   }
+  # nocov end
   if (model_control$cr == TRUE) {
     if (cens_weight %in% names(df)) {
       # good
@@ -169,11 +173,13 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
           if (min(df[[names[i]]]) == max(df[[names[i]]])) {
             keep_constant[i] <- 1
             if (control$verbose >= 2) {
+              # nocov start
               warning(paste("Warning: element ", i,
                 " with column name ", names[i],
                 " was set constant",
                 sep = ""
               ))
+              # nocov end
             }
           }
         }
@@ -257,6 +263,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
 #' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
 Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -267,6 +274,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   if (min(keep_constant) > 0) {
@@ -305,6 +313,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
 #' @family Plotting Wrapper Functions
 RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -315,6 +324,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   plot_options$verbose <- Check_Verbose(plot_options$verbose)
   if (min(keep_constant) > 0) {
@@ -637,6 +647,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -647,6 +658,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       }
     )
   }
+  # nocov end
   #
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
@@ -734,9 +746,11 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       use.names = FALSE
     ))
     if (control$verbose >= 3) {
+      # nocov start
       message(paste("Note:", length(uniq), " strata used",
         sep = " "
-      )) # nocov
+      ))
+      # nocov end
     }
     data.table::setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
@@ -819,6 +833,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
 #' @importFrom rlang .data
 CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -829,6 +844,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   model_control$log_bound <- TRUE
   model_control <- Def_model_control(model_control)
@@ -879,6 +895,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       df$CONST <- 1
     }
   }
+  # nocov start
   if (model_control$linear_err == TRUE) {
     if (all(sort(unique(tform)) != c("loglin", "plin"))) {
       stop("Error: Linear ERR model used, but term formula wasn't only loglin and plin")
@@ -899,6 +916,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
       modelform <- "M"
     }
   }
+  # nocov end
   if (model_control$cr == TRUE) {
     if (cens_weight %in% names(df)) {
       # good
@@ -950,11 +968,13 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1
           if (control$verbose >= 2) {
+            # nocov start
             warning(paste("Warning: element ", i,
               " with column name ", names[i],
               " was set constant",
               sep = ""
             ))
+            # nocov end
           }
         }
       }

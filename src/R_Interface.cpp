@@ -971,7 +971,9 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                             }
                             dep_temp[i] = gather_val;
                         } else {
+                            // # nocov start
                             Rcout << "C++ Error: " << func_id << " _:_ " << token << endl;
+                            // # nocov end
                             throw invalid_argument("time dependent identifier isn't implemented");
                         }
                     }

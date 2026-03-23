@@ -314,6 +314,7 @@ test_that("Colossus Surv Errors", {
   expect_error(get_form(Cox(alpha = t0, t1, lung) ~ loglinear(dose), df)) # wrong named
   #
   expect_no_error(get_form(Cox_Strata(t0, t1, lung, rand0) ~ loglinear(dose), df))
+  expect_no_error(get_form(Cox_Strata(t0, t1, lung, c(rand0, rand1)) ~ loglinear(dose), df))
   expect_no_error(get_form(Cox_Strata(t0, t1, lung, strata = rand0) ~ loglinear(dose), df))
   expect_error(get_form(Cox_Strata(lung, strata = rand0) ~ loglinear(dose), df)) # too few
   expect_error(get_form(Cox_Strata(t0, t1, lung, lung, strata = rand0) ~ loglinear(dose), df)) # too many
@@ -423,6 +424,7 @@ test_that("CaseCon Surv Errors", {
   expect_no_error(get_form(CaseCon_time(t1, event = lung) ~ loglinear(dose), df))
   #
   expect_no_error(get_form(CaseCon_strata(lung, rand0) ~ loglinear(dose), df))
+  expect_no_error(get_form(CaseCon_strata(lung, c(rand0, rand1)) ~ loglinear(dose), df))
   expect_error(get_form(CaseCon_strata(lung) ~ loglinear(dose), df)) # too few
   expect_error(get_form(CaseCon_strata(t1, lung, rand0) ~ loglinear(dose), df)) # too many
   expect_error(get_form(CaseCon_strata(alpha = lung, rand0) ~ loglinear(dose), df)) # wrong name

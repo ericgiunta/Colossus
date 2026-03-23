@@ -93,14 +93,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "null model is not compatable with multi-realization method" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
@@ -280,12 +284,14 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
@@ -534,14 +540,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "null model is not compatable with multi-realization method" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
@@ -711,12 +721,14 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
@@ -1144,7 +1156,9 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
@@ -1328,12 +1342,14 @@ List LogLik_Pois_PH_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, In
         }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
@@ -1557,7 +1573,9 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
@@ -1715,12 +1733,14 @@ List LogLik_Pois_PH_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC
         }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;

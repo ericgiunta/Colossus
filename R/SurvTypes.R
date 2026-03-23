@@ -16,6 +16,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -26,6 +27,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
       }
     )
   }
+  # nocov end
   if (is.list(formula_list)) {
     if ("shared" %in% names(formula_list)) {
       formula_shared <- formula_list$shared
@@ -292,6 +294,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
 #' @return returns the list of model values
 #' @family Formula Interpretation
 get_form_list <- function(surv_obj, model_obj, df) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
@@ -302,6 +305,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
       }
     )
   }
+  # nocov end
   surv_obj <- gsub(" ", "", surv_obj)
   model_obj <- gsub(" ", "", model_obj)
   #

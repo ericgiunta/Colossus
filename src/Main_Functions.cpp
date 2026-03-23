@@ -334,17 +334,21 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             beta_0[i] = a_n[i];
         }
         if (verbose >= 4) {
+            // # nocov start
             Rcout << "C++ Note: starting guess " << guess << endl;
+            // # nocov end
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             //
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN, _["RiskGroups"] = total_risk_groups);
@@ -499,6 +503,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
+        // # nocov start
         Rcout << "C++ Note: Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood" << endl;
         NumericVector beta_temp;
@@ -510,6 +515,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] << endl;
             }
         }
+        // # nocov end
     }
     //
     maxiter = maxiters[guesses];
@@ -984,6 +990,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
@@ -996,6 +1003,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
                     Rcout << tform[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
@@ -1155,6 +1163,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
+        // # nocov start
         Rcout << "C++ Note: Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood" << endl;
         NumericVector beta_temp;
@@ -1166,6 +1175,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] << endl;
             }
         }
+        // # nocov end
     }
     //
     maxiter = maxiters[guesses];
@@ -1413,7 +1423,9 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     if (model_bool["constraint"]) {
         if (verbose >= 1) {
+            // # nocov start
             Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl;
+            // # nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -1642,17 +1654,21 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             strata_odds[i] = strata_def[i];
         }
         if (verbose >= 4) {
+            // # nocov start
             Rcout << "C++ Note: starting guess " << guess << endl;
+            // # nocov end
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             //
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
@@ -1932,6 +1948,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
+        // # nocov start
         Rcout << "C++ Note: Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood" << endl;
         NumericVector beta_temp;
@@ -1943,6 +1960,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] << endl;
             }
         }
+        // # nocov end
     }
     //
     maxiter = maxiters[guesses];
@@ -2494,6 +2512,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         //
         if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN())) {
             if (verbose >= 1) {
+                // # nocov start
                 if (P.minCoeff() <= 0) {
                     Rcout << "C++ Error: An invalid probability was detected: " << P.minCoeff() << endl;
                 }
@@ -2514,6 +2533,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                     Rcout << tform[ijk] << " ";
                 }
                 Rcout << " " << endl;
+                // # nocov end
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
@@ -2718,6 +2738,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
     //
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
+        // # nocov start
         Rcout << "C++ Note: Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood" << endl;
         NumericVector beta_temp;
@@ -2729,6 +2750,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] << endl;
             }
         }
+        // # nocov end
     }
     //
     maxiter = maxiters[guesses];
