@@ -25,9 +25,9 @@ jobs:
           remove-openmp-macos: false
       - name: move to package and install
         run: |
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: move to package and build examples
         run: |
@@ -46,9 +46,9 @@ jobs:
       - name: move to package and install
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: check detected OS and OpenMP
         run: |
@@ -77,9 +77,9 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: check detected OS and OpenMP
         run: |
@@ -109,9 +109,9 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "devtools::pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: check detected OS and OpenMP
         run: |
