@@ -21,6 +21,7 @@ jobs:
       run: |
         Rscript -e "install.packages(c('devtools', 'remotes'))"
         R -q -e 'pak::pkg_install(c("deps::.", "any::rcmdcheck"), dependencies = TRUE)'
+        Rscript -e "devtools::install()"
     - name: Run Test Case
       run: |
         Rscript tests/ARM_RUN_TEST.R
