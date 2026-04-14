@@ -1,0 +1,40 @@
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Which package to check
+        required: true
+
+name: ARM and AMD check
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Check Colossus on ${{ matrix.arch }}
+    runs-on: ubuntu-24.04${{matrix.arch=='arm64' && '-arm' || ''}}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ 'amd64', 'arm64' ]
+    container:
+      image: ghcr.io/r-devel/rcheckserver/ubuntu:latest
+    steps:
+      - name: Install dependencies
+        timeout-minutes: 90
+        run: |
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
+
+      - name: Install package
+        timeout-minutes: 90
+        run: |
+          Rscript -e "devtools::install()"
+
+      - name: Check package
+        timeout-minutes: 90
+        run: |
+          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
+          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
