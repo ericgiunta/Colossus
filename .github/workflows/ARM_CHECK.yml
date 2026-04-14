@@ -1,9 +1,4 @@
-on:
-  workflow_dispatch:
-    inputs:
-      package:
-        description: Which package to check
-        required: true
+on: [workflow_dispatch]
 
 name: ARM and AMD check
 
@@ -21,20 +16,8 @@ jobs:
     container:
       image: ghcr.io/r-devel/rcheckserver/ubuntu:latest
     steps:
-      - name: Install dependencies
-        timeout-minutes: 90
-        run: |
-          Rscript -e "install.packages(c('devtools', 'remotes'))"
-          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
-          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
-
-      - name: Install package
-        timeout-minutes: 90
-        run: |
-          Rscript -e "devtools::install()"
-
-      - name: Check package
-        timeout-minutes: 90
-        run: |
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        R -q -e 'pak::pkg_install(c("deps::.", "any::rcmdcheck"), dependencies = TRUE)'
+    - uses: r-lib/actions/check-r-package@v2
