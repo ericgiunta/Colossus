@@ -81,7 +81,7 @@
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span><span class="st">"OMP_THREAD_LIMIT"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>OMP_THREAD_LIMIT <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Reducing core use, to avoid accidental use of too many cores</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/">Colossus</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level2">
@@ -427,7 +427,7 @@ formula into the input for a regression.</p>
 <span><span class="va">c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span><span class="st">"t0"</span> <span class="op">=</span> <span class="va">a</span>, <span class="st">"t1"</span> <span class="op">=</span> <span class="va">b</span>, <span class="st">"e0"</span> <span class="op">=</span> <span class="va">c</span>, <span class="st">"e1"</span> <span class="op">=</span> <span class="va">d</span>, <span class="st">"fac"</span> <span class="op">=</span> <span class="va">e</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t0 <span class="op">=</span> <span class="va">a</span>, t1 <span class="op">=</span> <span class="va">b</span>, e0 <span class="op">=</span> <span class="va">c</span>, e1 <span class="op">=</span> <span class="va">d</span>, fac <span class="op">=</span> <span class="va">e</span><span class="op">)</span></span>
 <span><span class="va">time1</span> <span class="op">&lt;-</span> <span class="st">"t0"</span></span>
 <span><span class="va">time2</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">t1</span> <span class="op">-</span> <span class="va">df</span><span class="op">$</span><span class="va">t0</span></span>
@@ -511,8 +511,8 @@ regression functions. Colossus also includes a wrapper function to
 directly call the Poisson model regression function.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  <span class="st">"ncores"</span> <span class="op">=</span> <span class="fl">1</span>, <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">10</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>,</span>
-<span>  <span class="st">"deriv_epsilon"</span> <span class="op">=</span> <span class="fl">1e-6</span>, <span class="st">"verbose"</span> <span class="op">=</span> <span class="fl">2</span></span>
+<span>  ncores <span class="op">=</span> <span class="fl">1</span>, lr <span class="op">=</span> <span class="fl">0.75</span>, maxiter <span class="op">=</span> <span class="fl">10</span>, halfmax <span class="op">=</span> <span class="fl">5</span>, epsilon <span class="op">=</span> <span class="fl">1e-6</span>,</span>
+<span>  deriv_epsilon <span class="op">=</span> <span class="fl">1e-6</span>, verbose <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRunJoint.html">PoisRunJoint</a></span><span class="op">(</span><span class="va">formula_list</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
@@ -536,7 +536,7 @@ directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.953e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 12, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.018 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
