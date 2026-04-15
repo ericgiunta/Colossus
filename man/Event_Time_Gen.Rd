@@ -43,15 +43,15 @@ i <- c(
   1905, 1906, 1907
 )
 table <- data.table::data.table(
-  "a" = a, "b" = b, "c" = c,
-  "d" = d, "e" = e, "f" = f,
-  "g" = g, "h" = h, "i" = i
+  a = a, b = b, c = c,
+  d = d, e = e, f = f,
+  g = g, h = h, i = i
 )
 categ <- list(
-  "a" = "-1/3/5]7"
+  a = "-1/3/5]7"
 )
 summary <- list(
-  "c" = "count AS cases"
+  c = "count AS cases"
 )
 events <- list("c")
 pyr <- list(

@@ -32,6 +32,7 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::invalid_argument;
+using std::abs;
 
 using Eigen::Map;
 using Eigen::Ref;

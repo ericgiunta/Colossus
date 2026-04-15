@@ -34,6 +34,7 @@ using std::vector;
 using std::accumulate;
 using std::isinf;
 using std::isnan;
+using std::abs;
 
 using Eigen::Map;
 using Eigen::Ref;

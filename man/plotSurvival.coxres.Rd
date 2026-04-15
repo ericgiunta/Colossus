@@ -28,18 +28,18 @@ vectors specifying the model, and options to choose and save plots
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
 df <- data.table::data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "a" = c(0, 1, 1, 0, 1, 0, 1),
-  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  "c" = c(10, 11, 10, 11, 12, 9, 11),
-  "d" = c(0, 0, 0, 1, 1, 1, 1)
+  UserID = c(112, 114, 213, 214, 115, 116, 117),
+  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+  Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+  a = c(0, 1, 1, 0, 1, 0, 1),
+  b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+  c = c(10, 11, 10, 11, 12, 9, 11),
+  d = c(0, 0, 0, 1, 1, 1, 1)
 )
 control <- list(
-  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-  "halfmax" = 1
+  ncores = 1, lr = 0.75, maxiters = c(1, 1),
+  halfmax = 1
 )
 formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -48,11 +48,10 @@ res <- CoxRun(formula, df,
   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
 )
 plot_options <- list(
-  "fname" = paste(tempfile(),
-    "run",
-    sep = ""
-  ), "studyid" = "UserID",
-  "verbose" = FALSE
+  fname = paste0(tempfile(),
+    "run"
+  ), studyid = "UserID",
+  verbose = FALSE
 )
 res_plot <- plotSurvival(res, df, plot_options)
 }

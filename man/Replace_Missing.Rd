@@ -25,10 +25,10 @@ returns a filled datatable
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
 df <- data.table::data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, NA, 47, 36, NA, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0)
+  UserID = c(112, 114, 213, 214, 115, 116, 117),
+  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+  Ending_Age = c(30, 45, NA, 47, 36, NA, 55),
+  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0)
 )
 df <- Replace_Missing(df, c("Starting_Age", "Ending_Age"), 70)
 }

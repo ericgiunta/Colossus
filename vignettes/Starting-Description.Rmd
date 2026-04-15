@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
+Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(parallel)
@@ -151,14 +151,14 @@ For Cox proportional hazard, we need to provide three column names: the starting
 
 ```{r}
 df <- data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "a" = c(0, 1, 1, 0, 1, 0, 1),
-  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  "c" = c(10, 11, 10, 11, 12, 9, 11),
-  "d" = c(0, 0, 0, 1, 1, 1, 1)
+  UserID = c(112, 114, 213, 214, 115, 116, 117),
+  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+  Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+  a = c(0, 1, 1, 0, 1, 0, 1),
+  b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+  c = c(10, 11, 10, 11, 12, 9, 11),
+  d = c(0, 0, 0, 1, 1, 1, 1)
 )
 # For the interval case
 tstart <- "Starting_Age"
@@ -221,9 +221,9 @@ Going back to our example, the code may look like the following:
 keep_constant <- c(0, 0, 0, 0)
 
 control <- list(
-  "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
-  "dbeta_max" = 0.5, "ll_epsilon" = 1e-4, "step_max" = 1.0,
-  "verbose" = 2
+  ncores = 1, lr = 0.75, maxiter = 100, halfmax = 5, epsilon = 1e-3,
+  dbeta_max = 0.5, ll_epsilon = 1e-4, step_max = 1.0,
+  verbose = 2
 )
 ```
 

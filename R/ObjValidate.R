@@ -117,9 +117,7 @@ new_logitres <- function(x = list()) {
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
   if (any(x$term_n != round(x$term_n))) {
-    stop(paste("Error: term_n expects integer values, atleast one value was noninteger",
-      sep = ""
-    ))
+    stop("Error: term_n expects integer values, atleast one value was noninteger")
   }
   if (min(x$term_n) != 0) {
     if (verbose >= 2) {
@@ -133,12 +131,12 @@ validate_formula <- function(x, df, verbose = FALSE) {
     x$term_n <- x$term_n - min(x$term_n)
   }
   if (length(sort(unique(x$term_n))) != length(min(x$term_n):max(x$term_n))) {
-    stop(paste("Error: term_n expects no missing integer values. Term numbers range from ", min(x$term_n),
+    stop(
+      "Error: term_n expects no missing integer values. Term numbers range from ", min(x$term_n),
       " to ", max(x$term_n), " but term_n has ",
       length(unique(x$term_n)), " unique values instead of ",
-      length(min(x$term_n):max(x$term_n)),
-      sep = ""
-    ))
+      length(min(x$term_n):max(x$term_n))
+    )
   }
   if (length(x$term_n) < length(x$names)) {
     if (verbose >= 2) {
@@ -156,31 +154,29 @@ validate_formula <- function(x, df, verbose = FALSE) {
         sep = ""
       ))
     }
-    x$term_n <- x$term_n[seq_len(length(x$names))]
+    x$term_n <- x$term_n[seq_along(x$names)]
   }
   # --------------------------------------------------------------------- #
   if (length(x$keep_constant) < length(x$names)) {
     x$keep_constant <- c(x$keep_constant, rep(0, length(x$names) -
       length(x$keep_constant)))
   } else if (length(x$keep_constant) > length(x$names)) {
-    x$keep_constant <- x$keep_constant[seq_len(length(x$names))]
+    x$keep_constant <- x$keep_constant[seq_along(x$names)]
   }
   if (min(x$keep_constant) < 0) {
-    stop(paste("Error: keep_constant expects 0/1 values, minimum value was ",
-      min(x$keep_constant),
-      sep = ""
-    ))
+    stop(
+      "Error: keep_constant expects 0/1 values, minimum value was ",
+      min(x$keep_constant)
+    )
   }
   if (max(x$keep_constant) > 1) {
-    stop(paste("Error: keep_constant expects 0/1 values, maximum value was ",
-      max(x$keep_constant),
-      sep = ""
-    ))
+    stop(
+      "Error: keep_constant expects 0/1 values, maximum value was ",
+      max(x$keep_constant)
+    )
   }
   if (any(x$keep_constant != round(x$keep_constant))) {
-    stop(paste("Error: keep_constant expects 0/1 values, atleast one value was noninteger",
-      sep = ""
-    ))
+    stop("Error: keep_constant expects 0/1 values, atleast one value was noninteger")
   }
   # --------------------------------------------------------------------- #
   if (length(x$tform) < length(x$names)) {
@@ -199,7 +195,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
         sep = ""
       ))
     }
-    x$tform <- x$tform[seq_len(length(x$names))]
+    x$tform <- x$tform[seq_along(x$names)]
   }
   # --------------------------------------------------------------------- #
   x$tform <- tolower(x$tform)
@@ -220,14 +216,14 @@ validate_formula <- function(x, df, verbose = FALSE) {
     "lin_exp_int", "lin_exp_exp_slope"
   )
   tform_iden <- match(x$tform, tform_order)
-  if (any(is.na(tform_iden))) {
+  if (anyNA(tform_iden)) {
     stop(paste("Error: Missing tform option ", x$tform[is.na(tform_iden)],
       ", ",
       sep = ""
     ))
   }
   a <- x$tform
-  for (i in seq_len(length(a))) {
+  for (i in seq_along(a)) {
     if (i < length(a)) {
       if ((a[i] == "loglin_slope")) {
         if (a[i + 1] != "loglin_top") {
@@ -294,22 +290,22 @@ validate_formula <- function(x, df, verbose = FALSE) {
       }
       x$a_n <- c(x$a_n, rep(0.01, length(x$names) - length(x$a_n)))
     } else if (length(x$a_n) > length(x$names)) {
-      stop(paste("Error: Parameters used: ", length(x$a_n),
-        ", Covariates used: ", length(x$names),
-        sep = ""
-      ))
+      stop(
+        "Error: Parameters used: ", length(x$a_n),
+        ", Covariates used: ", length(x$names)
+      )
     }
   } else {
     a_0 <- x$a_n[[1]]
     for (a_i in x$a_n) {
       if (length(a_i) != length(a_0)) {
-        stop(paste("Error: Parameters used in first option: ",
+        stop(
+          "Error: Parameters used in first option: ",
           length(a_0),
           ", Parameters used in different option: ",
           length(a_i),
-          ", please fix parameter length",
-          sep = ""
-        ))
+          ", please fix parameter length"
+        )
       }
     }
     if (length(a_0) < length(x$names)) {
@@ -320,17 +316,17 @@ validate_formula <- function(x, df, verbose = FALSE) {
           sep = ""
         ))
       }
-      for (i in seq_len(length(x$a_n))) {
+      for (i in seq_along(x$a_n)) {
         x$a_n[[i]] <- c(
           x$a_n[[i]],
           rep(0.01, length(x$names) - length(x$a_n[[i]]))
         )
       }
     } else if (length(a_0) > length(x$names)) {
-      stop(paste("Error: Parameters used: ", length(a_0),
-        ", Covariates used: ", length(x$names),
-        sep = ""
-      ))
+      stop(
+        "Error: Parameters used: ", length(a_0),
+        ", Covariates used: ", length(x$names)
+      )
     }
   }
   # --------------------------------------------------------------------- #
@@ -366,18 +362,18 @@ validate_formula <- function(x, df, verbose = FALSE) {
       x$modelform <- "GMIX"
     }
   } else {
-    stop(paste("Error: Model formula ", x$modelform,
-      " not in acceptable list",
-      sep = ""
-    ))
+    stop(
+      "Error: Model formula ", x$modelform,
+      " not in acceptable list"
+    )
   }
   if (x$modelform == "GMIX") {
     if (length(x$gmix_term) != term_tot) {
-      stop(paste("Error: Terms used:", term_tot,
+      stop(
+        "Error: Terms used:", term_tot,
         ", Terms with gmix types available:",
-        length(x$gmix_term),
-        sep = " "
-      ))
+        length(x$gmix_term)
+      )
     }
   }
   # --------------------------------------------------------------------- #
@@ -551,9 +547,9 @@ coxmodel <- function(start_age = "",
   weight <- sapply(weight, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
   #
   cox_obj <- list(
-    "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "weight" = weight, "null" = null,
-    "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
+    start_age = start_age, end_age = end_age, event = event, strata = strata, weight = weight, null = null,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   cox_obj <- new_coxmodel(cox_obj)
   validate_coxsurv(cox_obj, df)
@@ -584,9 +580,9 @@ poismodel <- function(person_year = "",
   strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   #
   pois_obj <- list(
-    "person_year" = person_year, "event" = event, "strata" = strata, "null" = null,
-    "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
+    person_year = person_year, event = event, strata = strata, null = null,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   pois_obj <- new_poismodel(pois_obj)
   validate_poissurv(pois_obj, df)
@@ -619,9 +615,9 @@ caseconmodel <- function(start_age = "",
   strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   #
   casecon_obj <- list(
-    "start_age" = start_age, "end_age" = end_age, "event" = event, "strata" = strata, "null" = null,
-    "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
+    start_age = start_age, end_age = end_age, event = event, strata = strata, null = null,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   casecon_obj <- new_caseconmodel(casecon_obj)
   validate_caseconsurv(casecon_obj, df)
@@ -651,9 +647,9 @@ logitmodel <- function(trials = "",
   strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
   #
   logit_obj <- list(
-    "trials" = trials, "event" = event, "strata" = strata,
-    "term_n" = term_n, "tform" = tform, "names" = names, "a_n" = a_n, "keep_constant" = keep_constant, "modelform" = modelform,
-    "gmix_term" = gmix_term, "gmix_theta" = gmix_theta, "expres_calls" = expres_calls
+    trials = trials, event = event, strata = strata,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   logit_obj <- new_logitmodel(logit_obj)
   validate_logitsurv(logit_obj, df)
@@ -684,26 +680,26 @@ ColossusControl <- function(verbose = 1,
   maxiters[maxiters < -1] <- -1
   verbose <- Check_Verbose(verbose)
   control <- list(
-    "verbose" = verbose,
-    "lr" = lr,
-    "maxiter" = maxiter,
-    "maxiters" = maxiters,
-    "halfmax" = halfmax,
-    "epsilon" = epsilon,
-    "ll_epsilon" = ll_epsilon,
-    "deriv_epsilon" = deriv_epsilon,
-    "step_max" = step_max,
-    "thres_step_max" = thres_step_max,
-    "ties" = ties,
-    "ncores" = ncores
+    verbose = verbose,
+    lr = lr,
+    maxiter = maxiter,
+    maxiters = maxiters,
+    halfmax = halfmax,
+    epsilon = epsilon,
+    ll_epsilon = ll_epsilon,
+    deriv_epsilon = deriv_epsilon,
+    step_max = step_max,
+    thres_step_max = thres_step_max,
+    ties = ties,
+    ncores = ncores
   )
   control_def <- list(
-    "verbose" = 1, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-4, "ll_epsilon" = 1e-4,
-    "deriv_epsilon" = 1e-4, "step_max" = 1.0,
-    "thres_step_max" = 100.0,
-    "ties" = "breslow",
-    "ncores" = as.numeric(detectCores())
+    verbose = 1, lr = 0.75, maxiter = 20,
+    halfmax = 5, epsilon = 1e-4, ll_epsilon = 1e-4,
+    deriv_epsilon = 1e-4, step_max = 1.0,
+    thres_step_max = 100.0,
+    ties = "breslow",
+    ncores = as.numeric(detectCores())
   )
   #
   names(control) <- tolower(names(control))
@@ -711,10 +707,10 @@ ColossusControl <- function(verbose = 1,
     if (nm %in% names(control)) {
       if (nm == "ncores") {
         if (control$ncores > control_def$ncores) {
-          stop(paste("Error: Cores Requested:", control["ncores"],
-            ", Cores Available:", control_def["ncores"],
-            sep = " "
-          )) # nocov
+          stop(
+            "Error: Cores Requested:", control["ncores"],
+            ", Cores Available:", control_def["ncores"]
+          ) # nocov
         }
       } else if (nm == "verbose") {
         control$verbose <- Check_Verbose(control$verbose)
@@ -726,10 +722,10 @@ ColossusControl <- function(verbose = 1,
   control["ties"] <- tolower(control["ties"])
   control["ties"] <- sapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(e) x), USE.NAMES = FALSE)[[1]]
   control_min <- list(
-    "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
-    "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,
-    "deriv_epsilon" = 0.0, "step_max" = 0.0,
-    "thres_step_max" = 0.0
+    verbose = 0, lr = 0.0, maxiter = -1,
+    halfmax = 0, epsilon = 0.0, ll_epsilon = 0.0,
+    deriv_epsilon = 0.0, step_max = 0.0,
+    thres_step_max = 0.0
   )
   for (nm in names(control_min)) {
     if (control[[nm]] < control_min[[nm]]) {
@@ -737,8 +733,8 @@ ColossusControl <- function(verbose = 1,
     }
   }
   control_int <- list(
-    "verbose" = 0, "maxiter" = -1,
-    "halfmax" = 0
+    verbose = 0, maxiter = -1,
+    halfmax = 0
   )
   for (nm in names(control_int)) {
     control[nm] <- as.integer(control[nm])

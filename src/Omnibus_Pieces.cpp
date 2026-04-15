@@ -36,6 +36,7 @@ using std::plus;
 using std::isinf;
 using std::isnan;
 using std::setprecision;
+using std::abs;
 
 using Eigen::Map;
 using Eigen::Ref;

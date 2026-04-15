@@ -8,7 +8,7 @@
 
 name: OS_Checks
 
-on: [workflow_dispatch]
+on: [workflow_dispatch, push]
 
 permissions:
   contents: read
@@ -64,7 +64,6 @@ jobs:
       - name: move to package and test
         run: |
           brew install pandoc
-          Rscript -e "devtools::test(stop_on_failure = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   win_check:
     runs-on: windows-latest
@@ -93,7 +92,6 @@ jobs:
         run: |
           choco install pandoc
           refreshenv
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   ubuntu_check:
     runs-on: ubuntu-latest
@@ -128,5 +126,21 @@ jobs:
         run: |
           sudo apt-get install pandoc
           sudo apt-get install texlive
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+  build:
+    name: Check Colossus on ${{ matrix.arch }}
+    runs-on: ubuntu-24.04${{matrix.arch=='arm64' && '-arm' || ''}}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ 'amd64', 'arm64' ]
+    container:
+      image: ghcr.io/r-devel/rcheckserver/ubuntu:latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        Rscript -e "install.packages(c('devtools', 'remotes'))"
+        R -q -e 'pak::pkg_install(c("deps::.", "any::rcmdcheck"), dependencies = TRUE)'
+        Rscript -e "devtools::install()"
+    - uses: r-lib/actions/check-r-package@v2

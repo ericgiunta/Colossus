@@ -49,7 +49,7 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")
   }
-  df0 <- data.table::data.table("a" = c(0, 0))
+  df0 <- data.table::data.table(a = c(0, 0))
   val <- list(cols = c("a"))
   val_cols <- c("a")
   data.table::setkeyv(df, c(event0, trial0))
@@ -89,5 +89,5 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
-  return(e)
+  e
 }

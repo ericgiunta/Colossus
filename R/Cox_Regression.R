@@ -161,7 +161,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (control$verbose >= 3) {
-    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+    message(paste0("Note: ", length(tu), " risk groups")) # nocov
   }
   all_names <- unique(names)
   if (!model_control$null) {
@@ -174,10 +174,10 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
             keep_constant[i] <- 1
             if (control$verbose >= 2) {
               # nocov start
-              warning(paste("Warning: element ", i,
+              warning(paste0(
+                "Warning: element ", i,
                 " with column name ", names[i],
-                " was set constant",
-                sep = ""
+                " was set constant"
               ))
               # nocov end
             }
@@ -250,7 +250,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
-  return(e)
+  e
 }
 
 #' Calculates hazard ratios for a reference vector
@@ -298,7 +298,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
     c(1), keep_constant, term_tot, c(0),
     c(0), model_control
   )
-  return(e)
+  e
 }
 
 #' Performs Cox Proportional Hazard model plots
@@ -364,7 +364,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     stop("Error: no events")
   }
   if (plot_options$verbose >= 3) {
-    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+    message(paste0("Note: ", length(tu), " risk groups")) # nocov
   }
   if ("type" %in% names(plot_options)) {
     # fine
@@ -535,15 +535,14 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         message("Note: writing survival data") # nocov
       }
       dft <- data.table::data.table(
-        "time" = tu, "base" = e$baseline,
-        "greener" = e$Green_Error
+        time = tu, base = e$baseline,
+        greener = e$Green_Error
       )
       total_beta_error <- e$Beta_Error
       beta_cols <- ncol(total_beta_error)
       for (i in 1:beta_cols) {
-        dft[[paste("betaer_", i, sep = "")]] <- total_beta_error[, i]
+        dft[[paste0("betaer_", i)]] <- total_beta_error[, i]
       }
-      # "betaer" = e$Beta_Error
       beta_vec <- rep(0, beta_cols)
       for (i in tu) {
         t <- c(t, i)
@@ -558,7 +557,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         surv <- c(surv, exp(-1 * ch_temp))
         green_temp <- sum(df_temp$greener)
         for (i in 1:beta_cols) {
-          beta_vec[i] <- sum(df_temp[[paste("betaer_", i, sep = "")]])
+          beta_vec[i] <- sum(df_temp[[paste0("betaer_", i)]])
         }
         if (beta_cols == 1) {
           beta_temp <- beta_vec * cov_mat * beta_vec
@@ -625,7 +624,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       control, age_unit, plot_type[2]
     )
   }
-  return(plot_table)
+  plot_table
 }
 
 #' Performs Cox Proportional Hazards regression using the omnibus function with multiple column realizations
@@ -761,7 +760,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     stop("Error: no events")
   }
   if (control$verbose >= 3) {
-    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+    message(paste0("Note: ", length(tu), " risk groups")) # nocov
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -770,24 +769,24 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     # pass
   } else {
     # the number of columns per realization does not match the number of indexes provided
-    stop(paste("Error:", length(realization_index),
+    stop(
+      "Error: ", length(realization_index),
       " column indexes provided, but ",
       length(realization_columns[, 1]),
-      " rows of realizations columns provided",
-      sep = " "
-    ))
+      " rows of realizations columns provided"
+    )
   }
   if (all(realization_index %in% all_names)) {
     # pass
   } else {
-    stop(paste("Error: Atleast one realization column provided was not used in the model", sep = " "))
+    stop("Error: Atleast one realization column provided was not used in the model")
   }
   #  all_names <- unique(c(all_names, as.vector(realization_columns)))
   dose_names <- unique(as.vector(realization_columns))
   if (all(dose_names %in% names(df))) {
     # pass
   } else {
-    stop(paste("Error: Atleast one realization column provided was not in the data.table", sep = " "))
+    stop("Error: Atleast one realization column provided was not in the data.table")
   }
   dfc <- match(names, all_names)
   dose_cols <- matrix(match(realization_columns, dose_names), nrow = nrow(realization_columns))
@@ -817,7 +816,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
-  return(e)
+  e
 }
 
 #' Calculates the likelihood curve for a cox model directly
@@ -957,7 +956,7 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (control$verbose >= 3) {
-    message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+    message(paste0("Note: ", length(tu), " risk groups")) # nocov
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -969,10 +968,10 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
           keep_constant[i] <- 1
           if (control$verbose >= 2) {
             # nocov start
-            warning(paste("Warning: element ", i,
+            warning(paste0(
+              "Warning: element ", i,
               " with column name ", names[i],
-              " was set constant",
-              sep = ""
+              " was set constant"
             ))
             # nocov end
           }
@@ -1019,5 +1018,5 @@ CoxCurveSolver <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "e
   e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  return(e)
+  e
 }

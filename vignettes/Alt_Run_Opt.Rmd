@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
+Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 ```
@@ -202,7 +202,7 @@ b <- c(1, 1, 1, 2, 2, 2)
 c <- c(0, 1, 2, 2, 1, 0)
 d <- c(1, 1, 0, 0, 1, 1)
 e <- c(0, 1, 1, 1, 0, 0)
-df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
+df <- data.table(t0 = a, t1 = b, e0 = c, e1 = d, fac = e)
 time1 <- "t0"
 time2 <- "t1"
 df$pyr <- df$t1 - df$t0
@@ -225,8 +225,8 @@ get_form_joint(formula_list, df, nthreads = 1)
 These results could be used as input for any of the available regression functions. Colossus also includes a wrapper function to directly call the Poisson model regression function.
 ```{r, eval=TRUE}
 control <- list(
-  "ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 5, "epsilon" = 1e-6,
-  "deriv_epsilon" = 1e-6, "verbose" = 2
+  ncores = 1, lr = 0.75, maxiter = 10, halfmax = 5, epsilon = 1e-6,
+  deriv_epsilon = 1e-6, verbose = 2
 )
 e <- PoisRunJoint(formula_list, df, control = control)
 print(e)

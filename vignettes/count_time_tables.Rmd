@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
+Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 library(parallel)
@@ -35,10 +35,10 @@ oranges <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
 rip <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
 hands <- c(1, 1, 2, 3, 2, 1, 2, 2, 2, 2, 1, 1, 1, 1, 1, 2, 2)
 table <- data.table::data.table(
-  "apples" = apples,
-  "oranges" = oranges,
-  "rip" = rip,
-  "hands" = hands
+  apples = apples,
+  oranges = oranges,
+  rip = rip,
+  hands = hands
 )
 ```
 
@@ -56,15 +56,15 @@ orange_category <- list(
   name = c("few", "good", "excessive")
 )
 categ <- list(
-  "apples" = apple_category,
-  "oranges" = orange_category
+  apples = apple_category,
+  oranges = orange_category
 )
 ```
 
 Now we define what summary variables we want. Once again, we define a list. Every item in the list is named with the column it is applied to and contains a string specifying what summary method to use. There are two options supported currently: count and mean, which will provide the sum or the mean of the column in each category. One can also provide a new name for the summary column by listing the method as "option AS name". Otherwise, the grouped table will use the original column name for the summary column name. Suppose we wanted to take the sum of ripped bags and name it "dropped" and take the mean of the hands column.
 
 ```{r, eval=TRUE}
-event <- list("rip" = "count AS dropped", "hands" = "mean")
+event <- list(rip = "count AS dropped", hands = "mean")
 ```
 
 The final step is to run the function. The function returns two items, the grouped data and a summary of the category intervals. The category intervals should be checked to verify that the intervals match what were expected.
@@ -95,9 +95,9 @@ i <- c(
   1903, 1904, 1910, 1903, 1904, 1903, 1904, 1910
 )
 table <- data.table::data.table(
-  "a" = a, "b" = b, "c" = c,
-  "d" = d, "e" = e, "f" = f,
-  "g" = g, "h" = h, "i" = i
+  a = a, b = b, c = c,
+  d = d, e = e, f = f,
+  g = g, h = h, i = i
 )
 
 pyr <- list(
@@ -111,15 +111,15 @@ The second major difference is the possible use of time categories. Time categor
 
 ```{r, eval=TRUE}
 categ <- list(
-  "a" = "-1/3/5]7",
-  "b" = list(
+  a = "-1/3/5]7",
+  b = list(
     lower = c(-1, 3, 6), upper = c(3, 6, 10),
     name = c("low", "medium", "high")
   ),
-  "time AS time_bin" = list(
-    "day" = c(1, 1, 1),
-    "month" = c(1, 1, 1),
-    "year" = c(1899, 1903, 1910)
+  `time AS time_bin` = list(
+    day = c(1, 1, 1),
+    month = c(1, 1, 1),
+    year = c(1899, 1903, 1910)
   )
 )
 ```
@@ -127,7 +127,7 @@ categ <- list(
 The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function. The only difference is that a weighted_mean option is added. This is the mean of the group weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval.
 
 ```{r, eval=TRUE}
-summary <- list("c" = "count AS cases", "b" = "weighted_mean AS b_weighted")
+summary <- list(c = "count AS cases", b = "weighted_mean AS b_weighted")
 events <- list("c")
 ```
 

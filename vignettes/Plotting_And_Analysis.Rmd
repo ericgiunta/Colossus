@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-Sys.setenv("OMP_THREAD_LIMIT" = 1) # Reducing core use, to avoid accidental use of too many cores
+Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
 if (system.file(package = "survival") != "") {
@@ -34,7 +34,7 @@ We will use analysis of the lung dataset in the survival package to visualize th
 ```{r, eval=TRUE}
 if (system.file(package = "survival") != "") {
   data(cancer, package = "survival")
-  cancer %>% setDT()
+  cancer |> setDT()
   df <- copy(cancer)
 } else {
   status <- c(2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 1, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 1, 2, 2, 2, 2, 2, 1, 1, 2, 2, 2, 1, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2, 2, 2, 2, 1, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1)
@@ -43,10 +43,10 @@ if (system.file(package = "survival") != "") {
   age <- c(74, 68, 56, 57, 60, 74, 68, 71, 53, 61, 57, 68, 68, 60, 57, 67, 70, 63, 56, 57, 67, 49, 50, 58, 72, 70, 60, 70, 53, 74, 69, 73, 48, 60, 61, 62, 65, 66, 74, 64, 70, 73, 59, 60, 68, 76, 74, 63, 74, 50, 72, 63, 68, 58, 59, 62, 65, 57, 58, 64, 75, 48, 73, 65, 69, 68, 67, 64, 68, 67, 63, 48, 74, 40, 53, 71, 51, 56, 81, 73, 59, 55, 42, 44, 44, 71, 62, 61, 44, 72, 63, 70, 66, 57, 69, 72, 69, 71, 64, 70, 58, 69, 56, 63, 59, 66, 54, 67, 55, 75, 69, 44, 80, 75, 54, 76, 49, 68, 66, 80, 75, 60, 69, 72, 70, 66, 50, 64, 77, 48, 59, 53, 47, 55, 67, 74, 58, 56, 54, 56, 73, 74, 76, 65, 57, 53, 71, 54, 82, 59, 70, 60, 62, 53, 55, 69, 68, 62, 63, 56, 62, 44, 69, 63, 64, 57, 60, 46, 61, 65, 61, 58, 56, 43, 53, 59, 56, 55, 53, 74, 60, 39, 66, 65, 51, 45, 72, 58, 64, 53, 72, 52, 50, 64, 71, 70, 63, 64, 52, 60, 64, 73, 63, 50, 63, 62, 55, 50, 69, 59, 60, 67, 69, 64, 65, 65, 41, 76, 70, 57, 67, 71, 76, 77, 39, 75, 66, 58)
 
   df <- data.table(
-    "status" = status,
-    "sex" = sex,
-    "time" = time,
-    "age" = age
+    status = status,
+    sex = sex,
+    time = time,
+    age = age
   )
 }
 
@@ -99,8 +99,8 @@ $$
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
-  "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
-  "verbose" = 2, "surv_curv" = T, "martingale" = F, "strat_haz" = F, "km" = F
+  fname = paste(tempfile(), "run", sep = ""), studyid = "UserID",
+  verbose = 2, surv_curv = TRUE, martingale = FALSE, strat_haz = FALSE, km = FALSE
 )
 
 e <- plotSurvival(coxres, df, plot_options)
@@ -131,8 +131,8 @@ if (system.file(package = "ggplot2") != "") {
 }
 g
 plot_options <- list(
-  "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
-  "verbose" = 2, "surv_curv" = F, "martingale" = F, "strat_haz" = F, "km" = T
+  fname = paste(tempfile(), "run", sep = ""), studyid = "UserID",
+  verbose = 2, surv_curv = FALSE, martingale = FALSE, strat_haz = FALSE, km = TRUE
 )
 
 e <- plotSurvival(coxres, df, plot_options)
@@ -166,8 +166,8 @@ $$
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
-  "fname" = paste(tempfile(), "run", sep = ""),
-  "studyid" = "UserID", "verbose" = 2
+  fname = paste(tempfile(), "run", sep = ""),
+  studyid = "UserID", verbose = 2
 )
 
 res_all <- plotSchoenfeld(coxres, df, plot_options)
@@ -236,9 +236,9 @@ $$
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
-  "fname" = paste(tempfile(), "run", sep = ""),
-  "studyid" = "UserID", "verbose" = 2, "surv_curv" = F,
-  "martingale" = T, "strat_haz" = F, "km" = F, "cov_cols" = c("age", "sex")
+  fname = paste(tempfile(), "run", sep = ""),
+  studyid = "UserID", verbose = 2, surv_curv = FALSE,
+  martingale = TRUE, strat_haz = FALSE, km = FALSE, cov_cols = c("age", "sex")
 )
 res_all <- plotMartingale(coxres, df, plot_options)
 
@@ -289,8 +289,8 @@ Colossus also offers scripts that plot the relative risk by covariate value for 
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
-  "fname" = paste(tempfile(), "run", sep = ""), "studyid" = "UserID",
-  "verbose" = 2, "cov_cols" = c("age", "sex"), boundary = 1.96
+  fname = paste(tempfile(), "run", sep = ""), studyid = "UserID",
+  verbose = 2, cov_cols = c("age", "sex"), boundary = 1.96
 )
 res_all <- plotRisk(coxres, df, plot_options)
 
@@ -298,7 +298,7 @@ res_age <- res_all[["age"]]
 
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(res_age, aes(x = .data$x, y = .data$y)) +
-    geom_errorbar(aes(ymin = .data$"y:lower", ymax = .data$"y:upper"), color = "black") +
+    geom_errorbar(aes(ymin = .data$`y:lower`, ymax = .data$`y:upper`), color = "black") +
     geom_point(color = "black") +
     labs(x = "Age", y = "Relative Risk")
 } else {
@@ -311,7 +311,7 @@ res_sex <- res_all[["sex"]]
 
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(res_sex, aes(x = .data$x, y = .data$y)) +
-    geom_errorbar(aes(ymin = .data$"y:lower", ymax = .data$"y:upper"), color = "black") +
+    geom_errorbar(aes(ymin = .data$`y:lower`, ymax = .data$`y:upper`), color = "black") +
     geom_point(color = "black") +
     labs(x = "Sex", y = "Relative Risk")
 } else {

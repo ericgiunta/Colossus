@@ -136,7 +136,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
-  return(e)
+  e
 }
 
 #' Predicts how many events are due to baseline vs excess
@@ -221,7 +221,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     modelform, control, keep_constant,
     term_tot, model_control
   )
-  return(e)
+  e
 }
 
 #' Calculates poisson residuals
@@ -307,7 +307,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
-  return(e)
+  e
 }
 
 #' Calculates the likelihood curve for a poisson model directly
@@ -417,7 +417,7 @@ PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CO
   }
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
-  return(e)
+  e
 }
 
 #' Performs Poisson regression using the omnibus function with multiple column realizations
@@ -508,24 +508,24 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     # pass
   } else {
     # the number of columns per realization does not match the number of indexes provided
-    stop(paste("Error:", length(realization_index),
+    stop(
+      "Error: ", length(realization_index),
       " column indexes provided, but ",
       length(realization_columns[, 1]),
-      " rows of realizations columns provided",
-      sep = " "
-    ))
+      " rows of realizations columns provided"
+    )
   }
   if (all(realization_index %in% all_names)) {
     # pass
   } else {
-    stop(paste("Error: Atleast one realization column provided was not used in the model", sep = " "))
+    stop("Error: Atleast one realization column provided was not used in the model")
   }
   #  all_names <- unique(c(all_names, as.vector(realization_columns)))
   dose_names <- unique(as.vector(realization_columns))
   if (all(dose_names %in% names(df))) {
     # pass
   } else {
-    stop(paste("Error: Atleast one realization column provided was not in the data.table", sep = " "))
+    stop("Error: Atleast one realization column provided was not in the data.table")
   }
   dfc <- match(names, all_names)
   dose_cols <- matrix(match(realization_columns, dose_names), nrow = nrow(realization_columns))
@@ -559,5 +559,5 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
   # df <- copy(df)
-  return(e)
+  e
 }

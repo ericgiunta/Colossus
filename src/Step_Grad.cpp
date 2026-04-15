@@ -32,6 +32,7 @@ using std::endl;
 using std::isinf;
 using std::isnan;
 using std::set;
+using std::abs;
 
 using Eigen::Map;
 using Eigen::Ref;

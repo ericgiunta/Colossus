@@ -12,19 +12,19 @@
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -64,8 +64,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -80,8 +80,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -89,8 +89,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -147,13 +147,13 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   # Check that the ages and events are numeric
   # nocov start
   if (!is.numeric(df[[time1]])) {
-    stop(paste("Error: Age column was not numeric: ", time1, sep = ""))
+    stop("Error: Age column was not numeric: ", time1)
   }
   if (!is.numeric(df[[time2]])) {
-    stop(paste("Error: Age column was not numeric: ", time2, sep = ""))
+    stop("Error: Age column was not numeric: ", time2)
   }
   if (!is.numeric(df[[event0]])) {
-    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+    stop("Error: Event column was not numeric: ", event0)
   }
   # nocov end
   # ------------------------------------------------------------------------------ #
@@ -184,11 +184,11 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (all(coxmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
     #
-    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    df$`_strata_col` <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
     for (i in seq_len(length(strat_col) - 1)) {
-      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+      df$`_strata_col` <- paste(df$`_strata_col`, format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
     }
-    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+    df$`_strata_col` <- factor(df$`_strata_col`) # converting to a factor
   }
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
@@ -219,7 +219,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!coxmodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
@@ -227,7 +227,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     if (any(norm_weight != 1.0)) {
       int_avg_weight <- 0.0
       for (i in seq_along(names)) {
-        if (grepl("_int", tform[i])) {
+        if (grepl("_int", tform[i], fixed = TRUE)) {
           int_avg_weight <- int_avg_weight + norm_weight[i]
           int_count <- int_count + 1
         }
@@ -257,7 +257,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
@@ -284,19 +284,19 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Pois(Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -332,8 +332,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -348,8 +348,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -357,8 +357,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -403,10 +403,10 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # Check that the ages and events are numeric
   # nocov start
   if (!is.numeric(df[[pyr0]])) {
-    stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
+    stop("Error: Person-Year column was not numeric: ", pyr0)
   }
   if (!is.numeric(df[[event0]])) {
-    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+    stop("Error: Event column was not numeric: ", event0)
   }
   # nocov end
   # ------------------------------------------------------------------------------ #
@@ -425,8 +425,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       a_n <- c(0.0)
       keep_constant <- c(1)
     } else {
-      event_total <- sum(df[, event0, with = F])
-      time_total <- sum(df[, pyr0, with = F])
+      event_total <- sum(df[, event0, with = FALSE])
+      time_total <- sum(df[, pyr0, with = FALSE])
       avg_rate <- event_total / time_total
       a_n <- c(log(avg_rate))
     }
@@ -467,7 +467,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!poismodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
@@ -476,7 +476,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       int_avg_weight <- 0.0
       # nocov start
       for (i in seq_along(names)) {
-        if (grepl("_int", tform[i])) {
+        if (grepl("_int", tform[i], fixed = TRUE)) {
           int_avg_weight <- int_avg_weight + norm_weight[i]
           int_count <- int_count + 1
         }
@@ -507,7 +507,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
@@ -534,19 +534,19 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- logit(Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -582,8 +582,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -598,8 +598,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -607,8 +607,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -650,10 +650,10 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   strat_col <- logitmodel$strata
   # nocov start
   if (!is.numeric(df[[trial0]])) {
-    stop(paste("Error: Trial column was not numeric: ", trial0, sep = ""))
+    stop("Error: Trial column was not numeric: ", trial0)
   }
   if (!is.numeric(df[[event0]])) {
-    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+    stop("Error: Event column was not numeric: ", event0)
   }
   # nocov end
   # ------------------------------------------------------------------------------ #
@@ -717,7 +717,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -727,7 +727,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     int_avg_weight <- 0.0
     # nocov start
     for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
         int_count <- int_count + 1
       }
@@ -756,7 +756,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
@@ -783,19 +783,19 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- CaseCon_Strata(Cancer_Status, e) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -835,8 +835,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -851,8 +851,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -860,8 +860,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -920,11 +920,11 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (all(caseconmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
     #
-    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    df$`_strata_col` <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
     for (i in seq_len(length(strat_col) - 1)) {
-      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+      df$`_strata_col` <- paste(df$`_strata_col`, format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
     }
-    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+    df$`_strata_col` <- factor(df$`_strata_col`) # converting to a factor
   }
   if (time1 != time2) {
     model_control[["time_risk"]] <- TRUE
@@ -953,7 +953,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!caseconmodel$null) {
-    norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+    norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
     a_n <- norm_res$a_n
     cons_mat <- norm_res$cons_mat
     norm_weight <- norm_res$norm_weight
@@ -962,7 +962,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       int_avg_weight <- 0.0
       # nocov start
       for (i in seq_along(names)) {
-        if (grepl("_int", tform[i])) {
+        if (grepl("_int", tform[i], fixed = TRUE)) {
           int_avg_weight <- int_avg_weight + norm_weight[i]
           int_count <- int_count + 1
         }
@@ -993,7 +993,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       res$constraint_matrix <- cons_mat
       res$constraint_vector <- cons_vec
     }
-    res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+    res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
@@ -1020,24 +1020,24 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "Flu_Status" = c(0, 1, 0, 0, 1, 0, 1),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   Flu_Status = c(0, 1, 0, 0, 1, 0, 1),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
 #'   Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
-#'   "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
+#'   shared = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 #' )
 #' res <- PoisRunJoint(formula_list, df, control = control)
 PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
@@ -1066,8 +1066,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1082,8 +1082,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -1091,8 +1091,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -1126,10 +1126,10 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   strat_col <- poismodel$strata
   # nocov start
   if (!is.numeric(df[[pyr0]])) {
-    stop(paste("Error: Person-Year column was not numeric: ", pyr0, sep = ""))
+    stop("Error: Person-Year column was not numeric: ", pyr0)
   }
   if (!is.numeric(df[[event0]])) {
-    stop(paste("Error: Event column was not numeric: ", event0, sep = ""))
+    stop("Error: Event column was not numeric: ", event0)
   }
   # nocov end
   # ------------------------------------------------------------------------------ #
@@ -1168,7 +1168,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -1178,7 +1178,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     int_avg_weight <- 0.0
     # nocov start
     for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
         int_count <- int_count + 1
       }
@@ -1207,7 +1207,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     res$constraint_matrix <- cons_mat
     res$constraint_vector <- cons_vec
   }
-  res <- apply_norm(df, norm, names, FALSE, list("output" = res, "norm_weight" = norm_weight, "tform" = tform), model_control)
+  res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
@@ -1238,7 +1238,7 @@ RelativeRisk <- function(x, df, ...) {
 #' @inheritParams R_template
 #' @export
 RelativeRisk.default <- function(x, df, ...) {
-  return(x)
+  x
 }
 
 #' Calculates hazard ratios for a reference vector
@@ -1256,19 +1256,19 @@ RelativeRisk.default <- function(x, df, ...) {
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1),
-#'   "e" = c(0, 0, 1, 0, 0, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -1305,9 +1305,9 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
       df[[name]] <- 0.0
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -1364,7 +1364,7 @@ plotRisk <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @export
 plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
-  return(x)
+  x
 }
 
 #' Performs Cox Proportional Hazard model hazard ratio plots
@@ -1385,8 +1385,8 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1407,7 +1407,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   names(plot_options) <- tolower(names(plot_options))
   plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
-    plot_options$fname <- paste(tempfile(), "run", sep = "")
+    plot_options$fname <- paste0(tempfile(), "run")
   }
   if (!"boundary" %in% names(plot_options)) {
     plot_options$boundary <- 0.0
@@ -1441,7 +1441,7 @@ plotSchoenfeld <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @export
 plotSchoenfeld.default <- function(x, df, plot_options, a_n = c(), ...) {
-  return(x)
+  x
 }
 
 #' Performs Cox Proportional Hazard model schoenfeld residual plots
@@ -1462,8 +1462,8 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1484,7 +1484,7 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   names(plot_options) <- tolower(names(plot_options))
   plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
-    plot_options$fname <- paste(tempfile(), "run", sep = "")
+    plot_options$fname <- paste0(tempfile(), "run")
   }
   plot_options$type <- c("schoenfeld", plot_options$fname)
   #
@@ -1515,7 +1515,7 @@ plotMartingale <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @export
 plotMartingale.default <- function(x, df, plot_options, a_n = c(), ...) {
-  return(x)
+  x
 }
 
 #' Performs Cox Proportional Hazard model martingale residual plots
@@ -1536,8 +1536,8 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1558,7 +1558,7 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   names(plot_options) <- tolower(names(plot_options))
   plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
-    plot_options$fname <- paste(tempfile(), "run", sep = "")
+    plot_options$fname <- paste0(tempfile(), "run")
   }
   plot_options$type <- c("surv", plot_options$fname)
   plot_options$martingale <- TRUE
@@ -1590,7 +1590,7 @@ plotSurvival <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @export
 plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
-  return(x)
+  x
 }
 
 #' Performs Cox Proportional Hazard model survival plots
@@ -1609,18 +1609,18 @@ plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -1629,11 +1629,11 @@ plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
 #'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
 #' )
 #' plot_options <- list(
-#'   "fname" = paste(tempfile(),
-#'     "run",
-#'     sep = ""
-#'   ), "studyid" = "UserID",
-#'   "verbose" = FALSE
+#'   fname = paste0(
+#'     tempfile(),
+#'     "run"
+#'   ), studyid = "UserID",
+#'   verbose = FALSE
 #' )
 #' res_plot <- plotSurvival(res, df, plot_options)
 plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
@@ -1642,8 +1642,8 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1664,7 +1664,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   names(plot_options) <- tolower(names(plot_options))
   plot_options <- plot_options[!duplicated(names(plot_options))]
   if (!"fname" %in% names(plot_options)) {
-    plot_options$fname <- paste(tempfile(), "run", sep = "")
+    plot_options$fname <- paste0(tempfile(), "run")
   }
   plot_options$type <- c("surv", plot_options$fname)
   plot_options$surv_curv <- TRUE
@@ -1693,18 +1693,18 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "a" = c(0, 1, 1, 0, 1, 0, 1),
-#'   "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-#'   "c" = c(10, 11, 10, 11, 12, 9, 11),
-#'   "d" = c(0, 0, 0, 1, 1, 1, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1)
 #' )
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-#'   "halfmax" = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
@@ -1713,11 +1713,11 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4))
 #' )
 #' plot_options <- list(
-#'   "type" = c("surv", paste(tempfile(),
-#'     "run",
-#'     sep = ""
-#'   )), "studyid" = "UserID",
-#'   "verbose" = FALSE
+#'   type = c("surv", paste0(
+#'     tempfile(),
+#'     "run"
+#'   )), studyid = "UserID",
+#'   verbose = FALSE
 #' )
 #' res_plot <- plot(res, df, plot_options)
 plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
@@ -1743,9 +1743,9 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
       df$CONST <- 1
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -1783,8 +1783,8 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1807,18 +1807,16 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   if (!"verbose" %in% names(plot_options)) {
     plot_options$verbose <- 2
   }
-  if (length(object$model$expres_calls) > 0) {
-    if (plot_options$verbose >= 2) {
-      # nocov start
-      warning("Warning: Columns were created during model defintion. Risk plots will only depend on individual columns, not interactions")
-      # nocov end
-    }
+  if (length(object$model$expres_calls) > 0 && plot_options$verbose >= 2) {
+    # nocov start
+    warning("Warning: Columns were created during model defintion. Risk plots will only depend on individual columns, not interactions")
+    # nocov end
   }
   if (!"type" %in% names(plot_options)) {
     stop("Error: Plot type wasn't given")
   } else {
     if (length(plot_options$type) == 1) {
-      plot_options$type <- c(plot_options$type, paste(tempfile(), "run", sep = ""))
+      plot_options$type <- c(plot_options$type, paste0(tempfile(), "run"))
     } else if (length(plot_options$type) > 2) {
       if (plot_options$verbose >= 2) {
         warning("Warning: Plot type only uses the first two entries") # nocov
@@ -1826,18 +1824,18 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
     }
     plot_options$type[1] <- tolower(plot_options$type[1])
     if (!plot_options$type[1] %in% c("surv", "risk", "schoenfeld")) {
-      stop(paste("Error: The plot type '", plot_options$type, "' was not one of the available options."))
+      stop("Error: The plot type '", plot_options$type, "' was not one of the available options.")
     }
   }
   if (all(coxmodel$strata != "NONE")) {
     plot_options[["strat_haz"]] <- TRUE
     plot_options$strat_col <- "_strata_col"
     #
-    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    df$`_strata_col` <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
     for (i in seq_len(length(strat_col) - 1)) {
-      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+      df$`_strata_col` <- paste(df$`_strata_col`, format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
     }
-    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+    df$`_strata_col` <- factor(df$`_strata_col`) # converting to a factor
   }
   res <- RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
   # ------------------------------------------------------------------------------ #
@@ -1861,11 +1859,11 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "t0" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "t1" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "lung" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "dose" = c(0, 1, 1, 0, 1, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   t0 = c(18, 20, 18, 19, 21, 20, 18),
+#'   t1 = c(30, 45, 57, 47, 36, 60, 55),
+#'   lung = c(0, 0, 1, 0, 1, 0, 0),
+#'   dose = c(0, 1, 1, 0, 1, 0, 1)
 #' )
 #' set.seed(3742)
 #' df$rand <- floor(runif(nrow(df), min = 0, max = 5))
@@ -1876,11 +1874,11 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
-#'   "halfmax" = 2, "epsilon" = 1e-6,
-#'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0,
-#'   "verbose" = 0, "ties" = "breslow", "double_step" = 1
+#'   ncores = 1, lr = 0.75, maxiter = 1,
+#'   halfmax = 2, epsilon = 1e-6,
+#'   deriv_epsilon = 1e-6, step_max = 1.0,
+#'   thres_step_max = 100.0,
+#'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
 #' res <- CoxRun(formula, df, control = control)
@@ -1911,8 +1909,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -1927,8 +1925,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -1936,8 +1934,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -2005,11 +2003,11 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (all(coxmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
     #
-    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    df$`_strata_col` <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
     for (i in seq_len(length(strat_col) - 1)) {
-      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+      df$`_strata_col` <- paste(df$`_strata_col`, format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
     }
-    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+    df$`_strata_col` <- factor(df$`_strata_col`) # converting to a factor
   }
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
@@ -2029,9 +2027,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   } else {
     if (fma) {
       stop("Error: Do not select both fma and mcml, only pick one")
-    } else {
-      model_control["mcml"] <- mcml
     }
+    model_control["mcml"] <- mcml
   }
   model_control["single"] <- single
   model_control["observed_info"] <- observed_info
@@ -2078,11 +2075,11 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "t0" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "t1" = c(30, 45, 57, 47, 36, 60, 55),
-#'   "lung" = c(0, 0, 1, 0, 1, 0, 0),
-#'   "dose" = c(0, 1, 1, 0, 1, 0, 1)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   t0 = c(18, 20, 18, 19, 21, 20, 18),
+#'   t1 = c(30, 45, 57, 47, 36, 60, 55),
+#'   lung = c(0, 0, 1, 0, 1, 0, 0),
+#'   dose = c(0, 1, 1, 0, 1, 0, 1)
 #' )
 #' set.seed(3742)
 #' df$rand <- floor(runif(nrow(df), min = 0, max = 5))
@@ -2093,11 +2090,11 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   "ncores" = 1, "lr" = 0.75, "maxiter" = 1,
-#'   "halfmax" = 2, "epsilon" = 1e-6,
-#'   "deriv_epsilon" = 1e-6, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0,
-#'   "verbose" = 0, "ties" = "breslow", "double_step" = 1
+#'   ncores = 1, lr = 0.75, maxiter = 1,
+#'   halfmax = 2, epsilon = 1e-6,
+#'   deriv_epsilon = 1e-6, step_max = 1.0,
+#'   thres_step_max = 100.0,
+#'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
 #' res <- PoisRun(formula, df, control = control)
@@ -2128,8 +2125,8 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -2144,8 +2141,8 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
       names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
-      if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-        warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
       }
     }
@@ -2153,8 +2150,8 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(control))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one control argument listed multiple times: ", paste(unique(names(control[duplicated(names(control))])), collapse = ", "))
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
     }
     if (length(extraArgs)) {
@@ -2226,9 +2223,8 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   } else {
     if (fma) {
       stop("Error: Do not select both fma and mcml, only pick one")
-    } else {
-      model_control["mcml"] <- mcml
     }
+    model_control["mcml"] <- mcml
   }
   model_control["single"] <- single
   model_control["observed_info"] <- observed_info
@@ -2280,7 +2276,7 @@ LikelihoodBound <- function(x, df, curve_control = list(), control = list(), ...
 #' @inheritParams R_template
 #' @export
 LikelihoodBound.default <- function(x, df, curve_control = list(), control = list(), ...) {
-  return(x)
+  x
 }
 
 #' Calculates the likelihood boundary for a completed cox model
@@ -2321,9 +2317,9 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
       df$CONST <- 1
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -2367,8 +2363,8 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -2394,7 +2390,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     model_control["para_number"] <- 1
   } else {
     para_num <- model_control$para_number
-    if (length(para_num) > 0 & is.numeric(para_num)) {
+    if (length(para_num) > 0 && is.numeric(para_num)) {
       if (para_num %% 1 != 0) {
         stop("Error: The paranumber used was not an integer.")
       } else if (para_num > length(names)) {
@@ -2412,14 +2408,14 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   # ------------------------------------------------------------------------------ #
   if (all(strat_col != "NONE")) {
     #
-    df$"_strata_col" <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    df$`_strata_col` <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
     for (i in seq_len(length(strat_col) - 1)) {
-      df$"_strata_col" <- paste(df$"_strata_col", format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+      df$`_strata_col` <- paste(df$`_strata_col`, format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
     }
-    df$"_strata_col" <- factor(df$"_strata_col") # converting to a factor
+    df$`_strata_col` <- factor(df$`_strata_col`) # converting to a factor
   }
   #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -2429,7 +2425,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     int_count <- 0.0
     # nocov start
     for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
         int_count <- int_count + 1
       }
@@ -2461,7 +2457,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     # weight by the maximum value
     res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
     for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
         res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
         res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
       } else {
@@ -2520,9 +2516,9 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       df$CONST <- 1
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -2553,8 +2549,8 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -2580,7 +2576,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     model_control["para_number"] <- 1
   } else {
     para_num <- model_control$para_number
-    if (length(para_num) > 0 & is.numeric(para_num)) {
+    if (length(para_num) > 0 && is.numeric(para_num)) {
       if (para_num %% 1 != 0) {
         stop("Error: The paranumber used was not an integer.")
       } else if (para_num > length(names)) {
@@ -2596,7 +2592,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
   # ------------------------------------------------------------------------------ #
-  norm_res <- apply_norm(df, norm, names, TRUE, list("a_n" = a_n, "cons_mat" = cons_mat, "tform" = tform), model_control)
+  norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
   cons_mat <- norm_res$cons_mat
   norm_weight <- norm_res$norm_weight
@@ -2606,7 +2602,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     int_count <- 0.0
     # nocov start
     for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
         int_avg_weight <- int_avg_weight + norm_weight[i]
         int_count <- int_count + 1
       }
@@ -2638,7 +2634,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     # weight by the maximum value
     res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
     for (i in seq_along(names)) {
-      if (grepl("_int", tform[i])) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
         res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
         res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
       } else {
@@ -2681,7 +2677,7 @@ EventAssignment <- function(x, df, ...) {
 #' @inheritParams R_template
 #' @export
 EventAssignment.default <- function(x, df, ...) {
-  return(x)
+  x
 }
 
 #' Predicts how many events are due to baseline vs excess for a completed poisson model
@@ -2718,10 +2714,10 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
       df$CONST <- 1
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -2749,8 +2745,8 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -2866,8 +2862,8 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
       )
     }
     res <- list(
-      "lower_limit" = e_low, "midpoint" = e_mid,
-      "upper_limit" = e_high
+      lower_limit = e_low, midpoint = e_mid,
+      upper_limit = e_high
     )
     res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
     names(res$parameter_info) <- c("Column", "Subterm", "term_number")
@@ -2914,10 +2910,10 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
       df$CONST <- 1
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -2945,8 +2941,8 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
-    if (sum(duplicated(names(extraArgs))) > 0) { # check if there are repeated elements
-      warning("Warning: atleast one extra argument listed multiple times: ", paste(unique(names(extraArgs[duplicated(names(extraArgs))])), collapse = ", "))
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
     }
     indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
@@ -3050,8 +3046,8 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
       )
     }
     res <- list(
-      "lower_limit" = e_low, "midpoint" = e_mid,
-      "upper_limit" = e_high
+      lower_limit = e_low, midpoint = e_mid,
+      upper_limit = e_high
     )
   }
   res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
@@ -3081,7 +3077,7 @@ Residual <- function(x, df, ...) {
 #' @inheritParams R_template
 #' @export
 Residual.default <- function(x, df, ...) {
-  return(x)
+  x
 }
 
 #' Calculates the Residuals for a completed poisson model
@@ -3119,10 +3115,10 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
       df$CONST <- 1
     }
   }
-  if (any(grepl(":intercept", names))) {
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in names[grepl(":intercept", names)]) {
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)

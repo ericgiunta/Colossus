@@ -139,7 +139,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     dfend <- df[get(event0) == 1, ]
     tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
     if (control$verbose >= 3) {
-      message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+      message(paste0("Note: ", length(tu), " risk groups")) # nocov
     }
   } else {
     tu <- c(0)
@@ -154,10 +154,10 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
           keep_constant[i] <- 1 # nocov
           if (control$verbose >= 2) {
             # nocov start
-            warning(paste("Warning: element ", i,
+            warning(paste0(
+              "Warning: element ", i,
               " with column name ", names[i],
-              " was set constant",
-              sep = ""
+              " was set constant"
             ))
             # nocov end
           }
@@ -204,5 +204,5 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
   e$RunTime <- func_t_end - func_t_start
-  return(e)
+  e
 }
