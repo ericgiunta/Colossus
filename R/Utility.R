@@ -300,7 +300,7 @@ Def_Control <- function(control) {
   }
   # nocov start
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
-    control$ncores <- min(c(2, as.numeric(detectCores()))) # reduces cores for cran checks
+    control$ncores <- min(c(control$ncores, 2, as.numeric(detectCores()))) # reduces cores for cran checks
   }
   # nocov end
   if (control$epsilon >= control$step_max) {
