@@ -404,7 +404,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   if ("martingale" %in% names(plot_options)) {
     if (plot_options$martingale) {
       if ("cov_cols" %in% names(plot_options)) {
-        plot_options$cov_cols <- sapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+        plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), FUN.VALUE = "character")
         for (cov_i in seq_along(plot_options$cov_cols)) {
           dose_col <- unlist(plot_options$cov_cols,
             use.names = FALSE
@@ -455,7 +455,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   }
   if (tolower(plot_type[1]) == "risk") {
     if ("cov_cols" %in% names(plot_options)) {
-      plot_options$cov_cols <- sapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x))
+      plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), FUN.VALUE = "character")
       for (cov_i in seq_along(plot_options$cov_cols)) {
         dose_col <- unlist(plot_options$cov_cols,
           use.names = FALSE
@@ -776,16 +776,11 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       " rows of realizations columns provided"
     )
   }
-  if (all(realization_index %in% all_names)) {
-    # pass
-  } else {
+  if (!all(realization_index %in% all_names)) {
     stop("Error: Atleast one realization column provided was not used in the model")
   }
-  #  all_names <- unique(c(all_names, as.vector(realization_columns)))
   dose_names <- unique(as.vector(realization_columns))
-  if (all(dose_names %in% names(df))) {
-    # pass
-  } else {
+  if (!all(dose_names %in% names(df))) {
     stop("Error: Atleast one realization column provided was not in the data.table")
   }
   dfc <- match(names, all_names)

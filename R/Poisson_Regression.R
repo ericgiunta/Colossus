@@ -515,16 +515,11 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
       " rows of realizations columns provided"
     )
   }
-  if (all(realization_index %in% all_names)) {
-    # pass
-  } else {
+  if (!all(realization_index %in% all_names)) {
     stop("Error: Atleast one realization column provided was not used in the model")
   }
-  #  all_names <- unique(c(all_names, as.vector(realization_columns)))
   dose_names <- unique(as.vector(realization_columns))
-  if (all(dose_names %in% names(df))) {
-    # pass
-  } else {
+  if (!all(dose_names %in% names(df))) {
     stop("Error: Atleast one realization column provided was not in the data.table")
   }
   dfc <- match(names, all_names)
@@ -558,6 +553,5 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
-  # df <- copy(df)
   e
 }

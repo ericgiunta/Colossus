@@ -671,7 +671,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     # "logit_odds", "logit_ident", "logit_loglink"
     acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "odds", "ident", "loglink", "id", "odd", "log")
     link <- tolower(link)
-    link <- sapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(e) x), USE.NAMES = FALSE)[[1]]
+    link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
     if (link %in% acceptable) {
       if (link %in% c("logit_odds", "odds", "odd")) {
         model_control["logit_odds"] <- TRUE

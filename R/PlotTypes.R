@@ -395,7 +395,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     tsurv_se <- c(tsurv_se, surv_se)
     categ <- c(categ, rep(paste(col_u), length(t)))
   }
-  #  print(tsurv)
   dft <- data.table::data.table(t = tt, surv = tsurv, cat_group = categ)
   sbreaks <- c()
   slabels <- c()

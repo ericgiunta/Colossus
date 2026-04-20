@@ -260,7 +260,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   } else if (grepl("pois", surv_model_type, fixed = TRUE)) {
     model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
     if (all(strata != "NONE")) {
-      strata <- sapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
+      strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
       if (!all(strata %in% names(df))) {
         stop("Error: One of the strata was not in the original data.")
       }
@@ -605,7 +605,7 @@ get_form_risk <- function(model_obj, df) {
               names(factor_arg_list)[[1]] <- "x"
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
-            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -630,7 +630,7 @@ get_form_risk <- function(model_obj, df) {
             }
             col <- vals[1]
             raised <- vals[2]
-            col <- sapply(col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+            col <- vapply(col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(col %in% names(df))) {
               stop("Error: Column: ", col, " not in data")
             }
@@ -676,7 +676,7 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use ns(), but splines not detected on system.")
             }
-            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -736,7 +736,7 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use bs(), but splines not detected on system.")
             }
-            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -796,7 +796,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
               }
             }
-            factor_col <- sapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -826,7 +826,7 @@ get_form_risk <- function(model_obj, df) {
           #
           # split into the columns
           cols <- strsplit(model_paras[subterm_i], "*", fixed = TRUE)[[1]]
-          cols <- sapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
+          cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
           for (col in cols) {
             if (!(col %in% names(df))) {
               # good, it is in there
@@ -901,7 +901,7 @@ get_form_risk <- function(model_obj, df) {
               df$CONST <- 1
             }
           }
-          element_col <- sapply(element_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)[[1]]
+          element_col <- vapply(element_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
           if (!element_col %in% names(df)) {
             stop("Error: Subterm column missing: ", element_col)
           }
@@ -996,7 +996,7 @@ get_form_risk <- function(model_obj, df) {
               gmix_theta <- as.numeric(model_paras[1])
               para_else <- model_paras[2:length(model_paras)]
               # Check if they are all valid
-              if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
+              if (all(vapply(para_else, grepl, x = "er", logical(1)))) {
                 gmix_term <- as.numeric(para_else == "e")
               } else {
                 # Remaining entry was wrong
@@ -1007,7 +1007,7 @@ get_form_risk <- function(model_obj, df) {
               gmix_theta <- 0.5
               para_else <- model_paras[seq_along(model_paras)]
               # Check if they are all valid
-              if (all(vapply(para_else, function(x) grepl(x, "er"), logical(1)))) {
+              if (all(vapply(para_else, grepl, x = "er", logical(1)))) {
                 gmix_term <- as.numeric(para_else == "e")
               } else {
                 # Remaining entry was wrong
@@ -1330,7 +1330,7 @@ ColossusCoxSurv <- function(...) {
       argName[nzchar(argName)][indx == 0L]
     ), domain = NA)
   }
-  if (all(!nzchar(argName))) {
+  if (!any(nzchar(argName))) {
     # If none have names, assume (start, end, event) or (end, event)
     if (length(args) == 2) {
       tstart <- "%trunc%"
@@ -1343,7 +1343,7 @@ ColossusCoxSurv <- function(...) {
     } else {
       stop("Error: Incorrect number of arguments to survival object")
     }
-  } else if (any(!nzchar(argName))) {
+  } else if (!all(nzchar(argName))) {
     # start by directly assigning what is available
     if ("tstart" %in% argName) {
       tstart <- args$tstart
@@ -1415,7 +1415,7 @@ ColossusCoxStrataSurv <- function(...) {
   if ("strata" %in% argName) {
     strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCoxSurv, args[names(args) != "strata"])
-  } else if (all(!nzchar(argName))) {
+  } else if (!any(nzchar(argName))) {
     strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
@@ -1453,7 +1453,7 @@ ColossusFineGraySurv <- function(...) {
   if ("weight" %in% argName) {
     weight <- args$weight
     res <- do.call(ColossusCoxSurv, args[names(args) != "weight"])
-  } else if (all(!nzchar(argName))) {
+  } else if (!any(nzchar(argName))) {
     weight <- args[[length(args)]]
     res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
@@ -1491,7 +1491,7 @@ ColossusFineGrayStrataSurv <- function(...) {
   if ("weight" %in% argName) {
     weight <- args$weight
     res <- do.call(ColossusCoxStrataSurv, args[names(args) != "weight"])
-  } else if (all(!nzchar(argName))) {
+  } else if (!any(nzchar(argName))) {
     weight <- args[[length(args)]]
     res <- do.call(ColossusCoxStrataSurv, args[seq_len(length(args) - 1)])
   } else {
@@ -1536,7 +1536,7 @@ ColossusPoisSurv <- function(...) {
       argName[nzchar(argName)][indx == 0L]
     ), domain = NA)
   }
-  if (all(!nzchar(argName))) {
+  if (!any(nzchar(argName))) {
     # If none have names, assume (pyr, event, and all strata)
     if (length(args) == 2) {
       pyr <- args[[1]]
@@ -1546,7 +1546,7 @@ ColossusPoisSurv <- function(...) {
       event <- args[[2]]
       strata <- unlist(args[3:length(args)], use.names = FALSE)
     }
-  } else if (any(!nzchar(argName))) {
+  } else if (!all(nzchar(argName))) {
     # start by directly assigning what is available
     if ("pyr" %in% argName) {
       pyr <- args$pyr
@@ -1635,7 +1635,7 @@ ColossusCaseConTimeSurv <- function(...) {
       argName[nzchar(argName)][indx == 0L]
     ), domain = NA)
   }
-  if (all(!nzchar(argName))) {
+  if (!any(nzchar(argName))) {
     # If none have names, assume (start, end, event) or (end, event)
     if (length(args) == 2) {
       tstart <- "%trunc%"
@@ -1648,7 +1648,7 @@ ColossusCaseConTimeSurv <- function(...) {
     } else {
       stop("Error: Incorrect number of arguments to survival object")
     }
-  } else if (any(!nzchar(argName))) {
+  } else if (!all(nzchar(argName))) {
     # start by directly assigning what is available
     if ("tstart" %in% argName) {
       tstart <- args$tstart
@@ -1761,7 +1761,7 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   if ("strata" %in% argName) {
     strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCaseConTimeSurv, args[names(args) != "strata"])
-  } else if (all(!nzchar(argName))) {
+  } else if (!any(nzchar(argName))) {
     strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
   } else {
@@ -1807,7 +1807,7 @@ ColossusLogitSurv <- function(...) {
   if (("event" %in% argName) && ("events" %in% argName)) {
     stop("Error: Cannot provide both 'event' and 'events'")
   }
-  if (all(!nzchar(argName))) {
+  if (!any(nzchar(argName))) {
     if (length(args) == 1) {
       # should just be the events
       # assume only one trial
@@ -1820,7 +1820,7 @@ ColossusLogitSurv <- function(...) {
     }
   } else {
     # atleast one is named
-    if (any(!nzchar(argName))) {
+    if (!all(nzchar(argName))) {
       # one is named
       if ("trials" %in% argName) {
         trials <- args$trials

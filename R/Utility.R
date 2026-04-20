@@ -665,7 +665,7 @@ factorize <- function(df, col_list, verbose = 0) {
     )
   }
   # nocov end
-  col_list <- sapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
+  col_list <- vapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   verbose <- Check_Verbose(verbose)
   cols <- c()
   col0 <- names(df)
@@ -771,7 +771,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   }
   # nocov end
   verbose <- Check_Verbose(verbose)
-  cols <- sapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE)
+  cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
     terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs
@@ -1368,11 +1368,11 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
     }
     col1 <- formula[1]
     col2 <- formula[3]
-    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
+    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
         warning(paste("Warning: interation ", i, "is duplicated")) # nocov
       }
-    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
+    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
         warning(paste(
           "Warning: the reverse of interation ", i,
@@ -1602,13 +1602,9 @@ get_os <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
-  #  tstart <- Sys.time()
   out <- tryCatch(run("c++", "-v"),
     error = function(cnd) list(stdout = "")
   )
-  #  tend <- Sys.time()
-  #  print("out call")
-  #  print(tend - tstart)
   out0 <- str_match(out$stdout, "gcc version")[1]
   if (!is.na(out0)) {
     out <- "gcc"
@@ -1765,7 +1761,7 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
       if ("name" %in% names(categ[[cat]])) { # assign names to the levels
         temp2 <- categ[[cat]]$name
       } else { # number the categories
-        temp2 <- seq_along(temp0) # 1:length(temp0)
+        temp2 <- seq_along(temp0)
       }
       num_categ <- length(temp0) # number of categories
       cat_col <- paste(cat, "category", sep = "_") # name of the category
@@ -1927,7 +1923,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
         if ("name" %in% names(categ[[cat]])) { # check for names for each level
           temp2 <- categ[[cat]]$name
         } else {
-          temp2 <- seq_along(temp0) # 1:length(temp0)
+          temp2 <- seq_along(temp0)
         }
         num_categ <- length(temp0)
         categ_cols <- c(categ_cols, cat_col)
@@ -2845,7 +2841,6 @@ Interpret_Output <- function(out_list, digits = 3) {
     } else {
       message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
     }
-    #    message(paste("Run finished in ", out_list$RunTime))
   }
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }

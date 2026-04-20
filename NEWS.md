@@ -192,3 +192,8 @@
 # Colossus 1.5
 
 * partial matching added for many user inputs: control options, subterm types, term combinations, survival types, column names, etc
+
+# Colossus 1.5.1
+
+* patch to fix errors on fedora-clang machines
+* style updates based on lintr outputs
