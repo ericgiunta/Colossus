@@ -13,7 +13,10 @@
     if (os == "linux") { # nocov
       cpp_compiler <- syscheck[["Default c++"]] # nocov
       if (cpp_compiler != "") { # nocov
-        if (cpp_compiler == "gcc") { # nocov
+        if (cpp_compiler == "package_missing") {
+          # just going to assume it will not work
+          Sys.setenv(ColossusGCC = "FALSE") # nocov
+        } else if (cpp_compiler == "gcc") { # nocov
           R_compiler <- syscheck[["R Compiler"]] # nocov
           if (R_compiler != "gcc") { # nocov
             Sys.setenv(ColossusGCC = "FALSE") # nocov

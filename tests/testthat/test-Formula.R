@@ -119,19 +119,21 @@ test_that("Run basic errors and checks", {
 })
 
 test_that("Basic ns and bs application to formula", {
-  df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
-  model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
-  model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
-  model <- Cox(a, b, c) ~ loglinear(d, bs(e))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
-  model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+  if (system.file(package = "spline") != "") {
+    df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
+    model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
+    e <- get_form(model, df)$model
+    expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
+    model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
+    e <- get_form(model, df)$model
+    expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
+    model <- Cox(a, b, c) ~ loglinear(d, bs(e))
+    e <- get_form(model, df)$model
+    expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+    model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
+    e <- get_form(model, df)$model
+    expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+  }
 })
 
 test_that("Basic generic function application to formula", {
@@ -162,25 +164,27 @@ test_that("Basic factor application to formula with formula column", {
 })
 
 test_that("Checking formula works with result modification", {
-  fname <- "dose.csv"
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
-  #
-  df$dose2 <- df$dose * df$dose
-  df$a <- df$dose + 0.001
-  df$b <- df$dose2 + 0.001
-  #
-  model <- Cox(t0, t1, lung) ~ loglinear(ns(x = a), b)
-  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
-  f <- RelativeRisk(e, df)
-  expect_equal(sum(f$Risk), 548.6874, tolerance = 1e-2)
-  expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 1)))
-  f <- Residual(e, df)
-  expect_equal(f$Residual_Sum, 0.497, tolerance = 1e-2)
-  #
-  model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
-  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
-  expect_no_error(f <- RelativeRisk(e, df))
+  if (system.file(package = "spline") != "") {
+    fname <- "dose.csv"
+    colTypes <- c("double", "double", "double", "integer")
+    df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+    #
+    df$dose2 <- df$dose * df$dose
+    df$a <- df$dose + 0.001
+    df$b <- df$dose2 + 0.001
+    #
+    model <- Cox(t0, t1, lung) ~ loglinear(ns(x = a), b)
+    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
+    f <- RelativeRisk(e, df)
+    expect_equal(sum(f$Risk), 548.6874, tolerance = 1e-2)
+    expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 1)))
+    f <- Residual(e, df)
+    expect_equal(f$Residual_Sum, 0.497, tolerance = 1e-2)
+    #
+    model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
+    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
+    expect_no_error(f <- RelativeRisk(e, df))
+  }
 })
 
 test_that("Checking interaction works in formula and call results", {

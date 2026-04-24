@@ -239,11 +239,22 @@ Def_Control <- function(control) {
     } else {
       Sys.setenv(ColossusOMP = "TRUE")
       Sys.setenv(ColossusGCC = "TRUE")
+      if (control["verbose"] > 1) {
+        if (system.file(package = "processx") == "") {
+          warning("Warning: processx is missing, which is used to check default compiler. Parallelization is disabled by default.")
+        }
+        if (system.file(package = "callr") == "") {
+          warning("Warning: callr is missing, which is used to check default compiler. Parallelization is disabled by default.")
+        }
+      }
       os <- syscheck[["Operating System"]]
       if (os == "linux") {
         cpp_compiler <- syscheck[["Default c++"]]
         if (cpp_compiler != "") {
-          if (cpp_compiler == "gcc") {
+          if (cpp_compiler == "package_missing") {
+            # just going to assume it will not work
+            Sys.setenv(ColossusGCC = "FALSE") # nocov
+          } else if (cpp_compiler == "gcc") {
             R_compiler <- syscheck[["R Compiler"]]
             if (R_compiler != "gcc") {
               Sys.setenv(ColossusGCC = "FALSE") # nocov
@@ -1602,18 +1613,22 @@ get_os <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
-  out <- tryCatch(run("c++", "-v"),
-    error = function(cnd) list(stdout = "")
-  )
-  out0 <- str_match(out$stdout, "gcc version")[1]
-  if (!is.na(out0)) {
-    out <- "gcc"
+  if (system.file(package = "processx") == "") {
+    out <- "package_missing"
   } else {
-    out0 <- str_match(out$stdout, "clang version")[1] # nocov
-    if (!is.na(out0)) { # nocov
-      out <- "clang" # nocov
+    out <- tryCatch(run("c++", "-v"),
+      error = function(cnd) list(stdout = "")
+    )
+    out0 <- str_match(out$stdout, "gcc version")[1]
+    if (!is.na(out0)) {
+      out <- "gcc"
     } else {
-      out <- out$stdout # nocov
+      out0 <- str_match(out$stdout, "clang version")[1] # nocov
+      if (!is.na(out0)) { # nocov
+        out <- "clang" # nocov
+      } else {
+        out <- out$stdout # nocov
+      }
     }
   }
   out
@@ -1626,16 +1641,20 @@ gcc_version <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or R CMD config CC output
 Rcomp_version <- function() {
-  out <- rcmd("config", "CC")
-  out0 <- str_match(out$stdout, "clang")[1]
-  if (!is.na(out0)) {
-    out <- "clang" # nocov
+  if (system.file(package = "callr") == "") {
+    out <- "package_missing"
   } else {
-    out0 <- str_match(out$stdout, "gcc")[1]
+    out <- rcmd("config", "CC")
+    out0 <- str_match(out$stdout, "clang")[1]
     if (!is.na(out0)) {
-      out <- "gcc"
+      out <- "clang" # nocov
     } else {
-      out <- out$stdout # nocov
+      out0 <- str_match(out$stdout, "gcc")[1]
+      if (!is.na(out0)) {
+        out <- "gcc"
+      } else {
+        out <- out$stdout # nocov
+      }
     }
   }
   out
@@ -1648,18 +1667,22 @@ Rcomp_version <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or head ~/.R/Makevars
 Rcpp_version <- function() {
-  out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
-    error = function(cnd) list(stdout = "")
-  )
-  out0 <- str_match(out$stdout, "clang")[1]
-  if (!is.na(out0)) {
-    out <- "clang" # nocov
+  if (system.file(package = "processx") == "") {
+    out <- "package_missing"
   } else {
-    out0 <- str_match(out$stdout, "gcc")[1]
+    out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
+      error = function(cnd) list(stdout = "")
+    )
+    out0 <- str_match(out$stdout, "clang")[1]
     if (!is.na(out0)) {
-      out <- "gcc" # nocov
+      out <- "clang" # nocov
     } else {
-      out <- out$stdout # nocov
+      out0 <- str_match(out$stdout, "gcc")[1]
+      if (!is.na(out0)) {
+        out <- "gcc" # nocov
+      } else {
+        out <- out$stdout # nocov
+      }
     }
   }
   out
