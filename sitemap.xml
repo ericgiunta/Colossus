@@ -38,6 +38,7 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.coxres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.logitres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.poisres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Likelihood_Ratio_Test.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Linked_Dose_Formula.html</loc></url>
@@ -78,6 +79,7 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/print.coxres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/print.coxresbound.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/print.logitres.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/print.logitresbound.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/print.poisres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/print.poisresbound.html</loc></url>
 </urlset>
