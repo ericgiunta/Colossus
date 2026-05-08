@@ -21,10 +21,10 @@ returns a class fully describing the model and the updated data
 and data.table, to fully describe the model for a joint Poisson model.
 }
 \seealso{
-Other Formula Interpretation: 
-\code{\link{ColossusCoxSurv}()},
-\code{\link{ColossusLogitSurv}()},
-\code{\link{ColossusPoisSurv}()},
-\code{\link{get_form}()}
+Other Formula Interpretation:
+\code{\link[=ColossusCoxSurv]{ColossusCoxSurv()}},
+\code{\link[=ColossusLogitSurv]{ColossusLogitSurv()}},
+\code{\link[=ColossusPoisSurv]{ColossusPoisSurv()}},
+\code{\link[=get_form]{get_form()}}
 }
 \concept{Formula Interpretation}

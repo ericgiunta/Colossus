@@ -73,12 +73,12 @@ formula <- Pois(Ending_Age, Cancer_Status) ~
 res <- PoisRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
 }
 \seealso{
-Other Poisson Wrapper Functions: 
-\code{\link{EventAssignment.poisres}()},
-\code{\link{EventAssignment.poisresbound}()},
-\code{\link{LikelihoodBound.poisres}()},
-\code{\link{PoisRunJoint}()},
-\code{\link{PoisRunMulti}()},
-\code{\link{Residual.poisres}()}
+Other Poisson Wrapper Functions:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
+\code{\link[=PoisRunJoint]{PoisRunJoint()}},
+\code{\link[=PoisRunMulti]{PoisRunMulti()}},
+\code{\link[=Residual.poisres]{Residual.poisres()}}
 }
 \concept{Poisson Wrapper Functions}

@@ -2386,6 +2386,9 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   curve_control <- curve_control[!duplicated(names(curve_control))]
   #
   model_control <- c(model_control, curve_control)
+  if (!("bisect" %in% names(model_control))) {
+    model_control["bisect"] <- FALSE
+  }
   if (!("para_number" %in% names(model_control))) {
     model_control["para_number"] <- 1
   } else {
@@ -2439,13 +2442,19 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     # nocov end
   }
   #
-  if ("bisect" %in% names(model_control)) {
-    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  if (model_control[["bisect"]]) {
     res$method <- "bisection"
   } else {
-    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
     res$method <- "Venzon-Moolgavkar"
   }
+  #  if (model_control[["bisect"]]) {
+  #    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  #    res$method <- "bisection"
+  #  } else {
+  #    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  #    res$method <- "Venzon-Moolgavkar"
+  #  }
   res$model <- coxmodel
   res$beta_0 <- object$beta_0
   res$para_number <- model_control$para_number
@@ -2572,6 +2581,9 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   curve_control <- curve_control[!duplicated(names(curve_control))]
   #
   model_control <- c(model_control, curve_control)
+  if (!("bisect" %in% names(model_control))) {
+    model_control["bisect"] <- FALSE
+  }
   if (!("para_number" %in% names(model_control))) {
     model_control["para_number"] <- 1
   } else {
@@ -2616,11 +2628,10 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     # nocov end
   }
   #
-  if ("bisect" %in% names(model_control)) {
-    res <- PoissonCurveSolver(df, pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
+  if (model_control[["bisect"]]) {
     res$method <- "bisection"
   } else {
-    res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
     res$method <- "Venzon-Moolgavkar"
   }
   res$model <- poismodel
@@ -2657,6 +2668,185 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   poisres
 }
 
+#' Calculates the likelihood boundary for a completed Logistic model
+#'
+#' \code{LikelihoodBound.logitres} solves the confidence interval for a Poisson model, starting at the optimum point and
+#' iteratively optimizing end-points of intervals.
+#'
+#' @param x result object from a regression, class poisres
+#' @param ... can include the named entries for the curve_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Logistic Wrapper Functions
+LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = list(), ...) {
+  logitmodel <- x$model
+  norm <- x$norm
+  trial0 <- logitmodel$trials
+  event0 <- logitmodel$event
+  names <- logitmodel$names
+  term_n <- logitmodel$term_n
+  tform <- logitmodel$tform
+  keep_constant <- logitmodel$keep_constant
+  a_n <- logitmodel$a_n
+  modelform <- logitmodel$modelform
+  cons_mat <- as.matrix(c(0))
+  cons_vec <- c(0)
+  strat_col <- logitmodel$strata
+  #
+  calls <- logitmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
+    # one of the columns has a :intercept flag
+    for (name in grepv(":intercept", names, fixed = TRUE)) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
+  object <- validate_logitres(x, df)
+  #
+  a_n <- object$beta_0
+  if (missing(control)) {
+    control <- object$control
+  }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
+  model_control <- object$modelcontrol
+  #
+  if (model_control[["constraint"]]) {
+    cons_mat <- res$constraint_matrix
+    cons_vec <- res$constraint_vector
+  }
+  #
+  model_control["log_bound"] <- TRUE
+  extraArgs <- list(...) # gather additional arguments
+  controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
+  if (length(extraArgs)) {
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(curve_control)) {
+    curve_control <- extraArgs
+  } else if (is.list(curve_control)) {
+    curve_control <- c(curve_control, extraArgs)
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  names(curve_control) <- tolower(names(curve_control))
+  curve_control <- curve_control[!duplicated(names(curve_control))]
+  #
+  model_control <- c(model_control, curve_control)
+  if (!("bisect" %in% names(model_control))) {
+    model_control["bisect"] <- FALSE
+  }
+  if (!("para_number" %in% names(model_control))) {
+    model_control["para_number"] <- 1
+  } else {
+    para_num <- model_control$para_number
+    if (length(para_num) > 0 && is.numeric(para_num)) {
+      if (para_num %% 1 != 0) {
+        stop("Error: The paranumber used was not an integer.")
+      } else if (para_num > length(names)) {
+        stop("Error: The paranumber used was too large, please use a number between 1 and the number of model elements.")
+      } else if (para_num < 1) {
+        stop("Error: The paranumber used was less than 1, please use a number between 1 and the number of model elements.")
+      }
+    } else {
+      stop("Error: The paranumber used was not numeric.")
+    }
+  }
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
+  a_n <- norm_res$a_n
+  cons_mat <- norm_res$cons_mat
+  norm_weight <- norm_res$norm_weight
+  df <- norm_res$df
+  if (any(norm_weight != 1.0)) {
+    int_avg_weight <- 0.0
+    int_count <- 0.0
+    # nocov start
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
+        int_avg_weight <- int_avg_weight + norm_weight[i]
+        int_count <- int_count + 1
+      }
+    }
+    if (int_count > 0) {
+      if (control$verbose >= 3) {
+        message("Note: Threshold max step adjusted to match new weighting")
+      }
+      control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
+    }
+    # nocov end
+  }
+  #
+  res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
+  if (model_control[["bisect"]]) {
+    res$method <- "bisection"
+  } else {
+    res$method <- "Venzon-Moolgavkar"
+  }
+  res$model <- logitmodel
+  res$beta_0 <- object$beta_0
+  res$para_number <- model_control$para_number
+  res$logitres <- object
+  #
+  if (tolower(norm) == "null") {
+    # nothing changes
+  } else if (tolower(norm) %in% c("max", "mean")) {
+    # weight by the maximum value
+    res$Parameter_Limits <- res$Parameter_Limits / norm_weight[model_control$para_number]
+    for (i in seq_along(names)) {
+      if (grepl("_int", tform[i], fixed = TRUE)) {
+        res$Lower_Values[i] <- res$Lower_Values[i] * norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] * norm_weight[i]
+      } else {
+        res$Lower_Values[i] <- res$Lower_Values[i] / norm_weight[i]
+        res$Upper_Values[i] <- res$Upper_Values[i] / norm_weight[i]
+      }
+    }
+  } else {
+    stop(gettextf(
+      "Error: Normalization arguement '%s' not valid.",
+      norm
+    ), domain = NA)
+  }
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  logitres <- new_logitresbound(res)
+  logitres <- validate_logitresbound(logitres, df)
+  logitres
+}
 
 #' Generic background/excess event calculation function
 #'

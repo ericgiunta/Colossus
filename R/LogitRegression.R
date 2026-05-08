@@ -63,28 +63,71 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
-  res <- Check_Iters(control, a_n)
-  control <- res$control
-  a_n <- res$a_n
-  #
   run_size <- nrow(df)
-  e <- logist_Omnibus_transition(
-    as.matrix(df[, ce, with = FALSE]),
-    term_n, tform, matrix(a_ns,
-      nrow = length(control$maxiters) - 1,
-      byrow = TRUE
-    ), dfc, x_all, 0,
-    modelform, control, keep_constant,
-    term_tot,
-    model_control, cons_mat, cons_vec
-  )
+  if (model_control$log_bound) {
+    if ("maxiters" %in% names(control)) {
+      # good
+    } else {
+      control$maxiters <- c(control$maxiter)
+    }
+    if ("guesses" %in% names(control)) {
+      # good
+    } else {
+      control$guesses <- 10
+    }
+    if (model_control[["bisect"]]) {
+      para_number <- model_control$para_number
+      keep_constant[para_number] <- 1
+      if (min(keep_constant) == 1) {
+        model_control["single"] <- TRUE
+      }
+      e <- logist_Omnibus_CurveSearch_transition(
+        as.matrix(df[, ce, with = FALSE]),
+        term_n, tform, a_ns,
+        dfc, x_all, 0,
+        modelform, control,
+        keep_constant, term_tot, model_control,
+        cons_mat, cons_vec
+      )
+    } else {
+      e <- logist_Omnibus_Bounds_transition(
+        as.matrix(df[, ce, with = FALSE]),
+        term_n, tform, a_ns,
+        dfc, x_all, 0,
+        modelform, control,
+        keep_constant, term_tot, model_control,
+        cons_mat, cons_vec
+      )
+    }
+    if ("Status" %in% names(e)) {
+      if (e$Status != "PASSED") {
+        stop(e$Status)
+      }
+    }
+  } else {
+    res <- Check_Iters(control, a_n)
+    control <- res$control
+    a_n <- res$a_n
+    #
+    e <- logist_Omnibus_transition(
+      as.matrix(df[, ce, with = FALSE]),
+      term_n, tform, matrix(a_ns,
+        nrow = length(control$maxiters) - 1,
+        byrow = TRUE
+      ), dfc, x_all, 0,
+      modelform, control, keep_constant,
+      term_tot,
+      model_control, cons_mat, cons_vec
+    )
+    if (is.nan(e$LogLik)) {
+      stop(e$Status)
+    }
+  }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Logistic"
-  if (is.nan(e$LogLik)) {
-    stop(e$Status)
-  }
+  e$modelcontrol <- model_control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size

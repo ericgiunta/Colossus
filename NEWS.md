@@ -197,3 +197,7 @@
 
 * patch to fix errors on fedora-clang machines
 * style updates based on lintr outputs
+
+# Colossus 1.5.2
+
+* Added likelihood-based confidence intervals for logistic regression

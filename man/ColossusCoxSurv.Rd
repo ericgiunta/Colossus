@@ -21,10 +21,10 @@ The Fine-Gray and Stratified versions use strata and weight named options
 or the last two entries.
 }
 \seealso{
-Other Formula Interpretation: 
-\code{\link{ColossusLogitSurv}()},
-\code{\link{ColossusPoisSurv}()},
-\code{\link{get_form}()},
-\code{\link{get_form_joint}()}
+Other Formula Interpretation:
+\code{\link[=ColossusLogitSurv]{ColossusLogitSurv()}},
+\code{\link[=ColossusPoisSurv]{ColossusPoisSurv()}},
+\code{\link[=get_form]{get_form()}},
+\code{\link[=get_form_joint]{get_form_joint()}}
 }
 \concept{Formula Interpretation}

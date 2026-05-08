@@ -41,13 +41,13 @@ df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 
 }
 \seealso{
-Other Data Cleaning Functions: 
-\code{\link{Date_Shift}()},
-\code{\link{Event_Count_Gen}()},
-\code{\link{Event_Time_Gen}()},
-\code{\link{Joint_Multiple_Events}()},
-\code{\link{Replace_Missing}()},
-\code{\link{factorize}()},
-\code{\link{gen_time_dep}()}
+Other Data Cleaning Functions:
+\code{\link[=Date_Shift]{Date_Shift()}},
+\code{\link[=Event_Count_Gen]{Event_Count_Gen()}},
+\code{\link[=Event_Time_Gen]{Event_Time_Gen()}},
+\code{\link[=Joint_Multiple_Events]{Joint_Multiple_Events()}},
+\code{\link[=Replace_Missing]{Replace_Missing()}},
+\code{\link[=factorize]{factorize()}},
+\code{\link[=gen_time_dep]{gen_time_dep()}}
 }
 \concept{Data Cleaning Functions}

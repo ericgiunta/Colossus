@@ -36,13 +36,13 @@ df <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
 
 }
 \seealso{
-Other Data Cleaning Functions: 
-\code{\link{Event_Count_Gen}()},
-\code{\link{Event_Time_Gen}()},
-\code{\link{Joint_Multiple_Events}()},
-\code{\link{Replace_Missing}()},
-\code{\link{Time_Since}()},
-\code{\link{factorize}()},
-\code{\link{gen_time_dep}()}
+Other Data Cleaning Functions:
+\code{\link[=Event_Count_Gen]{Event_Count_Gen()}},
+\code{\link[=Event_Time_Gen]{Event_Time_Gen()}},
+\code{\link[=Joint_Multiple_Events]{Joint_Multiple_Events()}},
+\code{\link[=Replace_Missing]{Replace_Missing()}},
+\code{\link[=Time_Since]{Time_Since()}},
+\code{\link[=factorize]{factorize()}},
+\code{\link[=gen_time_dep]{gen_time_dep()}}
 }
 \concept{Data Cleaning Functions}

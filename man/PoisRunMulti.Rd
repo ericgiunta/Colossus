@@ -88,12 +88,12 @@ formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
 res <- PoisRun(formula, df, control = control)
 }
 \seealso{
-Other Poisson Wrapper Functions: 
-\code{\link{EventAssignment.poisres}()},
-\code{\link{EventAssignment.poisresbound}()},
-\code{\link{LikelihoodBound.poisres}()},
-\code{\link{PoisRun}()},
-\code{\link{PoisRunJoint}()},
-\code{\link{Residual.poisres}()}
+Other Poisson Wrapper Functions:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
+\code{\link[=PoisRun]{PoisRun()}},
+\code{\link[=PoisRunJoint]{PoisRunJoint()}},
+\code{\link[=Residual.poisres]{Residual.poisres()}}
 }
 \concept{Poisson Wrapper Functions}

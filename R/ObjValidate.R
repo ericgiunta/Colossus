@@ -113,6 +113,14 @@ new_logitres <- function(x = list()) {
   )
 }
 
+new_logitresbound <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "logitresbound"
+  )
+}
+
 
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
@@ -519,6 +527,28 @@ validate_poisresbound <- function(x, df) {
   validate_poissurv(poismodel, df)
   poismodel <- validate_formula(poismodel, df, verbose)
   x$poisres$model <- poismodel
+  x
+}
+
+validate_logitres <- function(x, df) {
+  logitmodel <- x$model
+  control <- x$control
+  verbose <- control$verbose
+  validate_logitsurv(logitmodel, df)
+  logitmodel <- validate_formula(logitmodel, df, verbose)
+  x$model <- logitmodel
+  x
+}
+
+validate_logitresbound <- function(x, df) {
+  logitres <- x$logitres
+  logitmodel <- logitres$model
+  control <- logitres$control
+  verbose <- control$verbose
+  #
+  validate_logitsurv(logitmodel, df)
+  logitmodel <- validate_formula(logitmodel, df, verbose)
+  x$logitres$model <- logitmodel
   x
 }
 

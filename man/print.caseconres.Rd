@@ -18,12 +18,13 @@ return nothing, prints the results to console
 \code{print.caseconres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 }
 \seealso{
-Other Output and Information Functions: 
-\code{\link{System_Version}()},
-\code{\link{print.coxres}()},
-\code{\link{print.coxresbound}()},
-\code{\link{print.logitres}()},
-\code{\link{print.poisres}()},
-\code{\link{print.poisresbound}()}
+Other Output and Information Functions:
+\code{\link[=System_Version]{System_Version()}},
+\code{\link[=print.coxres]{print.coxres()}},
+\code{\link[=print.coxresbound]{print.coxresbound()}},
+\code{\link[=print.logitres]{print.logitres()}},
+\code{\link[=print.logitresbound]{print.logitresbound()}},
+\code{\link[=print.poisres]{print.poisres()}},
+\code{\link[=print.poisresbound]{print.poisresbound()}}
 }
 \concept{Output and Information Functions}

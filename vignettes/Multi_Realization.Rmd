@@ -22,7 +22,7 @@ library(data.table)
 
 ## Available Methods
 
-There are many instances in which a user may want to use data that is known up to a distribution, in these cases it may not be sufficient to use a single realization. Colossus provides two ways to use multiple realizations. The first runs multiple regressions in a row, each with a different realization. The second optimizes the average Log-Likelihood over the realizations. These methods were designed to assist in circumstances in which combinations of shared and unshared errors are present, and a two-dimensional Monte Carlo method is used to generate realizations for at least one covariate column. Note that this method does not apply to uncertainties in the event/cases or interval/duration columns.
+There are many instances in which a user may want to use data that is known up to a distribution, in these cases it may not be sufficient to use a single realization. Colossus provides two ways to use multiple realizations. The first runs multiple regressions in a row, each with a different realization. The second optimizes the average Log-Likelihood over the realizations. These methods were designed to assist in circumstances in which combinations of shared and unshared errors are present, and a two-dimensional Monte Carlo method is used to generate realizations for at least one covariate column. Note that this method does not apply to uncertainties in the event/cases or interval/duration columns. These methods also are not currently available for stratification columns.
 
 ### Specifics of Use
 

@@ -119,7 +119,7 @@ test_that("Run basic errors and checks", {
 })
 
 test_that("Basic ns and bs application to formula", {
-  if (system.file(package = "spline") != "") {
+  if (system.file(package = "splines") != "") {
     df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
     model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
     e <- get_form(model, df)$model
@@ -164,7 +164,7 @@ test_that("Basic factor application to formula with formula column", {
 })
 
 test_that("Checking formula works with result modification", {
-  if (system.file(package = "spline") != "") {
+  if (system.file(package = "splines") != "") {
     fname <- "dose.csv"
     colTypes <- c("double", "double", "double", "integer")
     df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)

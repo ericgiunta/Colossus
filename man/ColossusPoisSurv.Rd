@@ -20,10 +20,10 @@ any strata columns. The first two are expected to be in order or named: pyr and 
 Anything beyond the event name is assumed to be strata if Poisson_Strata is used.
 }
 \seealso{
-Other Formula Interpretation: 
-\code{\link{ColossusCoxSurv}()},
-\code{\link{ColossusLogitSurv}()},
-\code{\link{get_form}()},
-\code{\link{get_form_joint}()}
+Other Formula Interpretation:
+\code{\link[=ColossusCoxSurv]{ColossusCoxSurv()}},
+\code{\link[=ColossusLogitSurv]{ColossusLogitSurv()}},
+\code{\link[=get_form]{get_form()}},
+\code{\link[=get_form_joint]{get_form_joint()}}
 }
 \concept{Formula Interpretation}

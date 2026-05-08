@@ -88,8 +88,8 @@ formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
 res <- CoxRun(formula, df, control = control)
 }
 \seealso{
-Other Cox Wrapper Functions: 
-\code{\link{CoxRun}()},
-\code{\link{LikelihoodBound.coxres}()}
+Other Cox Wrapper Functions:
+\code{\link[=CoxRun]{CoxRun()}},
+\code{\link[=LikelihoodBound.coxres]{LikelihoodBound.coxres()}}
 }
 \concept{Cox Wrapper Functions}

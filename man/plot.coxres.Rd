@@ -57,10 +57,10 @@ plot_options <- list(
 res_plot <- plot(res, df, plot_options)
 }
 \seealso{
-Other Plotting Wrapper Functions: 
-\code{\link{plotMartingale.coxres}()},
-\code{\link{plotRisk.coxres}()},
-\code{\link{plotSchoenfeld.coxres}()},
-\code{\link{plotSurvival.coxres}()}
+Other Plotting Wrapper Functions:
+\code{\link[=plotMartingale.coxres]{plotMartingale.coxres()}},
+\code{\link[=plotRisk.coxres]{plotRisk.coxres()}},
+\code{\link[=plotSchoenfeld.coxres]{plotSchoenfeld.coxres()}},
+\code{\link[=plotSurvival.coxres]{plotSurvival.coxres()}}
 }
 \concept{Plotting Wrapper Functions}

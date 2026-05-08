@@ -39,10 +39,10 @@ formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 model <- get_form(formula, df, 1)
 }
 \seealso{
-Other Formula Interpretation: 
-\code{\link{ColossusCoxSurv}()},
-\code{\link{ColossusLogitSurv}()},
-\code{\link{ColossusPoisSurv}()},
-\code{\link{get_form_joint}()}
+Other Formula Interpretation:
+\code{\link[=ColossusCoxSurv]{ColossusCoxSurv()}},
+\code{\link[=ColossusLogitSurv]{ColossusLogitSurv()}},
+\code{\link[=ColossusPoisSurv]{ColossusPoisSurv()}},
+\code{\link[=get_form_joint]{get_form_joint()}}
 }
 \concept{Formula Interpretation}

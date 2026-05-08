@@ -106,12 +106,15 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     if (filter_df) {
       for (term_i in seq_along(vals)) {
         factor_col <- vals[term_i]
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- levels(df[[factor_col]])
+        if (is.null(levels(df[[factor_col]]))) {
+          df[[factor_col]] <- factor(df[[factor_col]]) # Only convert to factor if needed
+        }
+        i_levels <- levels(df[[factor_col]]) # get the levels of the factor
         if (!keep_base) {
-          level_ref <- levels(df[[factor_col]])[1]
+          level_ref <- levels(df[[factor_col]])[1] # We can remove the baseline from the returned combinations
           i_levels <- i_levels[i_levels != level_ref]
         }
+        # We only care about combinations that have events, so we can filter out some combinations early if the base level has no events
         for (col in i_levels) {
           temp <- sum(df[get(factor_col) == col, ][[event0]]) # get number of events
           if (temp == 0) { # if none then we remove that data and the level column
@@ -137,13 +140,13 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
         df$comb_strata <- paste(df$comb_strata, df[[factor_col]], sep = ":")
       }
     }
-    df$comb_strata <- as.integer(factor(df$comb_strata))
+    df$comb_strata <- as.integer(factor(df$comb_strata)) # converts to integer levels
     combs <- unique(df$comb_strata)
     if (filter_df) {
-      df_end <- df[get(event0) == 1, ]
-      combs <- unique(df_end$comb_strata)
+      df_end <- df[get(event0) == 1, ] # get the event data
+      combs <- unique(df_end$comb_strata) # check for the strata with events
       comb_tot <- unique(df$comb)
-      comb_remove <- comb_tot[!comb_tot %in% combs]
+      comb_remove <- comb_tot[!comb_tot %in% combs] # get the strata that were not in the event data
       for (comb in comb_remove) {
         df <- df["comb_strata" != comb, ] # remove data
       }
@@ -357,7 +360,7 @@ Def_model_control <- function(control) {
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
     "mcml", "observed_info", "time_risk",
-    "logit_odds", "logit_ident", "logit_loglink"
+    "logit_odds", "logit_ident", "logit_loglink", "bisect"
   )
   name_full_list <- c(control_def_names, "qchi", "alpha", "para_number", "maxstep", "manual", "search_mult", "step_size", "momentum", "adadelta", "adam", "momentum_decay", "learning_decay", "epsilon_decay", "constraint", "penalty_weight", "penalty_method")
   names(control) <- tolower(names(control)) # set the names to lowercase
@@ -2455,6 +2458,31 @@ print.coxresbound <- function(x, ...) {
 #' @export
 #' @family Output and Information Functions
 print.poisresbound <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 3
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_Output(x, digits)
+}
+
+#' Prints a logistic likelihood boundary regression output clearly
+#'
+#' \code{print.logitresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class logitresbound
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @export
+#' @family Output and Information Functions
+print.logitresbound <- function(x, ...) {
   exargs <- list(...)
   digits <- 3
   if ("digits" %in% names(exargs)) {

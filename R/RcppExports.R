@@ -299,7 +299,7 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calcualtion function.
+#' Primary Cox PH likelihood bounds calculation function.
 #'
 #' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -310,7 +310,7 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calcualtion function.
+#' Primary Cox PH likelihood bounds calculation function.
 #'
 #' \code{LogLik_Cox_PH_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -343,9 +343,9 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calcualtion function.
+#' Primary Logistic likelihood bounds calculation function.
 #'
-#' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
+#' \code{LogLik_Logist_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
 #' @inheritParams CPP_template
 #'
@@ -354,9 +354,42 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calcualtion function.
+#' Primary Logistic likelihood bounds calculation function.
 #'
-#' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
+#' \code{LogLik_Logist_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+NULL
+
+#' Primary Cox PH likelihood bounds calculation function.
+#'
+#' \code{LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+NULL
+
+#' Primary Cox PH likelihood bounds calculation function.
+#'
+#' \code{LogLik_Poisson_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+NULL
+
+#' Primary Logistic likelihood bounds calcualtion function.
+#'
+#' \code{LogLik_Logist_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
 #' @inheritParams CPP_template
 #'
@@ -444,7 +477,7 @@ NULL
 
 #' Primary Poisson regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
 #'
-#' \code{LogLik_Pois_PH_Multidose_Omnibus_Integrated} Performs the calls to calculation functions, Structures the Poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#' \code{LogLik_Pois_Multidose_Omnibus_Integrated} Performs the calls to calculation functions, Structures the Poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
 #'
 #' @inheritParams CPP_template
 #'
@@ -565,7 +598,17 @@ NULL
 #'
 NULL
 
-#' Run a complete regression for a cox model
+#' Run a complete regression for a logistic model
+#'
+#' \code{Logist_Full_Run} Called to perform one full regression
+#' @inheritParams CPP_template
+#'
+#' @return Updates everything in place
+#' @noRd
+#'
+NULL
+
+#' Run a complete regression for a poisson model
 #'
 #' \code{Pois_Full_Run} Called to perform one full regression
 #' @inheritParams CPP_template
@@ -809,6 +852,30 @@ cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, df0, fir, 
 #'
 cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_cox_ph_Omnibus_CurveSearch_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
+}
+
+#' Interface between R code and the Logistic omnibus bounds regression function
+#'
+#' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+logist_Omnibus_Bounds_transition <- function(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_logist_Omnibus_Bounds_transition`, CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
+}
+
+#' Interface between R code and the logistic omnibus bounds regression function
+#'
+#' \code{cox_ph_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+logist_Omnibus_CurveSearch_transition <- function(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_logist_Omnibus_CurveSearch_transition`, CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson omnibus bounds regression function

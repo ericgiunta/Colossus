@@ -13,12 +13,13 @@ returns a list of results
 \code{System_Version} checks OS, default R c++ compiler, and if OMP is enabled
 }
 \seealso{
-Other Output and Information Functions: 
-\code{\link{print.caseconres}()},
-\code{\link{print.coxres}()},
-\code{\link{print.coxresbound}()},
-\code{\link{print.logitres}()},
-\code{\link{print.poisres}()},
-\code{\link{print.poisresbound}()}
+Other Output and Information Functions:
+\code{\link[=print.caseconres]{print.caseconres()}},
+\code{\link[=print.coxres]{print.coxres()}},
+\code{\link[=print.coxresbound]{print.coxresbound()}},
+\code{\link[=print.logitres]{print.logitres()}},
+\code{\link[=print.logitresbound]{print.logitresbound()}},
+\code{\link[=print.poisres]{print.poisres()}},
+\code{\link[=print.poisresbound]{print.poisresbound()}}
 }
 \concept{Output and Information Functions}

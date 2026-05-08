@@ -92,12 +92,26 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     } else {
       control$guesses <- 10
     }
-    e <- pois_Omnibus_Bounds_transition(
-      as.matrix(df[, ce, with = FALSE]),
-      term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
-      keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
-      model_control, cons_mat, cons_vec
-    )
+    if (model_control[["bisect"]]) {
+      para_number <- model_control$para_number
+      keep_constant[para_number] <- 1
+      if (min(keep_constant) == 1) {
+        model_control["single"] <- TRUE
+      }
+      e <- pois_Omnibus_CurveSearch_transition(
+        as.matrix(df[, ce, with = FALSE]),
+        term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
+        keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
+        model_control, cons_mat, cons_vec
+      )
+    } else {
+      e <- pois_Omnibus_Bounds_transition(
+        as.matrix(df[, ce, with = FALSE]),
+        term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
+        keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
+        model_control, cons_mat, cons_vec
+      )
+    }
     if ("Status" %in% names(e)) {
       if (e$Status != "PASSED") {
         stop(e$Status)
@@ -307,116 +321,6 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
-  e
-}
-
-#' Calculates the likelihood curve for a poisson model directly
-#'
-#' \code{PoissonCurveSolver} solves the confidence interval for a poisson model, starting at the optimum point and
-#' iteratively optimizing each point to using the bisection method
-#'
-#' @inheritParams R_template
-#'
-#' @return returns a list of the final results
-#' @noRd
-#' @family Poisson Wrapper Functions
-#' @importFrom rlang .data
-PoissonCurveSolver <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
-  func_t_start <- Sys.time()
-  # nocov start
-  if (class(df)[[1]] != "data.table") {
-    tryCatch(
-      {
-        setDT(df)
-      },
-      error = function(e) {
-        df <- data.table(df)
-      }
-    )
-  }
-  # nocov end
-  control <- Def_Control(control)
-  model_control <- Def_model_control(model_control)
-  if (typeof(a_n) != "list") {
-    a_n <- list(a_n)
-  }
-  df <- df[get(pyr0) > 0, ]
-  if (min(df[, event0, with = FALSE]) < 0) {
-    stop("Error: negative events in atleast one row")
-  }
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
-  if (sum(df[, event0, with = FALSE]) == 0) {
-    stop("Error: no events")
-  }
-  if ("CONST" %in% names) {
-    if ("CONST" %in% names(df)) {
-      # fine
-    } else {
-      df$CONST <- 1
-    }
-  }
-  if (model_control$strata == TRUE) {
-    ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
-    df <- val$data
-    val_cols <- val$combs
-    strata_vals <- val$levels
-    ## ------------------------------------------------------------------------------- ##
-    if (control$verbose >= 3) {
-      # nocov start
-      message(paste("Note: ", length(strat_col), " strata used",
-        sep = ""
-      ))
-      # nocov end
-    }
-  } else {
-    val <- list(cols = c("a"))
-    val_cols <- c(event0)
-    strata_vals <- c(1)
-  }
-  data.table::setkeyv(df, val_cols)
-  all_names <- unique(names)
-  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-  dfc <- match(names, all_names)
-  term_tot <- max(term_n) + 1
-  x_all <- as.matrix(df[, all_names, with = FALSE])
-  ce <- c(pyr0, event0)
-  a_ns <- c()
-  for (i in a_n) {
-    a_ns <- c(a_ns, i)
-  }
-  res <- Check_Iters(control, a_n)
-  control <- res$control
-  a_n <- res$a_n
-  if ("alpha" %in% names(model_control)) {
-    model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
-  } else {
-    model_control["alpha"] <- 0.05
-    model_control["qchi"] <- qchisq(1 - model_control[["alpha"]], df = 1) / 2
-  }
-  para_number <- model_control$para_number
-  keep_constant[para_number] <- 1
-  if (min(keep_constant) == 1) {
-    model_control["single"] <- TRUE
-  }
-  e <- pois_Omnibus_CurveSearch_transition(
-    as.matrix(df[, ce, with = FALSE]),
-    term_n, tform, a_ns, dfc, x_all, 0, modelform, control,
-    keep_constant, term_tot, strata_vals, as.matrix(df[, val_cols, with = FALSE]),
-    model_control, cons_mat, cons_vec
-  )
-  e$Parameter_Lists$names <- names
-  e$Parameter_Lists$keep_constant <- keep_constant
-  e$Parameter_Lists$modelformula <- modelform
-  e$Survival_Type <- "Poisson"
-  e$modelcontrol <- model_control
-  if (model_control$strata == TRUE) {
-    e$strata_levels <- length(strata_vals)
-  }
-  func_t_end <- Sys.time()
-  e$RunTime <- func_t_end - func_t_start
   e
 }
 

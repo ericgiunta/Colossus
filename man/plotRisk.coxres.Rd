@@ -25,10 +25,10 @@ returns the data used for plots
 vectors specifying the model, and options to choose and save plots
 }
 \seealso{
-Other Plotting Wrapper Functions: 
-\code{\link{plot.coxres}()},
-\code{\link{plotMartingale.coxres}()},
-\code{\link{plotSchoenfeld.coxres}()},
-\code{\link{plotSurvival.coxres}()}
+Other Plotting Wrapper Functions:
+\code{\link[=plot.coxres]{plot.coxres()}},
+\code{\link[=plotMartingale.coxres]{plotMartingale.coxres()}},
+\code{\link[=plotSchoenfeld.coxres]{plotSchoenfeld.coxres()}},
+\code{\link[=plotSurvival.coxres]{plotSurvival.coxres()}}
 }
 \concept{Plotting Wrapper Functions}
