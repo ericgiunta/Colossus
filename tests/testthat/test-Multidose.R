@@ -422,3 +422,57 @@ test_that("Pois multidose MCML swapped columns", {
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
   expect_error(PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE, fma = TRUE))
 })
+test_that("Multidose errors and warning", {
+  fname <- "ll_comp_0.csv"
+  colTypes <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  set.seed(3742)
+  df$rand <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand0 <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand1 <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
+  df$lung <- (df$lung > 0)
+  realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
+  realization_index <- c("rand")
+  keep_constant <- c(1, 0)
+  a_n <- c(0, 0)
+  cens_weight <- c(0)
+  #
+  event <- "lung"
+  a_n <- c(-0.1, -0.1)
+  keep_constant <- c(0, 0)
+
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+
+  verbose <- FALSE
+  j_iterate <- 1
+  LL_comp_1 <- c(-450.7215, -382.8276)
+  LL_comp_2 <- c(-449.5319, -381.6798)
+  LL_comp_3 <- c(-450.8742, -382.8966)
+  k <- 1
+  a_n <- c(0.1, -0.1)
+  # expect_equal(0,0)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  ##
+  #
+  a_n <- c(-0.1, -0.1)
+  expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
+  a_n <- c(0.1, -0.1)
+  df$rand <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand0 <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand1 <- floor(runif(nrow(df), min = 0, max = 0))
+  df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
+  expect_no_error(e <- CoxRunMulti(Cox(t0, t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
+  expect_equal(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
+  #
+  a_n <- c(-0.1, -0.1)
+  expect_error(PoisRunMulti(Pois(t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
+  a_n <- c(0.1, -0.1)
+  df$rand <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand0 <- floor(runif(nrow(df), min = 1, max = 5))
+  df$rand1 <- floor(runif(nrow(df), min = 0, max = 0))
+  df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
+  expect_no_error(e <- PoisRunMulti(Pois(t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
+  expect_equal(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
+  #
+})

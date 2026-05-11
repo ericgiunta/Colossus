@@ -442,8 +442,12 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     model_control, cons_mat, cons_vec
   )
   if ("Status" %in% names(e)) {
-    if (e$Status != "PASSED") {
-      stop(e$Status)
+    if (all(e$Status != "PASSED")) {
+      stop("Error: Every realization failed.")
+    } else if (any(e$Status != "PASSED")) {
+      if (control$verbose >= 2) {
+        warning("Warning: Atleast one realization failed.")
+      }
     }
   }
   e$Parameter_Lists$names <- names
