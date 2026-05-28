@@ -128,7 +128,7 @@ As previously established, the risk groups are formed to measure the probability
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), T \geq t)}{\Delta t}
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{P((t \leq T \leq t + \Delta t) \text{ and }(k=1) | T \geq t)}{\Delta t}
 \end{aligned}
 $$
 </p>
@@ -138,7 +138,7 @@ The competing risks model adjusts this to be the probability that an individual 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(t) = \lim_{\Delta t \to 0} \frac{(P(t \leq T \leq t + \Delta t)\text{ and }(k=1), (T \geq t)\text{ or }((T < t)\text{ and }(k \neq 1)))}{\Delta t}
+    \lambda(t) = \lim_{\Delta t \to 0} \frac{P((t \leq T \leq t + \Delta t) \text{ and }(k=1) | (T \geq t)\text{ or }((T < t)\text{ and }(k \neq 1)))}{\Delta t}
 \end{aligned}
 $$
 </p>
