@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Confidence Interval Selection • Colossus</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Confidence Interval Selection">
 </head>
@@ -238,7 +238,7 @@ regressions converge with similar scores.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.28859e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 64, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.02432 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02705 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>,</span>
@@ -265,7 +265,7 @@ regressions converge with similar scores.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.57097e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 64, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.01256 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01513 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -314,7 +314,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098972 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.7597</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00836 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00933 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -338,7 +338,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84123 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9872</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.0081 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00897 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -376,7 +376,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95011</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00901 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00975 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -401,7 +401,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8044</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.471 at a score of -106.16586 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00946 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01037 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
