@@ -570,11 +570,11 @@ coxmodel <- function(start_age = "",
                      expres_calls = list(),
                      verbose = FALSE) {
   #
-  start_age <- vapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  end_age <- vapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
-  weight <- vapply(weight, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  start_age <- vapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  end_age <- vapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+  weight <- vapply(weight, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
   #
   cox_obj <- list(
     start_age = start_age, end_age = end_age, event = event, strata = strata, weight = weight, null = null,
@@ -605,9 +605,9 @@ poismodel <- function(person_year = "",
                       expres_calls = list(),
                       verbose = FALSE) {
   #
-  person_year <- vapply(person_year, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+  person_year <- vapply(person_year, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   #
   pois_obj <- list(
     person_year = person_year, event = event, strata = strata, null = null,
@@ -639,10 +639,10 @@ caseconmodel <- function(start_age = "",
                          expres_calls = list(),
                          verbose = FALSE) {
   #
-  start_age <- vapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  end_age <- vapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+  start_age <- vapply(start_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  end_age <- vapply(end_age, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   #
   casecon_obj <- list(
     start_age = start_age, end_age = end_age, event = event, strata = strata, null = null,
@@ -672,9 +672,9 @@ logitmodel <- function(trials = "",
                        expres_calls = list(),
                        verbose = FALSE) {
   #
-  trials <- vapply(trials, function(x) tryCatch(match.arg(x, choices = c(names(df), "CONST")), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+  trials <- vapply(trials, function(x) tryCatch(match.arg(x, choices = c(names(df), "CONST")), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  event <- vapply(event, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   #
   logit_obj <- list(
     trials = trials, event = event, strata = strata,
@@ -750,7 +750,7 @@ ColossusControl <- function(verbose = 1,
     }
   }
   control["ties"] <- tolower(control["ties"])
-  control["ties"] <- vapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  control["ties"] <- vapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
   control_min <- list(
     verbose = 0, lr = 0.0, maxiter = -1,
     halfmax = 0, epsilon = 0.0, ll_epsilon = 0.0,

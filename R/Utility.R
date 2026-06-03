@@ -180,7 +180,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -228,7 +228,7 @@ Def_Control <- function(control) {
   )
   #
   names(control) <- tolower(names(control)) # set the names to lowercase
-  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = names(control_def)), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = names(control_def)), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
   control <- control[!duplicated(names(control))] # filter down
   # nocov start
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
@@ -364,7 +364,7 @@ Def_model_control <- function(control) {
   )
   name_full_list <- c(control_def_names, "qchi", "alpha", "para_number", "maxstep", "manual", "search_mult", "step_size", "momentum", "adadelta", "adam", "momentum_decay", "learning_decay", "epsilon_decay", "constraint", "penalty_weight", "penalty_method")
   names(control) <- tolower(names(control)) # set the names to lowercase
-  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = name_full_list), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = name_full_list), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
   control <- control[!duplicated(names(control))] # filter down
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
@@ -673,13 +673,13 @@ factorize <- function(df, col_list, verbose = 0) {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
   # nocov end
-  col_list <- vapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+  col_list <- vapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   verbose <- Check_Verbose(verbose)
   cols <- c()
   col0 <- names(df)
@@ -778,14 +778,14 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
   # nocov end
   verbose <- Check_Verbose(verbose)
-  cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+  cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
     terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs
@@ -877,7 +877,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -952,7 +952,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -1060,7 +1060,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -1124,7 +1124,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -1209,7 +1209,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -1359,7 +1359,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )

@@ -19,7 +19,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -52,7 +52,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   }
   if (model_control$strata == TRUE) {
     ## ------------------------------------------------------------------------------- ##
-    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE)
+    val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
     val_cols <- val$combs
     strata_vals <- val$levels
@@ -169,7 +169,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -256,7 +256,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -347,7 +347,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )

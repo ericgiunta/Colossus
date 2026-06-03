@@ -22,7 +22,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -260,7 +260,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   } else if (grepl("pois", surv_model_type, fixed = TRUE)) {
     model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
     if (all(strata != "NONE")) {
-      strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+      strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
       if (!all(strata %in% names(df))) {
         stop("Error: One of the strata was not in the original data.")
       }
@@ -299,7 +299,7 @@ get_form_list <- function(surv_obj, model_obj, df) {
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -404,7 +404,7 @@ get_form_surv <- function(surv_obj, df) {
   if (!is.null(names(surv_para_list))) {
     names(surv_para_list) <- tolower(names(surv_para_list))
     paraArgs <- c("tstart", "tend", "event", "strata", "weight", "pyr", "trials", "events") # UPDATE IF NEW OPTIONS ARE ADDED
-    names(surv_para_list) <- lapply(names(surv_para_list), function(x) tryCatch(match.arg(x, choices = paraArgs), error = function(e) x))
+    names(surv_para_list) <- lapply(names(surv_para_list), function(x) tryCatch(match.arg(x, choices = paraArgs), error = function(error_message) x))
   }
   if (surv_type %in% c("cox", "coxph", "cx")) {
     res <- do.call(ColossusCoxSurv, surv_para_list)
@@ -605,7 +605,7 @@ get_form_risk <- function(model_obj, df) {
               names(factor_arg_list)[[1]] <- "x"
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
-            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -630,7 +630,7 @@ get_form_risk <- function(model_obj, df) {
             }
             col <- vals[1]
             raised <- vals[2]
-            col <- vapply(col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+            col <- vapply(col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(col %in% names(df))) {
               stop("Error: Column: ", col, " not in data")
             }
@@ -676,7 +676,7 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use ns(), but splines not detected on system.")
             }
-            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -736,7 +736,7 @@ get_form_risk <- function(model_obj, df) {
             if (system.file(package = "splines") == "") {
               stop("Error: Attempted to use bs(), but splines not detected on system.")
             }
-            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -796,7 +796,7 @@ get_form_risk <- function(model_obj, df) {
                 factor_arg_list[[i]] <- copy(df[[factor_vals[[i]]]])
               }
             }
-            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+            factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
@@ -826,7 +826,7 @@ get_form_risk <- function(model_obj, df) {
           #
           # split into the columns
           cols <- strsplit(model_paras[subterm_i], "*", fixed = TRUE)[[1]]
-          cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")
+          cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
           for (col in cols) {
             if (!(col %in% names(df))) {
               # good, it is in there
@@ -901,7 +901,7 @@ get_form_risk <- function(model_obj, df) {
               df$CONST <- 1
             }
           }
-          element_col <- vapply(element_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+          element_col <- vapply(element_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
           if (!element_col %in% names(df)) {
             stop("Error: Subterm column missing: ", element_col)
           }

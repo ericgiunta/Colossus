@@ -21,7 +21,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -284,7 +284,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -334,7 +334,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
@@ -419,7 +419,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   if ("martingale" %in% names(plot_options)) {
     if (plot_options$martingale) {
       if ("cov_cols" %in% names(plot_options)) {
-        plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), FUN.VALUE = "character")
+        plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), FUN.VALUE = "character")
         for (cov_i in seq_along(plot_options$cov_cols)) {
           dose_col <- unlist(plot_options$cov_cols,
             use.names = FALSE
@@ -470,7 +470,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   }
   if (tolower(plot_type[1]) == "risk") {
     if ("cov_cols" %in% names(plot_options)) {
-      plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(e) x), FUN.VALUE = "character")
+      plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), FUN.VALUE = "character")
       for (cov_i in seq_along(plot_options$cov_cols)) {
         dose_col <- unlist(plot_options$cov_cols,
           use.names = FALSE
@@ -667,7 +667,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
