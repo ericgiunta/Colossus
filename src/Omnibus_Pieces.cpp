@@ -695,8 +695,8 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -757,7 +757,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[0];
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         neg_limit = FALSE;
@@ -813,7 +813,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -871,8 +871,8 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -952,7 +952,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[0];
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         neg_limit = FALSE;
@@ -1038,7 +1038,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -1100,8 +1100,8 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -1172,7 +1172,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         iteration++;
         Ll_improve = Ll[0];
         neg_limit = FALSE;
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         //  calculates the initial change in parameter
@@ -1224,7 +1224,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 iter_check = 1;
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {

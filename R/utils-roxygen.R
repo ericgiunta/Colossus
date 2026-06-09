@@ -151,6 +151,7 @@ NULL
 #' @param dt  spacing in time
 #' @param epsilon  minimum acceptable maximum parameter change
 #' @param filename  file to save the data to
+#' @param fir integer to select which term number is treated as the first for risk calculation. Currently held constant and defaulted to 0.
 #' @param gmix_term list of 0/1 to identify which terms to set as Relative Risk (0) or Excess Risk (1)
 #' @param gmix_theta theta value for geometric-mixture model
 #' @param guesses  the number of initial guesses

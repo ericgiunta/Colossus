@@ -195,8 +195,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -253,7 +253,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
             m_g_store.fill(0);
             v_beta_store.fill(0);
         }
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         step_max = step_max0;
@@ -326,7 +326,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
             }
             while ((iteration < maxiter) && (iter_stop == 0)) {
                 iteration++;
-                beta_p = beta_c;  //
+                //
                 beta_a = beta_c;  //
                 beta_best = beta_c;  //
                 Ll_improve = Ll[0];
@@ -386,7 +386,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                         //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                         step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                         thres_step_max = thres_step_max*pow(0.5, halfmax);
-                        beta_p = beta_best;  //
+                        //
                         beta_a = beta_best;  //
                         beta_c = beta_best;  //
                         for (int ij = 0; ij < totalnum; ij++) {
@@ -668,8 +668,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -703,7 +703,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         m_g_store.fill(0);
         v_beta_store.fill(0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -798,7 +798,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[ind0];
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         //  calculates the initial change in parameter
@@ -989,7 +989,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -1269,8 +1269,8 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -1334,7 +1334,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             m_g_store.fill(0);
             v_beta_store.fill(0);
         }
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         step_max = step_max0;
@@ -1407,7 +1407,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             }
             while ((iteration < maxiter) && (iter_stop == 0)) {
                 iteration++;
-                beta_p = beta_c;  //
+                //
                 beta_a = beta_c;  //
                 beta_best = beta_c;  //
                 Ll_improve = Ll[0];
@@ -1455,7 +1455,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
                         //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                         step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                         thres_step_max = thres_step_max*pow(0.5, halfmax);
-                        beta_p = beta_best;  //
+                        //
                         beta_a = beta_best;  //
                         beta_c = beta_best;  //
                         for (int ij = 0; ij < totalnum; ij++) {
@@ -1698,8 +1698,8 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -1738,7 +1738,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         m_g_store.fill(0);
         v_beta_store.fill(0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -1835,7 +1835,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[ind0];
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         //  calculates the initial change in parameter
@@ -2016,7 +2016,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {

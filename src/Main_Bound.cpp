@@ -204,8 +204,8 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -219,7 +219,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -296,7 +295,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
-        beta_p = beta_c;  //
         beta_a = beta_c;  //
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         for (int ijk = 0; ijk < totalnum; ijk++) {
@@ -372,7 +370,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //
-    beta_p = beta_peak;  //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     for (int ij = 0; ij < totalnum; ij++) {
@@ -419,7 +416,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
-        beta_p = beta_c;  //
         beta_a = beta_c;  //
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         //
@@ -644,11 +640,11 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -660,7 +656,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -783,7 +779,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_peak;  //
+        //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
         step_max = step_max0;
@@ -816,7 +812,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             neg_limit = FALSE;
@@ -850,7 +846,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -898,7 +894,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -1007,7 +1003,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         //
@@ -1086,7 +1082,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  Now refresh matrices back to the maximum point
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -1154,7 +1150,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_peak;  //
+        //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
         step_max = step_max0;
@@ -1185,7 +1181,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             //  calculates the initial change in parameter
@@ -1215,7 +1211,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -1263,7 +1259,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -1358,7 +1354,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         //
@@ -1568,10 +1564,10 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -1582,7 +1578,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -1655,7 +1651,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
 
         //
@@ -1741,7 +1737,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
         Rcout << "C++ Note: STARTING Lower Bound" << endl;
         // # nocov end
     }
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     for (int ij = 0; ij < totalnum; ij++) {
@@ -1784,7 +1780,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
@@ -2003,11 +1999,11 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -2017,7 +2013,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -2126,7 +2122,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_peak;  //
+        //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
         step_max = step_max0;
@@ -2157,7 +2153,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             neg_limit = FALSE;
@@ -2189,7 +2185,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -2233,7 +2229,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -2335,7 +2331,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
@@ -2414,7 +2410,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  Now refresh matrices back to the maximum point
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -2479,7 +2475,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_peak;  //
+        //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
         step_max = step_max0;
@@ -2510,7 +2506,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             //  calculates the initial change in parameter
@@ -2539,7 +2535,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -2583,7 +2579,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -2678,7 +2674,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         //
         for (int ijk = 0; ijk < totalnum; ijk++) {
@@ -2927,8 +2923,8 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -2941,7 +2937,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -3020,7 +3016,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
@@ -3119,7 +3115,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     for (int ij = 0; ij < totalnum; ij++) {
@@ -3166,7 +3162,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         //
         for (int ijk = 0; ijk < totalnum; ijk++) {
@@ -3432,11 +3428,11 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -3447,7 +3443,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -3561,7 +3557,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_peak;  //
+        //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
         step_max = step_max0;
@@ -3600,7 +3596,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             neg_limit = FALSE;
@@ -3635,7 +3631,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -3683,7 +3679,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -3792,7 +3788,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         //
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         //
         for (int ijk = 0; ijk < totalnum; ijk++) {
@@ -3871,7 +3867,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  Now refresh matrices back to the maximum point
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -3938,7 +3934,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         fill(Ll.begin(), Ll.end(), 0.0);
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
-        beta_p = beta_peak;  //
+        //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
         step_max = step_max0;
@@ -3975,7 +3971,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             //  calculates the initial change in parameter
@@ -4006,7 +4002,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -4054,7 +4050,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -4150,7 +4146,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         //
         for (int ijk = 0; ijk < totalnum; ijk++) {
@@ -4380,10 +4376,10 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -4397,7 +4393,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -4884,11 +4880,11 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_peak(totalnum, 0.0);
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -4898,7 +4894,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -5364,10 +5360,10 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
     vector<double> beta_peak(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
+    //
     vector<double> beta_lower(totalnum, 0.0);
     vector<double> beta_upper(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -5380,7 +5376,7 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     fill(Ll.begin(), Ll.end(), 0.0);
     fill(Lld.begin(), Lld.end(), 0.0);
     fill(Lldd.begin(), Lldd.end(), 0.0);
-    beta_p = beta_peak;  //
+    //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;

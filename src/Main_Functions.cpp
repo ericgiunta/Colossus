@@ -270,8 +270,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -322,7 +322,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             m_g_store.fill(0);
             v_beta_store.fill(0);
         }
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         step_max = step_max0;
@@ -375,7 +375,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         while ((iteration < maxiter) && (iter_stop == 0)) {
             Ll_improve = Ll[ind0];
             iteration++;
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             neg_limit = FALSE;
@@ -439,7 +439,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                     step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
                     //
-                    beta_p = beta_best;  //
+                    //
                     beta_a = beta_best;  //
                     beta_c = beta_best;  //
                     for (int ij = 0; ij < totalnum; ij++) {
@@ -496,7 +496,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -557,7 +557,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
     while ((iteration < maxiter) && (iter_stop == 0)) {
         Ll_improve = Ll[ind0];
         iteration++;
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         neg_limit = FALSE;
@@ -620,7 +620,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -917,8 +917,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -984,7 +984,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
             m_g_store.fill(0);
             v_beta_store.fill(0);
         }
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         step_max = step_max0;
@@ -1040,7 +1040,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         while ((iteration < maxiter) && (iter_stop == 0)) {
             Ll_improve = Ll[ind0];
             iteration++;
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             neg_limit = FALSE;
@@ -1092,7 +1092,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
                     //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                     step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
-                    beta_p = beta_best;  //
+                    //
                     beta_a = beta_best;  //
                     beta_c = beta_best;  //
                     for (int ij = 0; ij < totalnum; ij++) {
@@ -1165,7 +1165,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -1223,7 +1223,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[ind0];
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         neg_limit = FALSE;
@@ -1279,7 +1279,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -1586,8 +1586,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -1644,7 +1644,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             m_g_store.fill(0);
             v_beta_store.fill(0);
         }
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         strata_p = strata_best;  //
@@ -1707,7 +1707,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         while ((iteration < maxiter) && (iter_stop == 0)) {
             Ll_improve = Ll[ind0];
             iteration++;
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             strata_p = strata_c;  //
@@ -1842,7 +1842,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                     step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
                     //
-                    beta_p = beta_best;  //
+                    //
                     beta_a = beta_best;  //
                     beta_c = beta_best;  //
                     for (int ij = 0; ij < totalnum; ij++) {
@@ -1892,7 +1892,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             }
         }
         if (model_bool["gradient"]) {
-            beta_p = beta_best;  //
+            //
             beta_a = beta_best;  //
             beta_c = beta_best;  //
             for (int ij = 0; ij < totalnum; ij++) {
@@ -1948,7 +1948,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
     }
     dev = 0.0;
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     strata_p = strata_best;  //
@@ -2018,7 +2018,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
         Ll_improve = Ll[ind0];
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         strata_p = strata_c;  //
@@ -2155,7 +2155,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
@@ -2210,7 +2210,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
     //               NOW WE WRAP UP
     //  ----------------------------------------------------------------------------------- //
     if (model_bool["gradient"]) {
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         for (int ij = 0; ij < totalnum; ij++) {
@@ -2457,8 +2457,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
     vector<double> beta_c(totalnum, 0.0);
     vector<double> beta_a(totalnum, 0.0);
     vector<double> beta_best(totalnum, 0.0);
-    vector<double> beta_p(totalnum, 0.0);
-    VectorXd::Map(&beta_p[0], beta_0.size()) = beta_0;  //  stores previous parameters
+    //
+    //
     VectorXd::Map(&beta_c[0], beta_0.size()) = beta_0;  //  stores current parameters
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
@@ -2503,7 +2503,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
             m_g_store.fill(0);
             v_beta_store.fill(0);
         }
-        beta_p = beta_best;  //
+        //
         beta_a = beta_best;  //
         beta_c = beta_best;  //
         step_max = step_max0;
@@ -2569,7 +2569,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
             Ll_improve = Ll[ind0];
-            beta_p = beta_c;  //
+            //
             beta_a = beta_c;  //
             beta_best = beta_c;  //
             neg_limit = FALSE;
@@ -2668,7 +2668,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                     //  If it goes through every half step without improvement, then the maximum change needs to be decreased
                     step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                     thres_step_max = thres_step_max*pow(0.5, halfmax);
-                    beta_p = beta_best;  //
+                    //
                     beta_a = beta_best;  //
                     beta_c = beta_best;  //
                     for (int ij = 0; ij < totalnum; ij++) {
@@ -2740,7 +2740,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(Lldd.begin(), Lldd.end(), 0.0);
     }
-    beta_p = beta_best;  //
+    //
     beta_a = beta_best;  //
     beta_c = beta_best;  //
     step_max = step_max0;
@@ -2803,7 +2803,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[ind0];
-        beta_p = beta_c;  //
+        //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
         neg_limit = FALSE;
@@ -2908,7 +2908,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                 step_max = step_max*pow(0.5, halfmax);  //  reduces the step sizes
                 thres_step_max = thres_step_max*pow(0.5, halfmax);
                 //
-                beta_p = beta_best;  //
+                //
                 beta_a = beta_best;  //
                 beta_c = beta_best;  //
                 for (int ij = 0; ij < totalnum; ij++) {
