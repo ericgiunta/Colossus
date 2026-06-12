@@ -445,9 +445,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0
         }
     }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //  Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, 0);
     int kept_covs = totalnum - sum(KeepConstant);  //  does !base the standard deviation off of constant parameters

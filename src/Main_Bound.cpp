@@ -216,9 +216,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     vector<double> beta_abs_best(totalnum, 0.0);
     //
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
     step_max = step_max0;
@@ -653,9 +650,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<double> beta_abs_best(totalnum, 0.0);
     //
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -784,7 +778,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         beta_c = beta_peak;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_stop = 0;
         halves = 0;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
@@ -899,7 +892,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     beta_c = beta_best;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_stop = 0;
     halves = 0;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
@@ -1155,9 +1147,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         beta_c = beta_peak;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_stop = 0;
-        halves = 0;
-        iteration = 0;
         Ll_iter_best = 10;
         halves = 0;  //  number of half-steps taken
         ind0 = fir;  //  used for validations
@@ -1264,9 +1253,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     beta_c = beta_best;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_stop = 0;
-    halves = 0;
-    iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
@@ -1524,19 +1510,18 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-    } else {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        //
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-        //
-        dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
-        dslp = step_max;
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
-    }
+    //
+    Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    //
+    Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    //
+    dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
+    dslp = step_max;
+    RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    //
     VectorXd s_weights;
     vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
@@ -1574,10 +1559,6 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  //  stores the best parameters
     int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     vector<double> beta_abs_best(totalnum, 0.0);
-    //
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -1954,17 +1935,16 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-    } else {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-        dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
-        dslp = step_max;
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
-    }
+    //
+    Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
+    dslp = step_max;
+    RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    //
     VectorXd s_weights;
     vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
@@ -2010,9 +1990,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  //  stores the peak parameters
     int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     vector<double> beta_abs_best(totalnum, 0.0);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -2127,9 +2104,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         beta_c = beta_peak;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_stop = 0;
-        halves = 0;
-        iteration = 0;
         halves = 0;  //  number of half-steps taken
         ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
@@ -2234,9 +2208,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     beta_c = beta_peak;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_stop = 0;
-    halves = 0;
-    iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
@@ -2480,9 +2451,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         beta_c = beta_peak;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_stop = 0;
-        halves = 0;
-        iteration = 0;
         halves = 0;  //  number of half-steps taken
         ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
@@ -2584,9 +2552,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     beta_c = beta_best;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_stop = 0;
-    halves = 0;
-    iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
@@ -2871,29 +2836,27 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-    } else {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        //
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-        Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
-        Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
-        //
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
-        PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
-        PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
-        PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
-        PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
-    }
+    //
+    Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    //
+    Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
+    Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
+    //
+    RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
+    PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
+    PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
+    PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
+    //
     //  ------------------------------------------------------------------------- //  initialize
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
     MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 3);
-    double dev = 0.0;
     //  ------------------------------------------------------------------------- //  initialize
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
@@ -2929,14 +2892,9 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     VectorXd::Map(&beta_a[0], beta_0.size()) = beta_0;  //  stores a refrence value for parameters
     VectorXd::Map(&beta_best[0], beta_0.size()) = beta_0;  //  stores the best parameters
     VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  //  stores the best parameters
-    int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     //
     //
     vector<double> beta_abs_best(totalnum, 0.0);
-    //
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -3056,7 +3014,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
         bound_val = 1;
         main_halves = 0;
         //  We need both valid R and P values, so we run until P is valid
-        while (((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))) {
+        while ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN())) {
             // Inside we check for R being valid
             Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, dfs, PyrC, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
             for (int ij = 0; ij < totalnum; ij++) {
@@ -3070,7 +3028,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
                 break;
             }
             // If the loop is about to continue, we cut the step size in half
-            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] / 2.0;
                 }
@@ -3203,7 +3161,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
         bound_val = 0;
         main_halves = 0;
         //  We need both valid R and P values, so we run until P is valid
-        while ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN())) {
+        while ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN())) {
             // Inside we check for R being valid
             Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, dfs, PyrC, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
             for (int ij = 0; ij < totalnum; ij++) {
@@ -3217,7 +3175,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
                 break;
             }
             // If the loop is about to continue, we cut the step size in half
-            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] / 2.0;
                 }
@@ -3379,23 +3337,22 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-    } else {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        //
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-        Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
-        Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
-        //
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
-        PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
-        PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
-        PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
-        PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
-    }
+    //
+    Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    //
+    Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
+    Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
+    //
+    RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
+    PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
+    PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
+    PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
+    //
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
@@ -3439,10 +3396,6 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  //  stores the peak parameters
     int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     vector<double> beta_abs_best(totalnum, 0.0);
-    //
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -3562,9 +3515,6 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         beta_c = beta_peak;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_stop = 0;
-        halves = 0;
-        iteration = 0;
         halves = 0;  //  number of half-steps taken
         ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
@@ -3583,7 +3533,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
             Ll[0] = 404;  //  note to consider this point too far
         } else {
             LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
-            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                 iter_stop = 1;
                 Ll[0] = 404;  //  note to consider this point too far
             } else {
@@ -3684,9 +3634,6 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     beta_c = beta_best;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_stop = 0;
-    halves = 0;
-    iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
@@ -3939,9 +3886,6 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         beta_c = beta_peak;  //
         step_max = step_max0;
         thres_step_max = thres_step_max0;
-        iter_stop = 0;
-        halves = 0;
-        iteration = 0;
         Ll_iter_best = 10;
         halves = 0;  //  number of half-steps taken
         ind0 = fir;  //  used for validations
@@ -3958,7 +3902,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
             Ll[0] = 404;  //  note to consider this point too far
         } else {
             LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
-            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                 iter_stop = 1;
                 Ll[0] = 404;  //  note to consider this point too far
             } else {
@@ -4055,9 +3999,6 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     beta_c = beta_best;  //
     step_max = step_max0;
     thres_step_max = thres_step_max0;
-    iter_stop = 0;
-    halves = 0;
-    iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
@@ -4390,9 +4331,6 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     vector<double> beta_abs_best(totalnum, 0.0);
     //
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -4835,17 +4773,16 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-    } else {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-        dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
-        dslp = step_max;
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
-    }
+    //
+    Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    dint = thres_step_max;  //  the amount of change used to calculate derivatives in threshold paramters
+    dslp = step_max;
+    RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    //
     VectorXd s_weights;
     vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
     if (model_bool["strata"]) {
@@ -4891,9 +4828,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     VectorXd::Map(&beta_peak[0], beta_0.size()) = beta_0;  //  stores the peak parameters
     int iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     vector<double> beta_abs_best(totalnum, 0.0);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //
@@ -5311,23 +5245,22 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-    } else {
-        Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
-        Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-        //
-        Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
-        Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-        Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
-        Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
-        //
-        RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
-        RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
-        PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
-        PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
-        PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
-        PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
-    }
+    //
+    Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    //
+    Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
+    Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
+    //
+    RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
+    PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
+    PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
+    PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
+    //
     //  ------------------------------------------------------------------------- //  initialize
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
@@ -5373,9 +5306,6 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     //
     vector<double> beta_abs_best(totalnum, 0.0);
     //
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //
     beta_a = beta_peak;  //
     beta_c = beta_peak;  //

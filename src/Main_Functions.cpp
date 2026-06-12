@@ -639,8 +639,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
-        Lld_worst = 0;
-        for (int ij = 0; ij < reqrdnum; ij++) {
+        Lld_worst = abs(Lld[0]);
+        for (int ij = 1; ij < reqrdnum; ij++) {
             if (abs(Lld[ij]) > Lld_worst) {
                 Lld_worst = abs(Lld[ij]);
             }
@@ -700,8 +700,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector term_n, StringVector tform, NumericMatr
             dbeta_max = abs(dbeta[ij]);
         }
     }
-    Lld_worst = 0;
-    for (int ij = 0; ij < reqrdnum; ij++) {
+    Lld_worst = abs(Lld[0]);
+    for (int ij = 1; ij < reqrdnum; ij++) {
         if (abs(Lld[ij]) > Lld_worst) {
             Lld_worst = abs(Lld[ij]);
         }
@@ -1111,8 +1111,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
                     }
                 }
             }
-            Lld_worst = 0;
-            for (int ij = 0; ij < reqrdnum; ij++) {
+            Lld_worst = abs(Lld[0]);
+            for (int ij = 1; ij < reqrdnum; ij++) {
                 if (abs(Lld[ij]) > Lld_worst) {
                     Lld_worst = abs(Lld[ij]);
                 }
@@ -1298,8 +1298,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
                 }
             }
         }
-        Lld_worst = 0;
-        for (int ij = 0; ij < reqrdnum; ij++) {
+        Lld_worst = abs(Lld[0]);
+        for (int ij = 1; ij < reqrdnum; ij++) {
             if (abs(Lld[ij]) > Lld_worst) {
                 Lld_worst = abs(Lld[ij]);
             }
@@ -1350,8 +1350,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, 
             dbeta_max = abs(dbeta[ij]);
         }
     }
-    Lld_worst = 0;
-    for (int ij = 0; ij < reqrdnum; ij++) {
+    Lld_worst = abs(Lld[0]);
+    for (int ij = 1; ij < reqrdnum; ij++) {
         if (abs(Lld[ij]) > Lld_worst) {
             Lld_worst = abs(Lld[ij]);
         }
@@ -2247,8 +2247,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector term_n, StringVector tform, NumericMat
             dbeta_max = abs(dbeta[ij]);
         }
     }
-    Lld_worst = 0;
-    for (int ij = 0; ij < reqrdnum; ij++) {
+    Lld_worst = abs(Lld[0]);
+    for (int ij = 1; ij < reqrdnum; ij++) {
         if (abs(Lld[ij]) > Lld_worst) {
             Lld_worst = abs(Lld[ij]);
         }
@@ -2600,7 +2600,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                 //
-                if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+                if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] / 2.0;
                     }
@@ -2640,7 +2640,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                     //
-                    if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+                    if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] / 2.0;
                         }
@@ -2687,8 +2687,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                     }
                 }
             }
-            Lld_worst = 0;
-            for (int ij = 0; ij < reqrdnum; ij++) {
+            Lld_worst = abs(Lld[0]);
+            for (int ij = 1; ij < reqrdnum; ij++) {
                 if (abs(Lld[ij]) > Lld_worst) {
                     Lld_worst = abs(Lld[ij]);
                 }
@@ -2837,7 +2837,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
             LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
             //
             //
-            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+            if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     dbeta[ijk] = dbeta[ijk] / 2.0;
                 }
@@ -2877,7 +2877,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                 //
-                if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (R.hasNaN()))  {
+                if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                     for (int ijk = 0; ijk < totalnum; ijk++) {
                         dbeta[ijk] = dbeta[ijk] / 1.5;
                     }
@@ -2927,8 +2927,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
                 }
             }
         }
-        Lld_worst = 0;
-        for (int ij = 0; ij < reqrdnum; ij++) {
+        Lld_worst = abs(Lld[0]);
+        for (int ij = 1; ij < reqrdnum; ij++) {
             if (abs(Lld[ij]) > Lld_worst) {
                 Lld_worst = abs(Lld[ij]);
             }
@@ -2982,8 +2982,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector 
             dbeta_max = abs(dbeta[ij]);
         }
     }
-    Lld_worst = 0;
-    for (int ij = 0; ij < reqrdnum; ij++) {
+    Lld_worst = abs(Lld[0]);
+    for (int ij = 1; ij < reqrdnum; ij++) {
         if (abs(Lld[ij]) > Lld_worst) {
             Lld_worst = abs(Lld[ij]);
         }
