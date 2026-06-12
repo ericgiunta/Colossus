@@ -89,27 +89,27 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -265,9 +265,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
     List res_list;
     //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     upper = true;
     int step = -1;
@@ -530,27 +530,27 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -704,15 +704,15 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
     vector<double> ll_final(2, 0.0);
     List res_list;
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING BOUNDS" << endl;
-        // # nocov end
+        // nocov end
     }
     //  //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     upper = true;
     //  Now define the list of points to check
@@ -909,7 +909,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         }
     }
     if (verbose >= 3) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Upper Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -921,7 +921,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
-        // # nocov end
+        // nocov end
     }
     NumericVector beta_temp;
     NumericVector beta_temp0;
@@ -1118,7 +1118,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         }
     }
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         for (int i = 0; i < guesses; i++) {
             Rcout << "C++ Note: Initial guess " << i << ": ";
             for (int j = 0; j < totalnum; j++) {
@@ -1126,7 +1126,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
             }
             Rcout << " " << endl;
         }
-        // # nocov end
+        // nocov end
     }
     //  now we have the points to test
     halves = 0;  //  number of half-steps taken
@@ -1266,7 +1266,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
         }
     }
     if (verbose >= 3) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Lower Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -1278,7 +1278,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
-        // # nocov end
+        // nocov end
     }
     if (best_guess == 0) {
         beta_temp = wrap(beta_fin.row(best_guess));  //  the first point was closest, no lower bound
@@ -1456,18 +1456,18 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -1608,9 +1608,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     List res_list;
     //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     upper = true;
     int step = -1;
@@ -1714,9 +1714,9 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Lower Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     //
     beta_a = beta_peak;  //
@@ -1879,18 +1879,18 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -2057,7 +2057,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         }
     }
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         for (int i = 0; i < guesses; i++) {
             Rcout << "C++ Note: Initial guess " << i << ": ";
             for (int j = 0; j < totalnum; j++) {
@@ -2065,7 +2065,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             }
             Rcout << " " << endl;
         }
-        // # nocov end
+        // nocov end
     }
     //  now we have the points to test
     double halves = 0;  //  number of half-steps taken
@@ -2223,7 +2223,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         }
     }
     if (verbose >= 3) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Upper Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -2235,7 +2235,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
-        // # nocov end
+        // nocov end
     }
     NumericVector beta_temp;
     NumericVector beta_temp0;
@@ -2425,7 +2425,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         }
     }
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         for (int i = 0; i < guesses; i++) {
             Rcout << "C++ Note: Initial guess " << i << ": ";
             for (int j = 0; j < totalnum; j++) {
@@ -2433,7 +2433,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             }
             Rcout << " " << endl;
         }
-        // # nocov end
+        // nocov end
     }
     //  now we have the points to test
     halves = 0;  //  number of half-steps taken
@@ -2565,7 +2565,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         }
     }
     if (verbose >= 3) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Lower Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -2577,7 +2577,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
-        // # nocov end
+        // nocov end
     }
     if (best_guess == 0) {
         beta_temp = wrap(beta_fin.row(best_guess));  //  the first point was closest, no lower bound
@@ -2592,13 +2592,13 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         }
     }
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Initial Guess: ";
         for (int i = 0; i < beta_0.size(); i++) {
             Rcout << beta_temp[i] << " ";
         }
         Rcout << " " << endl;
-        // # nocov end
+        // nocov end
     }
     for (int i = 0; i < beta_0.size(); i++) {
         a_n[i] = beta_temp[i];
@@ -2755,27 +2755,27 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -2947,9 +2947,9 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     List res_list;
     //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     upper = true;
     int step = -1;
@@ -3260,27 +3260,27 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["gradient"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
         return temp_list;
@@ -3451,15 +3451,15 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     vector<double> ll_final(2, 0.0);
     List res_list;
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING BOUNDS" << endl;
-        // # nocov end
+        // nocov end
     }
     //  //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     upper = true;
     //  Now define the list of points to check
@@ -3649,7 +3649,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         }
     }
     if (verbose >= 3) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Upper Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -3661,7 +3661,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
-        // # nocov end
+        // nocov end
     }
     NumericVector beta_temp;
     NumericVector beta_temp0;
@@ -3858,7 +3858,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         }
     }
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         for (int i = 0; i < guesses; i++) {
             Rcout << "C++ Note: Initial guess " << i << ": ";
             for (int j = 0; j < totalnum; j++) {
@@ -3866,7 +3866,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
             }
             Rcout << " " << endl;
         }
-        // # nocov end
+        // nocov end
     }
     //  now we have the points to test
     halves = 0;  //  number of half-steps taken
@@ -4012,7 +4012,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         }
     }
     if (verbose >= 3) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: Lower Guess Results" << endl;
         Rcout << "Guess number, parameter values, Log-Likelihood change" << endl;
         NumericVector beta_temp;
@@ -4024,7 +4024,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
                 Rcout << i << ", " << beta_temp << ", " << LL_fin[i] - Lstar << endl;
             }
         }
-        // # nocov end
+        // nocov end
     }
     if (best_guess == 0) {
         beta_temp = wrap(beta_fin.row(best_guess));  //  the first point was closest, no lower bound
@@ -4204,27 +4204,27 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     // if (model_bool["constraint"]) {
     //     if (verbose >= 1) {
-    //         // # nocov start
+    //         // nocov start
     //         Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-    //         // # nocov end
+    //         // nocov end
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
     //     return temp_list;
@@ -4360,9 +4360,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     List res_list;
     //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     bool convgd = false;
     ///
@@ -4395,7 +4395,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_H[ij];
         }
-        temp_step = temp_step * 0.5;
+        temp_step = temp_step / 2.0;
         //
         reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
         temp_L[0] = reg_out["LogLik"];
@@ -4469,7 +4469,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_0[ij] = beta_H[ij];
                     }
-                    temp_step = temp_step * 0.5;
+                    temp_step = temp_step / 2.0;
                     //
                     reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
                     temp_L[0] = reg_out["LogLik"];
@@ -4516,9 +4516,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  upper limit found, now solve lower limit
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Lower Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     for (int ij = 0; ij < totalnum; ij++) {
         beta_L[ij] = beta_peak[ij];
@@ -4533,7 +4533,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_L[ij];
         }
-        temp_step = temp_step * 0.5;
+        temp_step = temp_step / 2.0;
         //
         reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
         temp_L[0] = reg_out["LogLik"];
@@ -4607,7 +4607,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_0[ij] = beta_L[ij];
                     }
-                    temp_step = temp_step * 0.5;
+                    temp_step = temp_step / 2.0;
                     //
                     reg_out = Cox_Full_Run(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
                     temp_L[0] = reg_out["LogLik"];
@@ -4691,36 +4691,36 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
     // if (model_bool["gradient"]) {
     //     if (verbose >= 1) {
-    //         // # nocov start
+    //         // nocov start
     //         Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-    //         // # nocov end
+    //         // nocov end
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
     //     return temp_list;
     // }
     // if (model_bool["constraint"]) {
     //     if (verbose >= 1) {
-    //         // # nocov start
+    //         // nocov start
     //         Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-    //         // # nocov end
+    //         // nocov end
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
     //     return temp_list;
@@ -4856,9 +4856,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     List res_list;
     //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     bool convgd = false;
     ///
@@ -4886,7 +4886,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_H[ij];
         }
-        temp_step = temp_step * 0.5;
+        temp_step = temp_step / 2.0;
         //
         reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, RiskPairs_Strata_Pois, Strata_vals, dfs, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
         temp_L[0] = reg_out["LogLik"];
@@ -4960,7 +4960,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_0[ij] = beta_H[ij];
                     }
-                    temp_step = temp_step * 0.5;
+                    temp_step = temp_step / 2.0;
                     //
                     reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, RiskPairs_Strata_Pois, Strata_vals, dfs, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
                     temp_L[0] = reg_out["LogLik"];
@@ -5019,7 +5019,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_L[ij];
         }
-        temp_step = temp_step * 0.5;
+        temp_step = temp_step / 2.0;
         //
         reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, RiskPairs_Strata_Pois, Strata_vals, dfs, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
         temp_L[0] = reg_out["LogLik"];
@@ -5093,7 +5093,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_0[ij] = beta_L[ij];
                     }
-                    temp_step = temp_step * 0.5;
+                    temp_step = temp_step / 2.0;
                     //
                     reg_out = Pois_Full_Run(PyrC, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, RiskPairs_Strata_Pois, Strata_vals, dfs, s_weights, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter, Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
                     temp_L[0] = reg_out["LogLik"];
@@ -5177,18 +5177,18 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "null model is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     if (model_bool["single"]) {
         if (verbose >= 1) {
-            // # nocov start
+            // nocov start
             Rcout << "non-derivative model calculation is not compatable with log-based bound calculation" << endl;
-            // # nocov end
+            // nocov end
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
@@ -5336,9 +5336,9 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     List res_list;
     //
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     bool convgd = false;
     ///
@@ -5371,7 +5371,7 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_H[ij];
         }
-        temp_step = temp_step * 0.5;
+        temp_step = temp_step / 2.0;
         //
         reg_out = Logist_Full_Run(CountEvent, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter,  Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
         temp_L[0] = reg_out["LogLik"];
@@ -5445,7 +5445,7 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_0[ij] = beta_H[ij];
                     }
-                    temp_step = temp_step * 0.5;
+                    temp_step = temp_step / 2.0;
                     //
                     reg_out = Logist_Full_Run(CountEvent, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter,  Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
                     temp_L[0] = reg_out["LogLik"];
@@ -5492,9 +5492,9 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     //  upper limit found, now solve lower limit
     if (verbose >= 4) {
-        // # nocov start
+        // nocov start
         Rcout << "C++ Note: STARTING Lower Bound" << endl;
-        // # nocov end
+        // nocov end
     }
     for (int ij = 0; ij < totalnum; ij++) {
         beta_L[ij] = beta_peak[ij];
@@ -5509,7 +5509,7 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_L[ij];
         }
-        temp_step = temp_step * 0.5;
+        temp_step = temp_step / 2.0;
         //
         reg_out = Logist_Full_Run(CountEvent, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter,  Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
         temp_L[0] = reg_out["LogLik"];
@@ -5583,7 +5583,7 @@ List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Coun
                     for (int ij = 0; ij < totalnum; ij++) {
                         beta_0[ij] = beta_L[ij];
                     }
-                    temp_step = temp_step * 0.5;
+                    temp_step = temp_step / 2.0;
                     //
                     reg_out = Logist_Full_Run(CountEvent, reqrdnum, tform, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, nthreads, KeepConstant, verbose, model_bool, iter_stop, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, modelform, gmix_theta, gmix_term, convgd, lr, optim_para, maxiter,  Lin_Sys, Lin_Res, term_n, dfc, halfmax, epsilon, deriv_epsilon, ll_epsilon);
                     temp_L[0] = reg_out["LogLik"];

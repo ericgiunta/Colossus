@@ -384,7 +384,7 @@ test_that("Coxph, lin both", {
   for (alpha_i in c(1, 2, 3, 4, 5)) {
     alpha <- alpha_list[alpha_i]
     curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = FALSE, "maxstep" = 20)
-    e0 <- LikelihoodBound(logitres, df, curve_control, control = control)
+    e0 <- LikelihoodBound(logitres, df, curve_control, control = control, para_number = 2)
     a0 <- e0$Parameter_Limits
     curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = TRUE, "maxstep" = 20)
     e1 <- LikelihoodBound(logitres, df, curve_control, control = control)

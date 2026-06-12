@@ -67,8 +67,12 @@ test_that("Basic gmix application to formula", {
   expect_no_error(get_form(model, df))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5)
   expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5, 1)
+  expect_error(get_form(model, df))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix("e")
   expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix("f")
+  expect_error(get_form(model, df))
   #
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix - r()
   expect_no_error(get_form(model, df))
@@ -294,6 +298,7 @@ test_that("General Form Errors", {
   #
   expect_error(get_form(Cox(t0, t1, lung) ~ dose, df)) # not defined right side term
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^a)), df)) # not a numeric power
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^1^2)), df)) # multiple powers
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose * a), df)) # missing interaction column
   #
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose) + M() + A(), df)) # modelform defined twice

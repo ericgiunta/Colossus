@@ -827,6 +827,12 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
           }
           if (min(df[[f2]]) == max(df[[f2]])) {
             if (min(df[[f2]]) == 0) {
+              if (verbose >= 2) {
+                warning(paste("Warning: ", f2,
+                  " is equal to zero, removed.",
+                  sep = ""
+                ))
+              }
               toRemove <- c(toRemove, f2) # remove zero values
             }
           }
@@ -1278,7 +1284,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
         )
       }
     } else {
-      temp <- list(rep(0, length(temp0)))
+      temp <- list(rep(0.1, length(temp0)))
       names(temp) <- i
       a_n_list <- c(a_n_list, temp)
     }
@@ -1458,7 +1464,10 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           norm_weight <- c(norm_weight, val)
         }
       } else {
-        stop("Error: norm option ", norm, " wasn't coded yet")
+        stop(gettextf(
+          "Error: Normalization arguement '%s' not valid.",
+          norm
+        ), domain = NA)
       }
       for (i in seq_along(names)) {
         if (typeof(a_n) != "list") {
@@ -2885,6 +2894,7 @@ Interpret_Output <- function(out_list, digits = 3) {
     run_time_sec <- as.numeric(out_list$RunTime, units = "secs")
     run_time_min <- as.numeric(out_list$RunTime, units = "mins")
     run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
+    # nocov start
     if (run_time_sec < 60) {
       message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
     } else if (run_time_min < 60) {
@@ -2892,6 +2902,7 @@ Interpret_Output <- function(out_list, digits = 3) {
     } else {
       message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
     }
+    # nocov end
   }
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }

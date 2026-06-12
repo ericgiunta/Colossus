@@ -48,7 +48,7 @@ cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/Rcpp
 cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/RcppExports.* src/*.h
 ```
 
-Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks.
+Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks to identify other potential issues.
 ```r
 goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[7:230])
 ```

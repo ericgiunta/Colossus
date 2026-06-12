@@ -464,6 +464,7 @@ test_that("Multidose errors and warning", {
   df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
   expect_no_error(e <- CoxRunMulti(Cox(t0, t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   expect_equal(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
+  expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ null(), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   #
   a_n <- c(-0.1, -0.1)
   expect_error(PoisRunMulti(Pois(t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
@@ -474,5 +475,6 @@ test_that("Multidose errors and warning", {
   df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
   expect_no_error(e <- PoisRunMulti(Pois(t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   expect_equal(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
+  expect_error(PoisRunMulti(Pois(t1, lung) ~ null(), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   #
 })

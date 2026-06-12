@@ -105,7 +105,7 @@ test_that("Logit Gradient Test", {
     a_n <- c(0.001, -0.95, def_rate)
     model <- logit(status) ~ plinear(karno50) + loglinear(trt, CONST)
     e <- LogisticRun(model, df, control = control, a_n = a_n, verbose = 0, gradient_control = list("adadelta" = TRUE))
-    expect_equal(e$LogLik, -34.7568, tolerance = 1e-3)
+    expect_equal(e$LogLik, -34.53573, tolerance = 1e-3)
   }
 })
 

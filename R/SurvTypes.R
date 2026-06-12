@@ -156,8 +156,8 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     len_1 <- length(gmix_term_1)
     len_2 <- length(gmix_term_2)
     len_s <- length(gmix_term_s)
-    if (len_1 < len_2) {
-      if (len_s < len_1) {
+    if (len_1 <= len_2) {
+      if (len_s <= len_1) {
         # 2 is longest
         if (any(gmix_term_s != gmix_term_2[1:len_s])) {
           stop("Error: Second model and shared model have different geometric mixture term values.")
@@ -166,6 +166,35 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
           stop("Error: Second model and first model have different geometric mixture term values.")
         }
         gmix_term <- gmix_term_2
+      } else {
+        # shared is the longest
+        if (any(gmix_term_2 != gmix_term_s[1:len_2])) {
+          stop("Error: Shared model and second model have different geometric mixture term values.")
+        }
+        if (any(gmix_term_1 != gmix_term_s[1:len_1])) {
+          stop("Error: Shared model and first model have different geometric mixture term values.")
+        }
+        gmix_term <- gmix_term_s
+      }
+    } else {
+      if (len_s <= len_2) {
+        # 1 is longest
+        if (any(gmix_term_s != gmix_term_1[1:len_s])) {
+          stop("Error: First model and shared model have different geometric mixture term values.")
+        }
+        if (any(gmix_term_2 != gmix_term_1[1:len_2])) {
+          stop("Error: First model and second model have different geometric mixture term values.")
+        }
+        gmix_term <- gmix_term_1
+      } else {
+        # shared is the longest
+        if (any(gmix_term_2 != gmix_term_s[1:len_2])) {
+          stop("Error: Shared model and second model have different geometric mixture term values.")
+        }
+        if (any(gmix_term_1 != gmix_term_s[1:len_1])) {
+          stop("Error: Shared model and first model have different geometric mixture term values.")
+        }
+        gmix_term <- gmix_term_s
       }
     }
   }
@@ -713,11 +742,11 @@ get_form_risk <- function(model_obj, df) {
             factor_arg_list <- list()
             for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
-              para_break <- sapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="))[[1]]
-              if (length(para_break) == 0) {
+              if (str_count(para_cur, "=") == 0) {
                 # no name, just add to list
                 factor_arg_list[[i]] <- para_cur
               } else {
+                para_break <- vapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="), numeric(str_count(para_cur, "=")))[[1]]
                 item_name <- substr(para_cur, 1, para_break - 1)
                 item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
@@ -769,7 +798,7 @@ get_form_risk <- function(model_obj, df) {
           } else {
             # ----------------------------------------------------------------------------------- #
             # generic function call
-            para_split <- sapply(strsplit(model_paras[subterm_i], "", fixed = TRUE), function(x) which(x == "("))[[1]]
+            para_split <- vapply(strsplit(model_paras[subterm_i], "", fixed = TRUE), function(x) which(x == "("), numeric(str_count(model_paras[subterm_i], "\\(")))[[1]]
             exp_name <- substr(model_paras[subterm_i], 1, para_split - 1)
             factor_args <- substr(model_paras[subterm_i], para_split + 1, nchar(model_paras[subterm_i]) - 1)
             factor_args <- nested_split(factor_args)
@@ -777,11 +806,11 @@ get_form_risk <- function(model_obj, df) {
             factor_arg_list <- list()
             for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
-              para_break <- sapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="))[[1]]
-              if (length(para_break) == 0) {
+              if (str_count(para_cur, "=") == 0) {
                 # no name, just add to list
                 factor_arg_list[[i]] <- para_cur
               } else {
+                para_break <- vapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="), numeric(str_count(para_cur, "=")))[[1]]
                 item_name <- substr(para_cur, 1, para_break - 1)
                 item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)

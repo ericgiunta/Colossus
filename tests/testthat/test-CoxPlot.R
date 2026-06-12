@@ -148,6 +148,7 @@ test_that("Coxph risk plotting above discrete step number limit", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(plotRisk(e, df, "fname" = paste(tempfile(), "run", sep = ""), studyid = "a", verbose = 0))
+    expect_no_error(plotRisk(e, df, "fname" = paste(tempfile(), "run", sep = ""), studyid = "a", verbose = 0, a_n = c(-2.0)))
     expect_error(plotRisk(e, df, "fname" = paste(tempfile(), "run", sep = ""), studyid = "a", bad = 0))
     expect_error(plotRisk(e, df, plot_options = c(0))$d)
     expect_no_error(ep <- plotRisk(e, df, plot_options)$d)
@@ -168,6 +169,7 @@ test_that("Coxph plot no error", {
   e <- CoxRun(Cox(tend = b, event = c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     # expect_no_error(ep <- plot(e, df, plot_options, verbose = 0)$standard)
+    expect_error(ep <- plotSurvival(e, df, plot_options, verbose = 0, wrong_parameter = "really bad"))
     expect_no_error(ep <- plotSurvival(e, df, plot_options, verbose = 0)$standard)
     expect_equal(ep$h, c(0.0000000, 0.2551694, 0.3987517), tolerance = 1e-4)
   }
