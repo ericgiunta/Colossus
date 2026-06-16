@@ -28,7 +28,6 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/CoxRun.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/CoxRunMulti.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Date_Shift.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/EventAssignment.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/EventAssignment.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/EventAssignment.poisres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/EventAssignment.poisresbound.html</loc></url>
@@ -36,7 +35,6 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Event_Time_Gen.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Joint_Multiple_Events.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.logitres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LikelihoodBound.poisres.html</loc></url>
@@ -49,10 +47,8 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/PoisRunJoint.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/PoisRunMulti.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/RelativeRisk.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/RelativeRisk.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/RelativeRisk.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Replace_Missing.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.poisres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/System_Version.html</loc></url>
@@ -64,23 +60,12 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/index.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plot.coxres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotMartingale.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/plotMartingale.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotMartingale.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotRisk.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/plotRisk.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotRisk.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotSchoenfeld.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/plotSchoenfeld.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotSchoenfeld.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotSurvival.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/plotSurvival.default.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/plotSurvival.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.caseconres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.coxres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.coxresbound.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.logitres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.logitresbound.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.poisres.html</loc></url>
-<url><loc>https://ericgiunta.github.io/Colossus/reference/print.poisresbound.html</loc></url>
 </urlset>
 

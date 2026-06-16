@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -229,7 +229,6 @@ regressions converge with similar scores.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
 <span><span class="co">#&gt; Survival Age Column was: 'time', Outcome Column was: 'status'</span></span>
-<span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
 <span><span class="co">#&gt; Risk Groups Used: 22</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 210.77793,  AIC: 214.77793</span></span>
@@ -238,7 +237,7 @@ regressions converge with similar scores.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.28859e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 64, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.02696 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02725 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>,</span>
@@ -256,7 +255,6 @@ regressions converge with similar scores.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
 <span><span class="co">#&gt; Survival Age Column was: 'time', Outcome Column was: 'status'</span></span>
-<span><span class="co">#&gt; Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...</span></span>
 <span><span class="co">#&gt; Risk Groups Used: 22</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 208.49028,  AIC: 212.49028</span></span>
@@ -265,7 +263,7 @@ regressions converge with similar scores.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.57097e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 64, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.0148 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01501 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -314,7 +312,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098972 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.7597</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00935 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00913 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -338,7 +336,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84123 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9872</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00903 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00917 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -376,7 +374,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95011</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00959 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00964 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -401,7 +399,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8044</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.471 at a score of -106.16586 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.01033 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01032 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
