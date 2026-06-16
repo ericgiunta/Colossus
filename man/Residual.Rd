@@ -14,5 +14,7 @@ Residual(x, df, ...)
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{Residual} Generic Residual calculation function
+\code{Residual} Generic residual calculation function for Poisson
+results. Note that the Cox residuals are calculated using the various
+plotting based functions.
 }

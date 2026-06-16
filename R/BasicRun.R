@@ -1221,7 +1221,9 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
 
 #' Generic relative risk calculation function
 #'
-#' \code{RelativeRisk} Generic relative risk calculation function
+#' \code{RelativeRisk} Generic relative risk calculation function,
+#' currently only used by the coxres object, to calculate relative risks
+#' for either the last parameter or a custom point.
 #' @param x result object from a regression, class coxres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
@@ -1236,6 +1238,7 @@ RelativeRisk <- function(x, df, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
+#' @noRd
 #' @export
 RelativeRisk.default <- function(x, df, ...) {
   x
@@ -1347,7 +1350,9 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 
 #' Generic Risk Plotting function
 #'
-#' \code{plotRisk} Generic Risk Plotting
+#' \code{plotRisk} Generic risk plotting function. Used by the coxres
+#' object to plot the hazard ratios at different levels of individual
+#' covariates. Currently only returns data that could be plotted.
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
@@ -1362,6 +1367,7 @@ plotRisk <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @noRd
 #' @export
 plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
   x
@@ -1424,7 +1430,9 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 
 #' Generic Schoenfeld Residual Plotting function
 #'
-#' \code{plotSchoenfeld} Generic Schoenfeld Residual Plotting
+#' \code{plotSchoenfeld} Generic Schoenfeld residual plotting function, used by
+#' the coxres object to calculate Schoenfeld residuals. Currently only returns
+#' data that could be plotted.
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
@@ -1439,6 +1447,7 @@ plotSchoenfeld <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @noRd
 #' @export
 plotSchoenfeld.default <- function(x, df, plot_options, a_n = c(), ...) {
   x
@@ -1498,7 +1507,9 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 
 #' Generic Martingale Residual Plotting function
 #'
-#' \code{plotMartingale} Generic Martingale Residual Plotting
+#' \code{plotMartingale} Generic martingale residual plotting, used by the
+#' coxres object to plot martingale residuals. Currently only returns data
+#' that could be plotted.
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
@@ -1513,6 +1524,7 @@ plotMartingale <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @noRd
 #' @export
 plotMartingale.default <- function(x, df, plot_options, a_n = c(), ...) {
   x
@@ -1573,7 +1585,10 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 
 #' Generic Survival Plotting function
 #'
-#' \code{plotSurvival} Generic Survival Plotting
+#' \code{plotSurvival} Generic survival plotting, used by the coxres
+#' object. Calculates the baseline hazard, cumulative hazard, and survival
+#' curve for the list of event times. Currently only returns data that could be
+#' plotted.
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
@@ -1588,6 +1603,7 @@ plotSurvival <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @noRd
 #' @export
 plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
   x
@@ -1680,7 +1696,8 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' Performs Cox Proportional Hazard model plots
 #'
 #' \code{plot.coxres} uses user provided data, time/event columns,
-#' vectors specifying the model, and options to choose and save plots
+#' vectors specifying the model, and options to choose and save plots.
+#' The 'plot_options' variable can be used to select the types of plots run.
 #'
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
@@ -1882,7 +1899,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
 #' res <- CoxRun(formula, df, control = control)
-CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
@@ -2021,14 +2038,30 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       model_control[nm] <- gradient_control[nm]
     }
   }
-  if (fma != mcml) {
-    model_control["mcml"] <- mcml
-    fma <- !mcml
-  } else {
-    if (fma) {
-      stop("Error: Do not select both fma and mcml, only pick one")
+  # We want to prioritize the selected option
+  if (missing(fma)) {
+    # fma isn't given
+    if (missing(mcml)) {
+      # both are missing
+      model_control["mcml"] <- mcml
+    } else {
+      # use the mcml value
+      model_control["mcml"] <- mcml
+      fma <- !mcml
     }
-    model_control["mcml"] <- mcml
+  } else {
+    # fma is given
+    if (missing(mcml)) {
+      # only fma is given
+      mcml <- !fma
+      model_control["mcml"] <- mcml
+    } else {
+      # both are given
+      if (fma == mcml) {
+        stop("Error: Do not select both fma and mcml, only pick one")
+      }
+      model_control["mcml"] <- mcml
+    }
   }
   model_control["single"] <- single
   model_control["observed_info"] <- observed_info
@@ -2046,6 +2079,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   res$model <- coxmodel
   res$modelcontrol <- model_control
   res$control <- control
+  res$realizations <- ncol(realization_columns)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
@@ -2098,7 +2132,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
 #' res <- PoisRun(formula, df, control = control)
-PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = FALSE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
@@ -2217,14 +2251,30 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
       model_control[nm] <- gradient_control[nm]
     }
   }
-  if (fma != mcml) {
-    model_control["mcml"] <- mcml
-    fma <- !mcml
-  } else {
-    if (fma) {
-      stop("Error: Do not select both fma and mcml, only pick one")
+  # We want to prioritize the selected option
+  if (missing(fma)) {
+    # fma isn't given
+    if (missing(mcml)) {
+      # both are missing
+      model_control["mcml"] <- mcml
+    } else {
+      # use the mcml value
+      model_control["mcml"] <- mcml
+      fma <- !mcml
     }
-    model_control["mcml"] <- mcml
+  } else {
+    # fma is given
+    if (missing(mcml)) {
+      # only fma is given
+      mcml <- !fma
+      model_control["mcml"] <- mcml
+    } else {
+      # both are given
+      if (fma == mcml) {
+        stop("Error: Do not select both fma and mcml, only pick one")
+      }
+      model_control["mcml"] <- mcml
+    }
   }
   model_control["single"] <- single
   model_control["observed_info"] <- observed_info
@@ -2242,6 +2292,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   res$model <- poismodel
   res$modelcontrol <- model_control
   res$control <- control
+  res$realizations <- ncol(realization_columns)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
@@ -2259,7 +2310,9 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 
 #' Generic likelihood boundary calculation function
 #'
-#' \code{LikelihoodBound} Generic likelihood boundary calculation function
+#' \code{LikelihoodBound} Generic likelihood boundary calculation function. Used
+#' by the coxres, poisres, and logitres objects to calculate likelihood based
+#' confidence intervals.
 #' @param x result object from a regression, class coxres or poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
@@ -2274,6 +2327,7 @@ LikelihoodBound <- function(x, df, curve_control = list(), control = list(), ...
 #' @param x result object from a regression, class coxres or poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
+#' @noRd
 #' @export
 LikelihoodBound.default <- function(x, df, curve_control = list(), control = list(), ...) {
   x
@@ -2850,7 +2904,8 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
 
 #' Generic background/excess event calculation function
 #'
-#' \code{EventAssignment} Generic background/excess event calculation function
+#' \code{EventAssignment} Generic background/excess event calculation function for
+#' standard poisson regressions and likelihood based confidence interval results.
 #' @param x result object from a regression, class poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
@@ -2865,6 +2920,7 @@ EventAssignment <- function(x, df, ...) {
 #' @param x result object from a regression, class poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
+#' @noRd
 #' @export
 EventAssignment.default <- function(x, df, ...) {
   x
@@ -3250,7 +3306,9 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
 
 #' Generic Residual calculation function
 #'
-#' \code{Residual} Generic Residual calculation function
+#' \code{Residual} Generic residual calculation function for Poisson
+#' results. Note that the Cox residuals are calculated using the various
+#' plotting based functions.
 #' @param x result object from a regression, class coxres or poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
@@ -3265,6 +3323,7 @@ Residual <- function(x, df, ...) {
 #' @param x result object from a regression, class coxres or poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
+#' @noRd
 #' @export
 Residual.default <- function(x, df, ...) {
   x

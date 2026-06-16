@@ -201,3 +201,11 @@
 # Colossus 1.5.2
 
 * Added likelihood-based confidence intervals for logistic regression
+
+# Colossus 1.5.3
+
+* Added options to print multiple-realizations results
+* Monte Carlo Maximum Likelihood results are printed like normal regressions, while also listing the number of realizations used.
+* Frequentist Model Averaging results print the general model information and number of realizations, and details on how to access the realization specific results.
+* Multiple-realization functions can now be used with the non-derivative option to calculate the log-likelihood at a single point, without calculating derivatives.
+

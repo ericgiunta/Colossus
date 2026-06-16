@@ -2331,17 +2331,17 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   list(df = as.data.table(df_group), bounds = categ_bounds)
 }
 
-#' Prints a cox regression output clearly
+#' Prints regression output cleanly
 #'
-#' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#' \code{general_print} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres
+#' @param x result object from a regression
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
+#' @noRd
 #' @return return nothing, prints the results to console
-#' @export
 #' @family Output and Information Functions
-print.coxres <- function(x, ...) {
+general_print <- function(x, ...) {
   exargs <- list(...)
   digits <- 3
   if ("digits" %in% names(exargs)) {
@@ -2354,6 +2354,46 @@ print.coxres <- function(x, ...) {
     }
   }
   Interpret_Output(x, digits)
+}
+
+#' Prints fma regression output cleanly
+#'
+#' \code{general_fma_print} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @noRd
+#' @return return nothing, prints the results to console
+#' @family Output and Information Functions
+general_fma_print <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 3
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_FMA_Output(x, digits)
+}
+
+#' Prints a cox regression output clearly
+#'
+#' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.coxres <- function(x, ...) {
+  general_print(x, ...)
 }
 
 #' Prints a poisson regression output clearly
@@ -2364,21 +2404,11 @@ print.coxres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.poisres <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a case-control regression output clearly
@@ -2389,21 +2419,11 @@ print.poisres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.caseconres <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a logistic regression output clearly
@@ -2414,21 +2434,11 @@ print.caseconres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.logitres <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a cox likelihood boundary regression output clearly
@@ -2439,21 +2449,11 @@ print.logitres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.coxresbound <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a poisson likelihood boundary regression output clearly
@@ -2464,21 +2464,11 @@ print.coxresbound <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.poisresbound <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a logistic likelihood boundary regression output clearly
@@ -2489,21 +2479,71 @@ print.poisresbound <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.logitresbound <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
+}
+
+#' Prints a cox MCML regression output clearly
+#'
+#' \code{print.coxresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.coxresmcml <- function(x, ...) {
+  general_print(x, ...)
+}
+
+#' Prints a poisson MCML regression output clearly
+#'
+#' \code{print.poisresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class poisresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.poisresmcml <- function(x, ...) {
+  general_print(x, ...)
+}
+
+#' Prints a cox FMA regression output clearly
+#'
+#' \code{print.coxresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.coxresfma <- function(x, ...) {
+  general_fma_print(x, ...)
+}
+
+#' Prints a poisson FMA regression output clearly
+#'
+#' \code{print.poisresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class poisresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.poisresfma <- function(x, ...) {
+  general_fma_print(x, ...)
 }
 
 #' Prints a regression output clearly
@@ -2567,9 +2607,9 @@ Interpret_Output <- function(out_list, digits = 3) {
       }
     } else {
       # Check if its a multidose problem
-      if (out_list$Survival_Type == "Cox_Multidose") {
-        message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
-      } else if (is(out_list, "caseconres")) {
+      #      if (out_list$Survival_Type == "Cox_Multidose") {
+      #        message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
+      if (is(out_list, "caseconres")) {
         # case control output
         # get the model details
         null_model <- out_list$modelcontrol$null
@@ -2647,7 +2687,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message("\nMatched Case-Control Model Used")
-        if (!null_model) {
+        if ((!null_model) && (min(term_n) != max(term_n))) {
           message(form_type)
         }
         if (all(strata != "NONE")) {
@@ -2793,7 +2833,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Survival Weighting Column was :'", cens_weight, "'")
           }
           #
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
@@ -2803,6 +2843,41 @@ Interpret_Output <- function(out_list, digits = 3) {
           message("Risk Groups Used: ", risk_groups)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+        } else if (is(out_list, "coxresmcml")) {
+          if (cens_weight == "NONE") {
+            # cox model
+            message("\nCox Model Used")
+          } else {
+            # fine-gray model
+            message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+          }
+          #
+          tstart <- out_list$model$start_age
+          tend <- out_list$model$end_age
+          event <- out_list$model$event
+          if (tstart == "right_trunc") {
+            message("Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          } else if (tend == "left_trunc") {
+            message("Entry Age Column was: '", tstart, "', Outcome Column was: '", event, "'")
+          } else {
+            message("Entry Age Column was: '", tstart, "', Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          }
+          if (cens_weight != "NONE") {
+            message("Survival Weighting Column was :'", cens_weight, "'")
+          }
+          #
+          if ((!null_model) && (min(term_n) != max(term_n))) {
+            message(form_type)
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
+          risk_groups <- out_list$RiskGroups
+          message("Risk Groups Used: ", risk_groups)
+          realizations <- out_list$realizations
+          message("Realizations Used: ", realizations)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
@@ -2810,13 +2885,31 @@ Interpret_Output <- function(out_list, digits = 3) {
           evt_col <- out_list$model$event
           message("Person-year Column: '", pyr_col, "'")
           message("Event Column: '", evt_col, "'")
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
             message("Strata split into ", strata_level, " distinct levels", sep = "")
           }
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else if (is(out_list, "poisresmcml")) {
+          # poisson model
+          message("\nPoisson Model Used")
+          pyr_col <- out_list$model$person_year
+          evt_col <- out_list$model$event
+          message("Person-year Column: '", pyr_col, "'")
+          message("Event Column: '", evt_col, "'")
+          if ((!null_model) && (min(term_n) != max(term_n))) {
+            message(form_type)
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+            message("Strata split into ", strata_level, " distinct levels", sep = "")
+          }
+          realizations <- out_list$realizations
+          message("Realizations Used: ", realizations)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
@@ -2838,7 +2931,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             }
           }
           message(link, " Linking Function Used")
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
@@ -2848,7 +2941,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
@@ -2904,5 +2997,140 @@ Interpret_Output <- function(out_list, digits = 3) {
     }
     # nocov end
   }
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+}
+
+#' Prints a FMA regression output clearly
+#'
+#' \code{Interpret_FMA_Output} uses the list output from a FMA regression, summarizes the model and some results.
+#'
+#' @inheritParams R_template
+#'
+#' @noRd
+#' @return return nothing, prints the results to console
+Interpret_FMA_Output <- function(out_list, digits = 3) {
+  # make sure the output isn't an error
+  passed <- out_list$Status
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+
+  # get the model details
+  KeptRecords <- out_list$UsedRecords
+  RemovedRecords <- out_list$RejectedRecords
+  ##
+  names <- out_list$Parameter_Lists$names
+  tforms <- out_list$Parameter_Lists$tforms
+  term_n <- out_list$Parameter_Lists$term_n
+  keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+  res_table <- data.table(
+    Covariate = names,
+    Subterm = tforms,
+    `Term Number` = term_n,
+    Constant = keep_constant
+  )
+  if (!any(keep_constant)) {
+    res_table <- res_table[, names(res_table)[names(res_table) != "Constant"], with = FALSE]
+  }
+  if (min(term_n) == max(term_n)) {
+    res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
+  }
+  #
+  modelform <- out_list$model$modelform
+  form_type <- case_when(
+    modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+    modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+    modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+    modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+    modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+    modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+    .default = "Unknown"
+  )
+  #
+  message("Final Serial Analysis Results")
+  print(res_table)
+  # get the model results
+  LogLik <- out_list$LogLik
+  AIC <- out_list$AIC
+  BIC <- out_list$BIC
+  deviation <- out_list$Deviation
+  strata <- out_list$model$strata
+  strata_level <- out_list$strata_levels
+  cens_weight <- out_list$model$weight
+  #
+  message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+  if (is(out_list, "coxresfma")) {
+    if (cens_weight == "NONE") {
+      # cox model
+      message("\nCox Model Used")
+    } else {
+      # fine-gray model
+      message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+    }
+    #
+    tstart <- out_list$model$start_age
+    tend <- out_list$model$end_age
+    event <- out_list$model$event
+    if (tstart == "right_trunc") {
+      message("Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+    } else if (tend == "left_trunc") {
+      message("Entry Age Column was: '", tstart, "', Outcome Column was: '", event, "'")
+    } else {
+      message("Entry Age Column was: '", tstart, "', Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+    }
+    if (cens_weight != "NONE") {
+      message("Survival Weighting Column was :'", cens_weight, "'")
+    }
+    #
+    if (min(term_n) != max(term_n)) {
+      message(form_type)
+    }
+    if (all(strata != "NONE")) {
+      message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+    }
+    risk_groups <- out_list$RiskGroups
+    message("Risk Groups Used: ", risk_groups)
+    realizations <- out_list$realizations
+    message("Realizations Used: ", realizations)
+    message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+  } else if (is(out_list, "poisresfma")) {
+    # poisson model
+    message("\nPoisson Model Used")
+    pyr_col <- out_list$model$person_year
+    evt_col <- out_list$model$event
+    message("Person-year Column: '", pyr_col, "'")
+    message("Event Column: '", evt_col, "'")
+    if (min(term_n) != max(term_n)) {
+      message(form_type)
+    }
+    if (all(strata != "NONE")) {
+      message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+      message("Strata split into ", strata_level, " distinct levels", sep = "")
+    }
+    realizations <- out_list$realizations
+    message("Realizations Used: ", realizations)
+    message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+  } else {
+    stop("\nUnknown Model Used")
+  }
+  if ("RunTime" %in% names(out_list)) {
+    run_time_sec <- as.numeric(out_list$RunTime, units = "secs")
+    run_time_min <- as.numeric(out_list$RunTime, units = "mins")
+    run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
+    # nocov start
+    if (run_time_sec < 60) {
+      message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
+    } else if (run_time_min < 60) {
+      message(paste("Run finished in ", round(run_time_min, digits), " minutes", sep = ""))
+    } else {
+      message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
+    }
+    # nocov end
+  }
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+  if (all(passed != "PASSED")) {
+    message("Error: Every realization failed.")
+  } else if (any(passed != "PASSED")) {
+    message("Warning: Atleast one realization failed.")
+  }
+  message("Further results can be extracted using 'output$LogLik', 'output$Parameters', 'output$Standard_Error', etc.")
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }

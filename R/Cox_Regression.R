@@ -815,7 +815,11 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   )
   if ("Status" %in% names(e)) {
     if (all(e$Status != "PASSED")) {
-      stop("Error: Every realization failed.")
+      if (model_control$MCML == TRUE) {
+        stop(e$Status)
+      } else {
+        stop("Error: Every realization failed.")
+      }
     } else if (any(e$Status != "PASSED")) {
       if (control$verbose >= 2) {
         warning("Warning: Atleast one realization failed.")

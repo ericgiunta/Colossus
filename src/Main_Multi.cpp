@@ -65,7 +65,7 @@ using Rcpp::Dimension;
 //' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
 //' @noRd
 //'
-List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -102,15 +102,15 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["single"]) {
-        if (verbose >= 1) {
-            // nocov start
-            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-            // nocov end
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+    // if (model_bool["single"]) {
+    //     if (verbose >= 1) {
+    //         // nocov start
+    //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+    //         // nocov end
+    //     }
+    //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
+    //     return temp_list;
+    // }
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
@@ -393,6 +393,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
                             beta_0[ij] = beta_best[ij];
                         }
                         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                        Ll_improve = Ll[ind0] - Ll_improve;
                     } else {
                         Ll_improve = Ll[ind0] - Ll_improve;
                         if (abs(Ll_improve) < ll_epsilon) {   // ends if the score improvement is too low
@@ -446,83 +447,82 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
             AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
             BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
             status_fin[guess] = "PASSED";
-            MatrixXd cov;
-            NumericVector stdev(totalnum);
-            if (model_bool["observed_info"]) {
-                NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
-                for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-                    int ij = 0;
-                    int jk = ijk;
-                    while (jk > ij) {
-                        ij++;
-                        jk -= ij;
+            if (!model_bool["single"]) {
+                MatrixXd cov;
+                NumericVector stdev(totalnum);
+                if (model_bool["observed_info"]) {
+                    NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
+                    #ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk > ij) {
+                            ij++;
+                            jk -= ij;
+                        }
+                        Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
+                        Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
                     }
-                    Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
-                    Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
-                }
-                Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-                const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-                //
-                cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
-                for (int ij = 0; ij < totalnum; ij++) {
-                    if (KeepConstant[ij] == 0) {
-                        int pij_ind = ij - sum(head(KeepConstant, ij));
-                        stdev(ij) = sqrt(cov(pij_ind, pij_ind));
-                    }
-                }
-            } else {
-                //
-                vector<double> InMa(pow(reqrdnum, 2), 0.0);
-                if (model_bool["strata"]) {
-                    if (model_bool["cr"]) {
-                        Expected_Inform_Matrix_Cox_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
-                    } else {
-                        Expected_Inform_Matrix_Cox_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
+                    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+                    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+                    //
+                    cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+                    for (int ij = 0; ij < totalnum; ij++) {
+                        if (KeepConstant[ij] == 0) {
+                            int pij_ind = ij - sum(head(KeepConstant, ij));
+                            stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+                        }
                     }
                 } else {
-                    if (model_bool["cr"]) {
-                        Expected_Inform_Matrix_Cox_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
+                    //
+                    vector<double> InMa(pow(reqrdnum, 2), 0.0);
+                    if (model_bool["strata"]) {
+                        if (model_bool["cr"]) {
+                            Expected_Inform_Matrix_Cox_Strata_CR(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, Strata_vals, KeepConstant);
+                        } else {
+                            Expected_Inform_Matrix_Cox_Strata(nthreads, RiskFail, RiskPairs_Strata, totalnum, ntime, R, Rd, RdR, InMa, Strata_vals, KeepConstant);
+                        }
                     } else {
-                        Expected_Inform_Matrix_Cox(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
+                        if (model_bool["cr"]) {
+                            Expected_Inform_Matrix_Cox_CR(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, cens_weight, InMa, KeepConstant);
+                        } else {
+                            Expected_Inform_Matrix_Cox(nthreads, RiskFail, RiskPairs, totalnum, ntime, R, Rd, RdR, InMa, KeepConstant);
+                        }
+                    }
+                    NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
+                    #ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk > ij) {
+                            ij++;
+                            jk -= ij;
+                        }
+                        InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+                        InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
+                    }
+                    InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+                    const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+                    cov = InMa_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+                    for (int ij = 0; ij < totalnum; ij++) {
+                        if (KeepConstant[ij] == 0) {
+                            int pij_ind = ij - sum(head(KeepConstant, ij));
+                            stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+                        }
                     }
                 }
-                NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
-                for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-                    int ij = 0;
-                    int jk = ijk;
-                    while (jk > ij) {
-                        ij++;
-                        jk -= ij;
-                    }
-                    InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
-                    InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
-                }
-                InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-                const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
-                cov = InMa_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
-                for (int ij = 0; ij < totalnum; ij++) {
-                    if (KeepConstant[ij] == 0) {
-                        int pij_ind = ij - sum(head(KeepConstant, ij));
-                        stdev(ij) = sqrt(cov(pij_ind, pij_ind));
-                    }
-                }
+                std_fin(guess, _) = stdev;
             }
-            std_fin(guess, _) = stdev;
         }
     }
-    List para_list;
-    if (!model_bool["basic"]) {
-        para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
-    }
+    List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List res_list;  //  = List::create(_["LogLik"] = wrap(LL_fin), _["parameters"] = wrap(beta_fin), _["error"] = wrap(std_fin));
-    if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["RiskGroups"] = total_risk_groups);
+    if (model_bool["single"]) {
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Parameter_Lists"] = para_list, _["Status"] = wrap(status_fin), _["RiskGroups"] = total_risk_groups);
     } else {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["RiskGroups"] = total_risk_groups);
     }
@@ -539,7 +539,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector term_n, StringVector t
 //' @return List of final results: standard cox outputs for the integrated solution
 //' @noRd
 //'
-List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -572,15 +572,15 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    if (model_bool["single"]) {
-        if (verbose >= 1) {
-            // nocov start
-            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-            // nocov end
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+    // if (model_bool["single"]) {
+    //     if (verbose >= 1) {
+    //         // nocov start
+    //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+    //         // nocov end
+    //     }
+    //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
+    //     return temp_list;
+    // }
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
@@ -687,11 +687,12 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     double Ll_improve = 0.0;
     vector<double> beta_abs_best(totalnum, 0.0);
     //  Variables that are used for the risk check function shared across cox, poisson, and log bound functions
-    MatrixXd dev_temp = MatrixXd::Zero(1, 1);
+    // MatrixXd dev_temp = MatrixXd::Zero(1, 1);
     VectorXd s_weights(1);
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     MatrixXd dfs = MatrixXd::Zero(1, 1);
     bool convgd = FALSE;
+    bool neg_limit = FALSE;
     //
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     if (model_bool["gradient"]) {
@@ -796,6 +797,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
+        neg_limit = FALSE;
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
             if (model_bool["constraint"]) {
@@ -852,6 +854,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                             dbeta[ijk] = dbeta[ijk] / 1.5;
                         }
                     }
+                    neg_limit = true;
                     halves+=0.5;
                     feasible_pass = FALSE;
                     guess = guesses;
@@ -930,6 +933,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                                 dbeta[ijk] = dbeta[ijk] / 1.5;
                             }
                         }
+                        neg_limit = true;
                         halves+=0.5;
                         feasible_pass = FALSE;
                         guess = guesses;
@@ -990,7 +994,9 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_best[ij];
                 }
+                Ll_improve = Ll[ind0] - Ll_improve;
             } else {
+                Ll_improve = Ll[ind0] - Ll_improve;
                 if (abs(Ll_improve) < ll_epsilon) {   // ends if the score improvement is too low
                     iter_stop = 1;
                     convgd = TRUE;
@@ -1019,7 +1025,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         if (dbeta_max < epsilon) {  //  if the maximum change is too low, then it ends
             iter_stop = 1;
         }
-        Ll_improve = Ll[ind0] - Ll_improve;
+        // Ll_improve = Ll[ind0] - Ll_improve;
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
@@ -1055,17 +1061,14 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
     model_bool["gradient"] = true_gradient;
     //
     List res_list;
+    List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
         //  returns a list of results
         return res_list;
     }
-    List para_list;
-    if (!model_bool["basic"]) {
-        para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
-    }
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP
@@ -1135,11 +1138,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
         }
     }
     //
-    if (model_bool["basic"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
-    } else {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
-    }
+    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     //  returns a list of results
     return res_list;
 }
@@ -1153,7 +1152,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector term_n, StringVect
 //' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
 //' @noRd
 //'
-List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1174,15 +1173,15 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     double deriv_epsilon = optim_para["deriv_epsilon"];
     double ll_epsilon = optim_para["ll_epsilon"];
     //  ------------------------------------------------------------------------- //  initialize
-    if (model_bool["single"]) {
-        if (verbose >= 1) {
-            // nocov start
-            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-            // nocov end
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+    // if (model_bool["single"]) {
+    //     if (verbose >= 1) {
+    //         // nocov start
+    //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+    //         // nocov end
+    //     }
+    //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
+    //     return temp_list;
+    // }
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
@@ -1457,6 +1456,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
                             beta_0[ij] = beta_best[ij];
                         }
                         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                        Ll_improve = Ll[ind0] - Ll_improve;
                     } else {
                         Ll_improve = Ll[ind0] - Ll_improve;
                         if (abs(Ll_improve) < ll_epsilon) {   // ends if the score improvement is too low
@@ -1512,72 +1512,78 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
             dev_fin[guess] = dev;
             status_fin[guess] = "PASSED";
-            MatrixXd cov;
-            NumericVector stdev(totalnum);
-            if (model_bool["observed_info"]) {
-                NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
-                for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-                    int ij = 0;
-                    int jk = ijk;
-                    while (jk > ij) {
-                        ij++;
-                        jk -= ij;
+            if (!model_bool["single"]) {
+                MatrixXd cov;
+                NumericVector stdev(totalnum);
+                if (model_bool["observed_info"]) {
+                    NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
+                    #ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk > ij) {
+                            ij++;
+                            jk -= ij;
+                        }
+                        Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
+                        Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
                     }
-                    Lldd_vec[ij * reqrdnum + jk] = Lldd[ij*reqrdnum+jk];
-                    Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
-                }
-                Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-                const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-                //
-                cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
-                for (int ij = 0; ij < totalnum; ij++) {
-                    if (KeepConstant[ij] == 0) {
-                        int pij_ind = ij - sum(head(KeepConstant, ij));
-                        stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+                    Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+                    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+                    //
+                    cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+                    for (int ij = 0; ij < totalnum; ij++) {
+                        if (KeepConstant[ij] == 0) {
+                            int pij_ind = ij - sum(head(KeepConstant, ij));
+                            stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+                        }
                     }
-                }
-            } else {
-                //
-                vector<double> InMa(pow(reqrdnum, 2), 0.0);
-                if (model_bool["strata"]) {
-                    Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
                 } else {
-                    Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
-                }
-                NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
-                #ifdef _OPENMP
-                #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-                #endif
-                for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-                    int ij = 0;
-                    int jk = ijk;
-                    while (jk > ij) {
-                        ij++;
-                        jk -= ij;
+                    //
+                    vector<double> InMa(pow(reqrdnum, 2), 0.0);
+                    if (model_bool["strata"]) {
+                        Expected_Inform_Matrix_Poisson_Strata(nthreads, totalnum, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, R, Rd, Rdd, RdR, InMa, KeepConstant);
+                    } else {
+                        Expected_Inform_Matrix_Poisson(nthreads, totalnum, PyrC, R, Rd, RdR, InMa, KeepConstant);
                     }
-                    InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
-                    InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
-                }
-                InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-                const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
-                cov = InMa_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
-                for (int ij = 0; ij < totalnum; ij++) {
-                    if (KeepConstant[ij] == 0) {
-                        int pij_ind = ij - sum(head(KeepConstant, ij));
-                        stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+                    NumericVector InMa_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
+                    #ifdef _OPENMP
+                    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+                    #endif
+                    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                        int ij = 0;
+                        int jk = ijk;
+                        while (jk > ij) {
+                            ij++;
+                            jk -= ij;
+                        }
+                        InMa_vec[ij * reqrdnum + jk] = InMa[ij*reqrdnum+jk];
+                        InMa_vec[jk * reqrdnum + ij] = InMa[ij * reqrdnum + jk];
+                    }
+                    InMa_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
+                    const Map<MatrixXd> InMa_mat(as<Map<MatrixXd> >(InMa_vec));    //
+                    cov = InMa_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
+                    for (int ij = 0; ij < totalnum; ij++) {
+                        if (KeepConstant[ij] == 0) {
+                            int pij_ind = ij - sum(head(KeepConstant, ij));
+                            stdev(ij) = sqrt(cov(pij_ind, pij_ind));
+                        }
                     }
                 }
+                std_fin(guess, _) = stdev;
             }
-            std_fin(guess, _) = stdev;
         }
     }
     List para_list;
     para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List res_list;  //  = List::create(_["LogLik"] = wrap(LL_fin), _["parameters"] = wrap(beta_fin), _["error"] = wrap(std_fin));
-    res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin));
+    if (model_bool["single"]) {
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Parameter_Lists"] = para_list, _["Status"] = wrap(status_fin));
+    } else {
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin));
+    }
     //  returns a list of results
     return res_list;
 }
@@ -1591,7 +1597,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
 //' @return List of final results: standard cox outputs for the integrated solution
 //' @noRd
 //'
-List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, int fir, string modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -1614,15 +1620,15 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     double deriv_epsilon = optim_para["deriv_epsilon"];
     double ll_epsilon = optim_para["ll_epsilon"];
     //  ------------------------------------------------------------------------- //  initialize
-    if (model_bool["single"]) {
-        if (verbose >= 1) {
-            // nocov start
-            Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-            // nocov end
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+    // if (model_bool["single"]) {
+    //     if (verbose >= 1) {
+    //         // nocov start
+    //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
+    //         // nocov end
+    //     }
+    //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
+    //     return temp_list;
+    // }
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
@@ -1736,6 +1742,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     iter_stop = 0;
     halves = 0;
     bool convgd = FALSE;
+    bool neg_limit = FALSE;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
     ind0 = fir;  //  used for validations
@@ -1825,6 +1832,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[ind0];
+        neg_limit = FALSE;
         //
         beta_a = beta_c;  //
         beta_best = beta_c;  //
@@ -1872,6 +1880,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
                             dbeta[ijk] = dbeta[ijk] / 1.5;
                         }
                     }
+                    neg_limit = true;
                     halves+=0.5;
                     feasible_pass = FALSE;
                     guess = guesses;
@@ -1951,6 +1960,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
                                 dbeta[ijk] = dbeta[ijk] / 1.5;
                             }
                         }
+                        neg_limit = true;
                         halves+=0.5;
                         feasible_pass = FALSE;
                         guess = guesses;
@@ -2012,7 +2022,9 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_best[ij];
                 }
+                Ll_improve = Ll[ind0] - Ll_improve;
             } else {
+                Ll_improve = Ll[ind0] - Ll_improve;
                 if (abs(Ll_improve) < ll_epsilon) {   // ends if the score improvement is too low
                     iter_stop = 1;
                     convgd = TRUE;
@@ -2041,7 +2053,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         if (dbeta_max < epsilon) {  //  if the maximum change is too low, then it ends
             iter_stop = 1;
         }
-        Ll_improve = Ll[ind0] - Ll_improve;
+        // Ll_improve = Ll[ind0] - Ll_improve;
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
@@ -2082,14 +2094,14 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     }
     //
     List res_list;
+    List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
+    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviation"] = dev_total, _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviation"] = dev_total, _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
-    List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
-    List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP

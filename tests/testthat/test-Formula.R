@@ -8,26 +8,26 @@ test_that("Basic factor application to formula", {
 
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_2"), e$names)
+  expect_equal(e$names, c("d", "e_2"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(x = e))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_2"), e$names)
+  expect_equal(e$names, c("d", "e_2"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(1, 2), labels = c("low", "high")))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_high"), e$names)
+  expect_equal(e$names, c("d", "e_high"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(2, 1), labels = c("high", "low")))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_low"), e$names)
+  expect_equal(e$names, c("d", "e_low"))
   #
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_equal(e$tform, c("loglin", "loglin"))
   model <- Cox(a, b, c) ~ exponential(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_equal(e$tform, c("loglin", "loglin"))
   model <- Cox(a, b, c) ~ exp(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_equal(e$tform, c("loglin", "loglin"))
 })
 
 test_that("Basic formula failures", {
@@ -127,16 +127,16 @@ test_that("Basic ns and bs application to formula", {
     df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
     model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
+    expect_equal(e$names, c("d", "e_ns1", "e_ns2"))
     model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
+    expect_equal(e$names, c("d", "e_ns1", "e_ns2"))
     model <- Cox(a, b, c) ~ loglinear(d, bs(e))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+    expect_equal(e$names, c("d", "e_bs1", "e_bs2", "e_bs3"))
     model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+    expect_equal(e$names, c("d", "e_bs1", "e_bs2", "e_bs3"))
   }
 })
 

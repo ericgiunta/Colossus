@@ -61,7 +61,7 @@ using Rcpp::Rcout;
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List cox_ph_Omnibus_transition(IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
@@ -122,7 +122,7 @@ List cox_ph_Omnibus_transition(IntegerVector term_n, StringVector tform, Numeric
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List pois_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     //
     int verbose = Control["verbose"];
     //
@@ -184,7 +184,7 @@ List pois_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector t
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List Assigned_Event_Poisson_transition(MatrixXd PyrC, NumericVector Strata_vals, MatrixXd dfs, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control) {
+List Assigned_Event_Poisson_transition(MatrixXd& PyrC, NumericVector Strata_vals, MatrixXd dfs, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control) {
     int verbose = Control["verbose"];
     //
     string ties_method = Control["ties"];
@@ -225,7 +225,7 @@ List Assigned_Event_Poisson_transition(MatrixXd PyrC, NumericVector Strata_vals,
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, int der_iden, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control) {
+List Plot_Omnibus_transition(IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, int der_iden, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control) {
     int verbose = Control["verbose"];
     //
     double step_max = Control["step_max"];
@@ -307,7 +307,7 @@ List Plot_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVe
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List cox_ph_Omnibus_Bounds_transition(IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     string ties_method = Control["ties"];
@@ -371,7 +371,7 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector term_n, StringVector tform, 
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List cox_ph_Omnibus_CurveSearch_transition(IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     string ties_method = Control["ties"];
@@ -431,7 +431,7 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector term_n, StringVector tf
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List logist_Omnibus_Bounds_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List logist_Omnibus_Bounds_transition(MatrixXd& CountEvent, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     int nthreads = Control["ncores"];
@@ -497,7 +497,7 @@ List logist_Omnibus_Bounds_transition(MatrixXd CountEvent, IntegerVector term_n,
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List logist_Omnibus_CurveSearch_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List logist_Omnibus_CurveSearch_transition(MatrixXd& CountEvent, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     int nthreads = Control["ncores"];
@@ -559,7 +559,7 @@ List logist_Omnibus_CurveSearch_transition(MatrixXd CountEvent, IntegerVector te
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List pois_Omnibus_CurveSearch_transition(MatrixXd& PyrC, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     // const Map<MatrixXd> PyrC(as<Map<MatrixXd> >(dfe));
     // const Map<MatrixXd> dfs(as<Map<MatrixXd> >(df_strata));
     //
@@ -622,7 +622,7 @@ List pois_Omnibus_CurveSearch_transition(MatrixXd PyrC, IntegerVector term_n, St
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List pois_Omnibus_Bounds_transition(MatrixXd& PyrC, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     //
     int verbose = Control["verbose"];
     //
@@ -688,7 +688,7 @@ List pois_Omnibus_Bounds_transition(MatrixXd PyrC, IntegerVector term_n, StringV
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List pois_Residual_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control) {
+List pois_Residual_transition(MatrixXd& PyrC, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control) {
     //
     Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
     //
@@ -734,7 +734,7 @@ List pois_Residual_transition(MatrixXd PyrC, IntegerVector term_n, StringVector 
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List cox_ph_multidose_Omnibus_transition(IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     string ties_method = Control["ties"];
@@ -803,7 +803,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector term_n, StringVector tfor
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List pois_multidose_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List pois_multidose_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, StringVector& tform, NumericVector& a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     int nthreads = Control["ncores"];
@@ -870,7 +870,7 @@ List pois_multidose_Omnibus_transition(MatrixXd PyrC, IntegerVector term_n, Stri
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List caco_Omnibus_transition(IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     //
     string ties_method = Control["ties"];
@@ -934,7 +934,7 @@ List caco_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericMa
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List logist_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericMatrix& a_ns, IntegerVector dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     //
     int verbose = Control["verbose"];
     //

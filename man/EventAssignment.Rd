@@ -14,5 +14,6 @@ EventAssignment(x, df, ...)
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{EventAssignment} Generic background/excess event calculation function
+\code{EventAssignment} Generic background/excess event calculation function for
+standard poisson regressions and likelihood based confidence interval results.
 }

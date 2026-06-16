@@ -22,7 +22,8 @@ saves the plots in the current directory and returns the data used for plots
 }
 \description{
 \code{plot.coxres} uses user provided data, time/event columns,
-vectors specifying the model, and options to choose and save plots
+vectors specifying the model, and options to choose and save plots.
+The 'plot_options' variable can be used to select the types of plots run.
 }
 \examples{
 library(data.table)

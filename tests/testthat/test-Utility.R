@@ -707,12 +707,12 @@ test_that("Parse list", {
 ##  Tests to check that the default S3 functions are there
 ## ----------------------------------------------- ##
 test_that("Check defaults work as intended", {
-  expect_equal("a", RelativeRisk("a"))
-  expect_equal("a", plotRisk("a"))
-  expect_equal("a", plotSchoenfeld("a"))
-  expect_equal("a", plotMartingale("a"))
-  expect_equal("a", plotSurvival("a"))
-  expect_equal("a", LikelihoodBound("a"))
-  expect_equal("a", EventAssignment("a"))
-  expect_equal("a", Residual("a"))
+  expect_equal(RelativeRisk("a"), "a")
+  expect_equal(plotRisk("a"), "a")
+  expect_equal(plotSchoenfeld("a"), "a")
+  expect_equal(plotMartingale("a"), "a")
+  expect_equal(plotSurvival("a"), "a")
+  expect_equal(LikelihoodBound("a"), "a")
+  expect_equal(EventAssignment("a"), "a")
+  expect_equal(Residual("a"), "a")
 })

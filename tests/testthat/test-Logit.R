@@ -6,10 +6,10 @@ test_that("Basic formula and regression passes and fails", {
   )
   model <- logit(b, a) ~ loglinear(d)
   e <- get_form(model, df)$model
-  expect_equal("b", e$trials)
+  expect_equal(e$trials, "b")
   model <- logit(a) ~ loglinear(d)
   e <- get_form(model, df)$model
-  expect_equal("CONST", e$trials)
+  expect_equal(e$trials, "CONST")
   expect_no_error(LogisticRun(model, df, ncores = 1))
   expect_error(LogisticRun(model, df, control = "bad"))
 

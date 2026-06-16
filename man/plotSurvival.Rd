@@ -18,5 +18,8 @@ plotSurvival(x, df, plot_options, a_n = c(), ...)
 \item{...}{can include the named entries for the plot_options parameter}
 }
 \description{
-\code{plotSurvival} Generic Survival Plotting
+\code{plotSurvival} Generic survival plotting, used by the coxres
+object. Calculates the baseline hazard, cumulative hazard, and survival
+curve for the list of event times. Currently only returns data that could be
+plotted.
 }

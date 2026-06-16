@@ -65,7 +65,7 @@ template <typename T> int sign(T val) {
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -505,7 +505,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector term_n, StringVector tform, R
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -1433,7 +1433,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector term_n, StringVector t
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1853,7 +1853,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -2733,7 +2733,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -2856,7 +2856,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
-    MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 3);
+    // MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 3);
     //  ------------------------------------------------------------------------- //  initialize
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
@@ -3236,7 +3236,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEvent, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
+List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double mult) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -4180,7 +4180,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -4666,7 +4666,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector term_n, StringVec
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -5153,7 +5153,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& CountEvent, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
+List LogLik_Logist_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res, double qchi, int para_number, int maxstep, double step_size) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
