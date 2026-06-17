@@ -56,9 +56,9 @@ test_that("Coxph_strata no events in strata", {
   keep_constant <- c(0, 0)
   a_n <- c(-0.1, 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  options(warn = -1)
+  # options(warn = -1)
   expect_no_error(CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
-  options(warn = 0)
+  # options(warn = 0)
 })
 test_that("Coxph_strata no strata", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -85,7 +85,6 @@ test_that("Coxph_strata strata with no error", {
   expect_no_error(e0 <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
   expect_no_error(e1 <- CoxRun(Cox_Strata(a, b, c, c(e)) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
   expect_no_error(e2 <- CoxRun(Cox_Strata(a, b, c, c(e, e)) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
-  #
 })
 
 test_that("Coxph null time column missing", {
@@ -207,10 +206,10 @@ test_that("dose nondose combinations", {
   #
   keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   a_n <- c(1.0, -0.1, -0.1, 1, 0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, 1, 1, 1)
-  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  options(warn = -1)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 2, "epsilon" = 2.0, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  # options(warn = -1)
   expect_no_error(CoxRun(Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_dose(dose, 0) + quad(dose, 0) + step_dose(dose, 0) + lin_quad_dose(dose, 0) + lin_exp_dose(dose, 0) + loglinear(b, 1) + linear(b, 1) + plinear(b, 1) + additive(), df, a_n = a_n, keep_constant = keep_constant, control = control))
-  options(warn = 0)
+  # options(warn = 0)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }

@@ -360,7 +360,7 @@ Def_model_control <- function(control) {
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
     "mcml", "observed_info", "time_risk",
-    "logit_odds", "logit_ident", "logit_loglink", "bisect"
+    "logit_odds", "logit_ident", "logit_loglink"
   )
   name_full_list <- c(control_def_names, "qchi", "alpha", "para_number", "maxstep", "manual", "search_mult", "step_size", "momentum", "adadelta", "adam", "momentum_decay", "learning_decay", "epsilon_decay", "constraint", "penalty_weight", "penalty_method")
   names(control) <- tolower(names(control)) # set the names to lowercase
@@ -445,7 +445,12 @@ Def_model_control <- function(control) {
     if ("step_size" %in% names(control)) {
       # fine
     } else {
-      control["search_mult"] <- 0.5
+      control["step_size"] <- 0.5
+    }
+    if ("bisect" %in% names(control)) {
+      # fine
+    } else {
+      control["bisect"] <- FALSE
     }
   }
   if (control[["gradient"]]) {
@@ -2650,7 +2655,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
           }
         }
-        deviance <- out_list$Deviation
+        deviance <- out_list$Deviance
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
@@ -2794,7 +2799,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         LogLik <- out_list$LogLik
         AIC <- out_list$AIC
         BIC <- out_list$BIC
-        deviation <- out_list$Deviation
+        deviation <- out_list$Deviance
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
@@ -2893,7 +2898,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Strata split into ", strata_level, " distinct levels", sep = "")
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "poisresmcml")) {
           # poisson model
           message("\nPoisson Model Used")
@@ -2911,7 +2916,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           realizations <- out_list$realizations
           message("Realizations Used: ", realizations)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
@@ -2938,7 +2943,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
           if ((!null_model) && (min(term_n) != max(term_n))) {
@@ -3051,7 +3056,7 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
   LogLik <- out_list$LogLik
   AIC <- out_list$AIC
   BIC <- out_list$BIC
-  deviation <- out_list$Deviation
+  deviation <- out_list$Deviance
   strata <- out_list$model$strata
   strata_level <- out_list$strata_levels
   cens_weight <- out_list$model$weight

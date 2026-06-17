@@ -512,7 +512,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 }
 
 
-//' Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
+//' Utility function to perform calculation of Log-Likelihood and Deviance for Poisson Omnibus
 //'
 //' \code{Pois_Dev_LL_Calc} Called to perform repeated term and risk calculations
 //' @inheritParams CPP_template
@@ -744,7 +744,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
             Rcout << " " << endl;
             // nocov end
         }
-        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+        return List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
     }
     //
     //  -------------------------------------------------------------------------------------------
@@ -939,7 +939,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
             Rcout << " " << endl;
             // nocov end
         }
-        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+        return List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
     }
     //
     //  -------------------------------------------------------------------------------------------
@@ -1158,7 +1158,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
             Rcout << " " << endl;
             // nocov end
         }
-        return List::create(_["beta_0"] = wrap(beta_0), _["Deviation"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
+        return List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
     }
     //
     //  -------------------------------------------------------------------------------------------
@@ -1672,70 +1672,82 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
     bool odds = model_bool["odds"];
     bool ident = model_bool["ident"];
     bool loglink = model_bool["loglink"];
-
+    bool single = model_bool["single"];
+    bool gradient = model_bool["gradient"];
     if (ident == true) {
         P.col(0) = R.col(0);
         Pnot.col(0) = 1 - P.col(0).array();
-        MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 1);
-        Ftemp.col(0) = Pnot.col(0).array().pow(-1);  //  1+r
-        for (int ij=0; ij< reqrdnum; ij++) {
-            Pd.col(ij) = Rd.col(ij);
-            PdP.col(ij) = RdR.col(ij).array();
-            PnotdP.col(ij) = Rd.col(ij).array() * Ftemp.col(0).array();
-        }
-        for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-            Pdd.col(ijk) = Rdd.col(ijk);
-            PddP.col(ijk) = RddR.col(ijk).array();
-            PnotddP.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(0).array();
+        if (!single) {
+            MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 1);
+            Ftemp.col(0) = Pnot.col(0).array().pow(-1);  //  1+r
+            for (int ij=0; ij< reqrdnum; ij++) {
+                Pd.col(ij) = Rd.col(ij);
+                PdP.col(ij) = RdR.col(ij).array();
+                PnotdP.col(ij) = Rd.col(ij).array() * Ftemp.col(0).array();
+            }
+            if (!gradient) {
+                for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                    Pdd.col(ijk) = Rdd.col(ijk);
+                    PddP.col(ijk) = RddR.col(ijk).array();
+                    PnotddP.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(0).array();
+                }
+            }
         }
     }  else if (loglink == true) {
         P.col(0) = (-1*R.col(0).array()).exp();
         Pnot.col(0) = 1 - P.col(0).array();
-        //
-        MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 2);
-        Ftemp.col(0) = P.col(0).array().pow(-1);   //
-        Ftemp.col(1) = Pnot.col(0).array().pow(-1);  //
-        //
-        for (int ij=0; ij< reqrdnum; ij++) {
-            Pd.col(ij) = -1 * Rd.col(ij).array() * P.col(0).array();
-            PdP.col(ij) = -1 * Rd.col(ij).array();
-            PnotdP.col(ij) = Pd.col(ij).array() * Ftemp.col(1).array();
-        }
-        for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-            int ij = 0;
-            int jk = ijk;
-            while (jk > ij) {
-                ij++;
-                jk -= ij;
+        if (!single) {
+            //
+            MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 1);
+            Ftemp.col(0) = Pnot.col(0).array().pow(-1);  //
+            //
+            for (int ij=0; ij< reqrdnum; ij++) {
+                Pd.col(ij) = -1 * Rd.col(ij).array() * P.col(0).array();
+                PdP.col(ij) = -1 * Rd.col(ij).array();
+                PnotdP.col(ij) = Pd.col(ij).array() * Ftemp.col(0).array();
             }
-            PddP.col(ijk) = PdP.col(ij).array()*PdP.col(jk).array() - Rdd.col(ijk).array();
-            Pdd.col(ijk) = PddP.col(ijk).array() * P.col(0).array();
-            PnotddP.col(ijk) = Pdd.col(ijk).array() * Ftemp.col(1).array();
+            if (!gradient) {
+                for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                    int ij = 0;
+                    int jk = ijk;
+                    while (jk > ij) {
+                        ij++;
+                        jk -= ij;
+                    }
+                    PddP.col(ijk) = PdP.col(ij).array()*PdP.col(jk).array() - Rdd.col(ijk).array();
+                    Pdd.col(ijk) = PddP.col(ijk).array() * P.col(0).array();
+                    PnotddP.col(ijk) = Pdd.col(ijk).array() * Ftemp.col(0).array();
+                }
+            }
         }
     } else if (odds == true) {
         MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 4);
         Ftemp.col(0) = 1 + R.col(0).array();  //  1+r
         Ftemp.col(1) = Ftemp.col(0).array().pow(-1);  // (1+r)^-1
-        Ftemp.col(2) = Ftemp.col(1).array().pow(2);  //  (1+r)^-2
-        Ftemp.col(3) = Ftemp.col(1).array().pow(3);  //  (1+r)^-3
         //
         P.col(0) = R.col(0).array() * Ftemp.col(1).array();
         Pnot.col(0) = 1 - P.col(0).array();
-        for (int ij=0; ij< reqrdnum; ij++) {
-            Pd.col(ij) = Rd.col(ij).array() * Ftemp.col(2).array();
-            PdP.col(ij) = RdR.col(ij).array() * Ftemp.col(1).array();
-            PnotdP.col(ij) = Rd.col(ij).array() * Ftemp.col(1).array();
-        }
-        for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
-            int ij = 0;
-            int jk = ijk;
-            while (jk > ij) {
-                ij++;
-                jk -= ij;
+        if (!single) {
+            Ftemp.col(2) = Ftemp.col(1).array().pow(2);  //  (1+r)^-2
+            for (int ij=0; ij< reqrdnum; ij++) {
+                Pd.col(ij) = Rd.col(ij).array() * Ftemp.col(2).array();
+                PdP.col(ij) = RdR.col(ij).array() * Ftemp.col(1).array();
+                PnotdP.col(ij) = Rd.col(ij).array() * Ftemp.col(1).array();
             }
-            Pdd.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(2).array() - 2 * Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(3).array();
-            PddP.col(ijk) = RddR.col(ijk).array() * Ftemp.col(1).array() - 2 * RdR.col(ij).array() * Rd.col(jk).array() * Ftemp.col(2).array();
-            PnotddP.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(1).array() - 2 * Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(2).array();
+            if (!gradient) {
+                Ftemp.col(3) = Ftemp.col(1).array().pow(3);  //  (1+r)^-3
+                for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                    int ij = 0;
+                    int jk = ijk;
+                    while (jk > ij) {
+                        ij++;
+                        jk -= ij;
+                    }
+                    Pdd.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(2).array() - 2 * Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(3).array();
+                    PddP.col(ijk) = RddR.col(ijk).array() * Ftemp.col(1).array() - 2 * RdR.col(ij).array() * Rd.col(jk).array() * Ftemp.col(2).array();
+                    PnotddP.col(ijk) = Rdd.col(ijk).array() * Ftemp.col(1).array() - 2 * Rd.col(ij).array() * Rd.col(jk).array() * Ftemp.col(2).array();
+                }
+            }
         }
     }
     return;

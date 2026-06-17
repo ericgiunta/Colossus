@@ -406,6 +406,18 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector& term_n, StringVector& 
             _["thres_step_max"] = Control["thres_step_max"],
             _["deriv_epsilon"] = Control["deriv_epsilon"],
             _["ll_epsilon"] = Control["ll_epsilon"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
+    }
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
@@ -534,6 +546,18 @@ List logist_Omnibus_CurveSearch_transition(MatrixXd& CountEvent, IntegerVector& 
             _["thres_step_max"] = Control["thres_step_max"],
             _["deriv_epsilon"] = Control["deriv_epsilon"],
             _["ll_epsilon"] = Control["ll_epsilon"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
+    }
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];
@@ -597,6 +621,18 @@ List pois_Omnibus_CurveSearch_transition(MatrixXd& PyrC, IntegerVector& term_n, 
             _["thres_step_max"] = Control["thres_step_max"],
             _["deriv_epsilon"] = Control["deriv_epsilon"],
             _["ll_epsilon"] = Control["ll_epsilon"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
+    }
     //
     double qchi    = model_control["qchi"];
     int para_number = model_control["para_number"];

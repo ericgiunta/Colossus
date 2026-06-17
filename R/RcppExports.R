@@ -556,7 +556,7 @@ NULL
 #'
 NULL
 
-#' Utility function to perform calculation of Log-Likelihood and Deviation for Poisson Omnibus
+#' Utility function to perform calculation of Log-Likelihood and Deviance for Poisson Omnibus
 #'
 #' \code{Pois_Dev_LL_Calc} Called to perform repeated term and risk calculations
 #' @inheritParams CPP_template

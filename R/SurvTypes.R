@@ -186,15 +186,6 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
           stop("Error: First model and second model have different geometric mixture term values.")
         }
         gmix_term <- gmix_term_1
-      } else {
-        # shared is the longest
-        if (any(gmix_term_2 != gmix_term_s[1:len_2])) {
-          stop("Error: Shared model and second model have different geometric mixture term values.")
-        }
-        if (any(gmix_term_1 != gmix_term_s[1:len_1])) {
-          stop("Error: Shared model and first model have different geometric mixture term values.")
-        }
-        gmix_term <- gmix_term_s
       }
     }
   }

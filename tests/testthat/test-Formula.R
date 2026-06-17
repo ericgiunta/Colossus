@@ -122,6 +122,25 @@ test_that("Run basic errors and checks", {
   #
 })
 
+test_that("Run basic warnings and checks", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(1, 2, 1, 1, 2, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+
+  model <- Cox(a, b, c) ~ loglinear(d)
+  expect_warning(res <- CoxRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- CoxRun(model, df, control = list(ncores = 1, ncores = 1)))
+  model <- Pois(a, b) ~ loglinear(c, d)
+  expect_warning(res <- PoisRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- PoisRun(model, df, control = list(ncores = 1, ncores = 1)))
+  model <- Logit(b, a) ~ loglinear(c, d)
+  expect_warning(res <- LogisticRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- LogisticRun(model, df, control = list(ncores = 1, ncores = 1)))
+})
+
 test_that("Basic ns and bs application to formula", {
   if (system.file(package = "splines") != "") {
     df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)

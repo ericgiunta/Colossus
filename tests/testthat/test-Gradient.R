@@ -25,6 +25,8 @@ test_that("Coxph strata_gradient_CR", {
   expect_equal(e$Status, "PASSED")
   e <- CoxRun(FineGray_Strata(t0, t1, lung, rand, weighting) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
   expect_equal(e$Status, "PASSED")
+  #
+  expect_no_error(CoxRun(Cox_Strata(t0, t1, lung, rand) ~ loglinear(dose, 0) + loglinear(fac, 1) + PAE(), df, a_n = a_n, control = control, gradient_control = list("momentum" = TRUE)))
 })
 
 test_that("Coxph gradient methods", {

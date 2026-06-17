@@ -368,7 +368,7 @@ test_that("Poisson, curve search", {
   }
 })
 
-test_that("Coxph, lin both", {
+test_that("Logistic test", {
   fname <- "base_example.csv"
   df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE)
 
@@ -399,4 +399,32 @@ test_that("Coxph, lin both", {
     expect_equal(a2[1], v_lower[alpha_i], tolerance = 1e-3)
     expect_equal(a2[2], v_upper[alpha_i], tolerance = 1e-3)
   }
+})
+
+test_that("Curve search, gradient", {
+  name <- "base_example.csv"
+  df <- fread(name, nThread = min(c(detectCores(), 2)), data.table = TRUE)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+
+  a_n <- c(-2.917, 0.06526)
+  expect_no_error(poisres <- PoisRun(Pois(exit, event) ~ loglinear(dose0, 0) + plinear(dose1, 0) + multiplicative - excess(), df, a_n = a_n, control = control, gradient_control = list("adadelta" = TRUE)))
+  poisres$beta_0 <- c(-2.917, 0.06526)
+
+  a_n <- c(-0.857, -0.9)
+  expect_no_error(logitres <- LogisticRun(logit(event) ~ loglinear(CONST, dose0) + M(), df, a_n = a_n, control = control, gradient_control = list("adadelta" = TRUE)))
+  logitres$beta_0 <- c(-0.857, -0.9)
+
+  a_n <- c(-1.493177, 5.020007, 1.438377)
+  expect_no_error(coxres <- CoxRun(Cox(entry, exit, event) ~ loglinear(dose0, dose1, 0) + linear(dose0, 1) + multiplicative - excess(), df, a_n = a_n, control = control, gradient_control = list("adadelta" = TRUE)))
+  coxres$beta_0 <- c(-1.493177, 5.020007, 1.438377)
+  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
+    skip("Cran Skip")
+  }
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 1, "epsilon" = 1e-2, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  pois_e <- LikelihoodBound(poisres, df, bisect = TRUE)
+  expect_equal(pois_e$Parameter_Limits, c(-3.031014, -2.804939), tolerance = 1e-4)
+  logit_e <- LikelihoodBound(logitres, df, bisect = TRUE)
+  expect_equal(logit_e$Parameter_Limits, c(-0.9465996, -0.7674004), tolerance = 1e-4)
+  cox_e <- LikelihoodBound(coxres, df, bisect = TRUE)
+  expect_equal(cox_e$Parameter_Limits, c(-1.9929329, -0.9934211), tolerance = 1e-4)
 })

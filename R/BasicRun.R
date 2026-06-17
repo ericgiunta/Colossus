@@ -213,6 +213,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -461,6 +462,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -713,6 +715,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -947,6 +950,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -1164,6 +1168,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -2074,6 +2079,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- coxmodel
@@ -2287,6 +2293,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
       model_control[nm] <- FALSE
     }
   }
+  model_control <- Def_model_control(model_control)
   # ------------------------------------------------------------------------------ #
   res <- RunPoisRegression_Omnibus_Multidose(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- poismodel
@@ -2439,7 +2446,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   names(curve_control) <- tolower(names(curve_control))
   curve_control <- curve_control[!duplicated(names(curve_control))]
   #
-  model_control <- c(model_control, curve_control)
+  model_control <- c(curve_control, model_control[setdiff(names(model_control), names(curve_control))]) # keep the values explicitly given
   if (!("bisect" %in% names(model_control))) {
     model_control["bisect"] <- FALSE
   }
@@ -2633,8 +2640,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   names(curve_control) <- tolower(names(curve_control))
   curve_control <- curve_control[!duplicated(names(curve_control))]
-  #
-  model_control <- c(model_control, curve_control)
+  model_control <- c(curve_control, model_control[setdiff(names(model_control), names(curve_control))]) # keep the values explicitly given
   if (!("bisect" %in% names(model_control))) {
     model_control["bisect"] <- FALSE
   }
@@ -2654,6 +2660,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
       stop("Error: The paranumber used was not numeric.")
     }
   }
+  #
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
@@ -2814,7 +2821,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   names(curve_control) <- tolower(names(curve_control))
   curve_control <- curve_control[!duplicated(names(curve_control))]
   #
-  model_control <- c(model_control, curve_control)
+  model_control <- c(curve_control, model_control[setdiff(names(model_control), names(curve_control))]) # keep the values explicitly given
   if (!("bisect" %in% names(model_control))) {
     model_control["bisect"] <- FALSE
   }
@@ -3215,87 +3222,83 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   #
   check_num <- x$para_number
   assign_control$bound <- TRUE
-  if (!assign_control$bound) {
-    # Just a basic event assignment
-    res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-  } else {
+  #
+  a_n <- object$beta_0
+  Parameter_Limits <- x$Parameter_Limits
+  #
+  # running a boundary solution
+  e_mid <- RunPoissonEventAssignment(
+    df, pyr0, event0, names, term_n,
+    tform, keep_constant, a_n, modelform,
+    control, strat_col,
+    model_control
+  )
+  if (length(names) == 1) {
+    # There is only one parameter, so we don't need to reoptimize
     a_n <- object$beta_0
-    Parameter_Limits <- x$Parameter_Limits
-    #
-    # running a boundary solution
-    e_mid <- RunPoissonEventAssignment(
+    a_n[check_num] <- Parameter_Limits[1]
+    e_low <- RunPoissonEventAssignment(
       df, pyr0, event0, names, term_n,
       tform, keep_constant, a_n, modelform,
       control, strat_col,
       model_control
     )
-    if (length(names) == 1) {
-      # There is only one parameter, so we don't need to reoptimize
-      a_n <- object$beta_0
-      a_n[check_num] <- Parameter_Limits[1]
-      e_low <- RunPoissonEventAssignment(
-        df, pyr0, event0, names, term_n,
-        tform, keep_constant, a_n, modelform,
-        control, strat_col,
-        model_control
-      )
-      a_n <- object$beta_0
-      a_n[check_num] <- Parameter_Limits[2]
-      e_high <- RunPoissonEventAssignment(
-        df, pyr0, event0, names,
-        term_n, tform, keep_constant,
-        a_n, modelform,
-        control, strat_col,
-        model_control
-      )
-    } else {
-      # We need to shift the parameter, fix it, and then optimize before getting cases
-      keep_constant[check_num] <- 1
-      #
-      model_control <- object$modelcontrol
-      norm <- object$norm
-      if (!model_control$null) {
-        if (model_control[["constraint"]]) {
-          cons_mat <- object$constraint_matrix
-          cons_vec <- object$constraint_vector
-        }
-      }
-      # Start with low
-      a_n <- x$Lower_Values
-      # Get the new optimum values
+    a_n <- object$beta_0
+    a_n[check_num] <- Parameter_Limits[2]
+    e_high <- RunPoissonEventAssignment(
+      df, pyr0, event0, names,
+      term_n, tform, keep_constant,
+      a_n, modelform,
+      control, strat_col,
+      model_control
+    )
+  } else {
+    # We need to shift the parameter, fix it, and then optimize before getting cases
+    keep_constant[check_num] <- 1
+    #
+    model_control <- object$modelcontrol
+    norm <- object$norm
+    if (!model_control$null) {
       if (model_control[["constraint"]]) {
-        low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
-      } else {
-        low_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+        cons_mat <- object$constraint_matrix
+        cons_vec <- object$constraint_vector
       }
-      a_n <- low_res$beta_0
-      e_low <- RunPoissonEventAssignment(
-        df, pyr0, event0, names, term_n,
-        tform, keep_constant, a_n, modelform,
-        control, strat_col,
-        model_control
-      )
-      # Now the high
-      a_n <- x$Upper_Values
-      # Get the new optimum values
-      if (model_control[["constraint"]]) {
-        high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
-      } else {
-        high_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
-      }
-      a_n <- high_res$beta_0
-      e_high <- RunPoissonEventAssignment(
-        df, pyr0, event0, names, term_n,
-        tform, keep_constant, a_n, modelform,
-        control, strat_col,
-        model_control
-      )
     }
-    res <- list(
-      lower_limit = e_low, midpoint = e_mid,
-      upper_limit = e_high
+    # Start with low
+    a_n <- x$Lower_Values
+    # Get the new optimum values
+    if (model_control[["constraint"]]) {
+      low_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+    } else {
+      low_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+    }
+    a_n <- low_res$beta_0
+    e_low <- RunPoissonEventAssignment(
+      df, pyr0, event0, names, term_n,
+      tform, keep_constant, a_n, modelform,
+      control, strat_col,
+      model_control
+    )
+    # Now the high
+    a_n <- x$Upper_Values
+    # Get the new optimum values
+    if (model_control[["constraint"]]) {
+      high_res <- PoisRun(object, df, control = control, norm = norm, cons_mat = cons_mat, cons_vec = cons_vec, keep_constant = keep_constant, a_n = a_n)
+    } else {
+      high_res <- PoisRun(object, df, control = control, norm = norm, keep_constant = keep_constant, a_n = a_n)
+    }
+    a_n <- high_res$beta_0
+    e_high <- RunPoissonEventAssignment(
+      df, pyr0, event0, names, term_n,
+      tform, keep_constant, a_n, modelform,
+      control, strat_col,
+      model_control
     )
   }
+  res <- list(
+    lower_limit = e_low, midpoint = e_mid,
+    upper_limit = e_high
+  )
   res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change

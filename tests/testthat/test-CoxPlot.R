@@ -128,11 +128,11 @@ test_that("Coxph risk too few unique values", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   d <- c(3, 3, 3, 3, 3, 3, 3)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  options(warn = -1)
+  # options(warn = -1)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plotRisk(e, df, plot_options))
   }
-  options(warn = 0)
+  # options(warn = 0)
 })
 test_that("Coxph risk plotting above discrete step number limit", {
   a <- rep(c(0, 1, 2, 3, 4, 5, 6), 20)
@@ -288,7 +288,7 @@ test_that("Coxph martingale combinations", {
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "Not_In", "verbose" = 0)
   keep_constant <- c(1)
-  options(warn = -1)
+  # options(warn = -1)
   if (system.file(package = "ggplot2") != "") {
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
     expect_error(plotMartingale(e, df, plot_options))
@@ -296,7 +296,7 @@ test_that("Coxph martingale combinations", {
     a_n <- c(-0.1, 0.1)
     plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
-    expect_no_error(plotMartingale(e, df, plot_options))
+    expect_warning(plotMartingale(e, df, plot_options))
     plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "Not_In", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     expect_error(plotMartingale(e, df, plot_options))
@@ -305,7 +305,7 @@ test_that("Coxph martingale combinations", {
     df$c <- rep(0, nrow(df))
     expect_error(plotMartingale(e, df, plot_options))
   }
-  options(warn = 0)
+  # options(warn = 0)
 })
 test_that("Coxph km no error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)

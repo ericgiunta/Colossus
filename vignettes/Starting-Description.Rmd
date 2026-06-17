@@ -258,7 +258,7 @@ The following are output in the regression output lists:
 | beta_0 | The final parameter list |
 | Standard_Deviation | Inverse-Hessian estimate of the standard deviation |
 | AIC | Akaike information criterion for the final solution |
-| Deviation | Deviance calculated using the difference in log-likelihood contributions between the saturated model and the current model |
+| Deviance | Deviance calculated using the difference in log-likelihood contributions between the saturated model and the current model |
 | Parameter_Lists | the term numbers and term formulas used, to compare against the expected |
 | Control_List | a list containing the number of iterations, the maximum step at the final iteration, and the highest first derivative magnitude |
 |Converged | TRUE/FALSE if the regression converged |

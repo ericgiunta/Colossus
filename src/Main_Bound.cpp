@@ -4707,24 +4707,6 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
         return temp_list;
     }
-    // if (model_bool["gradient"]) {
-    //     if (verbose >= 1) {
-    //         // nocov start
-    //         Rcout << "gradient descent model calculation is not compatable with log-based bound calculation" << endl;
-    //         // nocov end
-    //     }
-    //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_GRADIENT", _["LogLik"] = R_NaN);
-    //     return temp_list;
-    // }
-    // if (model_bool["constraint"]) {
-    //     if (verbose >= 1) {
-    //         // nocov start
-    //         Rcout << "linear constataints are not compatable with Case-Control model calculation" << endl;
-    //         // nocov end
-    //     }
-    //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-    //     return temp_list;
-    // }
     //
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations

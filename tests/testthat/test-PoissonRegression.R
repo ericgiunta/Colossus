@@ -54,8 +54,8 @@ test_that("Pois loglin_M Strata", {
   #
   expect_no_error(e <- PoisRun(Poisson(pyr, lung) ~ null(), df, control = control))
   expect_no_error(e_strata <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ null(), df, control = control))
-  expect_equal(e$Deviation, c(698.499), tolerance = 1e-1)
-  expect_equal(e_strata$Deviation, c(698.4339), tolerance = 1e-1)
+  expect_equal(e$Deviance, c(698.499), tolerance = 1e-1)
+  expect_equal(e_strata$Deviance, c(698.4339), tolerance = 1e-1)
 })
 
 test_that("Checking pois strata default values", {

@@ -81,16 +81,16 @@ test_that("Checking values converted back", {
     res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt) + plinear(karno), df, a_n = a_n, control = control)
     res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt) + plinear(karno), df, a_n = a_n, norm = "max", control = control)
     expect_equal(res$beta_0, res_max$beta_0, tolerance = 1e-2)
+    #
+    model <- Cox_Strata(time, status, cell) ~ loglinear(trt) + step - dose(karno, 1) + ME()
+    a_n <- c(0.1, 0.2, 50)
+    res <- CoxRun(model, df, a_n = a_n, control = control)
+    res_max <- CoxRun(model, df, a_n = a_n, norm = "max", control = control)
+    res_mean <- CoxRun(model, df, a_n = a_n, norm = "mean", control = control)
+    #
+    expect_equal(res$First_Der, res_max$First_Der, tolerance = 1e-2)
+    expect_equal(res$First_Der, res_mean$First_Der, tolerance = 1e-2)
   }
-  #
-  model <- Cox_Strata(time, status, cell) ~ loglinear(trt) + step - dose(karno, 1) + ME()
-  a_n <- c(0.1, 0.2, 50)
-  res <- CoxRun(model, df, a_n = a_n, control = control)
-  res_max <- CoxRun(model, df, a_n = a_n, norm = "max", control = control)
-  res_mean <- CoxRun(model, df, a_n = a_n, norm = "mean", control = control)
-  #
-  expect_equal(res$First_Der, res_max$First_Der, tolerance = 1e-2)
-  expect_equal(res$First_Der, res_mean$First_Der, tolerance = 1e-2)
 })
 
 test_that("Checking combination with gradient/single/null", {
@@ -135,11 +135,11 @@ test_that("Checking errors and warnings", {
 
     df$trt_mean <- df$trt - mean(df$trt)
     #
-    options(warn = -1)
+    # options(warn = -1)
     expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
     expect_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "bad", control = control))
     expect_error(PoisRun(Pois(time, status) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "bad", control = control))
-    options(warn = 0)
+    # options(warn = 0)
   }
 })
 

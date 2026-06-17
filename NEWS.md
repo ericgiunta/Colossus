@@ -209,3 +209,8 @@
 * Frequentist Model Averaging results print the general model information and number of realizations, and details on how to access the realization specific results.
 * Multiple-realization functions can now be used with the non-derivative option to calculate the log-likelihood at a single point, without calculating derivatives.
 
+# Colossus 1.5.4
+
+* Patched bug in model control options being passed between standard regressions and logarithm based boundary functions
+* Testing on bisection based logarithm boundaries using gradient descent optimization.
+

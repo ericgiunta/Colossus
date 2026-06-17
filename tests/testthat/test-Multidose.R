@@ -169,7 +169,7 @@ test_that("Coxph multidose, extra warnings and checks", {
   keep_constant <- c(0, 0)
 
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  options(warn = -1)
+  # options(warn = -1)
   verbose <- FALSE
   j_iterate <- 1
   model_control <- list("cr" = TRUE)
@@ -194,7 +194,7 @@ test_that("Coxph multidose, extra warnings and checks", {
   d$lung <- 0
   df <- rbind(df, d)
   expect_no_error(e <- CoxRunMulti(Cox_Strata(t0, t1, lung, fac) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
-  options(warn = 0)
+  # options(warn = 0)
 })
 test_that("Coxph multidose failures", {
   fname <- "ll_comp_0.csv"
@@ -489,16 +489,16 @@ test_that("multidose model, single check", {
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 2, "ties" = "breslow")
   a_n <- c(-0.29, -0.01)
   keep_constant <- c(0, 0)
-  e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, mcml = TRUE)
+  e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, mcml = TRUE, observed_info = TRUE)
   expect_equal(e0$LogLik, c(-450.9829), tolerance = 1e-4)
-  e1 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, fma = TRUE)
+  e1 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, fma = TRUE, observed_info = TRUE)
   expect_equal(e1$LogLik, c(-450.9631, -451.1084, -450.8774), tolerance = 1e-4)
 
   a_n <- c(-3.6, -0.22, -0.01)
   keep_constant <- c(0, 0, 0)
-  e2 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, mcml = TRUE)
+  e2 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, mcml = TRUE, observed_info = TRUE)
   expect_equal(e2$LogLik, c(-330.1407), tolerance = 1e-4)
-  e3 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, fma = TRUE)
+  e3 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, fma = TRUE, observed_info = TRUE)
   expect_equal(e3$LogLik, c(-330.1266, -330.2527, -330.0428), tolerance = 1e-4)
   #
   zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
