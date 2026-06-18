@@ -771,8 +771,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector&
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
+        }
         //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
@@ -871,7 +875,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector&
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         //
@@ -885,7 +891,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector&
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -1140,8 +1148,12 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector&
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
+        }
         //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
@@ -1232,7 +1244,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector&
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         //
@@ -1246,7 +1260,9 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, StringVector&
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -2097,8 +2113,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     //
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
+        }
         //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
@@ -2444,8 +2464,12 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     Ll_iter_best = 10;
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
+        }
         //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
@@ -2535,7 +2559,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
         a_n = beta_0;
@@ -2545,7 +2571,9 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -3508,8 +3536,12 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     ///
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
+        }
         //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
@@ -3614,7 +3646,9 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
         //
@@ -3627,7 +3661,9 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -3879,8 +3915,12 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     Ll_iter_best = 10;
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
+        }
         //
         beta_a = beta_peak;  //
         beta_c = beta_peak;  //
@@ -3979,7 +4019,9 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
         //
@@ -3992,7 +4034,9 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //

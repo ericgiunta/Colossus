@@ -524,9 +524,12 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
 //'
 void Pois_Dev_LL_Calc(const int& reqrdnum, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const vector<vector<int> >& RiskPairs_Strata_Pois, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, VectorXd& s_weights, MatrixXd& dev_temp, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, int iter_stop, double& dev) {
     fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     if (!model_bool["strata"]) {
         Poisson_LogLik(model_bool, nthreads, totalnum, PyrC, R, Rd, Rdd, RdR, RddR, Ll, Lld, Lldd, KeepConstant);
@@ -763,10 +766,18 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
-        if (model_bool["basic"]) {
-            Calc_Change_Basic(nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
-        } else if (model_bool["gradient"]) {
+        if (model_bool["gradient"]) {
+            if (model_bool["constraint"]) {
+                Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+            } else {
                 Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+            }
+        } else if (model_bool["basic"]) {
+            if (model_bool["constraint"]) {
+                Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
+            } else {
+                Calc_Change_Basic(nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
+            }
         } else {
             if (model_bool["constraint"]) {
                 Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
@@ -1177,7 +1188,11 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         beta_best = beta_c;  //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
-            Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+            if (model_bool["constraint"]) {
+                Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+            } else {
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+            }
         } else {
             if (model_bool["constraint"]) {
                 Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);

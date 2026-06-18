@@ -245,9 +245,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector&
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        if (!model_bool["gradient"]) {
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         if (model_bool["gradient"]) {
             m_g_store.fill(0);
@@ -771,9 +773,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVec
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        if (!model_bool["gradient"]) {
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         //
@@ -883,9 +887,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVec
                     }
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     fill(Ll.begin(), Ll.end(), 0.0);
-                    fill(Lld.begin(), Lld.end(), 0.0);
-                    if (!model_bool["gradient"]) {
-                        fill(Lldd.begin(), Lldd.end(), 0.0);
+                    if (!model_bool["single"]) {
+                        fill(Lld.begin(), Lld.end(), 0.0);
+                        if (!model_bool["gradient"]) {
+                            fill(Lldd.begin(), Lldd.end(), 0.0);
+                        }
                     }
                     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
                     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
@@ -1320,9 +1326,11 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     List out_list;
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        if (!model_bool["gradient"]) {
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         if (model_bool["gradient"]) {
             m_g_store.fill(0);
@@ -1407,13 +1415,19 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
                 Ll_improve = Ll[0];
                 //  calculates the initial change in parameter
                 if (model_bool["gradient"]) {
-                    Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
-                } else if (model_bool["constraint"]) {
-                    Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
+                    if (model_bool["constraint"]) {
+                        Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+                    } else {
+                        Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+                    }
                 } else {
-                    Calc_Change(nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
+                    if (model_bool["constraint"]) {
+                        Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
+                    } else {
+                        Calc_Change(nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
+                    }
+                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 }
-                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 //
                 if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
                     Ll_abs_best = Ll[ind0];
@@ -1807,9 +1821,11 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         }
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         fill(Ll.begin(), Ll.end(), 0.0);
-        fill(Lld.begin(), Lld.end(), 0.0);
-        if (!model_bool["gradient"]) {
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["single"]) {
+            fill(Lld.begin(), Lld.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
         //
@@ -1838,13 +1854,19 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         beta_best = beta_c;  //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
+            if (model_bool["constraint"]) {
+                Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+            } else {
                 Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
-            } else if (model_bool["constraint"]) {
+            }
+        } else {
+            if (model_bool["constraint"]) {
                 Calc_Change_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             } else {
                 Calc_Change(nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             }
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+        }
         //
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll_Total[ind0])) {
             Ll_abs_best = Ll_Total[ind0];
@@ -1910,9 +1932,11 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
                     }
                     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                     fill(Ll.begin(), Ll.end(), 0.0);
-                    fill(Lld.begin(), Lld.end(), 0.0);
-                    if (!model_bool["gradient"]) {
-                        fill(Lldd.begin(), Lldd.end(), 0.0);
+                    if (!model_bool["single"]) {
+                        fill(Lld.begin(), Lld.end(), 0.0);
+                        if (!model_bool["gradient"]) {
+                            fill(Lldd.begin(), Lldd.end(), 0.0);
+                        }
                     }
                     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
                     dev_total += dev / static_cast<double>(guesses);
@@ -1986,9 +2010,11 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
                         }
                         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                         fill(Ll.begin(), Ll.end(), 0.0);
-                        fill(Lld.begin(), Lld.end(), 0.0);
-                        if (!model_bool["gradient"]) {
-                            fill(Lldd.begin(), Lldd.end(), 0.0);
+                        if (!model_bool["single"]) {
+                            fill(Lld.begin(), Lld.end(), 0.0);
+                            if (!model_bool["gradient"]) {
+                                fill(Lldd.begin(), Lldd.end(), 0.0);
+                            }
                         }
                         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
                         dev_total += dev / static_cast<double>(guesses);

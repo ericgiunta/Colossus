@@ -63,7 +63,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -79,7 +79,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -88,7 +88,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -332,7 +332,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -348,7 +348,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -357,7 +357,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -583,7 +583,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -599,7 +599,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -608,7 +608,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -837,7 +837,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -853,7 +853,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -862,7 +862,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -1069,7 +1069,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1085,7 +1085,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1094,7 +1094,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -1395,7 +1395,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   controlargs <- c("verbose", "studyid", "fname", "cov_cols", "boundary") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1475,7 +1475,7 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   controlargs <- c("verbose", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1552,7 +1552,7 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   controlargs <- c("verbose", "age_unit", "time_lims", "cov_cols", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1662,7 +1662,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   controlargs <- c("verbose", "age_unit", "time_lims", "strat_haz", "strat_col", "km", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1804,7 +1804,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   controlargs <- c("verbose", "type", "age_unit", "strat_haz", "strat_col", "martingale", "km", "time_lims", "cov_cols", "studyid", "boundary") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1930,7 +1930,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1946,7 +1946,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -1955,7 +1955,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -2164,7 +2164,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   controlargs <- names(formals(ColossusControl)) # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -2180,7 +2180,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (missing(control)) {
     if (length(extraArgs)) {
       names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against appreviated versions of control arguements
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
       if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
         warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
         extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -2189,7 +2189,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     control <- do.call(ColossusControl, extraArgs)
   } else if (is.list(control)) {
     names(control) <- tolower(names(control)) # set the names to lowercase
-    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
       warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
       control <- control[!duplicated(names(control))] # filter down
@@ -2423,7 +2423,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -2618,7 +2618,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -2798,7 +2798,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -2997,7 +2997,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   controlargs <- c("bound", "check_num", "z") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
@@ -3193,7 +3193,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   controlargs <- c("bound", "check_num", "z") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
-    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
       warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
       extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down

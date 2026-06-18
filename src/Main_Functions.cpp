@@ -316,7 +316,9 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         if (model_bool["gradient"]) {
             m_g_store.fill(0);
@@ -476,7 +478,9 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
@@ -494,7 +498,9 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -672,10 +678,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
     //  Performing Full Calculation to get full second derivative matrix
     //  -----------------------------------------------
     fill(Ll.begin(), Ll.end(), 0.0);
-    if (!model_bool["single"]) {
-        fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
-    }
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
     bool true_gradient = model_bool["gradient"];
     model_bool["gradient"] = false;
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
@@ -978,7 +982,9 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         if (model_bool["gradient"]) {
             m_g_store.fill(0);
@@ -1143,7 +1149,9 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (!model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         //  Calculates log-likelihood
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -1163,7 +1171,9 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (!model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -1333,6 +1343,9 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     //  Performing Full Calculation to get full second derivative matrix
     //  -----------------------------------------------
     bool true_gradient = model_bool["gradient"];
+    fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
     model_bool["gradient"] = false;
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
@@ -1634,10 +1647,12 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
             fill(LldOdds.begin(), LldOdds.end(), 0.0);
-            fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
-            fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+            if (model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+                fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+                fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+            }
         }
         dev = 0.0;
         if (model_bool["gradient"]) {
@@ -1912,10 +1927,12 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
             fill(LldOdds.begin(), LldOdds.end(), 0.0);
-            fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
-            fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+            if (model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+                fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+                fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+            }
         }
         dev = 0.0;
         Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
@@ -1942,10 +1959,12 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
         fill(LldOdds.begin(), LldOdds.end(), 0.0);
-        fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
-        fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+        if (model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+            fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+            fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+        }
     }
     dev = 0.0;
     //
@@ -2226,13 +2245,18 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
         fill(LldOdds.begin(), LldOdds.end(), 0.0);
-        fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
-        fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+        if (model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+            fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
+            fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
+        }
     }
     dev = 0.0;
     bool true_gradient = model_bool["gradient"];
+    fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
     model_bool["gradient"] = false;
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Calculate_Recursive(model_bool, group_num, RiskFail, RiskPairs, totalnum, ntime, R, Rd, Rdd, Recur_Base, Recur_First, Recur_Second , nthreads, KeepConstant);
@@ -2497,7 +2521,9 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         if (model_bool["gradient"]) {
             m_g_store.fill(0);
@@ -2719,7 +2745,9 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            fill(Lldd.begin(), Lldd.end(), 0.0);
+            if (model_bool["gradient"]) {
+                fill(Lldd.begin(), Lldd.end(), 0.0);
+            }
         }
         //  Calculates log-likelihood
         Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
@@ -2738,7 +2766,9 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        fill(Lldd.begin(), Lldd.end(), 0.0);
+        if (model_bool["gradient"]) {
+            fill(Lldd.begin(), Lldd.end(), 0.0);
+        }
     }
     //
     beta_a = beta_best;  //
@@ -2962,6 +2992,9 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     //  Performing Full Calculation to get full second derivative matrix
     //  -----------------------------------------------
     bool true_gradient = model_bool["gradient"];
+    fill(Ll.begin(), Ll.end(), 0.0);
+    fill(Lld.begin(), Lld.end(), 0.0);
+    fill(Lldd.begin(), Lldd.end(), 0.0);
     model_bool["gradient"] = false;
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
