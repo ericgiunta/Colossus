@@ -178,9 +178,14 @@ what were expected.</p>
 <span><span class="co">#&gt; $df</span></span>
 <span><span class="co">#&gt;    apples_category oranges_category COUNT dropped hands</span></span>
 <span><span class="co">#&gt;             &lt;char&gt;           &lt;char&gt; &lt;int&gt;   &lt;num&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:               1                1     8       3  1.50</span></span>
-<span><span class="co">#&gt; 2:               2                2     5       3  2.00</span></span>
-<span><span class="co">#&gt; 3:               3                3     4       3  1.25</span></span>
+<span><span class="co">#&gt; 1:           0 - 3        excessive     1       0   2.0</span></span>
+<span><span class="co">#&gt; 2:           0 - 3              few     5       2   1.2</span></span>
+<span><span class="co">#&gt; 3:           0 - 3             good     2       1   2.0</span></span>
+<span><span class="co">#&gt; 4:           3 - 5              few     1       0   2.0</span></span>
+<span><span class="co">#&gt; 5:           3 - 5             good     4       3   2.0</span></span>
+<span><span class="co">#&gt; 6:           5 - 7        excessive     2       2   1.5</span></span>
+<span><span class="co">#&gt; 7:           5 - 7              few     1       1   1.0</span></span>
+<span><span class="co">#&gt; 8:           5 - 7             good     1       0   1.0</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
 <span><span class="co">#&gt; $bounds$apples_category</span></span>
@@ -282,24 +287,24 @@ boundaries.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR     c b_weighted</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:          1       high        1       1  2.9952088     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:          1       high        2       1  0.2600958     0   6.000000</span></span>
-<span><span class="co">#&gt;  3:          1        low        1       5 12.4791239     1   1.413339</span></span>
-<span><span class="co">#&gt;  4:          1        low        2       3 14.4257358     0   1.485291</span></span>
-<span><span class="co">#&gt;  5:          1     medium        1       2  5.9876797     0   3.999543</span></span>
-<span><span class="co">#&gt;  6:          1     medium        2       2  1.5167693     1   4.664260</span></span>
-<span><span class="co">#&gt;  7:          2        low        1       1  2.9979466     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:          2        low        2       1  1.2566735     0   2.000000</span></span>
-<span><span class="co">#&gt;  9:          2     medium        1       4 11.8083504     0   3.993276</span></span>
-<span><span class="co">#&gt; 10:          2     medium        2       4  5.7056810     3   4.175144</span></span>
-<span><span class="co">#&gt; 11:          3       high        1       2  5.8234086     0   6.499765</span></span>
-<span><span class="co">#&gt; 12:          3       high        2       2  7.6824093     2   6.554170</span></span>
-<span><span class="co">#&gt; 13:          3        low        1       1  2.9130732     0   2.000000</span></span>
-<span><span class="co">#&gt; 14:          3        low        2       1  0.2546201     1   2.000000</span></span>
-<span><span class="co">#&gt; 15:          3     medium        1       1  2.9103354     0   3.000000</span></span>
-<span><span class="co">#&gt; 16:          3     medium        2       1  1.2566735     0   3.000000</span></span>
+<span><span class="co">#&gt;  1:     -1 - 3       high        1       1  2.9924709     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:     -1 - 3       high        2       1  0.2600958     0   6.000000</span></span>
+<span><span class="co">#&gt;  3:     -1 - 3        low        1       5 14.7871321     1   1.398815</span></span>
+<span><span class="co">#&gt;  4:     -1 - 3        low        2       3 14.4257358     0   1.485291</span></span>
+<span><span class="co">#&gt;  5:     -1 - 3     medium        1       2  5.9822040     0   3.999542</span></span>
+<span><span class="co">#&gt;  6:     -1 - 3     medium        2       2  1.5167693     1   4.664260</span></span>
+<span><span class="co">#&gt;  7:      3 - 5        low        1       1  2.9952088     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:      3 - 5        low        2       1  1.2566735     0   2.000000</span></span>
+<span><span class="co">#&gt;  9:      3 - 5     medium        1       4 11.7973990     0   3.993270</span></span>
+<span><span class="co">#&gt; 10:      3 - 5     medium        2       4  5.7056810     3   4.175144</span></span>
+<span><span class="co">#&gt; 11:      5 - 7       high        1       2  5.8179329     0   6.499765</span></span>
+<span><span class="co">#&gt; 12:      5 - 7       high        2       2  7.6824093     2   6.554170</span></span>
+<span><span class="co">#&gt; 13:      5 - 7        low        1       1  2.9103354     0   2.000000</span></span>
+<span><span class="co">#&gt; 14:      5 - 7        low        2       1  0.2546201     1   2.000000</span></span>
+<span><span class="co">#&gt; 15:      5 - 7     medium        1       1  2.9075975     0   3.000000</span></span>
+<span><span class="co">#&gt; 16:      5 - 7     medium        2       1  1.2566735     0   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
@@ -309,7 +314,7 @@ boundaries.</p>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
@@ -317,24 +322,24 @@ boundaries.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR     c b_weighted</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:          1       high        1       1  35.942505     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:          1       high        2       1   3.121150     0   6.000000</span></span>
-<span><span class="co">#&gt;  3:          1        low        1       5 149.749487     1   1.413339</span></span>
-<span><span class="co">#&gt;  4:          1        low        2       3 173.108830     0   1.485291</span></span>
-<span><span class="co">#&gt;  5:          1     medium        1       2  71.852156     0   3.999543</span></span>
-<span><span class="co">#&gt;  6:          1     medium        2       2  18.201232     1   4.664260</span></span>
-<span><span class="co">#&gt;  7:          2        low        1       1  35.975359     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:          2        low        2       1  15.080082     0   2.000000</span></span>
-<span><span class="co">#&gt;  9:          2     medium        1       4 141.700205     0   3.993276</span></span>
-<span><span class="co">#&gt; 10:          2     medium        2       4  68.468172     3   4.175144</span></span>
-<span><span class="co">#&gt; 11:          3       high        1       2  69.880903     0   6.499765</span></span>
-<span><span class="co">#&gt; 12:          3       high        2       2  92.188912     2   6.554170</span></span>
-<span><span class="co">#&gt; 13:          3        low        1       1  34.956879     0   2.000000</span></span>
-<span><span class="co">#&gt; 14:          3        low        2       1   3.055441     1   2.000000</span></span>
-<span><span class="co">#&gt; 15:          3     medium        1       1  34.924025     0   3.000000</span></span>
-<span><span class="co">#&gt; 16:          3     medium        2       1  15.080082     0   3.000000</span></span>
+<span><span class="co">#&gt;  1:     -1 - 3       high        1       1  35.909651     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:     -1 - 3       high        2       1   3.121150     0   6.000000</span></span>
+<span><span class="co">#&gt;  3:     -1 - 3        low        1       5 177.445585     1   1.398815</span></span>
+<span><span class="co">#&gt;  4:     -1 - 3        low        2       3 173.108830     0   1.485291</span></span>
+<span><span class="co">#&gt;  5:     -1 - 3     medium        1       2  71.786448     0   3.999542</span></span>
+<span><span class="co">#&gt;  6:     -1 - 3     medium        2       2  18.201232     1   4.664260</span></span>
+<span><span class="co">#&gt;  7:      3 - 5        low        1       1  35.942505     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:      3 - 5        low        2       1  15.080082     0   2.000000</span></span>
+<span><span class="co">#&gt;  9:      3 - 5     medium        1       4 141.568789     0   3.993270</span></span>
+<span><span class="co">#&gt; 10:      3 - 5     medium        2       4  68.468172     3   4.175144</span></span>
+<span><span class="co">#&gt; 11:      5 - 7       high        1       2  69.815195     0   6.499765</span></span>
+<span><span class="co">#&gt; 12:      5 - 7       high        2       2  92.188912     2   6.554170</span></span>
+<span><span class="co">#&gt; 13:      5 - 7        low        1       1  34.924025     0   2.000000</span></span>
+<span><span class="co">#&gt; 14:      5 - 7        low        2       1   3.055441     1   2.000000</span></span>
+<span><span class="co">#&gt; 15:      5 - 7     medium        1       1  34.891170     0   3.000000</span></span>
+<span><span class="co">#&gt; 16:      5 - 7     medium        2       1  15.080082     0   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
@@ -344,7 +349,7 @@ boundaries.</p>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
@@ -352,24 +357,24 @@ boundaries.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK   PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK   PYR     c b_weighted</span></span>
 <span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:          1       high        1       1  1094     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:          1       high        2       1    95     0   6.000000</span></span>
-<span><span class="co">#&gt;  3:          1        low        1       5  4558     1   1.413339</span></span>
-<span><span class="co">#&gt;  4:          1        low        2       3  5269     0   1.485291</span></span>
-<span><span class="co">#&gt;  5:          1     medium        1       2  2187     0   3.999543</span></span>
-<span><span class="co">#&gt;  6:          1     medium        2       2   554     1   4.664260</span></span>
-<span><span class="co">#&gt;  7:          2        low        1       1  1095     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:          2        low        2       1   459     0   2.000000</span></span>
-<span><span class="co">#&gt;  9:          2     medium        1       4  4313     0   3.993276</span></span>
-<span><span class="co">#&gt; 10:          2     medium        2       4  2084     3   4.175144</span></span>
-<span><span class="co">#&gt; 11:          3       high        1       2  2127     0   6.499765</span></span>
-<span><span class="co">#&gt; 12:          3       high        2       2  2806     2   6.554170</span></span>
-<span><span class="co">#&gt; 13:          3        low        1       1  1064     0   2.000000</span></span>
-<span><span class="co">#&gt; 14:          3        low        2       1    93     1   2.000000</span></span>
-<span><span class="co">#&gt; 15:          3     medium        1       1  1063     0   3.000000</span></span>
-<span><span class="co">#&gt; 16:          3     medium        2       1   459     0   3.000000</span></span>
+<span><span class="co">#&gt;  1:     -1 - 3       high        1       1  1093     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:     -1 - 3       high        2       1    95     0   6.000000</span></span>
+<span><span class="co">#&gt;  3:     -1 - 3        low        1       5  5401     1   1.398815</span></span>
+<span><span class="co">#&gt;  4:     -1 - 3        low        2       3  5269     0   1.485291</span></span>
+<span><span class="co">#&gt;  5:     -1 - 3     medium        1       2  2185     0   3.999542</span></span>
+<span><span class="co">#&gt;  6:     -1 - 3     medium        2       2   554     1   4.664260</span></span>
+<span><span class="co">#&gt;  7:      3 - 5        low        1       1  1094     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:      3 - 5        low        2       1   459     0   2.000000</span></span>
+<span><span class="co">#&gt;  9:      3 - 5     medium        1       4  4309     0   3.993270</span></span>
+<span><span class="co">#&gt; 10:      3 - 5     medium        2       4  2084     3   4.175144</span></span>
+<span><span class="co">#&gt; 11:      5 - 7       high        1       2  2125     0   6.499765</span></span>
+<span><span class="co">#&gt; 12:      5 - 7       high        2       2  2806     2   6.554170</span></span>
+<span><span class="co">#&gt; 13:      5 - 7        low        1       1  1063     0   2.000000</span></span>
+<span><span class="co">#&gt; 14:      5 - 7        low        2       1    93     1   2.000000</span></span>
+<span><span class="co">#&gt; 15:      5 - 7     medium        1       1  1062     0   3.000000</span></span>
+<span><span class="co">#&gt; 16:      5 - 7     medium        2       1   459     0   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
@@ -379,7 +384,7 @@ boundaries.</p>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1903-01-01] [1903-01-01 to 1910-01-01]"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
