@@ -25,21 +25,21 @@ returns a filled datatable
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
 df <- data.table::data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, NA, 47, 36, NA, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0)
+  UserID = c(112, 114, 213, 214, 115, 116, 117),
+  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+  Ending_Age = c(30, 45, NA, 47, 36, NA, 55),
+  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0)
 )
 df <- Replace_Missing(df, c("Starting_Age", "Ending_Age"), 70)
 }
 \seealso{
-Other Data Cleaning Functions: 
-\code{\link{Date_Shift}()},
-\code{\link{Event_Count_Gen}()},
-\code{\link{Event_Time_Gen}()},
-\code{\link{Joint_Multiple_Events}()},
-\code{\link{Time_Since}()},
-\code{\link{factorize}()},
-\code{\link{gen_time_dep}()}
+Other Data Cleaning Functions:
+\code{\link[=Date_Shift]{Date_Shift()}},
+\code{\link[=Event_Count_Gen]{Event_Count_Gen()}},
+\code{\link[=Event_Time_Gen]{Event_Time_Gen()}},
+\code{\link[=Joint_Multiple_Events]{Joint_Multiple_Events()}},
+\code{\link[=Time_Since]{Time_Since()}},
+\code{\link[=factorize]{factorize()}},
+\code{\link[=gen_time_dep]{gen_time_dep()}}
 }
 \concept{Data Cleaning Functions}

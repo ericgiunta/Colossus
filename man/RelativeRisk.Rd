@@ -14,5 +14,7 @@ RelativeRisk(x, df, ...)
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{RelativeRisk} Generic relative risk calculation function
+\code{RelativeRisk} Generic relative risk calculation function,
+currently only used by the coxres object, to calculate relative risks
+for either the last parameter or a custom point.
 }

@@ -57,19 +57,19 @@ run a Colossus matched case-control regression function
 \examples{
 library(data.table)
 df <- data.table::data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "a" = c(0, 1, 1, 0, 1, 0, 1),
-  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  "c" = c(10, 11, 10, 11, 12, 9, 11),
-  "d" = c(0, 0, 0, 1, 1, 1, 1),
-  "e" = c(0, 0, 1, 0, 0, 0, 1)
+  UserID = c(112, 114, 213, 214, 115, 116, 117),
+  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+  Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+  a = c(0, 1, 1, 0, 1, 0, 1),
+  b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+  c = c(10, 11, 10, 11, 12, 9, 11),
+  d = c(0, 0, 0, 1, 1, 1, 1),
+  e = c(0, 0, 1, 0, 0, 0, 1)
 )
 control <- list(
-  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-  "halfmax" = 1
+  ncores = 1, lr = 0.75, maxiters = c(1, 1),
+  halfmax = 1
 )
 formula <- CaseCon_Strata(Cancer_Status, e) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()

@@ -543,7 +543,7 @@ test_that("Various CoxRegressionOmnibus options", {
   cens_weight <- c(0)
   verbose <- FALSE
   devs <- c()
-  options(warn = -1)
+  # options(warn = -1)
   modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
@@ -575,7 +575,7 @@ test_that("Various CoxRegressionOmnibus options", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, -0.1, 0.2)
   expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
-  options(warn = 0)
+  # options(warn = 0)
 })
 
 test_that("Various RunPoissonRegression_Omnibus options", {

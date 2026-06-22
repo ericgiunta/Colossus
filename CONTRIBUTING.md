@@ -37,7 +37,7 @@ We use the [Tidyverse style guide](https://style.tidyverse.org/) for writing R
 code. Functions are documented with the 
 [roxygen2](https://roxygen2.r-lib.org/articles/roxygen2.html) syntax. 
 `Colossus` uses the `lower_snake_case` for variables and `CamelCase` for functions.
-R code is formatted using the styler package, to ensure consistent style. Prior to submission, please check using the style_pkg function.
+R code is formatted using the styler package, to ensure consistent style. Prior to submission, please check using the `style_pkg` function.
 ```r
 styler::style_pkg()
 ```
@@ -48,7 +48,7 @@ cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/Rcpp
 cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/RcppExports.* src/*.h
 ```
 
-Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks.
+Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks to identify other potential issues.
 ```r
 goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[7:230])
 ```

@@ -15,16 +15,18 @@
 RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   if (min(df[, event0, with = FALSE]) < 0) {
@@ -108,11 +110,13 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       for (i in seq_along(uniq)) {
         df0 <- dfend[get(strat_col) == uniq[i], ]
         if (nrow(df0) == 0) {
-          if (control$verbose >= 2) { # nocov
+          if (control$verbose >= 2) {
+            # nocov start
             warning(paste("Warning: no events for strata group:",
               uniq[i],
               sep = " "
-            )) # nocov
+            ))
+            # nocov end
           }
           df <- df[get(strat_col) != uniq[i], ] # nocov
         }
@@ -135,7 +139,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     dfend <- df[get(event0) == 1, ]
     tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
     if (control$verbose >= 3) {
-      message(paste("Note: ", length(tu), " risk groups", sep = "")) # nocov
+      message(paste0("Note: ", length(tu), " risk groups")) # nocov
     }
   } else {
     tu <- c(0)
@@ -148,12 +152,14 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       if (names[i] != "CONST") {
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1 # nocov
-          if (control$verbose >= 2) { # nocov
-            warning(paste("Warning: element ", i,
+          if (control$verbose >= 2) {
+            # nocov start
+            warning(paste0(
+              "Warning: element ", i,
               " with column name ", names[i],
-              " was set constant",
-              sep = ""
-            )) # nocov
+              " was set constant"
+            ))
+            # nocov end
           }
         }
       }
@@ -198,5 +204,5 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$UsedRecords <- run_size
   e$RejectedRecords <- initial_size - run_size
   e$RunTime <- func_t_end - func_t_start
-  return(e)
+  e
 }

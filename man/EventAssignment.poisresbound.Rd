@@ -34,12 +34,12 @@ returns a list of the final results
 and options to calculate background and excess events for a solved Poisson regression
 }
 \seealso{
-Other Poisson Wrapper Functions: 
-\code{\link{EventAssignment.poisres}()},
-\code{\link{LikelihoodBound.poisres}()},
-\code{\link{PoisRun}()},
-\code{\link{PoisRunJoint}()},
-\code{\link{PoisRunMulti}()},
-\code{\link{Residual.poisres}()}
+Other Poisson Wrapper Functions:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
+\code{\link[=PoisRun]{PoisRun()}},
+\code{\link[=PoisRunJoint]{PoisRunJoint()}},
+\code{\link[=PoisRunMulti]{PoisRunMulti()}},
+\code{\link[=Residual.poisres]{Residual.poisres()}}
 }
 \concept{Poisson Wrapper Functions}

@@ -32,22 +32,22 @@ d1 <- c(6, 7, 8, 9)
 y0 <- c(1990, 1991, 1997, 1998)
 y1 <- c(2001, 2003, 2005, 2006)
 df <- data.table::data.table(
-  "m0" = m0, "m1" = m1,
-  "d0" = d0, "d1" = d1,
-  "y0" = y0, "y1" = y1
+  m0 = m0, m1 = m1,
+  d0 = d0, d1 = d1,
+  y0 = y0, y1 = y1
 )
 tref <- strptime("3-22-1997", format = "\%m-\%d-\%Y", tz = "UTC")
 df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 
 }
 \seealso{
-Other Data Cleaning Functions: 
-\code{\link{Date_Shift}()},
-\code{\link{Event_Count_Gen}()},
-\code{\link{Event_Time_Gen}()},
-\code{\link{Joint_Multiple_Events}()},
-\code{\link{Replace_Missing}()},
-\code{\link{factorize}()},
-\code{\link{gen_time_dep}()}
+Other Data Cleaning Functions:
+\code{\link[=Date_Shift]{Date_Shift()}},
+\code{\link[=Event_Count_Gen]{Event_Count_Gen()}},
+\code{\link[=Event_Time_Gen]{Event_Time_Gen()}},
+\code{\link[=Joint_Multiple_Events]{Joint_Multiple_Events()}},
+\code{\link[=Replace_Missing]{Replace_Missing()}},
+\code{\link[=factorize]{factorize()}},
+\code{\link[=gen_time_dep]{gen_time_dep()}}
 }
 \concept{Data Cleaning Functions}

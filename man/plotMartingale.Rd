@@ -18,5 +18,7 @@ plotMartingale(x, df, plot_options, a_n = c(), ...)
 \item{...}{can include the named entries for the plot_options parameter}
 }
 \description{
-\code{plotMartingale} Generic Martingale Residual Plotting
+\code{plotMartingale} Generic martingale residual plotting, used by the
+coxres object to plot martingale residuals. Currently only returns data
+that could be plotted.
 }

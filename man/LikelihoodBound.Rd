@@ -18,5 +18,7 @@ LikelihoodBound(x, df, curve_control = list(), control = list(), ...)
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{LikelihoodBound} Generic likelihood boundary calculation function
+\code{LikelihoodBound} Generic likelihood boundary calculation function. Used
+by the coxres, poisres, and logitres objects to calculate likelihood based
+confidence intervals.
 }

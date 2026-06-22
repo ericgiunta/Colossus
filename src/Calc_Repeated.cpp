@@ -2704,7 +2704,7 @@ void Calc_LogLik_Logist(List& model_bool, const int& nthreads, const int& totaln
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
-    MatrixXd temp(Pd.rows(), 2);
+    MatrixXd temp(P.rows(), 2);
     temp.col(0) = CountEvent.col(1).array() - CountEvent.col(0).array();  // N_i - y_i
     temp.col(1) = CountEvent.col(0).array() * P.col(0).array().log().array() + temp.col(0).array() * Pnot.col(0).array().log().array();
     fill(Ll.begin(), Ll.end(), (temp.col(1).array().isFinite()).select(temp.col(1), 0).sum());

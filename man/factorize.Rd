@@ -25,7 +25,7 @@ library(data.table)
 a <- c(0, 1, 2, 3, 4, 5, 6)
 b <- c(1, 2, 3, 4, 5, 6, 7)
 c <- c(0, 1, 2, 1, 0, 1, 0)
-df <- data.table::data.table("a" = a, "b" = b, "c" = c)
+df <- data.table::data.table(a = a, b = b, c = c)
 col_list <- c("c")
 val <- factorize(df, col_list)
 df <- val$df
@@ -33,13 +33,13 @@ new_col <- val$cols
 
 }
 \seealso{
-Other Data Cleaning Functions: 
-\code{\link{Date_Shift}()},
-\code{\link{Event_Count_Gen}()},
-\code{\link{Event_Time_Gen}()},
-\code{\link{Joint_Multiple_Events}()},
-\code{\link{Replace_Missing}()},
-\code{\link{Time_Since}()},
-\code{\link{gen_time_dep}()}
+Other Data Cleaning Functions:
+\code{\link[=Date_Shift]{Date_Shift()}},
+\code{\link[=Event_Count_Gen]{Event_Count_Gen()}},
+\code{\link[=Event_Time_Gen]{Event_Time_Gen()}},
+\code{\link[=Joint_Multiple_Events]{Joint_Multiple_Events()}},
+\code{\link[=Replace_Missing]{Replace_Missing()}},
+\code{\link[=Time_Since]{Time_Since()}},
+\code{\link[=gen_time_dep]{gen_time_dep()}}
 }
 \concept{Data Cleaning Functions}

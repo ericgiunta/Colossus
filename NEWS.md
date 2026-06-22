@@ -192,3 +192,25 @@
 # Colossus 1.5
 
 * partial matching added for many user inputs: control options, subterm types, term combinations, survival types, column names, etc
+
+# Colossus 1.5.1
+
+* patch to fix errors on fedora-clang machines
+* style updates based on lintr outputs
+
+# Colossus 1.5.2
+
+* Added likelihood-based confidence intervals for logistic regression
+
+# Colossus 1.5.3
+
+* Added options to print multiple-realizations results
+* Monte Carlo Maximum Likelihood results are printed like normal regressions, while also listing the number of realizations used.
+* Frequentist Model Averaging results print the general model information and number of realizations, and details on how to access the realization specific results.
+* Multiple-realization functions can now be used with the non-derivative option to calculate the log-likelihood at a single point, without calculating derivatives.
+
+# Colossus 1.5.4
+
+* Patched bug in model control options being passed between standard regressions and logarithm based boundary functions
+* Testing on bisection based logarithm boundaries using gradient descent optimization.
+

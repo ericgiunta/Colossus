@@ -16,10 +16,10 @@ returns list with event
 \code{ColossusLogitSurv} assigns and interprets columns for trials and events in logistic model with no grouping.
 }
 \seealso{
-Other Formula Interpretation: 
-\code{\link{ColossusCoxSurv}()},
-\code{\link{ColossusPoisSurv}()},
-\code{\link{get_form}()},
-\code{\link{get_form_joint}()}
+Other Formula Interpretation:
+\code{\link[=ColossusCoxSurv]{ColossusCoxSurv()}},
+\code{\link[=ColossusPoisSurv]{ColossusPoisSurv()}},
+\code{\link[=get_form]{get_form()}},
+\code{\link[=get_form_joint]{get_form_joint()}}
 }
 \concept{Formula Interpretation}

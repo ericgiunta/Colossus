@@ -4,7 +4,14 @@
 \alias{Event_Time_Gen}
 \title{uses a table, list of categories, list of summaries, list of events, and person-year information to generate person-time tables}
 \usage{
-Event_Time_Gen(table, pyr, categ, summaries, events, verbose = FALSE)
+Event_Time_Gen(
+  table,
+  pyr = list(),
+  categ = list(),
+  summaries = list(),
+  events = c(),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{table}{dataframe with every category/event column needed}
@@ -43,15 +50,15 @@ i <- c(
   1905, 1906, 1907
 )
 table <- data.table::data.table(
-  "a" = a, "b" = b, "c" = c,
-  "d" = d, "e" = e, "f" = f,
-  "g" = g, "h" = h, "i" = i
+  a = a, b = b, c = c,
+  d = d, e = e, f = f,
+  g = g, h = h, i = i
 )
 categ <- list(
-  "a" = "-1/3/5]7"
+  a = "-1/3/5]7"
 )
 summary <- list(
-  "c" = "count AS cases"
+  c = "count AS cases"
 )
 events <- list("c")
 pyr <- list(
@@ -63,13 +70,13 @@ e <- Event_Time_Gen(table, pyr, categ, summary, events)
 
 }
 \seealso{
-Other Data Cleaning Functions: 
-\code{\link{Date_Shift}()},
-\code{\link{Event_Count_Gen}()},
-\code{\link{Joint_Multiple_Events}()},
-\code{\link{Replace_Missing}()},
-\code{\link{Time_Since}()},
-\code{\link{factorize}()},
-\code{\link{gen_time_dep}()}
+Other Data Cleaning Functions:
+\code{\link[=Date_Shift]{Date_Shift()}},
+\code{\link[=Event_Count_Gen]{Event_Count_Gen()}},
+\code{\link[=Joint_Multiple_Events]{Joint_Multiple_Events()}},
+\code{\link[=Replace_Missing]{Replace_Missing()}},
+\code{\link[=Time_Since]{Time_Since()}},
+\code{\link[=factorize]{factorize()}},
+\code{\link[=gen_time_dep]{gen_time_dep()}}
 }
 \concept{Data Cleaning Functions}

@@ -69,7 +69,7 @@ test_that("threshold nonfail", {
         }
         for (thres in c(0, 40, 100)) {
           e <- CaseControlRun(model, df, control = control, conditional_threshold = thres, a_n = a_n)
-          expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+          expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
           expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
           i_index <- i_index + 1
         }
@@ -122,7 +122,7 @@ test_that("threshold nonfail, single", {
         }
         for (thres in c(0, 40, 100)) {
           e <- CaseControlRun(model, df, control = control, conditional_threshold = thres, single = TRUE, a_n = a_n)
-          expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+          expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
           expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
           i_index <- i_index + 1
         }
@@ -175,7 +175,7 @@ test_that("threshold nonfail, null", {
         }
         for (thres in c(0, 40, 100)) {
           e <- CaseControlRun(model, df, control = control, conditional_threshold = thres, single = TRUE, a_n = a_n)
-          expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+          expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
           expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
           i_index <- i_index + 1
         }
@@ -220,7 +220,7 @@ test_that("threshold nonfail, gradient", {
             gradient_control[[method]] <- TRUE
             e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
             #
-            expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
             expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
             i_index <- i_index + 1
           }
@@ -239,7 +239,7 @@ test_that("threshold nonfail, gradient", {
             gradient_control[[method]] <- TRUE
             e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
             #
-            expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
             expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
             i_index <- i_index + 1
           }
@@ -258,7 +258,7 @@ test_that("threshold nonfail, gradient", {
             gradient_control[[method]] <- TRUE
             e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
             #
-            expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
             expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
             i_index <- i_index + 1
           }
@@ -277,7 +277,7 @@ test_that("threshold nonfail, gradient", {
             gradient_control[[method]] <- TRUE
             e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
             #
-            expect_equal(e$Deviation, devs[i_index], tolerance = 1e-3)
+            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
             expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
             i_index <- i_index + 1
           }

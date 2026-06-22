@@ -1,0 +1,139 @@
+//  Copyright 2022 - 2025, Eric Giunta and the project collaborators, Please see main R package for license and usage details
+
+#include <RcppEigen.h>
+
+#include "R_Interface.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+
+#include <Eigen/Core>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <random>
+#include <ctime>
+
+#include "Main_Functions.h"
+#include "Main_Bound.h"
+#include "Main_Multi.h"
+#include "Plot_Extensions.h"
+
+
+//  [[Rcpp::depends(RcppEigen)]]
+//  [[Rcpp::plugins(openmp)]]
+
+using std::string;
+using std::vector;
+using std::ofstream;
+using std::endl;
+using std::invalid_argument;
+
+using Eigen::Map;
+using Eigen::Ref;
+using Eigen::ArrayXd;
+using Eigen::MatrixXd;
+using Eigen::SparseMatrix;
+using Eigen::VectorXd;
+using Eigen::VectorXi;
+using Eigen::IOFormat;
+using Eigen::FullPrecision;
+using Eigen::DontAlignCols;
+
+using Rcpp::as;
+using Rcpp::wrap;
+using Rcpp::IntegerMatrix;
+using Rcpp::IntegerVector;
+using Rcpp::NumericVector;
+using Rcpp::NumericMatrix;
+using Rcpp::StringVector;
+using Rcpp::List;
+using Rcpp::_;
+using Rcpp::Rcout;
+
+template <typename T> int sign(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+template<typename Func>
+struct lambda_as_visitor_wrapper : Func {
+    lambda_as_visitor_wrapper(const Func& f) : Func(f) {}
+    template<typename S, typename I>
+    void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
+};
+
+template<typename Mat, typename Func>
+void visit_lambda(const Mat& m, const Func& f) {
+    lambda_as_visitor_wrapper<Func> visitor(f);
+    m.visit(visitor);
+}
+//' Interface between R code and the Cox PH omnibus regression function with batch files
+//'
+//' \code{cox_ph_multidose_batch_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+//  [[Rcpp::export]]
+List cox_ph_multidose_batch_Omnibus_transition(IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector dose_index, IntegerVector dfc, MatrixXd df0, List file_data, int fir, string modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+    int verbose = Control["verbose"];
+    //
+    double lr = Control["lr"];
+    int maxiter = Control["maxiter"];
+    int halfmax = Control["halfmax"];
+    double epsilon = Control["epsilon"];
+    //
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
+    double deriv_epsilon = Control["deriv_epsilon"];
+    string ties_method = Control["ties"];
+    int nthreads = Control["ncores"];
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = model_control["basic"],
+            _["linear_err"] = model_control["linear_err"],
+            _["null"] = model_control["null"],
+            _["cr"] = model_control["cr"],
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["outcome_prob"] = false,
+            _["constraint"] = model_control["constraint"],
+            _["observed_info"] = model_control["observed_info"],
+            _["log_bound"] = false,
+            _["cox"] = true);
+    List optim_para = List::create(
+            _["lr"] = Control["lr"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
+    }
+    //
+    //  Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res;
+    bool IntegratedSerial = model_control["mcml"];
+    res = LogLik_Cox_PH_Multidose_Batch_Omnibus_Serial(term_n, tform, beta_0, df0, file_data, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+//    if (IntegratedSerial) {
+//        res = LogLik_Cox_PH_Multidose_Omnibus_Integrated(term_n, tform, beta_0, df0, df1, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+//    } else {
+//        res = LogLik_Cox_PH_Multidose_Omnibus_Serial(term_n, tform, beta_0, df0, df1, dose_cols, dose_index, dfc, fir, modelform, lr, optim_para, maxiter, halfmax, epsilon, step_max, thres_step_max, deriv_epsilon, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+//    }
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}

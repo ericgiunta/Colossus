@@ -8,26 +8,26 @@ test_that("Basic factor application to formula", {
 
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_2"), e$names)
+  expect_equal(e$names, c("d", "e_2"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(x = e))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_2"), e$names)
+  expect_equal(e$names, c("d", "e_2"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(1, 2), labels = c("low", "high")))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_high"), e$names)
+  expect_equal(e$names, c("d", "e_high"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(2, 1), labels = c("high", "low")))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_low"), e$names)
+  expect_equal(e$names, c("d", "e_low"))
   #
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_equal(e$tform, c("loglin", "loglin"))
   model <- Cox(a, b, c) ~ exponential(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_equal(e$tform, c("loglin", "loglin"))
   model <- Cox(a, b, c) ~ exp(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_equal(e$tform, c("loglin", "loglin"))
 })
 
 test_that("Basic formula failures", {
@@ -67,8 +67,12 @@ test_that("Basic gmix application to formula", {
   expect_no_error(get_form(model, df))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5)
   expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5, 1)
+  expect_error(get_form(model, df))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix("e")
   expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix("f")
+  expect_error(get_form(model, df))
   #
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix - r()
   expect_no_error(get_form(model, df))
@@ -118,20 +122,41 @@ test_that("Run basic errors and checks", {
   #
 })
 
+test_that("Run basic warnings and checks", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(1, 2, 1, 1, 2, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+
+  model <- Cox(a, b, c) ~ loglinear(d)
+  expect_warning(res <- CoxRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- CoxRun(model, df, control = list(ncores = 1, ncores = 1)))
+  model <- Pois(a, b) ~ loglinear(c, d)
+  expect_warning(res <- PoisRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- PoisRun(model, df, control = list(ncores = 1, ncores = 1)))
+  model <- Logit(b, a) ~ loglinear(c, d)
+  expect_warning(res <- LogisticRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- LogisticRun(model, df, control = list(ncores = 1, ncores = 1)))
+})
+
 test_that("Basic ns and bs application to formula", {
-  df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
-  model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
-  model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
-  model <- Cox(a, b, c) ~ loglinear(d, bs(e))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
-  model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
-  e <- get_form(model, df)$model
-  expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+  if (system.file(package = "splines") != "") {
+    df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
+    model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
+    e <- get_form(model, df)$model
+    expect_equal(e$names, c("d", "e_ns1", "e_ns2"))
+    model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
+    e <- get_form(model, df)$model
+    expect_equal(e$names, c("d", "e_ns1", "e_ns2"))
+    model <- Cox(a, b, c) ~ loglinear(d, bs(e))
+    e <- get_form(model, df)$model
+    expect_equal(e$names, c("d", "e_bs1", "e_bs2", "e_bs3"))
+    model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
+    e <- get_form(model, df)$model
+    expect_equal(e$names, c("d", "e_bs1", "e_bs2", "e_bs3"))
+  }
 })
 
 test_that("Basic generic function application to formula", {
@@ -162,25 +187,27 @@ test_that("Basic factor application to formula with formula column", {
 })
 
 test_that("Checking formula works with result modification", {
-  fname <- "dose.csv"
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
-  #
-  df$dose2 <- df$dose * df$dose
-  df$a <- df$dose + 0.001
-  df$b <- df$dose2 + 0.001
-  #
-  model <- Cox(t0, t1, lung) ~ loglinear(ns(x = a), b)
-  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
-  f <- RelativeRisk(e, df)
-  expect_equal(sum(f$Risk), 548.6874, tolerance = 1e-2)
-  expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 1)))
-  f <- Residual(e, df)
-  expect_equal(f$Residual_Sum, 0.497, tolerance = 1e-2)
-  #
-  model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
-  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
-  expect_no_error(f <- RelativeRisk(e, df))
+  if (system.file(package = "splines") != "") {
+    fname <- "dose.csv"
+    colTypes <- c("double", "double", "double", "integer")
+    df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+    #
+    df$dose2 <- df$dose * df$dose
+    df$a <- df$dose + 0.001
+    df$b <- df$dose2 + 0.001
+    #
+    model <- Cox(t0, t1, lung) ~ loglinear(ns(x = a), b)
+    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
+    f <- RelativeRisk(e, df)
+    expect_equal(sum(f$Risk), 548.6874, tolerance = 1e-2)
+    expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 1)))
+    f <- Residual(e, df)
+    expect_equal(f$Residual_Sum, 0.497, tolerance = 1e-2)
+    #
+    model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
+    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
+    expect_no_error(f <- RelativeRisk(e, df))
+  }
 })
 
 test_that("Checking interaction works in formula and call results", {
@@ -290,6 +317,7 @@ test_that("General Form Errors", {
   #
   expect_error(get_form(Cox(t0, t1, lung) ~ dose, df)) # not defined right side term
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^a)), df)) # not a numeric power
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^1^2)), df)) # multiple powers
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose * a), df)) # missing interaction column
   #
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose) + M() + A(), df)) # modelform defined twice
@@ -314,6 +342,7 @@ test_that("Colossus Surv Errors", {
   expect_error(get_form(Cox(alpha = t0, t1, lung) ~ loglinear(dose), df)) # wrong named
   #
   expect_no_error(get_form(Cox_Strata(t0, t1, lung, rand0) ~ loglinear(dose), df))
+  expect_no_error(get_form(Cox_Strata(t0, t1, lung, c(rand0, rand1)) ~ loglinear(dose), df))
   expect_no_error(get_form(Cox_Strata(t0, t1, lung, strata = rand0) ~ loglinear(dose), df))
   expect_error(get_form(Cox_Strata(lung, strata = rand0) ~ loglinear(dose), df)) # too few
   expect_error(get_form(Cox_Strata(t0, t1, lung, lung, strata = rand0) ~ loglinear(dose), df)) # too many
@@ -423,6 +452,7 @@ test_that("CaseCon Surv Errors", {
   expect_no_error(get_form(CaseCon_time(t1, event = lung) ~ loglinear(dose), df))
   #
   expect_no_error(get_form(CaseCon_strata(lung, rand0) ~ loglinear(dose), df))
+  expect_no_error(get_form(CaseCon_strata(lung, c(rand0, rand1)) ~ loglinear(dose), df))
   expect_error(get_form(CaseCon_strata(lung) ~ loglinear(dose), df)) # too few
   expect_error(get_form(CaseCon_strata(t1, lung, rand0) ~ loglinear(dose), df)) # too many
   expect_error(get_form(CaseCon_strata(alpha = lung, rand0) ~ loglinear(dose), df)) # wrong name

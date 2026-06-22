@@ -54,34 +54,34 @@ run a Colossus poisson regression function on a joint dataset
 \examples{
 library(data.table)
 df <- data.table::data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "Flu_Status" = c(0, 1, 0, 0, 1, 0, 1),
-  "a" = c(0, 1, 1, 0, 1, 0, 1),
-  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  "c" = c(10, 11, 10, 11, 12, 9, 11),
-  "d" = c(0, 0, 0, 1, 1, 1, 1),
-  "e" = c(0, 0, 1, 0, 0, 0, 1)
+  UserID = c(112, 114, 213, 214, 115, 116, 117),
+  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+  Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+  Flu_Status = c(0, 1, 0, 0, 1, 0, 1),
+  a = c(0, 1, 1, 0, 1, 0, 1),
+  b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+  c = c(10, 11, 10, 11, 12, 9, 11),
+  d = c(0, 0, 0, 1, 1, 1, 1),
+  e = c(0, 0, 1, 0, 0, 0, 1)
 )
 control <- list(
-  "ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1),
-  "halfmax" = 1
+  ncores = 1, lr = 0.75, maxiters = c(1, 1),
+  halfmax = 1
 )
 formula_list <- list(Pois(Ending_Age, Cancer_Status) ~ plinear(d, 0),
   Pois(Ending_Age, Flu_Status) ~ loglinear(d, 0),
-  "shared" = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
+  shared = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 )
 res <- PoisRunJoint(formula_list, df, control = control)
 }
 \seealso{
-Other Poisson Wrapper Functions: 
-\code{\link{EventAssignment.poisres}()},
-\code{\link{EventAssignment.poisresbound}()},
-\code{\link{LikelihoodBound.poisres}()},
-\code{\link{PoisRun}()},
-\code{\link{PoisRunMulti}()},
-\code{\link{Residual.poisres}()}
+Other Poisson Wrapper Functions:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
+\code{\link[=PoisRun]{PoisRun()}},
+\code{\link[=PoisRunMulti]{PoisRunMulti()}},
+\code{\link[=Residual.poisres]{Residual.poisres()}}
 }
 \concept{Poisson Wrapper Functions}

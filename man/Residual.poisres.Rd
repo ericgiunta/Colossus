@@ -37,12 +37,12 @@ returns a list of the final results
 and options to calculate residuals for a solved Poisson regression
 }
 \seealso{
-Other Poisson Wrapper Functions: 
-\code{\link{EventAssignment.poisres}()},
-\code{\link{EventAssignment.poisresbound}()},
-\code{\link{LikelihoodBound.poisres}()},
-\code{\link{PoisRun}()},
-\code{\link{PoisRunJoint}()},
-\code{\link{PoisRunMulti}()}
+Other Poisson Wrapper Functions:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
+\code{\link[=PoisRun]{PoisRun()}},
+\code{\link[=PoisRunJoint]{PoisRunJoint()}},
+\code{\link[=PoisRunMulti]{PoisRunMulti()}}
 }
 \concept{Poisson Wrapper Functions}

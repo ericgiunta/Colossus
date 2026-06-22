@@ -25,8 +25,8 @@ returns a list of the final results
 iteratively optimizing end-points of intervals.
 }
 \seealso{
-Other Cox Wrapper Functions: 
-\code{\link{CoxRun}()},
-\code{\link{CoxRunMulti}()}
+Other Cox Wrapper Functions:
+\code{\link[=CoxRun]{CoxRun()}},
+\code{\link[=CoxRunMulti]{CoxRunMulti()}}
 }
 \concept{Cox Wrapper Functions}

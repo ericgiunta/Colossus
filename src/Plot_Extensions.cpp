@@ -338,7 +338,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, IntegerVector dfc, int fir, int der_iden, string modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+List Plot_Omnibus(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, IntegerVector& dfc, int fir, int der_iden, string modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -445,9 +445,6 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0
         }
     }
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    fill(Ll.begin(), Ll.end(), 0.0);
-    fill(Lld.begin(), Lld.end(), 0.0);
-    fill(Lldd.begin(), Lldd.end(), 0.0);
     //  Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, 0);
     int kept_covs = totalnum - sum(KeepConstant);  //  does !base the standard deviation off of constant parameters
@@ -506,7 +503,7 @@ List Plot_Omnibus(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0
 //' @return returns proportion of events due to background and excess for each term
 //' @noRd
 //'
-List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
+List Assign_Events_Pois(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     //
     int totalnum = term_n.size();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
@@ -589,7 +586,7 @@ List Assign_Events_Pois(IntegerVector term_n, StringVector tform, Ref<VectorXd> 
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
+List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds

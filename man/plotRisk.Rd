@@ -18,5 +18,7 @@ plotRisk(x, df, plot_options, a_n = c(), ...)
 \item{...}{can include the named entries for the plot_options parameter}
 }
 \description{
-\code{plotRisk} Generic Risk Plotting
+\code{plotRisk} Generic risk plotting function. Used by the coxres
+object to plot the hazard ratios at different levels of individual
+covariates. Currently only returns data that could be plotted.
 }

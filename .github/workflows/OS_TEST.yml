@@ -25,9 +25,9 @@ jobs:
           remove-openmp-macos: false
       - name: move to package and install
         run: |
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: move to package and build examples
         run: |
@@ -46,9 +46,9 @@ jobs:
       - name: move to package and install
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: check detected OS and OpenMP
         run: |
@@ -64,7 +64,6 @@ jobs:
       - name: move to package and test
         run: |
           brew install pandoc
-          Rscript -e "devtools::test(stop_on_failure = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   win_check:
     runs-on: windows-latest
@@ -77,9 +76,9 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: check detected OS and OpenMP
         run: |
@@ -93,7 +92,6 @@ jobs:
         run: |
           choco install pandoc
           refreshenv
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
   ubuntu_check:
     runs-on: ubuntu-latest
@@ -105,13 +103,13 @@ jobs:
           Ncpus: 2
       - name: install libraries
         run: |
-          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools'))"
-          Rscript -e "devtools::install_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install_dev_deps(dependencies = TRUE)"
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: check detected OS and OpenMP
         run: |
@@ -128,5 +126,21 @@ jobs:
         run: |
           sudo apt-get install pandoc
           sudo apt-get install texlive
-          Rscript -e "devtools::test(stop_on_failure = TRUE, stop_on_warning = TRUE)"
           Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+  build:
+    name: Check Colossus on ${{ matrix.arch }}
+    runs-on: ubuntu-24.04${{matrix.arch=='arm64' && '-arm' || ''}}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ 'amd64', 'arm64' ]
+    container:
+      image: ghcr.io/r-devel/rcheckserver/ubuntu:latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        Rscript -e "install.packages(c('devtools', 'remotes'))"
+        R -q -e 'pak::pkg_install(c("deps::.", "any::rcmdcheck"), dependencies = TRUE)'
+        Rscript -e "devtools::install()"
+    - uses: r-lib/actions/check-r-package@v2

@@ -13,7 +13,7 @@ nested_split <- function(total_string) {
   final_split <- c("")
   temp_count <- 0
   for (i in sub_str) {
-    temp_count <- temp_count + str_count(i, "\\(") - str_count(i, "\\)") # check to see if the current selections have the same number
+    temp_count <- temp_count + str_count(i, stringr::fixed("(")) - str_count(i, stringr::fixed(")")) # check to see if the current selections have the same number
     if (final_split[length(final_split)] == "") {
       final_split[length(final_split)] <- i # first is just added
     } else {
@@ -39,28 +39,28 @@ nested_split <- function(total_string) {
 #' @family Data Cleaning Functions
 #' @return returns a vector, list, or the original string
 parse_literal_string <- function(string) {
-  if (substr(string, 1, 2) == "c(") { # converts the string to a vector
+  if (startsWith(string, "c(")) {
     sub_str <- substr(string, 3, nchar(string) - 1)
     args <- nested_split(sub_str) # get the entries of the vector
-    args <- gsub("\"", "", args) # remove string literals
-    args <- unlist(lapply(args, parse_literal_string), use.names = F) # make sure every entry is processed to a final type
+    args <- gsub("\"", "", args, fixed = TRUE) # remove string literals
+    args <- unlist(lapply(args, parse_literal_string), use.names = FALSE) # make sure every entry is processed to a final type
     return(args)
-  } else if (substr(string, 1, 5) == "list(") { # converts string to list
+  } else if (startsWith(string, "list(")) {
     sub_str <- substr(string, 6, nchar(string) - 1)
     args <- nested_split(sub_str) # make sure every entry is processed
     #
     factor_list <- list()
     for (i in seq_along(args)) {
       para_cur <- args[i]
-      para_break <- lapply(strsplit(para_cur, ""), function(x) which(x == "="))[[1]] # split into the name and value
+      para_break <- lapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="))[[1]] # split into the name and value
       if (length(para_break) == 0) {
         # no name, just add to list
         factor_list[[i]] <- parse_literal_string(para_cur) # process the item to the final value
       } else {
         item_name <- substr(para_cur, 1, para_break - 1)
         item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
-        item_name <- gsub("\"", "", item_name)
-        item_value <- gsub("\"", "", item_value)
+        item_name <- gsub("\"", "", item_name, fixed = TRUE)
+        item_value <- gsub("\"", "", item_value, fixed = TRUE)
         factor_list[[item_name]] <- parse_literal_string(item_value) # process the item to the final value
       }
     }
@@ -106,19 +106,24 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     if (filter_df) {
       for (term_i in seq_along(vals)) {
         factor_col <- vals[term_i]
-        df[[factor_col]] <- factor(df[[factor_col]])
-        i_levels <- levels(df[[factor_col]])
+        if (is.null(levels(df[[factor_col]]))) {
+          df[[factor_col]] <- factor(df[[factor_col]]) # Only convert to factor if needed
+        }
+        i_levels <- levels(df[[factor_col]]) # get the levels of the factor
         if (!keep_base) {
-          level_ref <- levels(df[[factor_col]])[1]
+          level_ref <- levels(df[[factor_col]])[1] # We can remove the baseline from the returned combinations
           i_levels <- i_levels[i_levels != level_ref]
         }
+        # We only care about combinations that have events, so we can filter out some combinations early if the base level has no events
         for (col in i_levels) {
           temp <- sum(df[get(factor_col) == col, ][[event0]]) # get number of events
           if (temp == 0) { # if none then we remove that data and the level column
             if (control$verbose >= 2) {
+              # nocov start
               warning(paste("Warning: no events for strata group:", col,
                 sep = " "
               ))
+              # nocov end
             }
             df <- df[get(factor_col) != col, ] # remove data
           }
@@ -135,19 +140,19 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
         df$comb_strata <- paste(df$comb_strata, df[[factor_col]], sep = ":")
       }
     }
-    df$comb_strata <- as.integer(factor(df$comb_strata))
+    df$comb_strata <- as.integer(factor(df$comb_strata)) # converts to integer levels
     combs <- unique(df$comb_strata)
     if (filter_df) {
-      df_end <- df[get(event0) == 1, ]
-      combs <- unique(df_end$comb_strata)
+      df_end <- df[get(event0) == 1, ] # get the event data
+      combs <- unique(df_end$comb_strata) # check for the strata with events
       comb_tot <- unique(df$comb)
-      comb_remove <- comb_tot[!comb_tot %in% combs]
+      comb_remove <- comb_tot[!comb_tot %in% combs] # get the strata that were not in the event data
       for (comb in comb_remove) {
         df <- df["comb_strata" != comb, ] # remove data
       }
     }
   }
-  return(list("data" = df, "combs" = "comb_strata", "levels" = combs))
+  list(data = df, combs = "comb_strata", levels = combs)
 }
 
 #' Automatically assigns missing values in listed columns
@@ -162,23 +167,25 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
 #' df <- data.table::data.table(
-#'   "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-#'   "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-#'   "Ending_Age" = c(30, 45, NA, 47, 36, NA, 55),
-#'   "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0)
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, NA, 47, 36, NA, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0)
 #' )
 #' df <- Replace_Missing(df, c("Starting_Age", "Ending_Age"), 70)
 Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   if (is.na(msv)) {
     stop("Error: The missing-value replacement is also NA")
@@ -188,7 +195,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
     if (j %in% names(df)) {
       # fine
     } else {
-      stop(paste("Error: ", j, " missing from column names", sep = ""))
+      stop("Error: ", j, " missing from column names")
     }
     if (sum(is.na(df[[j]]))) {
       data.table::set(df, which(is.na(df[[j]])), j, msv)
@@ -199,7 +206,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
       }
     }
   }
-  return(df)
+  df
 }
 
 #' Automatically assigns missing control values
@@ -212,16 +219,16 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
 #' @return returns a filled list
 Def_Control <- function(control) {
   control_def <- list(
-    "verbose" = 0, "lr" = 0.75, "maxiter" = 20,
-    "halfmax" = 5, "epsilon" = 1e-4, "ll_epsilon" = 1e-4,
-    "deriv_epsilon" = 1e-4, "step_max" = 1.0,
-    "change_all" = TRUE, "thres_step_max" = 100.0,
-    "ties" = "breslow",
-    "ncores" = as.numeric(detectCores())
+    verbose = 0, lr = 0.75, maxiter = 20,
+    halfmax = 5, epsilon = 1e-4, ll_epsilon = 1e-4,
+    deriv_epsilon = 1e-4, step_max = 1.0,
+    change_all = TRUE, thres_step_max = 100.0,
+    ties = "breslow",
+    ncores = as.numeric(detectCores())
   )
   #
   names(control) <- tolower(names(control)) # set the names to lowercase
-  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = names(control_def)), error = function(e) x)) # match against appreviated versions of control arguements. but keep any that don't match the same
+  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = names(control_def)), error = function(error_message) x)) # match against expected values
   control <- control[!duplicated(names(control))] # filter down
   # nocov start
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
@@ -235,11 +242,22 @@ Def_Control <- function(control) {
     } else {
       Sys.setenv(ColossusOMP = "TRUE")
       Sys.setenv(ColossusGCC = "TRUE")
+      if (control["verbose"] > 1) {
+        if (system.file(package = "processx") == "") {
+          warning("Warning: processx is missing, which is used to check default compiler. Parallelization is disabled by default.")
+        }
+        if (system.file(package = "callr") == "") {
+          warning("Warning: callr is missing, which is used to check default compiler. Parallelization is disabled by default.")
+        }
+      }
       os <- syscheck[["Operating System"]]
       if (os == "linux") {
         cpp_compiler <- syscheck[["Default c++"]]
         if (cpp_compiler != "") {
-          if (cpp_compiler == "gcc") {
+          if (cpp_compiler == "package_missing") {
+            # just going to assume it will not work
+            Sys.setenv(ColossusGCC = "FALSE") # nocov
+          } else if (cpp_compiler == "gcc") {
             R_compiler <- syscheck[["R Compiler"]]
             if (R_compiler != "gcc") {
               Sys.setenv(ColossusGCC = "FALSE") # nocov
@@ -279,12 +297,14 @@ Def_Control <- function(control) {
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
+        # nocov start
         if (control$ncores > control_def$ncores) {
-          stop(paste("Error: Cores Requested:", control["ncores"],
-            ", Cores Available:", control_def["ncores"],
-            sep = " "
-          )) # nocov
+          stop(
+            "Error: Cores Requested:", control["ncores"],
+            ", Cores Available:", control_def["ncores"]
+          )
         }
+        # nocov end
       } else if (nm == "verbose") {
         control$verbose <- Check_Verbose(control$verbose)
       }
@@ -292,9 +312,11 @@ Def_Control <- function(control) {
       control[nm] <- control_def[nm]
     }
   }
+  # nocov start
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
-    control$ncores <- min(c(2, as.numeric(detectCores()))) # reduces cores for cran checks
+    control$ncores <- min(c(control$ncores, 2, as.numeric(detectCores()))) # reduces cores for cran checks
   }
+  # nocov end
   if (control$epsilon >= control$step_max) {
     if (control["verbose"] > 1) {
       warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.")
@@ -303,10 +325,10 @@ Def_Control <- function(control) {
   }
   control["ties"] <- tolower(control["ties"])
   control_min <- list(
-    "verbose" = 0, "lr" = 0.0, "maxiter" = -1,
-    "halfmax" = 0, "epsilon" = 0.0, "ll_epsilon" = 0.0,
-    "deriv_epsilon" = 0.0, "step_max" = 0.0,
-    "thres_step_max" = 0.0
+    verbose = 0, lr = 0.0, maxiter = -1,
+    halfmax = 0, epsilon = 0.0, ll_epsilon = 0.0,
+    deriv_epsilon = 0.0, step_max = 0.0,
+    thres_step_max = 0.0
   )
   for (nm in names(control_min)) {
     if (control[[nm]] < control_min[[nm]]) {
@@ -314,13 +336,13 @@ Def_Control <- function(control) {
     }
   }
   control_int <- list(
-    "verbose" = 0, "maxiter" = -1,
-    "halfmax" = 0
+    verbose = 0, maxiter = -1,
+    halfmax = 0
   )
   for (nm in names(control_int)) {
     control[nm] <- as.integer(control[nm])
   }
-  return(control)
+  control
 }
 
 #' Automatically assigns missing model control values
@@ -332,8 +354,6 @@ Def_Control <- function(control) {
 #' @family Data Cleaning Functions
 #' @return returns a filled list
 Def_model_control <- function(control) {
-  names(control) <- tolower(names(control))
-  control <- control[!duplicated(names(control))] # filter down
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "surv",
@@ -342,6 +362,10 @@ Def_model_control <- function(control) {
     "mcml", "observed_info", "time_risk",
     "logit_odds", "logit_ident", "logit_loglink"
   )
+  name_full_list <- c(control_def_names, "qchi", "alpha", "para_number", "maxstep", "manual", "search_mult", "step_size", "momentum", "adadelta", "adam", "momentum_decay", "learning_decay", "epsilon_decay", "constraint", "penalty_weight", "penalty_method")
+  names(control) <- tolower(names(control)) # set the names to lowercase
+  names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = name_full_list), error = function(error_message) x)) # match against expected values
+  control <- control[!duplicated(names(control))] # filter down
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
       # fine
@@ -349,10 +373,6 @@ Def_model_control <- function(control) {
       control[nm] <- FALSE
     }
   }
-  #  if ((control["gradient"] == TRUE) & (control["constraint"] == TRUE)) {
-  #    warning("Current constraints are not available with gradient descent methods. Only gradient descent will be applied")
-  #    control["constaint"] <- FALSE
-  #  }
   link_vec <- c(control$logit_odds, control$logit_ident, control$logit_loglink)
   if (sum(link_vec) == 0) {
     control["logit_odds"] <- TRUE
@@ -425,7 +445,12 @@ Def_model_control <- function(control) {
     if ("step_size" %in% names(control)) {
       # fine
     } else {
-      control["search_mult"] <- 0.5
+      control["step_size"] <- 0.5
+    }
+    if ("bisect" %in% names(control)) {
+      # fine
+    } else {
+      control["bisect"] <- FALSE
     }
   }
   if (control[["gradient"]]) {
@@ -469,7 +494,7 @@ Def_model_control <- function(control) {
       }
     }
   }
-  return(control)
+  control
 }
 
 #' Automatically checks the number of starting guesses
@@ -485,13 +510,15 @@ Check_Iters <- function(control, a_n) {
     if (length(control$maxiters) == length(a_n) + 1) {
       # all good, it matches
     } else {
-      if (control$verbose >= 3) { # nocov
+      if (control$verbose >= 3) {
+        # nocov start
         message(paste("Note: Initial starts:", length(a_n),
           ", Number of iterations provided:",
           length(control$maxiters),
           ". Colossus requires one more iteration counts than number of guesses (for best guess)",
           sep = " "
-        )) # nocov
+        ))
+        # nocov end
       }
       if (length(control$maxiters) < length(a_n) + 1) {
         additional <- length(a_n) + 1 - length(control$maxiters)
@@ -506,7 +533,7 @@ Check_Iters <- function(control, a_n) {
     control$guesses <- length(a_n)
     control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
   }
-  list("control" = control, "a_n" = a_n)
+  list(control = control, a_n = a_n)
 }
 
 #' Calculates Full Parameter list for Special Dose Formula
@@ -519,8 +546,8 @@ Check_Iters <- function(control, a_n) {
 #' @export
 #' @examples
 #' library(data.table)
-#' tforms <- list("cov_0" = "quad", "cov_1" = "exp")
-#' paras <- list("cov_0" = c(1, 3.45), "cov_1" = c(1.2, 4.5, 0.1))
+#' tforms <- list(cov_0 = "quad", cov_1 = "exp")
+#' paras <- list(cov_0 = c(1, 3.45), cov_1 = c(1.2, 4.5, 0.1))
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
 #'
 Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
@@ -575,7 +602,7 @@ Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
       full_paras[[nm]] <- c(y, a0, a1, b1, c1)
     }
   }
-  return(full_paras)
+  full_paras
 }
 
 #' Calculates The Additional Parameter For a linear-exponential formula with known maximum
@@ -621,7 +648,7 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
     }
     b1 <- b1 + lr * db1
   }
-  return(b1)
+  b1
 }
 
 #' Splits a parameter into factors
@@ -638,28 +665,31 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
 #' a <- c(0, 1, 2, 3, 4, 5, 6)
 #' b <- c(1, 2, 3, 4, 5, 6, 7)
 #' c <- c(0, 1, 2, 1, 0, 1, 0)
-#' df <- data.table::data.table("a" = a, "b" = b, "c" = c)
+#' df <- data.table::data.table(a = a, b = b, c = c)
 #' col_list <- c("c")
 #' val <- factorize(df, col_list)
 #' df <- val$df
 #' new_col <- val$cols
 #'
 factorize <- function(df, col_list, verbose = 0) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
+  col_list <- vapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   verbose <- Check_Verbose(verbose)
   cols <- c()
   col0 <- names(df)
   tnum <- c()
-  for (i in seq_len(length(col_list))) {
+  for (i in seq_along(col_list)) {
     col <- col_list[i]
     x <- sort(unlist(as.list(unique(df[, col, with = FALSE])),
       use.names = FALSE
@@ -678,7 +708,7 @@ factorize <- function(df, col_list, verbose = 0) {
   if (verbose >= 3) {
     message(paste("Note: Number of factors:", length(cols), sep = "")) # nocov
   }
-  list("df" = df, "cols" = cols)
+  list(df = df, cols = cols)
 }
 
 #' Defines the likelihood ratio test
@@ -698,10 +728,10 @@ factorize <- function(df, col_list, verbose = 0) {
 #' c <- c(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 #' d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
 #' e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
-#' df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+#' df <- data.table(a = a, b = b, c = c, d = d, e = e)
 #' keep_constant <- c(0)
 #' a_n <- c(-0.1, 0.1, 0.1, 0.2)
-#' control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
+#' control <- list(ncores = 1, maxiter = 10, verbose = 0)
 #' model <- Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e))
 #' alternative_model <- CoxRun(model, df,
 #'   control = control,
@@ -731,11 +761,11 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
     freedom <- alt_count - null_count
     val <- 2 * (alternative_model$LogLik - null_model$LogLik)
     pval <- pchisq(val, freedom, lower.tail = FALSE)
-    return(list("Difference" = val, "p value" = pval))
+    return(list(Difference = val, `p value` = pval))
   } else {
     stop("Error: models input did not contain LogLik values")
   }
-  return(NULL) # nocov
+  NULL # nocov
 }
 
 #' checks for duplicated column names
@@ -747,32 +777,35 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
 #' @family Data Cleaning Functions
 #' @return returns the usable columns
 Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FALSE) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
+  cols <- vapply(cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
     terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs
     toRemove <- c() # init a vector to store duplicates
-    for (pair_n in seq_len(length(features_pair))) {
+    for (pair_n in seq_along(features_pair)) {
       # put the pairs for testing into temp objects
       pair <- unlist(features_pair[pair_n])
       term <- unlist(terms_pair[pair_n])
       f1 <- pair[1]
       f2 <- pair[2]
       if (!(f1 %in% names(df))) {
-        stop(paste("Error: ", f1, " not in data.table", sep = "")) # nocov
+        stop("Error: ", f1, " not in data.table") # nocov
       }
       if (!(f2 %in% names(df))) {
-        stop(paste("Error: ", f2, " not in data.table", sep = "")) # nocov
+        stop("Error: ", f2, " not in data.table") # nocov
       }
       t1 <- term[1]
       t2 <- term[2]
@@ -799,6 +832,12 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
           }
           if (min(df[[f2]]) == max(df[[f2]])) {
             if (min(df[[f2]]) == 0) {
+              if (verbose >= 2) {
+                warning(paste("Warning: ", f2,
+                  " is equal to zero, removed.",
+                  sep = ""
+                ))
+              }
               toRemove <- c(toRemove, f2) # remove zero values
             }
           }
@@ -817,7 +856,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   } else if (length(cols) == 1) {
     f1 <- cols[1]
     if (!(f1 %in% names(df))) {
-      stop(paste("Error: ", f1, " not in data.table", sep = ""))
+      stop("Error: ", f1, " not in data.table")
     }
     if (min(df[, cols, with = FALSE]) == max(df[, cols, with = FALSE])) {
       if (min(df[, cols, with = FALSE]) == 0) {
@@ -831,7 +870,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   } else {
     return(c())
   }
-  return(c()) # nocov
+  c() # nocov
 }
 
 #' Applies time duration truncation limits to create columns for Cox model
@@ -843,16 +882,18 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
 Check_Trunc <- function(df, ce, verbose = 0) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   if (ce[1] %in% c("%trunc%", "right_trunc")) {
     if (ce[2] %in% c("%trunc%", "left_trunc")) {
@@ -860,7 +901,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     }
     tname <- ce[2]
     if (!is.numeric(df[[tname]])) {
-      stop(paste("Error: Age column was not numeric: ", tname, sep = ""))
+      stop("Error: Age column was not numeric: ", tname)
     }
     tmin <- min(df[, get(tname)]) - 1
     if (!("right_trunc" %in% names(df))) {
@@ -870,7 +911,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
   } else if (ce[2] %in% c("%trunc%", "left_trunc")) {
     tname <- ce[1]
     if (!is.numeric(df[[tname]])) {
-      stop(paste("Error: Age column was not numeric: ", tname, sep = ""))
+      stop("Error: Age column was not numeric: ", tname)
     }
     tmax <- max(df[, get(tname)]) + 1
     if (!("left_trunc" %in% names(df))) {
@@ -878,7 +919,7 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     }
     ce[2] <- "left_trunc"
   }
-  return(list("df" = df, "ce" = ce))
+  list(df = df, ce = ce)
 }
 
 #' Applies time dependence to parameters
@@ -895,15 +936,15 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' a <- c(20, 20, 5, 10, 15)
 #' b <- c(1, 2, 1, 1, 2)
 #' c <- c(0, 0, 1, 1, 1)
-#' df <- data.table::data.table("a" = a, "b" = b, "c" = c)
+#' df <- data.table::data.table(a = a, b = b, c = c)
 #' time1 <- "%trunc%"
 #' time2 <- "a"
 #' event <- "c"
 #' control <- list(
-#'   "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9,
-#'   "deriv_epsilon" = 1e-9, "step_max" = 1.0,
-#'   "thres_step_max" = 100.0,
-#'   "verbose" = FALSE, "ties" = "breslow", "double_step" = 1
+#'   lr = 0.75, maxiter = -1, halfmax = 5, epsilon = 1e-9,
+#'   deriv_epsilon = 1e-9, step_max = 1.0,
+#'   thres_step_max = 100.0,
+#'   verbose = FALSE, ties = "breslow", double_step = 1
 #' )
 #' grt_f <- function(df, time_col) {
 #'   return((df[, "b"] * df[, get(time_col)])[[1]])
@@ -916,16 +957,18 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' file.remove("test_new.csv")
 #'
 gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form, fname, tform, nthreads = as.numeric(detectCores())) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
@@ -942,7 +985,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   time2 <- ce[2]
   dfn_same <- dfn[!(dfn %in% dep_cols)]
   dfn_dep <- c()
-  for (i in seq_len(length(new_names))) {
+  for (i in seq_along(new_names)) {
     name0 <- paste(new_names[i], 0, sep = "_")
     name1 <- paste(new_names[i], 1, sep = "_")
     func <- func_form[i]
@@ -951,24 +994,17 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     dfn_dep <- c(dfn_dep, name0, name1)
   }
   if (length(new_names) != length(func_form)) {
-    stop(paste("Error: new_names vector should be the same size as the list of functions applied",
-      sep = ""
-    ))
+    stop("Error: new_names vector should be the same size as the list of functions applied")
   }
   if (length(new_names) != length(tform)) {
-    stop(paste("Error: new_names vector should be the same size as the list of interpolation method used",
-      sep = ""
-    ))
+    stop("Error: new_names vector should be the same size as the list of interpolation method used")
   }
-  for (i in seq_len(length(tform))) {
+  for (i in seq_along(tform)) {
     temp <- tform[i]
     if (temp != "lin") {
       a <- substr(temp, 1, 5)
       if (a != "step?") {
-        stop(paste("Error: Interpolation method not recognized: ",
-          temp,
-          sep = ""
-        ))
+        stop("Error: Interpolation method not recognized: ", temp)
       }
     }
   }
@@ -1004,7 +1040,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number
   # ------------------------------------------------------------------------------ #
-  return(df_new)
+  df_new
 }
 
 #' Automates creating a date difference column
@@ -1025,20 +1061,22 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' d1 <- c(6, 7, 8, 9)
 #' y0 <- c(1990, 1991, 1997, 1998)
 #' y1 <- c(2001, 2003, 2005, 2006)
-#' df <- data.table::data.table("m0" = m0, "m1" = m1, "d0" = d0, "d1" = d1, "y0" = y0, "y1" = y1)
+#' df <- data.table::data.table(m0 = m0, m1 = m1, d0 = d0, d1 = d1, y0 = y0, y1 = y1)
 #' df <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]],
     df[[match(dcol0[2], names(df))]],
@@ -1062,7 +1100,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
     tz = "UTC"
   )
   def_cols <- c(def_cols, col_name)
-  return(df[, def_cols, with = FALSE])
+  df[, def_cols, with = FALSE]
 }
 
 #' Automates creating a date since a reference column
@@ -1083,24 +1121,26 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
 #' y0 <- c(1990, 1991, 1997, 1998)
 #' y1 <- c(2001, 2003, 2005, 2006)
 #' df <- data.table::data.table(
-#'   "m0" = m0, "m1" = m1,
-#'   "d0" = d0, "d1" = d1,
-#'   "y0" = y0, "y1" = y1
+#'   m0 = m0, m1 = m1,
+#'   d0 = d0, d1 = d1,
+#'   y0 = y0, y1 = y1
 #' )
 #' tref <- strptime("3-22-1997", format = "%m-%d-%Y", tz = "UTC")
 #' df <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
 #'
 Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   def_cols <- names(df)
   df$dt0 <- paste(df[[match(dcol0[1], names(df))]], df[[match(
     dcol0[2],
@@ -1115,7 +1155,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
     ))
   })
   def_cols <- c(def_cols, col_name)
-  return(df[, def_cols, with = FALSE])
+  df[, def_cols, with = FALSE]
 }
 
 #' Automates creating data for a joint competing risks analysis
@@ -1139,7 +1179,7 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
 #' c <- c(0, 1, 2, 2, 1, 0)
 #' d <- c(1, 1, 0, 0, 1, 1)
 #' e <- c(0, 1, 1, 1, 0, 0)
-#' df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e)
+#' df <- data.table(t0 = a, t1 = b, e0 = c, e1 = d, fac = e)
 #' time1 <- "t0"
 #' time2 <- "t1"
 #' df$pyr <- df$t1 - df$t0
@@ -1160,43 +1200,45 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
 #' a_n_e0 <- c(-0.1)
 #' a_n_e1 <- c(0.1)
 #' a_n_shared <- c(0.001, -0.02)
-#' name_list <- list("shared" = names_shared, "e0" = names_e0, "e1" = names_e1)
-#' term_n_list <- list("shared" = term_n_shared, "e0" = term_n_e0, "e1" = term_n_e1)
-#' tform_list <- list("shared" = tform_shared, "e0" = tform_e0, "e1" = tform_e1)
+#' name_list <- list(shared = names_shared, e0 = names_e0, e1 = names_e1)
+#' term_n_list <- list(shared = term_n_shared, e0 = term_n_e0, e1 = term_n_e1)
+#' tform_list <- list(shared = tform_shared, e0 = tform_e0, e1 = tform_e1)
 #' keep_constant_list <- list(
-#'   "shared" = keep_constant_shared,
-#'   "e0" = keep_constant_e0, "e1" = keep_constant_e1
+#'   shared = keep_constant_shared,
+#'   e0 = keep_constant_e0, e1 = keep_constant_e1
 #' )
-#' a_n_list <- list("shared" = a_n_shared, "e0" = a_n_e0, "e1" = a_n_e1)
+#' a_n_list <- list(shared = a_n_shared, e0 = a_n_e0, e1 = a_n_e1)
 #' val <- Joint_Multiple_Events(
 #'   df, events, name_list, term_n_list,
 #'   tform_list, keep_constant_list, a_n_list
 #' )
 #'
 Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), tform_list = list(), keep_constant_list = list(), a_n_list = list()) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   # filling missing values
   for (i in names(name_list)) {
     temp0 <- unlist(name_list[i], use.names = FALSE)
     if (i %in% names(term_n_list)) {
       temp1 <- unlist(term_n_list[i], use.names = FALSE)
       if (length(temp0) != length(temp1)) {
-        stop(paste("Error: item ", i, " in name_list has ",
+        stop(
+          "Error: item ", i, " in name_list has ",
           length(temp0),
           " items, but same item in term_n_list has ",
           length(temp1),
-          " items. Omit entry in term_n_list to set to default of term 0 or add missing values",
-          sep = ""
-        ))
+          " items. Omit entry in term_n_list to set to default of term 0 or add missing values"
+        )
       }
     } else {
       temp <- list(rep(0, length(temp0)))
@@ -1206,13 +1248,13 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
     if (i %in% names(tform_list)) {
       temp1 <- unlist(tform_list[i], use.names = FALSE)
       if (length(temp0) != length(temp1)) {
-        stop(paste("Error: item ", i, " in name_list has ",
+        stop(
+          "Error: item ", i, " in name_list has ",
           length(temp0),
           " items, but same item in tform_list has ",
           length(temp1),
-          " items. Omit entry in tform_list to set to default of 'loglin' or add missing values",
-          sep = ""
-        ))
+          " items. Omit entry in tform_list to set to default of 'loglin' or add missing values"
+        )
       }
     } else {
       temp <- list(rep("loglin", length(temp0)))
@@ -1222,13 +1264,13 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
     if (i %in% names(keep_constant_list)) {
       temp1 <- unlist(keep_constant_list[i], use.names = FALSE)
       if (length(temp0) != length(temp1)) {
-        stop(paste("Error: item ", i, " in name_list has ",
+        stop(
+          "Error: item ", i, " in name_list has ",
           length(temp0),
           " items, but same item in keep_constant_list has ",
           length(temp1),
-          " items. Omit entry in tform_list to set to default of 0 or add missing values",
-          sep = ""
-        ))
+          " items. Omit entry in tform_list to set to default of 0 or add missing values"
+        )
       }
     } else {
       temp <- list(rep(0, length(temp0)))
@@ -1238,16 +1280,16 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
     if (i %in% names(a_n_list)) {
       temp1 <- unlist(a_n_list[i], use.names = FALSE)
       if (length(temp0) != length(temp1)) {
-        stop(paste("Error: item ", i, " in name_list has ",
+        stop(
+          "Error: item ", i, " in name_list has ",
           length(temp0),
           " items, but same item in a_n_list has ",
           length(temp1),
-          " items. Omit entry in a_n_list to set to default of 0 or add missing values",
-          sep = ""
-        ))
+          " items. Omit entry in a_n_list to set to default of 0 or add missing values"
+        )
       }
     } else {
-      temp <- list(rep(0, length(temp0)))
+      temp <- list(rep(0.1, length(temp0)))
       names(temp) <- i
       a_n_list <- c(a_n_list, temp)
     }
@@ -1310,7 +1352,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       a_n <- c(a_n, unlist(a_n_list[i], use.names = FALSE))
     }
   }
-  return(list("df" = df0, "names" = names, "term_n" = term_n, "tform" = tform, "keep_constant" = keep_constant, "a_n" = a_n))
+  list(df = df0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n)
 }
 
 #' Defines Interactions
@@ -1322,26 +1364,28 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
 #' @family Data Cleaning Functions
 #' @return returns a list with two named fields. df for the updated dataframe, and cols for the new column names
 interact_them <- function(df, interactions, new_names, verbose = 0) {
+  # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
       {
         setDT(df)
       },
-      error = function(e) {
+      error = function(error_message) {
         df <- data.table(df)
       }
     )
   }
+  # nocov end
   verbose <- Check_Verbose(verbose)
   cols <- c()
-  for (i in seq_len(length(interactions))) {
+  for (i in seq_along(interactions)) {
     interac <- interactions[i]
-    formula <- unlist(strsplit(interac, "[?]"), use.names = FALSE)
+    formula <- unlist(strsplit(interac, "?", fixed = TRUE), use.names = FALSE)
     if (length(formula) != 3) {
-      stop(paste(
-        "Error: Iteration:", interac, "has incorrect length of",
+      stop(
+        "Error: Interaction:", interac, "has incorrect length of",
         length(formula), "but should be 3."
-      ))
+      )
     }
     newcol <- paste(formula[1], formula[2], formula[3], sep = "")
     if (new_names[i] != "") {
@@ -1349,11 +1393,11 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
     }
     col1 <- formula[1]
     col2 <- formula[3]
-    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
+    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
         warning(paste("Warning: interation ", i, "is duplicated")) # nocov
       }
-    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_len(length(interactions))]) {
+    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
         warning(paste(
           "Warning: the reverse of interation ", i,
@@ -1370,11 +1414,11 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
           df[, col2, with = FALSE]
         cols <- c(cols, newcol)
       } else {
-        stop(paste("Error: Incorrect operation of", formula[2]))
+        stop("Error: Incorrect operation of", formula[2])
       }
     }
   }
-  list("df" = df, "cols" = cols)
+  list(df = df, cols = cols)
 }
 
 #' Automatically applies a normalization to either an input or output
@@ -1425,18 +1469,21 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           norm_weight <- c(norm_weight, val)
         }
       } else {
-        stop(paste("Error: norm option ", norm, " wasn't coded yet", sep = ""))
+        stop(gettextf(
+          "Error: Normalization arguement '%s' not valid.",
+          norm
+        ), domain = NA)
       }
       for (i in seq_along(names)) {
         if (typeof(a_n) != "list") {
-          if (grepl("_int", tforms[i])) {
+          if (grepl("_int", tforms[i], fixed = TRUE)) {
             a_n[i] <- a_n[i] / norm_weight[i]
           } else {
             a_n[i] <- a_n[i] * norm_weight[i]
           }
         } else {
-          for (j in seq_len(length(a_n))) {
-            if (grepl("_int", tforms[i])) {
+          for (j in seq_along(a_n)) {
+            if (grepl("_int", tforms[i], fixed = TRUE)) {
               a_n[[j]][i] <- a_n[[j]][i] / norm_weight[i]
             } else {
               a_n[[j]][i] <- a_n[[j]][i] * norm_weight[i]
@@ -1449,7 +1496,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       }
       if (model_control[["constraint"]] == TRUE) {
         for (i in seq_along(names)) {
-          if (grepl("_int", tforms[i])) {
+          if (grepl("_int", tforms[i], fixed = TRUE)) {
             cons_mat[, i] <- cons_mat[, i] * norm_weight[i]
           } else {
             cons_mat[, i] <- cons_mat[, i] / norm_weight[i]
@@ -1463,10 +1510,10 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       ), domain = NA)
     }
     output <- list(
-      "a_n" = a_n,
-      "cons_mat" = cons_mat,
-      "norm_weight" = norm_weight,
-      "df" = df
+      a_n = a_n,
+      cons_mat = cons_mat,
+      norm_weight = norm_weight,
+      df = df
     )
   } else {
     res <- values$output
@@ -1480,7 +1527,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         # weight by the maximum value
         if (model_control$single) {
           for (i in seq_along(names)) {
-            if (grepl("_int", tforms[i])) {
+            if (grepl("_int", tforms[i], fixed = TRUE)) {
               res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
             } else {
               res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
@@ -1490,7 +1537,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           for (i in seq_along(names)) {
             if (keep_constant[i] == 0) {
               i_der <- i - sum(head(keep_constant, i))
-              if (grepl("_int", tforms[i])) {
+              if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
                 res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
@@ -1502,8 +1549,8 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
               for (j in seq_along(names)) {
                 if (keep_constant[j] == 0) {
                   j_der <- j - sum(head(keep_constant, j))
-                  if (grepl("_int", tforms[i])) {
-                    if (grepl("_int", tforms[j])) {
+                  if (grepl("_int", tforms[i], fixed = TRUE)) {
+                    if (grepl("_int", tforms[j], fixed = TRUE)) {
                       res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] / norm_weight[i] / norm_weight[j]
                       res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] * norm_weight[j]
                     } else {
@@ -1511,7 +1558,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
                       res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] * norm_weight[i] / norm_weight[j]
                     }
                   } else {
-                    if (grepl("_int", tforms[j])) {
+                    if (grepl("_int", tforms[j], fixed = TRUE)) {
                       res$Second_Der[i_der, j_der] <- res$Second_Der[i_der, j_der] * norm_weight[i] / norm_weight[j]
                       res$Covariance[i_der, j_der] <- res$Covariance[i_der, j_der] / norm_weight[i] * norm_weight[j]
                     } else {
@@ -1522,7 +1569,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
                 }
               }
             } else {
-              if (grepl("_int", tforms[i])) {
+              if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
               } else {
                 res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
@@ -1531,7 +1578,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           }
           if (model_control[["constraint"]] == TRUE) {
             for (i in seq_along(names)) {
-              if (grepl("_int", tforms[i])) {
+              if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$constraint_matrix[, i] <- res$constraint_matrix[, i] / norm_weight[i]
               } else {
                 res$constraint_matrix[, i] <- res$constraint_matrix[, i] * norm_weight[i]
@@ -1566,10 +1613,10 @@ get_os <- function() {
     }
   } else { ## mystery machine
     os <- .Platform$OS.type # nocov
-    if (grepl("^darwin", R.version$os)) { # nocov
+    if (grepl("^darwin", R.version$os, fixed = TRUE)) { # nocov
       os <- "osx" # nocov
     }
-    if (grepl("linux-gnu", R.version$os)) { # nocov
+    if (grepl("linux-gnu", R.version$os, fixed = TRUE)) { # nocov
       os <- "linux" # nocov
     }
   }
@@ -1583,22 +1630,22 @@ get_os <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
-  #  tstart <- Sys.time()
-  out <- tryCatch(run("c++", "-v"),
-    error = function(cnd) list(stdout = "")
-  )
-  #  tend <- Sys.time()
-  #  print("out call")
-  #  print(tend - tstart)
-  out0 <- str_match(out$stdout, "gcc version")[1]
-  if (!is.na(out0)) {
-    out <- "gcc"
+  if (system.file(package = "processx") == "") {
+    out <- "package_missing"
   } else {
-    out0 <- str_match(out$stdout, "clang version")[1] # nocov
-    if (!is.na(out0)) { # nocov
-      out <- "clang" # nocov
+    out <- tryCatch(run("c++", "-v"),
+      error = function(cnd) list(stdout = "")
+    )
+    out0 <- str_match(out$stdout, "gcc version")[1]
+    if (!is.na(out0)) {
+      out <- "gcc"
     } else {
-      out <- out$stdout # nocov
+      out0 <- str_match(out$stdout, "clang version")[1] # nocov
+      if (!is.na(out0)) { # nocov
+        out <- "clang" # nocov
+      } else {
+        out <- out$stdout # nocov
+      }
     }
   }
   out
@@ -1611,16 +1658,20 @@ gcc_version <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or R CMD config CC output
 Rcomp_version <- function() {
-  out <- rcmd("config", "CC")
-  out0 <- str_match(out$stdout, "clang")[1]
-  if (!is.na(out0)) {
-    out <- "clang" # nocov
+  if (system.file(package = "callr") == "") {
+    out <- "package_missing"
   } else {
-    out0 <- str_match(out$stdout, "gcc")[1]
+    out <- rcmd("config", "CC")
+    out0 <- str_match(out$stdout, "clang")[1]
     if (!is.na(out0)) {
-      out <- "gcc"
+      out <- "clang" # nocov
     } else {
-      out <- out$stdout # nocov
+      out0 <- str_match(out$stdout, "gcc")[1]
+      if (!is.na(out0)) {
+        out <- "gcc"
+      } else {
+        out <- out$stdout # nocov
+      }
     }
   }
   out
@@ -1633,18 +1684,22 @@ Rcomp_version <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or head ~/.R/Makevars
 Rcpp_version <- function() {
-  out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
-    error = function(cnd) list(stdout = "")
-  )
-  out0 <- str_match(out$stdout, "clang")[1]
-  if (!is.na(out0)) {
-    out <- "clang" # nocov
+  if (system.file(package = "processx") == "") {
+    out <- "package_missing"
   } else {
-    out0 <- str_match(out$stdout, "gcc")[1]
+    out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
+      error = function(cnd) list(stdout = "")
+    )
+    out0 <- str_match(out$stdout, "clang")[1]
     if (!is.na(out0)) {
-      out <- "gcc" # nocov
+      out <- "clang" # nocov
     } else {
-      out <- out$stdout # nocov
+      out0 <- str_match(out$stdout, "gcc")[1]
+      if (!is.na(out0)) {
+        out <- "gcc" # nocov
+      } else {
+        out <- out$stdout # nocov
+      }
     }
   }
   out
@@ -1664,8 +1719,8 @@ System_Version <- function() {
   Rcomp <- Rcomp_version()
   OMP <- OMP_Check()
   list(
-    "Operating System" = os, "Default c++" = gcc, "R Compiler" = Rcomp,
-    "OpenMP Enabled" = OMP
+    `Operating System` = os, `Default c++` = gcc, `R Compiler` = Rcomp,
+    `OpenMP Enabled` = OMP
   )
 }
 
@@ -1711,42 +1766,44 @@ Check_Verbose <- function(verbose) {
 #' b <- c(1, 2, 3, 4, 5, 6, 7)
 #' c <- c(0, 1, 0, 0, 0, 1, 0)
 #' table <- data.table::data.table(
-#'   "a" = a,
-#'   "b" = b,
-#'   "c" = c
+#'   a = a,
+#'   b = b,
+#'   c = c
 #' )
 #' categ <- list(
-#'   "a" = "0/3/5]7",
-#'   "b" = list(
+#'   a = "0/3/5]7",
+#'   b = list(
 #'     lower = c(-1, 3, 6),
 #'     upper = c(3, 6, 10),
 #'     name = c("low", "medium", "high")
 #'   )
 #' )
 #' event <- list(
-#'   "c" = "count AS cases",
-#'   "a" = "mean", "b" = "mean"
+#'   c = "count AS cases",
+#'   a = "mean", b = "mean"
 #' )
 #' e <- Event_Count_Gen(table, categ, event, T)
 #'
-Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
+Event_Count_Gen <- function(table, categ = list(), events = list(), verbose = FALSE) {
   df <- as_tibble(table)
   `%>%` <- dplyr::`%>%`
   #
   categ_cols <- c()
   categ_bounds <- list()
+  names(categ) <- lapply(names(categ), function(x) tryCatch(match.arg(x, choices = names(table)), error = function(error_message) x)) # match against columns in the table
   for (cat in names(categ)) {
     cat_str <- ""
     if (!cat %in% names(table)) {
-      stop(paste("Error: ", cat, " not in table", sep = ""))
+      stop("Error: ", cat, " not in table")
     }
     if (length(categ[[cat]]) > 1) { # list of bounds
+      names(categ[[cat]]) <- tolower(names(categ[[cat]])) # set the names to lowercase
       temp0 <- categ[[cat]]$lower
       temp1 <- categ[[cat]]$upper
       if ("name" %in% names(categ[[cat]])) { # assign names to the levels
         temp2 <- categ[[cat]]$name
       } else { # number the categories
-        temp2 <- seq_len(length(temp0)) # 1:length(temp0)
+        temp2 <- seq_along(temp0)
       }
       num_categ <- length(temp0) # number of categories
       cat_col <- paste(cat, "category", sep = "_") # name of the category
@@ -1755,56 +1812,95 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
       for (i in 1:num_categ) { # for each category
         L <- as.numeric(temp0[i]) # lower bound
         if (grepl("]", temp1[i], fixed = TRUE)) {
-          U <- as.numeric(gsub("]", "", temp1[i])) # assign upper
+          U <- as.numeric(gsub("]", "", temp1[i], fixed = TRUE)) # assign upper
           a_col_categ <- case_when(df[[cat]] <= U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]]) # rows within the bounds and unassigned are assigned the name
           cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ") # add to list of intervals
         } else {
           U <- as.numeric(temp1[i]) # assign upper
+          if (L > U) {
+            stop(paste("Error"))
+          }
           if (L == U) { # discrete case
             a_col_categ <- case_when(df[[cat]] == U & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]])
             cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
           } else { # interval case
-            a <- case_when(df[[cat]] < U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]])
+            a_col_categ <- case_when(df[[cat]] < U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]])
             cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
           }
         }
         df[[cat_col]] <- a_col_categ # update column
       }
       categ_bounds[[cat_col]] <- cat_str # add to list of intervals
-    } else { # string of bounds
-      cat_str <- ""
-      temp <- categ[[cat]]
-      temp <- gsub("/", " / ", temp)
-      temp <- gsub("]", " ] ", temp)
-      temp <- strsplit(temp, "\\s+")[[1]] # adding and splitting by spaces
-      num_categ <- (length(temp) - 1) / 2 # get number of categories
-      cat_col <- paste(cat, "category", sep = "_")
-      categ_cols <- c(categ_cols, cat_col)
-      df <- df %>% mutate("{cat_col}" := "Unassigned") # add to tibble
-      for (i in 1:num_categ) {
-        L <- as.numeric(temp[2 * i - 1]) # get upper and lower bounds
-        U <- as.numeric(temp[2 * i + 1])
-        if (L == U) { # dicrete value case
-          a_col_categ <- case_when(df[[cat]] == U & df[[cat_col]] == "Unassigned" ~ as.character(i), .default = df[[cat_col]])
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
-        } else if (temp[2 * i] == "/") { # strict less than upper bound
-          a_col_categ <- case_when(df[[cat]] < U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(i), .default = df[[cat_col]])
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
-        } else { # within and including bounds
-          a_col_categ <- case_when(df[[cat]] <= U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(i), .default = df[[cat_col]])
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+    } else {
+      if (tolower(categ[[cat]]) == "factor") {
+        # It is a factor
+        cat_col <- paste(cat, "category", sep = "_")
+        categ_cols <- c(categ_cols, cat_col)
+        df[[cat_col]] <- as.factor(df[[cat]])
+        cat_str <- paste(levels(df[[cat_col]]), collapse = "/")
+        categ_bounds[[cat_col]] <- cat_str # add to list of intervals
+      } else {
+        # string of bounds
+        cat_str <- ""
+        temp <- categ[[cat]]
+        temp <- gsub("/", " / ", temp, fixed = TRUE)
+        temp <- gsub("]", " ] ", temp, fixed = TRUE)
+        temp <- strsplit(temp, "\\s+")[[1]] # adding and splitting by spaces
+        match_index <- which(temp %in% c("/", "]"))
+        cat_col <- paste(cat, "category", sep = "_")
+        categ_cols <- c(categ_cols, cat_col)
+        df <- df %>% mutate("{cat_col}" := "Unassigned") # add to tibble
+        match_i <- 1
+        for (time_i in match_index) {
+          # We want to figure out if there is a label
+          L <- as.numeric(temp[time_i - 1])
+          if (time_i == match_index[length(match_index)]) {
+            # We are in the last entry
+            if (length(temp) - time_i == 2) {
+              # There is a label
+              entry_label <- temp[time_i + 1]
+              U <- as.numeric(temp[time_i + 2])
+            } else {
+              # No label
+              U <- as.numeric(temp[time_i + 1])
+              entry_label <- paste(L, U, sep = " - ")
+            }
+          } else {
+            # Not at last entry
+            if (match_index[match_i + 1] - time_i == 3) {
+              # There is a label
+              entry_label <- temp[time_i + 1]
+              U <- as.numeric(temp[time_i + 2])
+            } else {
+              # No label
+              U <- as.numeric(temp[time_i + 1])
+              entry_label <- paste(L, U, sep = " - ")
+            }
+          }
+          if (L == U) { # dicrete value case
+            a_col_categ <- case_when(df[[cat]] == U & df[[cat_col]] == "Unassigned" ~ entry_label, .default = df[[cat_col]])
+            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+          } else if (temp[time_i] == "/") { # strict less than upper bound
+            a_col_categ <- case_when(df[[cat]] < U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ entry_label, .default = df[[cat_col]])
+            cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
+          } else { # within and including bounds
+            a_col_categ <- case_when(df[[cat]] <= U & df[[cat]] >= L & df[[cat_col]] == "Unassigned" ~ entry_label, .default = df[[cat_col]])
+            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+          }
+          df[[cat_col]] <- a_col_categ # update column
+          match_i <- match_i + 1
         }
-        df[[cat_col]] <- a_col_categ # update column
+        categ_bounds[[cat_col]] <- cat_str # add interval boundaries
       }
-      categ_bounds[[cat_col]] <- cat_str # add interval boundaries
     }
   }
   df_group <- df %>%
     group_by(across(all_of(categ_cols))) %>%
-    summarize("COUNT" = n(), .groups = "drop") # group by columns and summarize by counts
+    summarize(COUNT = n(), .groups = "drop") # group by columns and summarize by counts
+  names(events) <- lapply(names(events), function(x) tryCatch(match.arg(x, choices = names(table)), error = function(error_message) x)) # match against columns in the table
   for (evt in names(events)) { # iterate through events
     if (grepl(" AS ", events[[evt]], fixed = TRUE)) { # get method and updated name
-      temp <- gsub(" AS ", " ", events[[evt]])
+      temp <- gsub(" AS ", " ", events[[evt]], fixed = TRUE)
       temp <- strsplit(temp, "\\s+")[[1]]
       col_name <- temp[2]
       method <- temp[1]
@@ -1813,14 +1909,20 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
       temp <- strsplit(events[[evt]], "\\s+")[[1]]
       method <- temp[[length(temp)]]
     }
-    if (method == "count") { # summarize by count
+    #
+    method <- tolower(method)
+    method <- lapply(method, function(x) tryCatch(match.arg(x, choices = c("count", "sum", "mean", "rsum", "rmean")), error = function(error_message) x))[[1]] # match against expected values
+    #
+    if (method %in% c("count", "sum", "rsum")) { # summarize by count
       df_temp <- df %>%
         group_by(across(all_of(categ_cols))) %>%
         summarize("{col_name}" := sum(.data[[evt]]), .groups = "drop")
-    } else if (method == "mean") { # summarize by mean
+    } else if (method %in% c("mean", "rmean")) { # summarize by mean
       df_temp <- df %>%
         group_by(across(all_of(categ_cols))) %>%
         summarize("{col_name}" := mean(.data[[evt]]), .groups = "drop")
+    } else {
+      stop(paste("Error: ", method, " is not a recognized aggregation method", sep = ""))
     }
     df_group[[col_name]] <- df_temp[[col_name]] # add to grouped tibble
   }
@@ -1860,15 +1962,15 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
 #'   1905, 1906, 1907
 #' )
 #' table <- data.table::data.table(
-#'   "a" = a, "b" = b, "c" = c,
-#'   "d" = d, "e" = e, "f" = f,
-#'   "g" = g, "h" = h, "i" = i
+#'   a = a, b = b, c = c,
+#'   d = d, e = e, f = f,
+#'   g = g, h = h, i = i
 #' )
 #' categ <- list(
-#'   "a" = "-1/3/5]7"
+#'   a = "-1/3/5]7"
 #' )
 #' summary <- list(
-#'   "c" = "count AS cases"
+#'   c = "count AS cases"
 #' )
 #' events <- list("c")
 #' pyr <- list(
@@ -1878,37 +1980,67 @@ Event_Count_Gen <- function(table, categ, events, verbose = FALSE) {
 #' )
 #' e <- Event_Time_Gen(table, pyr, categ, summary, events)
 #'
-Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE) {
+Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list(), events = c(), verbose = FALSE) {
   df <- as_tibble(table)
   `%within%` <- lubridate::`%within%`
   `%>%` <- dplyr::`%>%`
+  # Setting default date values
+  year_default <- 1900
+  month_default <- 1
+  day_default <- 1
+  # Checking for errors or valid data
+  if (length(events) == 0) {
+    stop("Error: no events were given")
+  }
+  event_cols <- c()
+  event_names <- c()
+  evt_list <- list()
+  for (evt in events) {
+    if (grepl(" AS ", evt, fixed = TRUE)) { # get the column and name
+      temp <- strsplit(gsub(" AS ", " ", evt, fixed = TRUE), "\\s+")[[1]]
+      evt_col <- temp[2]
+      evt_df <- temp[1]
+    } else {
+      evt_df <- evt
+      evt_col <- evt
+    }
+    event_cols <- c(event_cols, evt_df)
+    event_names <- c(event_names, evt_col)
+    evt_list[evt_df] <- paste("count AS ", evt_col, sep = "")
+  }
+  summaries <- c(evt_list, summaries[!(names(summaries) %in% names(evt_list))])
+  names(summaries) <- lapply(names(summaries), function(x) tryCatch(match.arg(x, choices = names(table)), error = function(error_message) x)) # match against columns in the table
+  #
+  names(pyr) <- tolower(names(pyr)) # set the names to lowercase
   #
   categ_cols <- c()
   categ_bounds <- list()
   for (cat in names(categ)) { # for each category
     cat_str <- ""
     if (grepl(" AS ", cat, fixed = TRUE)) { # get the column and name
-      temp <- strsplit(gsub(" AS ", " ", cat), "\\s+")[[1]]
+      temp <- strsplit(gsub(" AS ", " ", cat, fixed = TRUE), "\\s+")[[1]]
       cat_col <- temp[2]
       cat_df <- temp[1]
     } else {
       cat_df <- cat
       cat_col <- paste(cat, "category", sep = "_")
     }
+    cat_df <- lapply(cat_df, function(x) tryCatch(match.arg(x, choices = names(table)), error = function(error_message) x))[[1]] # match against columns in the table
     if (cat_col %in% names(df)) { # check that the category doesn't already exist in the original dataframe
-      stop(paste("Error: ", cat_col, " already exists, use ' AS ' to rename if needed", sep = ""))
+      stop("Error: ", cat_col, " already exists, use ' AS ' to rename if needed")
     }
-    if (length(categ[[cat]]) > 1) { # boundary as lists
+    if (!is.null(names(categ[[cat]]))) { # boundary as lists
+      names(categ[[cat]]) <- tolower(names(categ[[cat]])) # set the names to lowercase
       if ("lower" %in% names(categ[[cat]])) { # lower and upper boundary intervals
         if (!cat_df %in% names(table)) {
-          stop(paste("Error: ", cat_df, " not in table", sep = ""))
+          stop("Error: ", cat_df, " not in table")
         }
         temp0 <- categ[[cat]]$lower
         temp1 <- categ[[cat]]$upper
         if ("name" %in% names(categ[[cat]])) { # check for names for each level
           temp2 <- categ[[cat]]$name
         } else {
-          temp2 <- seq_len(length(temp0)) # 1:length(temp0)
+          temp2 <- seq_along(temp0)
         }
         num_categ <- length(temp0)
         categ_cols <- c(categ_cols, cat_col)
@@ -1916,7 +2048,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
         for (i in 1:num_categ) { # for each level
           L <- as.numeric(temp0[i])
           if (grepl("]", temp1[i], fixed = TRUE)) { # check for including the upper limit
-            U <- as.numeric(gsub("]", "", temp1[i])) # get upper limit
+            U <- as.numeric(gsub("]", "", temp1[i], fixed = TRUE)) # get upper limit
             a_col_categ <- case_when(df[[cat_df]] <= U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]), .default = df[[cat_col]]) # assign the level to unassigned rows
             cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ") # add boundary information to list of intervals
           } else {
@@ -1937,25 +2069,25 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
           if ("month" %in% names(categ[[cat]])) { # nocov
             month <- categ[[cat]]$month # nocov
           } else { # nocov
-            month <- rep(1, length(day)) # nocov
+            month <- rep(month_default, length(day)) # nocov
           }
           if ("year" %in% names(categ[[cat]])) { # nocov
             year <- categ[[cat]]$year # nocov
           } else {
-            year <- rep(1900, length(day)) # nocov
+            year <- rep(year_default, length(day)) # nocov
           }
         } else if ("month" %in% names(categ[[cat]])) { # nocov
           month <- categ[[cat]]$month # nocov
-          day <- rep(1, length(month)) # nocov
+          day <- rep(day_default, length(month)) # nocov
           if ("year" %in% names(categ[[cat]])) { # nocov
             year <- categ[[cat]]$year # nocov
           } else { # nocov
-            year <- rep(1900, length(month)) # nocov
+            year <- rep(year_default, length(month)) # nocov
           }
         } else if ("year" %in% names(categ[[cat]])) { # nocov
           year <- categ[[cat]]$year # nocov
-          day <- rep(1, length(year)) # nocov
-          month <- rep(1, length(month)) # nocov
+          day <- rep(day_default, length(year)) # nocov
+          month <- rep(month_default, length(year)) # nocov
         } else {
           stop("Error: calender category missing 'day', 'month', and 'year'") # all three are required
         }
@@ -1969,30 +2101,31 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
         interval <- "unassigned"
         if ("exit" %in% names(pyr)) { # format the exit as date column
           pyr_exit <- pyr$exit
+          names(pyr_exit) <- tolower(names(pyr_exit)) # set the names to lowercase
           if ("year" %in% names(pyr_exit)) { # nocov
             if ("month" %in% names(pyr_exit)) { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
                 exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]], day = table[[pyr_exit$day]]) # nocov
               } else { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]]) # nocov
+                exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]], day = rep(day_default, nrow(table))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]], day = table[[pyr_exit$day]]) # nocov
+                exit <- make_date(year = table[[pyr_exit$year]], day = table[[pyr_exit$day]], month = rep(month_default, nrow(table))) # nocov
               } else { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]]) # nocov
+                exit <- make_date(year = table[[pyr_exit$year]], day = rep(day_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
               }
             }
           } else {
             if ("month" %in% names(pyr_exit)) { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(month = table[[pyr_exit$month]], day = table[[pyr_exit$day]]) # nocov
+                exit <- make_date(month = table[[pyr_exit$month]], day = table[[pyr_exit$day]], year = rep(year_default, nrow(table))) # nocov
               } else { # nocov
-                exit <- make_date(month = table[[pyr_exit$month]]) # nocov
+                exit <- make_date(month = table[[pyr_exit$month]], year = rep(year_default, nrow(table)), day = rep(day_default, nrow(table))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(day = table[[pyr_exit$day]]) # nocov
+                exit <- make_date(day = table[[pyr_exit$day]], year = rep(year_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
               } else {
                 stop("Error: person-year exit missing day, month, and year")
               }
@@ -2000,31 +2133,32 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
           }
           if ("entry" %in% names(pyr)) { # format the entry as date column
             pyr_entry <- pyr$entry
+            names(pyr_entry) <- tolower(names(pyr_entry)) # set the names to lowercase
             interval <- "interval"
             if ("year" %in% names(pyr_entry)) { # nocov
               if ("month" %in% names(pyr_entry)) { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
                   entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
                 } else { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]]) # nocov
+                  entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = rep(day_default, nrow(table))) # nocov
                 }
               } else { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]]) # nocov
+                  entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]], month = rep(month_default, nrow(table))) # nocov
                 } else { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]]) # nocov
+                  entry <- make_date(year = table[[pyr_entry$year]], day = rep(day_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
                 }
               }
             } else { # nocov
               if ("month" %in% names(pyr_entry)) { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
+                  entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]], year = rep(year_default, nrow(table))) # nocov
                 } else { # nocov
-                  entry <- make_date(month = table[[pyr_entry$month]]) # nocov
+                  entry <- make_date(month = table[[pyr_entry$month]], day = rep(day_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
                 }
               } else { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(day = table[[pyr_entry$day]]) # nocov
+                  entry <- make_date(day = table[[pyr_entry$day]], month = rep(month_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
                 } else {
                   stop("Error: person-year entry missing day, month, and year")
                 }
@@ -2036,30 +2170,31 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
           }
         } else if ("entry" %in% names(pyr)) {
           pyr_entry <- pyr$entry # format the entry as date column
+          names(pyr_entry) <- tolower(names(pyr_entry)) # set the names to lowercase
           if ("year" %in% names(pyr_entry)) { # nocov
             if ("month" %in% names(pyr_entry)) { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
                 entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
               } else { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]]) # nocov
+                entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = rep(day_default, nrow(table))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]]) # nocov
+                entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]], month = rep(month_default, nrow(table))) # nocov
               } else { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]]) # nocov
+                entry <- make_date(year = table[[pyr_entry$year]], day = rep(day_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
               }
             }
           } else { # nocov
             if ("month" %in% names(pyr_entry)) { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
+                entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]], year = rep(year_default, nrow(table))) # nocov
               } else { # nocov
-                entry <- make_date(month = table[[pyr_entry$month]]) # nocov
+                entry <- make_date(month = table[[pyr_entry$month]], day = rep(day_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(day = table[[pyr_entry$day]]) # nocov
+                entry <- make_date(day = table[[pyr_entry$day]], month = rep(month_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
               } else {
                 stop("Error: person-year entry missing day, month, and year")
               }
@@ -2078,23 +2213,31 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
         for (time_i in 1:num_categ) { # for every time interval
           istart <- make_date(year = year[time_i], month = month[time_i], day = day[time_i]) # interval start
           iend <- make_date(year = year[time_i + 1], month = month[time_i + 1], day = day[time_i + 1]) # interval end
+          # We don't want the upper limit to be inclusive, so we call roll it back 1 day
+          # Start by checking if the category is one day
+          bin_dur <- as.duration(interval(istart, iend))
+          # The lowest unit of time is days, so we want to adjust any interval longer than 0 days down one
+          if ((bin_dur > days(1)) && (time_i < num_categ)) {
+            iend <- iend - days(1)
+          }
+          # Now the interval is only fully inclusive if the width is zero
           cat_str <- paste(cat_str, paste("[", istart, " to ", iend, "]", sep = ""), sep = " ") # prepare the interval info
           categ_interval <- interval(istart, iend) # define as date interval
           c_categ <- list()
           if (interval == "left trunc") {
             # only exit
             a_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = "0") # exit within interval, set to i
-            for (evt in events) {
+            for (evt in event_cols) {
               c_categ[[evt]] <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[[evt]], .default = 0) # exit within interval set to event column value
             }
-            b_categ <- case_when(a_categ == as.character(time_i) ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = 0) # for every row with exit in interval, track the duration from interval start
+            b_categ <- case_when(a_categ == as.character(time_i) ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = 0) # for every row with exit in interval, track the duration from interval start to row end
             risk_interval <- interval(iend, exit) # interval from interval end to row end
             a_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # track rows which end after the interval, set to i
             b_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval), pyr_unit), .default = b_categ) # rows which end after interval are at risk the full interval
           } else if (interval == "right trunc") {
             # only entry
             a_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = "0") #  start during the interval, set to i
-            for (evt in events) {
+            for (evt in event_cols) {
               c_categ[[evt]] <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[[evt]], .default = 0) # start during interval, set to event value
             }
             b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(entry, iend)), pyr_unit), .default = 0) # every row which starts during the interval, tracks duration from entry to interval end
@@ -2108,13 +2251,13 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
             a_categ <- case_when(iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # interval ends during row interval, set to i
             a_categ <- case_when(istart %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # interval starts during row interval, set to i
             a_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # row interval fully contained in category interval, set to i
-            for (evt in events) {
+            for (evt in event_cols) {
               c_categ[[evt]] <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[[evt]], .default = 0) # row ends during category interval, set to event value
             }
-            b_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = 0) # rows which end during the category interval, track category interval start to row end
+            b_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(risk_interval), pyr_unit), .default = 0) # row interval fully in category interval, track full row interval
+            b_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = b_categ) # rows which end during the category interval, track category interval start to row end
             b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(entry, iend)), pyr_unit), .default = b_categ) # rows which enter during the category interval, track entry to category interval end
             b_categ <- case_when(istart %within% risk_interval & iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval), pyr_unit), .default = b_categ) # category interval fully in row interval, track full category interval
-            b_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(risk_interval), pyr_unit), .default = b_categ) # row interval fully in category interval, track full row interval
           }
           index_kept <- seq_len(nrow(df))
           index_kept <- index_kept[a_categ == time_i] # indexes which contain the category interval to some level
@@ -2122,11 +2265,13 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
           row_kept <- slice(df, index_kept) # dataframe at kept rows
           row_kept <- row_kept %>% mutate("{cat_col}" := as.character(time_i)) # time category value
           row_kept <- row_kept %>% mutate("PYR" := b_categ) # duration value
-          for (evt in events) {
+          for (evt in event_cols) {
             d_categ <- c_categ[[evt]]
             d_categ <- d_categ[a_categ == time_i]
             row_kept <- row_kept %>% mutate("{evt}" := d_categ) # event values
           }
+          # We don't want to keep rows with negative durations
+          row_kept <- row_kept %>% filter(PYR >= 0)
           df_added <- bind_rows(df_added, row_kept) # new updates dataset
         }
         df <- df_added
@@ -2134,32 +2279,69 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       categ_bounds[[cat_col]] <- cat_str # update the list of category boundaries
     } else { # boundary as string, not a time category
       if (!cat_df %in% names(table)) {
-        stop(paste("Error: ", cat_df, " not in table", sep = ""))
+        stop("Error: ", cat_df, " not in table")
       }
-      cat_str <- ""
-      temp <- categ[[cat]]
-      temp <- gsub("/", " / ", temp)
-      temp <- gsub("]", " ] ", temp)
-      temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
-      num_categ <- (length(temp) - 1) / 2
-      categ_cols <- c(categ_cols, cat_col)
-      df <- df %>% mutate("{cat_col}" := "Unassigned") # initialize column
-      for (time_i in 1:num_categ) {
-        L <- as.numeric(temp[2 * time_i - 1])
-        U <- as.numeric(temp[2 * time_i + 1]) # get lower and upper bounds
-        if (L == U) { # discrete case
-          a_categ <- case_when(df[[cat_df]] == U & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = df[[cat_col]])
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
-        } else if (temp[2 * time_i] == "/") { # strictly below upper bound
-          a_categ <- case_when(df[[cat_df]] < U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = df[[cat_col]])
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
-        } else { # including both bounds
-          a_categ <- case_when(df[[cat_df]] <= U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = df[[cat_col]])
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+      if (tolower(categ[[cat]]) == "factor") {
+        # It is a factor
+        cat_col <- paste(cat, "category", sep = "_")
+        categ_cols <- c(categ_cols, cat_col)
+        df[[cat_col]] <- as.factor(df[[cat]])
+        cat_str <- paste(levels(df[[cat_col]]), collapse = "/")
+        categ_bounds[[cat_col]] <- cat_str # add to list of intervals
+      } else {
+        cat_str <- ""
+        temp <- categ[[cat]]
+        temp <- gsub("/", " / ", temp, fixed = TRUE)
+        temp <- gsub("]", " ] ", temp, fixed = TRUE)
+        temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
+        match_index <- which(temp %in% c("/", "]"))
+        if (length(match_index) < 1) {
+          stop(paste("Error: Category ", cat, " did not have categories.", sep = ""))
         }
-        df[[cat_col]] <- a_categ # update tibble
+        categ_cols <- c(categ_cols, cat_col)
+        df <- df %>% mutate("{cat_col}" := "Unassigned") # initialize column
+        match_i <- 1
+        for (time_i in match_index) {
+          # We want to figure out if there is a label
+          L <- as.numeric(temp[time_i - 1])
+          if (time_i == match_index[length(match_index)]) {
+            # We are in the last entry
+            if (length(temp) - time_i == 2) {
+              # There is a label
+              entry_label <- temp[time_i + 1]
+              U <- as.numeric(temp[time_i + 2])
+            } else {
+              # No label
+              U <- as.numeric(temp[time_i + 1])
+              entry_label <- paste(L, U, sep = " - ")
+            }
+          } else {
+            # Not at last entry
+            if (match_index[match_i + 1] - time_i == 3) {
+              # There is a label
+              entry_label <- temp[time_i + 1]
+              U <- as.numeric(temp[time_i + 2])
+            } else {
+              # No label
+              U <- as.numeric(temp[time_i + 1])
+              entry_label <- paste(L, U, sep = " - ")
+            }
+          }
+          if (L == U) { # discrete case
+            a_categ <- case_when(df[[cat_df]] == U & df[[cat_col]] == "Unassigned" ~ entry_label, .default = df[[cat_col]])
+            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+          } else if (temp[time_i] == "/") { # strictly below upper bound
+            a_categ <- case_when(df[[cat_df]] < U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ entry_label, .default = df[[cat_col]])
+            cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
+          } else { # including both bounds
+            a_categ <- case_when(df[[cat_df]] <= U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ entry_label, .default = df[[cat_col]])
+            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+          }
+          df[[cat_col]] <- a_categ # update tibble
+          match_i <- match_i + 1
+        }
+        categ_bounds[[cat_col]] <- cat_str
       }
-      categ_bounds[[cat_col]] <- cat_str
     }
   }
   if ("PYR" %in% names(df)) {
@@ -2167,6 +2349,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   } else {
     if ("exit" %in% names(pyr)) { # format the exit as date column
       pyr_exit <- pyr$exit
+      names(pyr_exit) <- tolower(names(pyr_exit)) # set the names to lowercase
       if ("year" %in% names(pyr_exit)) { # nocov
         if ("month" %in% names(pyr_exit)) { # nocov
           if ("day" %in% names(pyr_exit)) { # nocov
@@ -2198,6 +2381,7 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       }
       if ("entry" %in% names(pyr)) { # format the entry as date column
         pyr_entry <- pyr$entry
+        names(pyr_entry) <- tolower(names(pyr_entry)) # set the names to lowercase
         interval <- "interval"
         if ("year" %in% names(pyr_entry)) { # nocov
           if ("month" %in% names(pyr_entry)) { # nocov
@@ -2250,10 +2434,10 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   }
   df_group <- df %>%
     group_by(across(all_of(categ_cols))) %>%
-    summarize("AT_RISK" = n(), "PYR" = sum(.data[["PYR"]]), .groups = "drop") # group by categories and define the durations and counts
+    summarize(AT_RISK = n(), PYR = sum(.data[["PYR"]]), .groups = "drop") # group by categories and define the durations and counts
   for (evt in names(summaries)) { # for each event summary
     if (grepl(" AS ", summaries[[evt]], fixed = TRUE)) { # get the method and column name
-      temp <- gsub(" AS ", " ", summaries[[evt]])
+      temp <- gsub(" AS ", " ", summaries[[evt]], fixed = TRUE)
       temp <- strsplit(temp, "\\s+")[[1]]
       col_name <- temp[2]
       method <- temp[1]
@@ -2262,11 +2446,13 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
       temp <- strsplit(summaries[[evt]], "\\s+")[[1]]
       method <- temp[[length(temp)]]
     }
-    if (method == "count") { # sum of event across each category combination
+    method <- tolower(method)
+    method <- lapply(method, function(x) tryCatch(match.arg(x, choices = c("count", "sum", "mean", "rsum", "rmean", "weighted_mean")), error = function(error_message) x))[[1]] # match against expected values
+    if (method %in% c("count", "sum", "rsum")) { # sum of event across each category combination
       df_temp <- df %>%
         group_by(across(all_of(categ_cols))) %>%
         summarize("{col_name}" := sum(.data[[evt]]), .groups = "drop")
-    } else if (method == "mean") { # mean value of event across each category combination
+    } else if (method %in% c("mean", "rmean")) { # mean value of event across each category combination
       df_temp <- df %>%
         group_by(across(all_of(categ_cols))) %>%
         summarize("{col_name}" := mean(.data[[evt]]), .groups = "drop")
@@ -2281,17 +2467,17 @@ Event_Time_Gen <- function(table, pyr, categ, summaries, events, verbose = FALSE
   list(df = as.data.table(df_group), bounds = categ_bounds)
 }
 
-#' Prints a cox regression output clearly
+#' Prints regression output cleanly
 #'
-#' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#' \code{general_print} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres
+#' @param x result object from a regression
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
+#' @noRd
 #' @return return nothing, prints the results to console
-#' @export
 #' @family Output and Information Functions
-print.coxres <- function(x, ...) {
+general_print <- function(x, ...) {
   exargs <- list(...)
   digits <- 3
   if ("digits" %in% names(exargs)) {
@@ -2304,6 +2490,46 @@ print.coxres <- function(x, ...) {
     }
   }
   Interpret_Output(x, digits)
+}
+
+#' Prints fma regression output cleanly
+#'
+#' \code{general_fma_print} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @noRd
+#' @return return nothing, prints the results to console
+#' @family Output and Information Functions
+general_fma_print <- function(x, ...) {
+  exargs <- list(...)
+  digits <- 3
+  if ("digits" %in% names(exargs)) {
+    digits <- exargs$digits
+  } else if (length(exargs) == 1) {
+    if (is.numeric(exargs[[1]])) {
+      if (as.integer(exargs[[1]]) == exargs[[1]]) {
+        digits <- exargs[[1]]
+      }
+    }
+  }
+  Interpret_FMA_Output(x, digits)
+}
+
+#' Prints a cox regression output clearly
+#'
+#' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxres
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.coxres <- function(x, ...) {
+  general_print(x, ...)
 }
 
 #' Prints a poisson regression output clearly
@@ -2314,21 +2540,11 @@ print.coxres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.poisres <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a case-control regression output clearly
@@ -2339,21 +2555,11 @@ print.poisres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.caseconres <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a logistic regression output clearly
@@ -2364,21 +2570,11 @@ print.caseconres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.logitres <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a cox likelihood boundary regression output clearly
@@ -2389,21 +2585,11 @@ print.logitres <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.coxresbound <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
 }
 
 #' Prints a poisson likelihood boundary regression output clearly
@@ -2414,21 +2600,86 @@ print.coxresbound <- function(x, ...) {
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
+#' @noRd
 #' @export
 #' @family Output and Information Functions
 print.poisresbound <- function(x, ...) {
-  exargs <- list(...)
-  digits <- 3
-  if ("digits" %in% names(exargs)) {
-    digits <- exargs$digits
-  } else if (length(exargs) == 1) {
-    if (is.numeric(exargs[[1]])) {
-      if (as.integer(exargs[[1]]) == exargs[[1]]) {
-        digits <- exargs[[1]]
-      }
-    }
-  }
-  Interpret_Output(x, digits)
+  general_print(x, ...)
+}
+
+#' Prints a logistic likelihood boundary regression output clearly
+#'
+#' \code{print.logitresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class logitresbound
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.logitresbound <- function(x, ...) {
+  general_print(x, ...)
+}
+
+#' Prints a cox MCML regression output clearly
+#'
+#' \code{print.coxresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.coxresmcml <- function(x, ...) {
+  general_print(x, ...)
+}
+
+#' Prints a poisson MCML regression output clearly
+#'
+#' \code{print.poisresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class poisresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.poisresmcml <- function(x, ...) {
+  general_print(x, ...)
+}
+
+#' Prints a cox FMA regression output clearly
+#'
+#' \code{print.coxresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class coxresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.coxresfma <- function(x, ...) {
+  general_fma_print(x, ...)
+}
+
+#' Prints a poisson FMA regression output clearly
+#'
+#' \code{print.poisresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class poisresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.poisresfma <- function(x, ...) {
+  general_fma_print(x, ...)
 }
 
 #' Prints a regression output clearly
@@ -2492,9 +2743,9 @@ Interpret_Output <- function(out_list, digits = 3) {
       }
     } else {
       # Check if its a multidose problem
-      if (out_list$Survival_Type == "Cox_Multidose") {
-        message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
-      } else if (is(out_list, "caseconres")) {
+      #      if (out_list$Survival_Type == "Cox_Multidose") {
+      #        message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
+      if (is(out_list, "caseconres")) {
         # case control output
         # get the model details
         null_model <- out_list$modelcontrol$null
@@ -2511,21 +2762,21 @@ Interpret_Output <- function(out_list, digits = 3) {
             stdev <- out_list$Standard_Deviation
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
             res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Constant" = keep_constant,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
-              "Standard Error" = as.numeric(format(stdev, digits = digits)),
-              "2-tail p-value" = as.numeric(format(pval, digits = digits))
+              Covariate = names,
+              Subterm = tforms,
+              `Term Number` = term_n,
+              Constant = keep_constant,
+              `Central Estimate` = as.numeric(format(beta_0, digits = digits)),
+              `Standard Error` = as.numeric(format(stdev, digits = digits)),
+              `2-tail p-value` = as.numeric(format(pval, digits = digits))
             )
           } else {
             res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Constant" = keep_constant,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
+              Covariate = names,
+              Subterm = tforms,
+              `Term Number` = term_n,
+              Constant = keep_constant,
+              `Central Estimate` = as.numeric(format(beta_0, digits = digits))
             )
           }
           if (!any(keep_constant)) {
@@ -2535,7 +2786,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
           }
         }
-        deviance <- out_list$Deviation
+        deviance <- out_list$Deviance
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
@@ -2572,7 +2823,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message("\nMatched Case-Control Model Used")
-        if (!null_model) {
+        if ((!null_model) && (min(term_n) != max(term_n))) {
           message(form_type)
         }
         if (all(strata != "NONE")) {
@@ -2611,7 +2862,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               message("Analysis did not converge.")
             }
           }
-          neg_lim <- out_list$Control_List$"Ended on Negative Limit"
+          neg_lim <- out_list$Control_List$`Ended on Negative Limit`
           if (neg_lim) {
             message("Warning: The regression ended after hitting a negative risk.")
           }
@@ -2633,21 +2884,21 @@ Interpret_Output <- function(out_list, digits = 3) {
             stdev <- out_list$Standard_Deviation
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
             res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Constant" = keep_constant,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits)),
-              "Standard Error" = as.numeric(format(stdev, digits = digits)),
-              "2-tail p-value" = as.numeric(format(pval, digits = digits))
+              Covariate = names,
+              Subterm = tforms,
+              `Term Number` = term_n,
+              Constant = keep_constant,
+              `Central Estimate` = as.numeric(format(beta_0, digits = digits)),
+              `Standard Error` = as.numeric(format(stdev, digits = digits)),
+              `2-tail p-value` = as.numeric(format(pval, digits = digits))
             )
           } else {
             res_table <- data.table(
-              "Covariate" = names,
-              "Subterm" = tforms,
-              "Term Number" = term_n,
-              "Constant" = keep_constant,
-              "Central Estimate" = as.numeric(format(beta_0, digits = digits))
+              Covariate = names,
+              Subterm = tforms,
+              `Term Number` = term_n,
+              Constant = keep_constant,
+              `Central Estimate` = as.numeric(format(beta_0, digits = digits))
             )
           }
           if (!any(keep_constant)) {
@@ -2679,7 +2930,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         LogLik <- out_list$LogLik
         AIC <- out_list$AIC
         BIC <- out_list$BIC
-        deviation <- out_list$Deviation
+        deviation <- out_list$Deviance
         iteration <- out_list$Control_List$Iteration
         step_max <- out_list$Control_List$`Maximum Step`
         deriv_max <- out_list$Control_List$`Derivative Limiting`
@@ -2718,7 +2969,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Survival Weighting Column was :'", cens_weight, "'")
           }
           #
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
@@ -2728,6 +2979,41 @@ Interpret_Output <- function(out_list, digits = 3) {
           message("Risk Groups Used: ", risk_groups)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+        } else if (is(out_list, "coxresmcml")) {
+          if (cens_weight == "NONE") {
+            # cox model
+            message("\nCox Model Used")
+          } else {
+            # fine-gray model
+            message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+          }
+          #
+          tstart <- out_list$model$start_age
+          tend <- out_list$model$end_age
+          event <- out_list$model$event
+          if (tstart == "right_trunc") {
+            message("Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          } else if (tend == "left_trunc") {
+            message("Entry Age Column was: '", tstart, "', Outcome Column was: '", event, "'")
+          } else {
+            message("Entry Age Column was: '", tstart, "', Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+          }
+          if (cens_weight != "NONE") {
+            message("Survival Weighting Column was :'", cens_weight, "'")
+          }
+          #
+          if ((!null_model) && (min(term_n) != max(term_n))) {
+            message(form_type)
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
+          risk_groups <- out_list$RiskGroups
+          message("Risk Groups Used: ", risk_groups)
+          realizations <- out_list$realizations
+          message("Realizations Used: ", realizations)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
@@ -2735,7 +3021,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           evt_col <- out_list$model$event
           message("Person-year Column: '", pyr_col, "'")
           message("Event Column: '", evt_col, "'")
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
@@ -2743,7 +3029,25 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Strata split into ", strata_level, " distinct levels", sep = "")
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else if (is(out_list, "poisresmcml")) {
+          # poisson model
+          message("\nPoisson Model Used")
+          pyr_col <- out_list$model$person_year
+          evt_col <- out_list$model$event
+          message("Person-year Column: '", pyr_col, "'")
+          message("Event Column: '", evt_col, "'")
+          if ((!null_model) && (min(term_n) != max(term_n))) {
+            message(form_type)
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+            message("Strata split into ", strata_level, " distinct levels", sep = "")
+          }
+          realizations <- out_list$realizations
+          message("Realizations Used: ", realizations)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
@@ -2763,17 +3067,17 @@ Interpret_Output <- function(out_list, digits = 3) {
             }
           }
           message(link, " Linking Function Used")
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviation: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
           message("\nUnknown Model Used")
-          if (!null_model) {
+          if ((!null_model) && (min(term_n) != max(term_n))) {
             message(form_type)
           }
           if (all(strata != "NONE")) {
@@ -2804,7 +3108,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               message("Analysis did not converge.")
             }
           }
-          neg_lim <- out_list$Control_List$"Ended on Negative Limit"
+          neg_lim <- out_list$Control_List$`Ended on Negative Limit`
           if (neg_lim) {
             message("Warning: The last iteration encountered a negative risk.")
           }
@@ -2819,6 +3123,7 @@ Interpret_Output <- function(out_list, digits = 3) {
     run_time_sec <- as.numeric(out_list$RunTime, units = "secs")
     run_time_min <- as.numeric(out_list$RunTime, units = "mins")
     run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
+    # nocov start
     if (run_time_sec < 60) {
       message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
     } else if (run_time_min < 60) {
@@ -2826,7 +3131,142 @@ Interpret_Output <- function(out_list, digits = 3) {
     } else {
       message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
     }
-    #    message(paste("Run finished in ", out_list$RunTime))
+    # nocov end
   }
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+}
+
+#' Prints a FMA regression output clearly
+#'
+#' \code{Interpret_FMA_Output} uses the list output from a FMA regression, summarizes the model and some results.
+#'
+#' @inheritParams R_template
+#'
+#' @noRd
+#' @return return nothing, prints the results to console
+Interpret_FMA_Output <- function(out_list, digits = 3) {
+  # make sure the output isn't an error
+  passed <- out_list$Status
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+
+  # get the model details
+  KeptRecords <- out_list$UsedRecords
+  RemovedRecords <- out_list$RejectedRecords
+  ##
+  names <- out_list$Parameter_Lists$names
+  tforms <- out_list$Parameter_Lists$tforms
+  term_n <- out_list$Parameter_Lists$term_n
+  keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+  res_table <- data.table(
+    Covariate = names,
+    Subterm = tforms,
+    `Term Number` = term_n,
+    Constant = keep_constant
+  )
+  if (!any(keep_constant)) {
+    res_table <- res_table[, names(res_table)[names(res_table) != "Constant"], with = FALSE]
+  }
+  if (min(term_n) == max(term_n)) {
+    res_table <- res_table[, names(res_table)[names(res_table) != "Term Number"], with = FALSE]
+  }
+  #
+  modelform <- out_list$model$modelform
+  form_type <- case_when(
+    modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+    modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+    modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+    modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+    modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+    modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+    .default = "Unknown"
+  )
+  #
+  message("Final Serial Analysis Results")
+  print(res_table)
+  # get the model results
+  LogLik <- out_list$LogLik
+  AIC <- out_list$AIC
+  BIC <- out_list$BIC
+  deviation <- out_list$Deviance
+  strata <- out_list$model$strata
+  strata_level <- out_list$strata_levels
+  cens_weight <- out_list$model$weight
+  #
+  message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+  if (is(out_list, "coxresfma")) {
+    if (cens_weight == "NONE") {
+      # cox model
+      message("\nCox Model Used")
+    } else {
+      # fine-gray model
+      message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+    }
+    #
+    tstart <- out_list$model$start_age
+    tend <- out_list$model$end_age
+    event <- out_list$model$event
+    if (tstart == "right_trunc") {
+      message("Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+    } else if (tend == "left_trunc") {
+      message("Entry Age Column was: '", tstart, "', Outcome Column was: '", event, "'")
+    } else {
+      message("Entry Age Column was: '", tstart, "', Survival Age Column was: '", tend, "', Outcome Column was: '", event, "'")
+    }
+    if (cens_weight != "NONE") {
+      message("Survival Weighting Column was :'", cens_weight, "'")
+    }
+    #
+    if (min(term_n) != max(term_n)) {
+      message(form_type)
+    }
+    if (all(strata != "NONE")) {
+      message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+    }
+    risk_groups <- out_list$RiskGroups
+    message("Risk Groups Used: ", risk_groups)
+    realizations <- out_list$realizations
+    message("Realizations Used: ", realizations)
+    message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+  } else if (is(out_list, "poisresfma")) {
+    # poisson model
+    message("\nPoisson Model Used")
+    pyr_col <- out_list$model$person_year
+    evt_col <- out_list$model$event
+    message("Person-year Column: '", pyr_col, "'")
+    message("Event Column: '", evt_col, "'")
+    if (min(term_n) != max(term_n)) {
+      message(form_type)
+    }
+    if (all(strata != "NONE")) {
+      message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+      message("Strata split into ", strata_level, " distinct levels", sep = "")
+    }
+    realizations <- out_list$realizations
+    message("Realizations Used: ", realizations)
+    message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+  } else {
+    stop("\nUnknown Model Used")
+  }
+  if ("RunTime" %in% names(out_list)) {
+    run_time_sec <- as.numeric(out_list$RunTime, units = "secs")
+    run_time_min <- as.numeric(out_list$RunTime, units = "mins")
+    run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
+    # nocov start
+    if (run_time_sec < 60) {
+      message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
+    } else if (run_time_min < 60) {
+      message(paste("Run finished in ", round(run_time_min, digits), " minutes", sep = ""))
+    } else {
+      message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
+    }
+    # nocov end
+  }
+  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+  if (all(passed != "PASSED")) {
+    message("Error: Every realization failed.")
+  } else if (any(passed != "PASSED")) {
+    message("Warning: Atleast one realization failed.")
+  }
+  message("Further results can be extracted using 'output$LogLik', 'output$Parameters', 'output$Standard_Error', etc.")
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }

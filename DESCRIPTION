@@ -2,7 +2,7 @@ Package: Colossus
 Type: Package
 Title: "Risk Model Regression and Analysis with Complex Non-Linear
         Models"
-Version: 1.5
+Version: 1.5.4
 Authors@R: c(
     person("Eric", "King-Giunta", email="egiunta@ksu.edu", role=c("aut", "cre"), comment = c(ORCID = "0000-0002-1577-766X")),
     person("Amir", "Bahadori", role=c("ctb"), comment = c(ORCID = "0000-0002-4589-105X")),
@@ -25,10 +25,9 @@ Imports: Rcpp, data.table, parallel, stats, utils, rlang, methods,
         callr, stringr, processx, dplyr, tibble, lubridate
 LinkingTo: Rcpp, RcppEigen, testthat
 SystemRequirements: make, C++17
-RoxygenNote: 7.3.3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-Suggests: knitr, rmarkdown, testthat, xml2, pandoc, spelling,
+Suggests: knitr, rmarkdown, testthat, pandoc, spelling,
         survival, splines, ggplot2
 Config/testthat/edition: 3
 VignetteBuilder: knitr
@@ -48,3 +47,4 @@ Author: Eric King-Giunta [aut, cre] (ORCID: <https://orcid.org/0000-0002-1577-76
   NCRP [fnd],
   NRC [fnd]
 Maintainer: Eric King-Giunta <egiunta@ksu.edu>
+Config/roxygen2/version: 8.0.0

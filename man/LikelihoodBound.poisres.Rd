@@ -25,12 +25,12 @@ returns a list of the final results
 iteratively optimizing end-points of intervals.
 }
 \seealso{
-Other Poisson Wrapper Functions: 
-\code{\link{EventAssignment.poisres}()},
-\code{\link{EventAssignment.poisresbound}()},
-\code{\link{PoisRun}()},
-\code{\link{PoisRunJoint}()},
-\code{\link{PoisRunMulti}()},
-\code{\link{Residual.poisres}()}
+Other Poisson Wrapper Functions:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
+\code{\link[=PoisRun]{PoisRun()}},
+\code{\link[=PoisRunJoint]{PoisRunJoint()}},
+\code{\link[=PoisRunMulti]{PoisRunMulti()}},
+\code{\link[=Residual.poisres]{Residual.poisres()}}
 }
 \concept{Poisson Wrapper Functions}
