@@ -470,6 +470,7 @@ List logist_Omnibus_Bounds_transition(MatrixXd& CountEvent, IntegerVector& term_
             _["logist"] = true,
             _["odds"] = model_control["logit_odds"],
             _["ident"] = model_control["logit_ident"],
+            _["probit"] = model_control["logit_probit"],
             _["loglink"] = model_control["logit_loglink"]);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
@@ -535,6 +536,7 @@ List logist_Omnibus_CurveSearch_transition(MatrixXd& CountEvent, IntegerVector& 
             _["logist"] = true,
             _["odds"] = model_control["logit_odds"],
             _["ident"] = model_control["logit_ident"],
+            _["probit"] = model_control["logit_probit"],
             _["loglink"] = model_control["logit_loglink"]);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
@@ -995,6 +997,7 @@ List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, Stri
             _["logist"] = true,
             _["odds"] = model_control["logit_odds"],
             _["ident"] = model_control["logit_ident"],
+            _["probit"] = model_control["logit_probit"],
             _["loglink"] = model_control["logit_loglink"]);
     List optim_para = List::create(
             _["lr"] = Control["lr"],
@@ -1148,9 +1151,9 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
                             }
                             dep_temp[i] = gather_val;
                         } else {
-                            // nocov start
+                            //
                             Rcout << "C++ Error: " << func_id << " _:_ " << token << endl;
-                            // nocov end
+                            //
                             throw invalid_argument("time dependent identifier isn't implemented");
                         }
                     }

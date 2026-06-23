@@ -822,7 +822,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       }
     } else if (any(e$Status != "PASSED")) {
       if (control$verbose >= 2) {
-        warning("Warning: Atleast one realization failed.")
+        warning("Warning: Atleast one realization failed.") # nocov
       }
     }
   }

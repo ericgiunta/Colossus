@@ -31,7 +31,7 @@ Let us suppose that we are interested in performing a regression with three cova
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(a, r, s) = \exp{(\beta_a \times a + \beta_a \times r + \beta_a \times s)}
+    \lambda(a, r, s) = \exp{ \left(\beta_a \times a + \beta_a \times r + \beta_a \times s \right)}
 \end{aligned}
 $$
 </p>

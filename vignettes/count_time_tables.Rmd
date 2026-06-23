@@ -124,11 +124,11 @@ categ <- list(
 )
 ```
 
-The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function. The only difference is that a weighted_mean option is added. This is the mean of the group weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval.
+The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function. The only difference is that a weighted_mean option is added. This is the mean of the group weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. By default, the number of events in each grouping is recorded in the final table. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval.
 
 ```{r, eval=TRUE}
-summary <- list(c = "count AS cases", b = "weighted_mean AS b_weighted")
-events <- list("c")
+summary <- list(b = "weighted_mean AS b_weighted")
+events <- list("c AS cases")
 ```
 
 Finally, the function is run. Similar to the person-count table function, the function returns the grouped table and list of category boundaries.

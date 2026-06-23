@@ -52,6 +52,8 @@ using Rcpp::IntegerVector;
 using Rcpp::NumericVector;
 using Rcpp::NumericMatrix;
 using Rcpp::StringVector;
+using Rcpp::pnorm;
+using Rcpp::dnorm;
 using Rcpp::List;
 using Rcpp::_;
 using Rcpp::Rcout;
@@ -168,7 +170,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         //
         TTerm = R.col(0).array();
         if (verbose >= 4) {
-           // nocov start
+           //
            Rcout << "C++ Note: Values checked ";
            for (int ijk = 0; ijk < totalnum; ijk++) {
                Rcout << beta_0[ijk] << " ";
@@ -195,7 +197,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
                Rcout << Rdd.col(ijk).sum() << " ";
            }
            Rcout << " " << endl;
-           // nocov end
+           //
        }
     } else if (model_bool["single"]) {
         //  Calculates the subterm and term values
@@ -226,7 +228,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         if (verbose >= 4) {
-           // nocov start
+           //
            Rcout << "C++ Note: Values checked ";
            for (int ijk = 0; ijk < totalnum; ijk++) {
                Rcout << beta_0[ijk] << " ";
@@ -268,7 +270,7 @@ void Cox_Term_Risk_Calc(string modelform, const StringVector& tform, const Integ
                Rcout << Rdd.col(ijk).sum() << " ";
            }
            Rcout << " " << endl;
-           // nocov end
+           //
        }
     }
     return;
@@ -339,7 +341,7 @@ void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector&
 //' @noRd
 //'
 void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, int verbose, List& model_bool) {
-    // nocov start
+    //
     if (verbose >= 4) {
         Rcout << "C++ Note: df101 " << setprecision(10);  //  prints the log-likelihoods
         for (int ij = 0; ij < reqrdnum; ij++) {
@@ -373,7 +375,7 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
             Rcout << " " << endl;
         }
     }
-    // nocov end
+    //
 }
 
 //' Utility function to print likelihood and derivatives
@@ -385,7 +387,7 @@ void Print_LL(const int& reqrdnum, const int& totalnum, VectorXd beta_0, vector<
 //' @noRd
 //'
 void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& group_num, const int& reqrdcond, vector<double> strata_odds, vector<double>& LldOdds, vector<double>& LlddOdds, vector<double>& LlddOddsBeta, int verbose, List& model_bool) {
-    // nocov start
+    //
     if (verbose >= 4) {
         if (reqrdcond > 0) {
             if (!model_bool["single"]) {
@@ -416,7 +418,7 @@ void Print_LL_Background(const int& reqrdnum, const int& totalnum, const int& gr
             }
         }
     }
-    // nocov end
+    //
 }
 
 //' Utility function to perform calculation of terms and risks for Poisson Omnibus
@@ -454,7 +456,7 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         int reqrdnum = totalnum - sum(KeepConstant);
         if (verbose >= 4) {
-           // nocov start
+           //
            Rcout << "C++ Note: Values checked ";
            for (int ijk = 0; ijk < totalnum; ijk++) {
                Rcout << beta_0[ijk] << " ";
@@ -496,15 +498,15 @@ void Pois_Term_Risk_Calc(string modelform, const StringVector& tform, const Inte
                Rcout << Rdd.col(ijk).sum() << " ";
            }
            Rcout << " " << endl;
-           // nocov end
+           //
        }
         //
         //
         if (R.minCoeff() <= 0) {
             if (verbose >= 4) {
-                // nocov start
+                //
                 Rcout << "C++ Warning: risk mininum " << R.minCoeff() << " " << endl;
-                // nocov end
+                //
             }
         }
     }
@@ -738,14 +740,14 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         if (verbose >= 1) {
-            // nocov start
+            //
             Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             Rcout << "C++ Warning: final failing values ";
             for (int ijk = 0; ijk < totalnum; ijk++) {
                 Rcout << beta_0[ijk] << " ";
             }
             Rcout << " " << endl;
-            // nocov end
+            //
         }
         return List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
     }
@@ -927,7 +929,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
     if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN())) {
         if (verbose >= 1) {
-            // nocov start
+            //
             if (P.minCoeff() <= 0) {
                 Rcout << "C++ Error: An invalid probability was detected: " << P.minCoeff() << endl;
             }
@@ -948,7 +950,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
                 Rcout << tform[ijk] << " ";
             }
             Rcout << " " << endl;
-            // nocov end
+            //
         }
         return List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
     }
@@ -1160,14 +1162,14 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     if ((R.minCoeff() <= 0) || (R.hasNaN())) {
         if (verbose >= 1) {
-            // nocov start
+            //
             Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
             Rcout << "C++ Warning: final failing values ";
             for (int ijk = 0; ijk < totalnum; ijk++) {
                 Rcout << beta_0[ijk] << " ";
             }
             Rcout << " " << endl;
-            // nocov end
+            //
         }
         return List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
     }
@@ -1687,6 +1689,7 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
     bool odds = model_bool["odds"];
     bool ident = model_bool["ident"];
     bool loglink = model_bool["loglink"];
+    bool probit = model_bool["probit"];
     bool single = model_bool["single"];
     bool gradient = model_bool["gradient"];
     if (ident == true) {
@@ -1764,7 +1767,47 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
                 }
             }
         }
+    } else if (probit == true) {
+        // Probability Unit linking function
+        // We use pnorm to convert risk to normal CDF
+        // We use dnorm to convert risk to normal pdf
+        // To start, we need to convert the risk to Rcpp
+        NumericVector R_rcpp = wrap(R.col(0));
+        // Next we get the cdf and pdf in Rcpp format
+        NumericVector nCDF = pnorm(R_rcpp); // the normal CDF in rcpp format. default mean 0, sd 1, and lower tail
+        NumericVector nPDF = dnorm(R_rcpp); // the normal PDF in rcpp format. default mean 0 and sd 1
+        // Now we convert to VectorXd
+        Map<VectorXd> P_CDF(as<Map<VectorXd> >(nCDF));
+        Map<VectorXd> P_PDF(as<Map<VectorXd> >(nPDF));
+        // Next we calculate the Probability values
+        P.col(0) = P_CDF.array();
+        Pnot.col(0) = 1 - P.col(0).array();
+        MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 2);
+        Ftemp.col(0) = P.col(0).array().pow(-1);
+        Ftemp.col(1) = Pnot.col(0).array().pow(-1);
+        if (!single) {
+            //
+            for (int ij=0; ij< reqrdnum; ij++) {
+                Pd.col(ij) = Rd.col(ij).array() * P_PDF.array();
+                PdP.col(ij) = Pd.col(ij).array() * Ftemp.col(0).array();
+                PnotdP.col(ij) = Pd.col(ij).array() * Ftemp.col(1).array();
+            }
+            if (!gradient) {
+                for (int ijk=0; ijk< reqrdnum*(reqrdnum + 1)/2; ijk++) {
+                    int ij = 0;
+                    int jk = ijk;
+                    while (jk > ij) {
+                        ij++;
+                        jk -= ij;
+                    }
+                    Pdd.col(ijk) = P_PDF.array() * (Rdd.col(ijk).array() - R.col(0).array() * Rd.col(ij).array() * Rd.col(jk).array());
+                    PddP.col(ijk) = Pdd.col(ijk).array() * Ftemp.col(0).array();
+                    PnotddP.col(ijk) = Pdd.col(ijk).array() * Ftemp.col(1).array();
+                }
+            }
+        }
     }
+    //
     return;
 }
 

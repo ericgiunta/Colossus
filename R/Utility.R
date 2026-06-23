@@ -199,11 +199,13 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
     }
     if (sum(is.na(df[[j]]))) {
       data.table::set(df, which(is.na(df[[j]])), j, msv)
+      # nocov start
       if (verbose >= 3) {
         message(paste("Note: Column ", j, " had replaced values",
           sep = ""
-        )) # nocov
+        ))
       }
+      # nocov end
     }
   }
   df
@@ -319,7 +321,7 @@ Def_Control <- function(control) {
   # nocov end
   if (control$epsilon >= control$step_max) {
     if (control["verbose"] > 1) {
-      warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.")
+      warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.") # nocov
     }
     control$epsilon <- 0.1 * control$step_max
   }
@@ -360,7 +362,8 @@ Def_model_control <- function(control) {
     "schoenfeld", "risk",
     "risk_subset", "log_bound", "pearson", "deviance",
     "mcml", "observed_info", "time_risk",
-    "logit_odds", "logit_ident", "logit_loglink"
+    "logit_odds", "logit_ident", "logit_loglink",
+    "logit_probit"
   )
   name_full_list <- c(control_def_names, "qchi", "alpha", "para_number", "maxstep", "manual", "search_mult", "step_size", "momentum", "adadelta", "adam", "momentum_decay", "learning_decay", "epsilon_decay", "constraint", "penalty_weight", "penalty_method")
   names(control) <- tolower(names(control)) # set the names to lowercase
@@ -373,7 +376,7 @@ Def_model_control <- function(control) {
       control[nm] <- FALSE
     }
   }
-  link_vec <- c(control$logit_odds, control$logit_ident, control$logit_loglink)
+  link_vec <- c(control$logit_odds, control$logit_ident, control$logit_loglink, control$logit_probit)
   if (sum(link_vec) == 0) {
     control["logit_odds"] <- TRUE
   } else if (sum(link_vec) > 1) {
@@ -419,7 +422,7 @@ Def_model_control <- function(control) {
       }
     }
     if ("para_num" %in% names(control)) {
-      warning("Warning: para_num detected in model_control, did you mean para_number?")
+      warning("Warning: para_num detected in model_control, did you mean para_number?") # nocov
       control["para_number"] <- control["para_num"]
     }
     if ("para_number" %in% names(control)) {
@@ -823,20 +826,24 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
         if (!(f1 %in% toRemove) && !(f2 %in% toRemove)) {
           if (all(df[[f1]] == df[[f2]])) { # test for duplicates
             if (verbose >= 2) {
+              # nocov start
               warning(paste("Warning: ", f1, " and ", f2,
                 " are equal",
                 sep = ""
               ))
+              # nocov end
             }
             toRemove <- c(toRemove, f2) # build the list of duplicates
           }
           if (min(df[[f2]]) == max(df[[f2]])) {
             if (min(df[[f2]]) == 0) {
               if (verbose >= 2) {
+                # nocov start
                 warning(paste("Warning: ", f2,
                   " is equal to zero, removed.",
                   sep = ""
                 ))
+                # nocov end
               }
               toRemove <- c(toRemove, f2) # remove zero values
             }
@@ -1399,10 +1406,12 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
       }
     } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
+        # nocov start
         warning(paste(
           "Warning: the reverse of interation ", i,
           "is duplicated"
-        )) # nocov
+        ))
+        # nocov end
       }
     } else {
       if (formula[2] == "+") {
@@ -1448,7 +1457,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         for (i in seq_along(names)) {
           val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
           if (val == 0.0) {
-            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = "")) # nocov
             val <- 1.0
           } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
@@ -1460,7 +1469,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         for (i in seq_along(names)) {
           val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
           if (val == 0.0) {
-            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = ""))
+            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = "")) # nocov
             val <- 1.0
           } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
@@ -2271,7 +2280,7 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
             row_kept <- row_kept %>% mutate("{evt}" := d_categ) # event values
           }
           # We don't want to keep rows with negative durations
-          row_kept <- row_kept %>% filter(PYR >= 0)
+          row_kept <- row_kept %>% filter("PYR" >= 0)
           df_added <- bind_rows(df_added, row_kept) # new updates dataset
         }
         df <- df_added
@@ -3063,6 +3072,11 @@ Interpret_Output <- function(out_list, digits = 3) {
               loglink <- out_list$modelcontrol$logit_loglink
               if (loglink) {
                 link <- "Complementary Log"
+              } else {
+                probit <- out_list$modelcontrol$logit_probit
+                if (probit) {
+                  link <- "Probability Unit (probit)"
+                }
               }
             }
           }

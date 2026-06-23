@@ -337,10 +337,12 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   cov_mat <- e$Covariance
   for (col_i in seq_along(uniq)) {
     if (verbose >= 3) {
+      # nocov start
       message(paste(
         "Note: Starting Stratification calculation ",
         col_i
-      )) # nocov
+      ))
+      # nocov end
     }
     col_u <- uniq[col_i]
     t <- c()

@@ -30,7 +30,7 @@ $$
 \begin{aligned}
     \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta} \\
     \Delta \beta = - \eta \frac{\partial LL}{\partial \beta_{t}} \times \left ( \frac{\partial^2 LL}{\partial \beta_{t}^2} \right)^{-1} \\
-    \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
+    \beta_{t+1} = \beta_{t} + \sign(\Delta \beta)*\min \left( \left[ \left|\Delta \beta \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -41,7 +41,7 @@ The alternative is a Gradient descent approach. In this algorithm, the first der
 $$
 \begin{aligned}
    \Delta \beta = \eta * \frac{\partial LL}{\partial \beta}\\
-   \beta_{t+1} = \beta_{t} + sign(\Delta \beta)*min \left( \left[ \left|\Delta \beta \right|, \beta_{max} \right] \right)
+   \beta_{t+1} = \beta_{t} + \sign(\Delta \beta)*\min \left( \left[ \left|\Delta \beta \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -54,7 +54,7 @@ The first method, momentum, applies a weighted sum ($\gamma$) of the current and
 $$
 \begin{aligned}
    \Delta \beta_{t} = \gamma * \Delta \beta_{t-1} + \eta * \frac{\partial LL}{\partial \beta}\\
-   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+   \beta_{t+1} = \beta_{t} + \sign(\Delta \beta_{t})*\min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -70,7 +70,7 @@ $$
     RMS[g]_t = \sqrt{E[g^2]_{t} + \epsilon} \\
     RMS[\Delta \beta]_{t-1} = \sqrt{E[\Delta \beta^2]_{t-1} + \epsilon} \\
    \Delta \beta_{t} = \frac{RMS[\Delta \beta]_{t-1}}{RMS[g]_t} * g_t\\
-   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+   \beta_{t+1} = \beta_{t} + \sign(\Delta \beta_{t})*\min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -87,7 +87,7 @@ $$
     \hat{m}_t = m_t / (1-\beta_1^t) \\
     \hat{v}_t = v_t / (1-\beta_2^t) \\
    \Delta \beta_{t} = \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} * \hat{m}_t \\
-   \beta_{t+1} = \beta_{t} + sign(\Delta \beta_{t})*min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{max} \right] \right)
+   \beta_{t+1} = \beta_{t} + \sign(\Delta \beta_{t})*\min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>

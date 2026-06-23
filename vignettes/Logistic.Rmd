@@ -42,14 +42,15 @@ $$
 $$
 </p>
 
-Similar to other survival models in Colossus, a model is written as a function of the various risk factors ($f(\vec{\beta}, \vec{x})$). This function is related to the probability through a linking function. Three options are currently available: odds, identity, and complementary log linking, based on the options present in 32-bit Epicure.
+Similar to other survival models in Colossus, a model is written as a function of the various risk factors ($f(\vec{\beta}, \vec{x})$). This function is related to the probability through a linking function. Four options are currently available: odds, identity, complementary log, and probit linking, the first three were based on the options present in 32-bit Epicure. The last option, probit, uses the cumulative density function of the standard normal distribution ($\Phi$).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    p_{odds} = \frac{f(\vec{\beta}, \vec{x})}{1+f(\vec{\beta}, \vec{x})} \\
-    p_{id} = f(\vec{\beta}, \vec{x}) \\
-    p_{comp} = e^{-f(\vec{\beta}, \vec{x})}
+    p_{odds} = \frac{f \left(\vec{\beta}, \vec{x} \right)}{1+f \left(\vec{\beta}, \vec{x} \right)} \\
+    p_{id} = f \left(\vec{\beta}, \vec{x} \right) \\
+    p_{comp} = e^{-f \left(\vec{\beta}, \vec{x} \right)} \\
+    p_{probit} = \Phi \left( f \left(\vec{\beta},\vec{x} \right) \right)
 \end{aligned}
 $$
 </p>
@@ -59,8 +60,8 @@ Similar to other regression models in Colossus, the first derivative vector and 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \frac{\partial Ll}{\partial \mu} = \sum_i \left [ y_i \frac{\partial p_i/\partial \mu}{p_i} - (N_i - y_i) \frac{\partial p_i/\partial \mu}{1-p_i} \right ] \\
-    \frac{\partial^2 Ll}{\partial \mu \partial \nu} = \sum_i \left [ y_i \left (\frac{\partial^2 p_i/\partial \mu \partial \nu}{p_i} - \frac{\partial p_i/\partial \mu}{p_i} \frac{\partial p_i/\partial \nu}{p_i} \right ) - (N_i - y_i) \left ( \frac{\partial^2 p_i/\partial \mu \partial \nu}{1-p_i} + \frac{\partial p_i/\partial \mu}{1-p_i} \frac{\partial p_i/\partial \nu}{1-p_i} \right ) \right ] \\
+    \frac{\partial Ll}{\partial \mu} = \sum_i \left [ y_i \frac{\partial p_i/\partial \mu}{p_i} - \left(N_i - y_i \right) \frac{\partial p_i/\partial \mu}{1-p_i} \right ] \\
+    \frac{\partial^2 Ll}{\partial \mu \partial \nu} = \sum_i \left [ y_i \left (\frac{\partial^2 p_i/\partial \mu \partial \nu}{p_i} - \frac{\partial p_i/\partial \mu}{p_i} \frac{\partial p_i/\partial \nu}{p_i} \right ) - \left(N_i - y_i \right) \left ( \frac{\partial^2 p_i/\partial \mu \partial \nu}{1-p_i} + \frac{\partial p_i/\partial \mu}{1-p_i} \frac{\partial p_i/\partial \nu}{1-p_i} \right ) \right ] \\
 \end{aligned}
 $$
 </p>
@@ -126,5 +127,9 @@ print(e)
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 e <- LogisticRun(model, df, control = control, a_n = a_n, link = "loglink")
+print(e)
+
+a_n <- c(-1, -1, -1, -1)
+e <- LogisticRun(model, df, control = control, a_n = a_n, link = "probit")
 print(e)
 ```

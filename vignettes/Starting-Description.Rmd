@@ -31,7 +31,7 @@ At its full potential, Colossus can analyze a vast number of possible risk/rate 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R(\vec{\beta},\vec{x})=\exp(\vec{\beta} \cdot \vec{x})
+    R \left(\vec{\beta},\vec{x} \right)=\exp \left(\vec{\beta} \cdot \vec{x} \right)
 \end{aligned}
 $$
 </p>
@@ -45,9 +45,9 @@ $$
 \begin{aligned}
     R_{A} &= \sum_{i=0}^n T_i\\
     R_{PA} &= T_0 \times \sum_{i=1}^n T_i\\
-    R_{PAE} &= T_0 \times (1 + \sum_{i=1}^n T_i)\\
-    R_{M} &= T_0 \times \prod_{i=1}^n(T_i)\\
-    R_{ME} &= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
+    R_{PAE} &= T_0 \times \left(1 + \sum_{i=1}^n T_i \right)\\
+    R_{M} &= T_0 \times \prod_{i=1}^n \left(T_i \right)\\
+    R_{ME} &= T_0 \times \prod_{i=1}^n \left( 1 + T_i \right)\\
     R_{GMIX} &= T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
     T^{*}_i &= \begin{cases} T_i &\text{Relative Risk} \\ T_i+1 &\text{Excess Risk} \end{cases}\\
 \end{aligned}
@@ -59,15 +59,15 @@ Each term is composed of a combination of 4 types of subterms. Every covariate i
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    S_{LL}&=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
-    S_{L}&=\sum_i (x_i \cdot \beta_i)\\
-    S_{PL}&=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}&=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2)\\
+    S_{LL}&=\prod_{i} \left(\exp{ \left(x_i \cdot \beta_i \right)} \right)\\
+    S_{L}&=\sum_i \left(x_i \cdot \beta_i \right)\\
+    S_{PL}&=1+ \sum \left(x_i \cdot \beta_i \right)\\
+    S_{NL}&=\sum_i \left(\alpha_i \times \exp \left(x_i \cdot \beta_i \right)\right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right)\\
     & + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
-    F_{LT} &= \begin{cases} \alpha_i \cdot (x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
-    F_{STP} &= \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
-    F_{LQ} &= \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} &= \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &\text{else} \end{cases}\\
+    F_{LT} &= \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
+    F_{STP} &= \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
+    F_{LQ} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
+    F_{LEXP} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i - \exp{\left(\nu_i + \mu \cdot x \right)} &\text{else} \end{cases}\\
     T_j&=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$
@@ -91,7 +91,7 @@ In Colossus, every equation is defined in a very similar fashion. Elements of th
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right)
 \end{aligned}
 $$
 </p>
@@ -109,7 +109,7 @@ If the user wanted to update the model to include a new term with a product-line
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1 + (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})) \times (2 + \beta_{d} \cdot x_{d})
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1 + \left(\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right) \right) \times \left(2 + \beta_{d} \cdot x_{d} \right)
 \end{aligned}
 $$
 </p>

@@ -71,7 +71,7 @@ Poisson model regression does not have risk groups to account for, but the theor
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \sum_i (x_i \cdot \beta_i)
+    R = \sum_i \left(x_i \cdot \beta_i \right)
 \end{aligned}
 $$
 </p>
@@ -81,7 +81,7 @@ Then the stratified model may look like this:
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = (\sum_i (x_i \cdot \beta_i)) \times (\exp{(\sum_{strata} (x_{strata} \cdot \beta_{strata}))})
+    R = \left(\sum_i \left(x_i \cdot \beta_i \right) \right) \times \left(\exp{ \left(\sum_{strata} \left(x_{strata} \cdot \beta_{strata} \right) \right)} \right)
 \end{aligned}
 $$
 </p>
@@ -91,7 +91,7 @@ Only results associated with the non-stratified parameters are returned by defau
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \beta_{strata} = (\sum_i {event}_i) / (\sum_i P_i \cdot R_i)
+    \beta_{strata} = \left(\sum_i {event}_i \right) / \left(\sum_i P_i \cdot R_i \right)
 \end{aligned}
 $$
 </p>
@@ -170,8 +170,8 @@ Suppose one has a table of person-years, a covariate, and counts for two events.
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda_y(a) = \beta*\exp{(\mu_y*a)}\\
-    \lambda_z(a) = \beta*\exp{(\mu_z*a)}
+    \lambda_y(a) = \beta*\exp{\left(\mu_y*a \right)}\\
+    \lambda_z(a) = \beta*\exp{\left(\mu_z*a \right)}
 \end{aligned}
 $$
 </p>
@@ -189,7 +189,7 @@ If one were to solve the equations separately the table would be split into two 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(a,\alpha_y,\alpha_z) = \beta*\exp{(\mu_y*(a*\alpha_y) + \mu_z*(a*\alpha_z))}
+    \lambda \left(a,\alpha_y,\alpha_z \right) = \beta*\exp{ \left(\mu_y* \left(a*\alpha_y \right) + \mu_z* \left(a*\alpha_z \right) \right)}
 \end{aligned}
 $$
 </p>
