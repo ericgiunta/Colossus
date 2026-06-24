@@ -38,7 +38,7 @@ test_that("No dupe columns", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "d"), c(0, 0, 0, 0), TRUE), c("a", "b", "c", "d"))
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c", "d"), c(0, 0, 0, 0), TRUE), c("a", "b", "c", "d"))
 })
 test_that("No columns", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -46,7 +46,7 @@ test_that("No columns", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  expect_equal(Check_Dupe_Columns(df, c(), c(), TRUE), c())
+  expect_null(Check_Dupe_Columns(df, NULL, NULL, TRUE))
 })
 test_that("One column with varying", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -54,7 +54,7 @@ test_that("One column with varying", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  expect_equal(Check_Dupe_Columns(df, c("a"), c(0), TRUE), c("a"))
+  expect_identical(Check_Dupe_Columns(df, "a", 0, TRUE), "a")
 })
 test_that("One column with constant", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -62,7 +62,7 @@ test_that("One column with constant", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  expect_equal(Check_Dupe_Columns(df, c("c"), c(0), TRUE), c("c"))
+  expect_identical(Check_Dupe_Columns(df, "c", 0, TRUE), "c")
 })
 test_that("One column with constant 0", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -70,7 +70,7 @@ test_that("One column with constant 0", {
   c <- c(0, 0, 0, 0, 0, 0, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  expect_equal(Check_Dupe_Columns(df, c("c"), c(0), TRUE), c())
+  expect_null(Check_Dupe_Columns(df, "c", 0, TRUE))
 })
 test_that("One duplicate column", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -78,9 +78,7 @@ test_that("One duplicate column", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = a)
-  # options(warn = -1)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "d", "e"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c", "d"))
-  # options(warn = 0)
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c", "d", "e"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c", "d"))
 })
 test_that("One duplicate column, different term", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -88,7 +86,7 @@ test_that("One duplicate column, different term", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = a)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "d", "e"), c(0, 0, 0, 1, 1), TRUE), c("a", "b", "c", "d", "e"))
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c", "d", "e"), c(0, 0, 0, 1, 1), TRUE), c("a", "b", "c", "d", "e"))
 })
 test_that("Multiple duplicate columns", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -96,9 +94,7 @@ test_that("Multiple duplicate columns", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = a, "f" = b)
-  # options(warn = -1)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "e", "f"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c"))
-  # options(warn = 0)
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c", "e", "f"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c"))
 })
 test_that("All duplicate columns, different terms", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -106,7 +102,7 @@ test_that("All duplicate columns, different terms", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = a, "c" = a, "d" = a, "e" = a, "f" = a)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "e", "f"), c(0, 1, 2, 3, 4), TRUE), c("a", "b", "c", "e", "f"))
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c", "e", "f"), c(0, 1, 2, 3, 4), TRUE), c("a", "b", "c", "e", "f"))
 })
 test_that("Repeated duplicate columns", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -114,9 +110,7 @@ test_that("Repeated duplicate columns", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = a, "e" = a, "f" = a)
-  # options(warn = -1)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c", "d", "f"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c"))
-  # options(warn = 0)
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c", "d", "f"), c(0, 0, 0, 0, 0), TRUE), c("a", "b", "c"))
 })
 test_that("All but one duplicate column with varying", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -124,9 +118,7 @@ test_that("All but one duplicate column with varying", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = a, "c" = a)
-  # options(warn = -1)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c"), c(0, 0, 0), TRUE), c("a"))
-  # options(warn = 0)
+  expect_identical(Check_Dupe_Columns(df, c("a", "b", "c"), c(0, 0, 0), TRUE), "a")
 })
 test_that("All but one duplicate column with constant", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -134,9 +126,7 @@ test_that("All but one duplicate column with constant", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = c, "b" = c, "c" = c)
-  # options(warn = -1)
-  expect_equal(Check_Dupe_Columns(df, c("a", "b", "c"), c(0, 0, 0), TRUE), c())
-  # options(warn = 0)
+  expect_null(Check_Dupe_Columns(df, c("a", "b", "c"), c(0, 0, 0), TRUE))
 })
 test_that("Duplicate with column not in df error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -144,10 +134,8 @@ test_that("Duplicate with column not in df error", {
   c <- c(1, 1, 1, 1, 1, 1, 1)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = c, "b" = c, "c" = c)
-  # options(warn = -1)
   expect_error(Check_Dupe_Columns(df, c("a", "b", "c", "e"), c(0, 0, 0, 0), TRUE))
   expect_error(Check_Dupe_Columns(df, c("a", "e", "c", "c"), c(0, 0, 0, 0), TRUE))
-  # options(warn = 0)
 })
 
 ## ------------------------------------- ##
@@ -161,7 +149,7 @@ test_that("Improve Ratio test", {
   d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
+  keep_constant <- 0
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
   alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
@@ -177,15 +165,13 @@ test_that("Worse Ratio test", {
   d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
+  keep_constant <- 0
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
   alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
   null_model <- CoxRun(Cox(a, b, c) ~ loglinear(factor(e)), df, control = control)
-  # options(warn = -1)
   expect_warning(e <- Likelihood_Ratio_Test(null_model, alternative_model))
-  expect_equal(e$"p value", NaN)
-  # options(warn = 0)
+  expect_identical(e$"p value", NaN)
 })
 test_that("Same Ratio test", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 0, 1, 2, 3, 4, 5, 6)
@@ -194,11 +180,11 @@ test_that("Same Ratio test", {
   d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
+  keep_constant <- 0
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
   alternative_model <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max", keep_constant = c(0, 1, 0))
-  expect_equal(Likelihood_Ratio_Test(alternative_model, alternative_model)$Difference, 0)
+  expect_identical(Likelihood_Ratio_Test(alternative_model, alternative_model)$Difference, 0)
 })
 test_that("No Data Ratio test", {
   a <- list("baditem" = -300)
@@ -210,7 +196,7 @@ test_that("No Data Ratio test", {
   d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
+  keep_constant <- 0
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "maxiter" = 10, "verbose" = 0)
   null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
@@ -226,33 +212,33 @@ test_that("Factorize factor", {
   b <- c(1, 2, 3, 4, 5, 6, 7)
   c <- c(1, 1, 1, 1, 1, 1, 1)
   df <- data.table("a" = a, "b" = b, "c" = c)
-  col_list <- c("c")
-  expect_equal(factorize(df, col_list, TRUE)$cols, c("c_1"))
+  col_list <- "c"
+  expect_identical(factorize(df, col_list, TRUE)$cols, "c_1")
   col_list <- c("a", "c")
-  expect_equal(factorize(df, col_list, TRUE)$cols, c("a_0", "a_1", "a_2", "a_3", "a_4", "a_5", "a_6", "c_1"))
+  expect_identical(factorize(df, col_list, TRUE)$cols, c("a_0", "a_1", "a_2", "a_3", "a_4", "a_5", "a_6", "c_1"))
 })
 test_that("Factorize discrete", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
   b <- c(1, 2, 3, 4, 5, 6, 7)
   c <- c(0, 0, 0, 0, 0, 0, 0)
   df <- data.table("a" = a, "b" = b, "c" = c)
-  col_list <- c("a")
-  expect_equal(factorize(df, col_list, TRUE)$cols, c("a_0", "a_1", "a_2", "a_3", "a_4", "a_5", "a_6"))
+  col_list <- "a"
+  expect_identical(factorize(df, col_list, TRUE)$cols, c("a_0", "a_1", "a_2", "a_3", "a_4", "a_5", "a_6"))
 })
 test_that("Factorize missing", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
   b <- c(1, 2, 3, 4, 5, 6, 7)
   c <- c(0, 0, 0, 0, 0, 0, 0)
   df <- data.table("a" = a, "b" = b, "c" = c)
-  col_list <- c("d")
+  col_list <- "d"
   expect_error(factorize(df, col_list, TRUE))
 })
 test_that("Factorize survival lung, test", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    cancer %>% setDT()
+    cancer |> setDT()
     df <- copy(cancer)
-    col_list <- c("inst")
+    col_list <- "inst"
     expect_no_error(factorize(df, col_list, TRUE))
   }
 })
@@ -273,12 +259,12 @@ test_that("Gen_time_dep time error", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("lin")
+  func_form <- "lin"
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, "test_new.csv", func_form, 1))
 })
 test_that("Gen_time_dep event error", {
   a <- c(20, 20, 5, 10, 15)
@@ -291,12 +277,12 @@ test_that("Gen_time_dep event error", {
   event <- "c_bad"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("lin")
+  func_form <- "lin"
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, "test_new.csv", func_form, 1))
 })
 test_that("Gen_time_dep function error", {
   a <- c(20, 20, 5, 10, 15)
@@ -309,13 +295,15 @@ test_that("Gen_time_dep function error", {
   event <- "c_bad"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    stop()
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    if (!missing(df)) {
+      stop()
+    }
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("lin")
+  func_form <- "lin"
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, "test_new.csv", func_form, 1))
 })
 test_that("Gen_time_dep functional form error", {
   a <- c(20, 20, 5, 10, 15)
@@ -328,12 +316,12 @@ test_that("Gen_time_dep functional form error", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("badbad")
+  func_form <- "badbad"
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, paste0(tempfile(), "test", "_new.csv"), func_form, 1))
 })
 
 test_that("Gen_time_dep no error lin cox", {
@@ -347,12 +335,12 @@ test_that("Gen_time_dep no error lin cox", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("lin")
+  func_form <- "lin"
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new", sep = ""), func_form, 1))
+  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, paste0(tempfile(), "test_new"), func_form, 1))
 })
 test_that("Gen_time_dep, error length names, tform, func_form", {
   a <- c(20, 20, 5, 10, 15)
@@ -365,14 +353,14 @@ test_that("Gen_time_dep, error length names, tform, func_form", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
   func_form <- c("lin", "lin", "lin", "lin")
 
 
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
-  func_form <- c("lin")
-  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f, grt_f, grt_f, grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, paste0(tempfile(), "test", "_new.csv"), func_form, 1))
+  func_form <- "lin"
+  expect_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, c(grt_f, grt_f, grt_f, grt_f), paste0(tempfile(), "test", "_new.csv"), func_form, 1))
 })
 test_that("Gen_time_dep no error step cox", {
   a <- c(20, 20, 5, 10, 15)
@@ -385,12 +373,12 @@ test_that("Gen_time_dep no error step cox", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("step?0g?7l?12a?18b?")
+  func_form <- "step?0g?7l?12a?18b?"
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
+  expect_no_error(gen_time_dep(df, time1, time2, event, TRUE, 0.01, "grt", NULL, grt_f, paste0(tempfile(), "test", "_new.csv"), func_form, 1))
 })
 
 test_that("Gen_time_dep no error lin not cox", {
@@ -404,12 +392,12 @@ test_that("Gen_time_dep no error lin not cox", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("lin")
+  func_form <- "lin"
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
+  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, "grt", NULL, grt_f, paste0(tempfile(), "test", "_new.csv"), func_form, 1))
 })
 test_that("Gen_time_dep no error step not cox", {
   a <- c(20, 20, 5, 10, 15)
@@ -422,12 +410,12 @@ test_that("Gen_time_dep no error step not cox", {
   event <- "c"
   control <- list("lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   grt_f <- function(df, time_col) {
-    return((df[, "b"] * df[, get(time_col)])[[1]])
+    (df[, "b"] * df[, get(time_col)])[[1]]
   }
-  func_form <- c("step?0g?7l?10u?12a?18b?")
+  func_form <- "step?0g?7l?10u?12a?18b?"
 
 
-  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, c("grt"), c(), c(grt_f), paste(tempfile(), "test", "_new.csv", sep = ""), func_form, 1))
+  expect_no_error(gen_time_dep(df, time1, time2, event, FALSE, 0.01, "grt", NULL, grt_f, paste0(tempfile(), "test", "_new.csv"), func_form, 1))
 })
 
 test_that("linked quad negative slope error", {
@@ -540,7 +528,7 @@ test_that("Missing Value checked replaced 0", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
 
   df0 <- Replace_Missing(df, c("a", "b"), 0.0, TRUE)
-  expect_equal(c(sum(df0$a), sum(df0$b)), c(sum(df$a), 2))
+  expect_identical(c(sum(df0$a), sum(df0$b)), c(sum(df$a), 2))
 })
 test_that("Missing Value checked replaced 1", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -550,7 +538,7 @@ test_that("Missing Value checked replaced 1", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
 
   df0 <- Replace_Missing(df, c("a", "b"), 1.0, TRUE)
-  expect_equal(c(sum(df0$a), sum(df0$b)), c(sum(df$a), 3))
+  expect_identical(c(sum(df0$a), sum(df0$b)), c(sum(df$a), 3))
 })
 test_that("Missing Value verbose error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -571,7 +559,7 @@ test_that("Check Date Shift, exact value", {
   y1 <- c(2001, 2003, 2005, 2006)
   df <- data.table("m0" = m0, "m1" = m1, "d0" = d0, "d1" = d1, "y0" = y0, "y1" = y1)
   e <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
-  expect_equal(as.numeric(e$date_since), c(4054, 4419, 2955, 2955))
+  expect_identical(as.numeric(e$date_since), c(4054, 4419, 2955, 2955))
 })
 
 test_that("Check Date Since", {
@@ -595,7 +583,7 @@ test_that("Check Date Since, exact value", {
   df <- data.table("m0" = m0, "m1" = m1, "d0" = d0, "d1" = d1, "y0" = y0, "y1" = y1)
   tref <- strptime("3-22-1997", format = "%m-%d-%Y", tz = "UTC")
   e <- Time_Since(df, c("m1", "d1", "y1"), tref, "date_since")
-  expect_equal(as.numeric(e$date_since), c(1417, 2148, 2908, 3274))
+  expect_identical(as.numeric(e$date_since), c(1417, 2148, 2908, 3274))
 })
 
 ## ------------------------------------- ##
@@ -604,116 +592,116 @@ test_that("Check Date Since, exact value", {
 test_that("Usual nested split", {
   temp_str <- "1,2,3,c(4, 5, 6)"
   split_str <- nested_split(temp_str)
-  expect_equal(split_str, c("1", "2", "3", "c(4, 5, 6)"))
+  expect_identical(split_str, c("1", "2", "3", "c(4, 5, 6)"))
   temp_str <- "1,2,3,c(4, 5, 6))"
   split_str <- nested_split(temp_str)
-  expect_equal(split_str, c("1", "2", "3", "c(4, 5, 6))"))
+  expect_identical(split_str, c("1", "2", "3", "c(4, 5, 6))"))
 })
 test_that("Parse strings", {
   temp_str <- "."
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, ".")
+  expect_identical(split_str, ".")
   temp_str <- "e"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, "e")
+  expect_identical(split_str, "e")
   temp_str <- "e0"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, "e0")
+  expect_identical(split_str, "e0")
   temp_str <- "1e"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, "1e")
+  expect_identical(split_str, "1e")
   #
   temp_str <- "T"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, "T")
+  expect_identical(split_str, "T")
   temp_str <- "t"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, "t")
+  expect_identical(split_str, "t")
   #
   temp_str <- "(1,2, 3,4)"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, "(1,2, 3,4)")
+  expect_identical(split_str, "(1,2, 3,4)")
 })
 test_that("Parse number", {
   temp_str <- "1"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 1)
+  expect_identical(split_str, 1)
   temp_str <- "1."
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 1)
+  expect_identical(split_str, 1)
   temp_str <- "-1"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, -1)
+  expect_identical(split_str, -1)
   temp_str <- "0.1"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 0.1)
+  expect_identical(split_str, 0.1)
   temp_str <- ".1"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 0.1)
+  expect_identical(split_str, 0.1)
   temp_str <- "-.1"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, -0.1)
+  expect_identical(split_str, -0.1)
   temp_str <- "1e-2"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 0.01)
+  expect_identical(split_str, 0.01)
   temp_str <- "1e2"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 100)
+  expect_identical(split_str, 100)
   temp_str <- "-1e-2"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, -0.01)
+  expect_identical(split_str, -0.01)
   temp_str <- "1e0"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, 1)
+  expect_identical(split_str, 1)
 })
 test_that("Parse boolean", {
   temp_str <- "true"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, TRUE)
+  expect_true(split_str)
   temp_str <- "TRUE"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, TRUE)
+  expect_true(split_str)
   temp_str <- "True"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, TRUE)
+  expect_true(split_str)
   #
   temp_str <- "false"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, FALSE)
+  expect_false(split_str)
   temp_str <- "FALSE"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, FALSE)
+  expect_false(split_str)
   temp_str <- "False"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, FALSE)
+  expect_false(split_str)
 })
 test_that("Parse vector", {
   temp_str <- "c(1,2,3,4)"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, c(1, 2, 3, 4))
+  expect_identical(split_str, c(1, 2, 3, 4))
 })
 test_that("Parse list", {
   temp_str <- "list(100)"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, list(100))
+  expect_identical(split_str, list(100))
   temp_str <- "list(x=100)"
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, list(x = 100))
+  expect_identical(split_str, list(x = 100))
   temp_str <- 'list("x"=100)'
   split_str <- parse_literal_string(temp_str)
-  expect_equal(split_str, list(x = 100))
+  expect_identical(split_str, list(x = 100))
 })
 
 ## ----------------------------------------------- ##
 ##  Tests to check that the default S3 functions are there
 ## ----------------------------------------------- ##
 test_that("Check defaults work as intended", {
-  expect_equal(RelativeRisk("a"), "a")
-  expect_equal(plotRisk("a"), "a")
-  expect_equal(plotSchoenfeld("a"), "a")
-  expect_equal(plotMartingale("a"), "a")
-  expect_equal(plotSurvival("a"), "a")
-  expect_equal(LikelihoodBound("a"), "a")
-  expect_equal(EventAssignment("a"), "a")
-  expect_equal(Residual("a"), "a")
+  expect_identical(RelativeRisk("a"), "a")
+  expect_identical(plotRisk("a"), "a")
+  expect_identical(plotSchoenfeld("a"), "a")
+  expect_identical(plotMartingale("a"), "a")
+  expect_identical(plotSurvival("a"), "a")
+  expect_identical(LikelihoodBound("a"), "a")
+  expect_identical(EventAssignment("a"), "a")
+  expect_identical(Residual("a"), "a")
 })

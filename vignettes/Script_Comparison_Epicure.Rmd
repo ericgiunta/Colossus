@@ -23,7 +23,7 @@ library(parallel)
 
 ## Introduction to Colossus
 
-Colossus was developed in the context of radiation epidemiologists wanting to use new methods and more data. At the time of development, 32-bit Epicure was a popular software for running radiation epidemiological analysis. This vignette was written with that in mind to help any transitioning users see how the two are similar and different, in addition to providing guidance for converting between the two. The script provided will discuss both Colossus-specific differences as well as general R capabilities that differ from Epicure.
+`Colossus` was developed in the context of radiation epidemiologists wanting to use new methods and more data. At the time of development, 32-bit Epicure was a popular software for running radiation epidemiological analysis. This vignette was written with that in mind to help any transitioning users see how the two are similar and different, in addition to providing guidance for converting between the two. The script provided will discuss both Colossus-specific differences as well as general R capabilities that differ from Epicure.
 
 ### Example Epicure Analysis
 The following peanuts script was used as part of validation efforts for Colossus. The script runs three regressions. A linear excess relative risk model, a log-linear hazard ratio model for dose overall, and a log-linear hazard ratio model for categorical bins of dose. Similar regressions were performed with radiation cohort data to assess the relationship between the risk of different mortality events and cumulative radiation exposure to organs.
@@ -85,7 +85,7 @@ For the most part, the same steps are performed in Colossus. The script starts b
 df_Dose <- fread("EX_DOSE.csv")
 ```
 
-Colossus defines the model as a formula. The left-hand side of the formula defines the type of model, the time observed, and the event columns. The right-hand side defines the risk factors in each term and subterm. The model is a Cox regression, the intervals are defined by the age_entry/age_exit columns, and the event status is stored in the nonCLL column. This is denoted by 'Cox(age_entry, age_exit, nonCLL)'. The loglinear and product-linear subterms are added to the formula by specifying the subterm type, included columns, and term number, i.e. 'subterm(column 1, column 2, ..., term number)'. Factored columns are added by using 'factor(column)', the default level is assumed to be the first level.
+`Colossus` defines the model as a formula. The left-hand side of the formula defines the type of model, the time observed, and the event columns. The right-hand side defines the risk factors in each term and subterm. The model is a Cox regression, the intervals are defined by the age_entry/age_exit columns, and the event status is stored in the nonCLL column. This is denoted by 'Cox(age_entry, age_exit, nonCLL)'. The loglinear and product-linear subterms are added to the formula by specifying the subterm type, included columns, and term number, i.e. 'subterm(column 1, column 2, ..., term number)'. Factored columns are added by using 'factor(column)', the default level is assumed to be the first level.
 
 ```{r, eval=FALSE}
 model_ERR <- Cox(age_entry, age_exit, nonCLL) ~ plinear(cumulative_dose, 0) +
@@ -101,7 +101,7 @@ control <- list(
 )
 ```
 
-Finally, the regression is run and a list of the results is returned to a variable "e". Regressions in Colossus return a list of results, a summary can be printed.
+Finally, the regression is run and a list of the results is returned to a variable "e". Regressions in `Colossus` return a list of results, a summary can be printed.
 
 ```{r, eval=FALSE}
 e <- CoxRun(model_ERR, df_dose, control = control)

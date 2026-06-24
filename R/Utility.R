@@ -992,6 +992,13 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   time2 <- ce[2]
   dfn_same <- dfn[!(dfn %in% dep_cols)]
   dfn_dep <- c()
+  if (length(new_names) != length(func_form)) {
+    stop("Error: new_names vector should be the same size as the list of functions applied")
+  }
+  if (length(new_names) != length(tform)) {
+    stop("Error: new_names vector should be the same size as the list of interpolation method used")
+  }
+  func_form <- c(func_form)
   for (i in seq_along(new_names)) {
     name0 <- paste(new_names[i], 0, sep = "_")
     name1 <- paste(new_names[i], 1, sep = "_")
@@ -999,12 +1006,6 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     df[, name0] <- lapply(func, function(f) f(df, time1))
     df[, name1] <- lapply(func, function(f) f(df, time2))
     dfn_dep <- c(dfn_dep, name0, name1)
-  }
-  if (length(new_names) != length(func_form)) {
-    stop("Error: new_names vector should be the same size as the list of functions applied")
-  }
-  if (length(new_names) != length(tform)) {
-    stop("Error: new_names vector should be the same size as the list of interpolation method used")
   }
   for (i in seq_along(tform)) {
     temp <- tform[i]

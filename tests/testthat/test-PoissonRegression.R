@@ -4,8 +4,8 @@ test_that("Poisson time column missing", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   expect_error(PoisRun(Poisson(a_bad, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
 })
@@ -16,8 +16,8 @@ test_that("Poisson no events", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   fac <- c(0, 0, 0, 0, 1, 0, 0)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   expect_error(PoisRun(Poisson(a, c) ~ loglinear(d, 0), df, control = control, a_n = a_n))
   #
@@ -32,8 +32,8 @@ test_that("Poisson no events", {
 
 test_that("Pois loglin_M Single", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$pyr <- df$t1 - df$t0
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
@@ -43,25 +43,25 @@ test_that("Pois loglin_M Single", {
 })
 test_that("Pois loglin_M Strata", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$pyr <- df$t1 - df$t0
-  keep_constant <- c(0)
-  a_n <- c(0.01)
+  keep_constant <- 0
+  a_n <- 0.01
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ loglinear(dose, 0), df, control = control, a_n = a_n)
-  expect_equal(e$beta_0, c(0.05476188), tolerance = 1e-1)
+  expect_equal(e$beta_0, 0.05476188, tolerance = 1e-1)
   #
   expect_no_error(e <- PoisRun(Poisson(pyr, lung) ~ null(), df, control = control))
   expect_no_error(e_strata <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ null(), df, control = control))
-  expect_equal(e$Deviance, c(698.499), tolerance = 1e-1)
-  expect_equal(e_strata$Deviance, c(698.4339), tolerance = 1e-1)
+  expect_equal(e$Deviance, 698.499, tolerance = 1e-1)
+  expect_equal(e_strata$Deviance, 698.4339, tolerance = 1e-1)
 })
 
 test_that("Checking pois strata default values", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno

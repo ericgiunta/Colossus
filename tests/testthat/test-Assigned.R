@@ -194,8 +194,8 @@ test_that("Poisson Assigned Events bounds single entry, check results", {
   )
 
   df$pyr <- df$Ending_Age - df$Starting_Age
-  a_n <- c(-0.75)
-  keep_constant <- c(0)
+  a_n <- -0.75
+  keep_constant <- 0
   control <- list(
     "ncores" = 1, "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-3,
     "deriv_epsilon" = 1e-3, "step_max" = 0.2, "change_all" = TRUE,

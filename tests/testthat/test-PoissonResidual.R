@@ -5,8 +5,8 @@ test_that("Poisson residual no error", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(0, 0, 0, 1, 1, 1, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
 
   control <- list("ncores" = 1, "lr" = 0.95, "maxiter" = -1, "halfmax" = 1, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 1.0, "verbose" = 0)
   poisres <- PoisRun(Poisson(a, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)

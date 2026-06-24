@@ -1,7 +1,7 @@
 test_that("Coxph strata_gradient_CR", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   keep_constant <- c(1, 0)
@@ -18,21 +18,21 @@ test_that("Coxph strata_gradient_CR", {
   j_iterate <- 1
   a_n <- c(-0.1, -0.1)
   e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
-  expect_equal(e$Status, "PASSED")
+  expect_identical(e$Status, "PASSED")
   e <- CoxRun(Cox_Strata(t0, t1, lung, rand) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
-  expect_equal(e$Status, "PASSED")
+  expect_identical(e$Status, "PASSED")
   e <- CoxRun(FineGray(t0, t1, lung, weighting) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
-  expect_equal(e$Status, "PASSED")
+  expect_identical(e$Status, "PASSED")
   e <- CoxRun(FineGray_Strata(t0, t1, lung, rand, weighting) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
-  expect_equal(e$Status, "PASSED")
+  expect_identical(e$Status, "PASSED")
   #
   expect_no_error(CoxRun(Cox_Strata(t0, t1, lung, rand) ~ loglinear(dose, 0) + loglinear(fac, 1) + PAE(), df, a_n = a_n, control = control, gradient_control = list("momentum" = TRUE)))
 })
 
 test_that("Coxph gradient methods", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   keep_constant <- c(1, 0)
@@ -52,7 +52,7 @@ test_that("Coxph gradient methods", {
     gradient_control <- list()
     gradient_control[[method]] <- TRUE
     e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, fac, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = gradient_control)
-    expect_equal(e$Status, "PASSED")
+    expect_identical(e$Status, "PASSED")
   }
   #
   control <- list("ncores" = 1, "lr" = 0.001, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -68,8 +68,8 @@ test_that("Coxph gradient methods", {
 
 test_that("Pois strata_gradient", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$pyr <- df$t1 - df$t0
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
@@ -80,15 +80,15 @@ test_that("Pois strata_gradient", {
   verbose <- FALSE
   j_iterate <- 1
   e <- PoisRun(Poisson(pyr, lung) ~ loglinear(dose, rand, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
-  expect_equal(e$Status, "PASSED")
+  expect_identical(e$Status, "PASSED")
   e <- PoisRun(Poisson_Strata(pyr, lung, fac) ~ loglinear(dose, rand, 0) + m(), df, a_n = a_n, keep_constant = keep_constant, control = control, gradient_control = list())
-  expect_equal(e$Status, "PASSED")
+  expect_identical(e$Status, "PASSED")
 })
 
 test_that("Logit Gradient Test", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -114,7 +114,7 @@ test_that("Logit Gradient Test", {
 test_that("Constraint Check", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno
@@ -128,16 +128,16 @@ test_that("Constraint Check", {
     cons_mat0 <- matrix(c(1, 1), nrow = 1)
     control <- list(ncores = 1)
     #
-    e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0), gradient_control = list("adam" = TRUE))
+    e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adam" = TRUE))
     expect_equal(e2$beta_0, c(0.158278, -0.158278), tolerance = 1e-3)
     #
-    e3 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0), gradient_control = list("momentum" = TRUE))
-    e4 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0), gradient_control = list("adadelta" = TRUE))
+    e3 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("momentum" = TRUE))
+    e4 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adadelta" = TRUE))
     expect_equal(e3$beta_0, c(0.9, -0.9), tolerance = 1e-3)
     expect_equal(e4$beta_0, c(0.04037, -0.04037), tolerance = 1e-3)
     #
     cons_mat0 <- matrix(c(0, 0, 0, 0, 1), nrow = 1)
-    e5 <- PoisRun(Pois(time, status) ~ loglinear(factor(cell, level = c(-1, 0, 1, 2, 3)), trt), df, control = control, cons_mat = cons_mat0, cons_vec = c(0.0), gradient_control = list("adam" = TRUE))
+    e5 <- PoisRun(Pois(time, status) ~ loglinear(factor(cell, level = c(-1, 0, 1, 2, 3)), trt), df, control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adam" = TRUE))
     expect_equal(e5$LogLik, -365.5018, tolerance = 1e-1)
   }
 })

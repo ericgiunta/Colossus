@@ -66,7 +66,7 @@ using Rcpp::Dimension;
 // //' @noRd
 // //'
 // //
-// bool Check_Risk(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term) {
+// bool Check_Risk(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term) {
 //     //
 //     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
 //     if (verbose >= 3) {
@@ -120,7 +120,7 @@ using Rcpp::Dimension;
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -333,7 +333,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
         halves = 0;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
+        // ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_iter_best = 10;
         //
@@ -511,7 +511,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
     halves = 0;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
-    ind0 = fir;  //  used for validations
+    // ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
     //
     convgd = FALSE;
@@ -793,7 +793,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMa
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -999,7 +999,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         halves = 0;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
+        // ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_iter_best = 10;
         //
@@ -1184,7 +1184,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     halves = 0;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
-    ind0 = fir;  //  used for validations
+    // ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
     //
     convgd = FALSE;
@@ -1450,7 +1450,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
 //' @return only if it works
 //' @noRd
 //'
-List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     if (model_bool["constraint"]) {
@@ -1672,7 +1672,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
         halves = 0;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
+        // ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_iter_best = 10;
         //
@@ -1978,7 +1978,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
     iter_stop = 0;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
-    ind0 = fir;  //  used for validations
+    // ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
     //
     convgd = FALSE;
@@ -2359,7 +2359,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, StringVector& tform, NumericM
 //' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
-List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, IntegerVector& dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -2538,7 +2538,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         halves = 0;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
+        // ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_iter_best = 10;
         //
@@ -2785,7 +2785,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     halves = 0;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
-    ind0 = fir;  //  used for validations
+    // ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
     //
     convgd = FALSE;

@@ -22,7 +22,7 @@ library(data.table)
 
 ## Dose Response Formula
 
-Colossus features a term composed of the sum of multiple linear and non-linear elements which can be used to define many dose-response curves used in radiation epidemiology. These terms are referred to as dose-response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formulae are available, reproduced from the starting description vignette.
+`Colossus` features a term composed of the sum of multiple linear and non-linear elements which can be used to define many dose-response curves used in radiation epidemiology. These terms are referred to as dose-response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formulae are available, reproduced from the starting description vignette.
 
 <p class="text-center" style="background-color: aliceblue">
 $$

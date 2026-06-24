@@ -96,9 +96,9 @@ test_that("Joint data generation fill defaults, no error", {
   expect_no_error(get_form_joint(formula_list, df))
   val <- get_form_joint(formula_list, df)
   model <- val$model
-  expect_equal(model$term_n, rep(0, 3))
-  expect_equal(model$tform, c("plin", "loglin", "loglin"))
-  expect_equal(model$keep_constant, rep(0, 3))
+  expect_identical(model$term_n, rep(0L, 3))
+  expect_identical(model$tform, c("plin", "loglin", "loglin"))
+  expect_identical(model$keep_constant, rep(0, 3))
 })
 test_that("Joint data generation, check results", {
   a <- c(0, 0, 0, 1, 1, 1)
@@ -117,8 +117,8 @@ test_that("Joint data generation, check results", {
   #
   val <- get_form_joint(formula_list, df)
   model <- val$model
-  expect_equal(model$names, c("t0", "fac_e0", "fac_e1"))
-  expect_equal(names(val$data), c("t0", "t1", "events", "e0", "e1", "fac", "pyr", "fac_e0", "fac_e1"))
+  expect_identical(model$names, c("t0", "fac_e0", "fac_e1"))
+  expect_named(val$data, c("t0", "t1", "events", "e0", "e1", "fac", "pyr", "fac_e0", "fac_e1"))
 })
 test_that("Joint data regression, no error", {
   a <- c(0, 0, 0, 1, 1, 1)
@@ -163,7 +163,7 @@ test_that("Joint data regression, check results", {
   formula_list <- list(model_1, model_2, "shared" = model_s)
   e <- PoisRunJoint(formula_list, df, control = control)
   expect_equal(e$beta_0, c(-0.1845, 0.5742, -1.0347), tolerance = 1e-2)
-  expect_equal(e$Converged, TRUE)
+  expect_true(e$Converged)
 })
 
 test_that("Data production checks and errors", {
@@ -178,39 +178,39 @@ test_that("Data production checks and errors", {
   keep_constant_shared <- c(0, 0)
   a_n_shared <- c(0.001, -0.02)
   #
-  name_list <- list("e0" = c("fac"), "e1" = c("fac"), "shared" = c("t0"))
-  term_n_list <- list("e0" = c(0), "e1" = c(0), "shared" = c(0))
-  tform_list <- list("e0" = c("loglin"), "e1" = c("loglin"), "shared" = c("loglin"))
-  keep_constant_list <- list("e0" = c(0), "e1" = c(0), "shared" = c(0))
-  a_n_list <- list("e0" = c(0.1), "e1" = c(0.1), "shared" = c(0.1))
+  name_list <- list("e0" = "fac", "e1" = "fac", "shared" = "t0")
+  term_n_list <- list("e0" = 0, "e1" = 0, "shared" = 0)
+  tform_list <- list("e0" = "loglin", "e1" = "loglin", "shared" = "loglin")
+  keep_constant_list <- list("e0" = 0, "e1" = 0, "shared" = 0)
+  a_n_list <- list("e0" = 0.1, "e1" = 0.1, "shared" = 0.1)
   # Test it works
   expect_no_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list, keep_constant_list = keep_constant_list, a_n_list = a_n_list))
   # Check for mismatched number of items in term
-  term_n_list <- list("e0" = c(0, 1), "e1" = c(0), "shared" = c(0))
+  term_n_list <- list("e0" = c(0, 1), "e1" = 0, "shared" = 0)
   expect_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list))
   # Add missing term value
-  term_n_list <- list("e1" = c(0), "shared" = c(0))
+  term_n_list <- list("e1" = 0, "shared" = 0)
   expect_no_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list))
-  term_n_list <- list("e0" = c(0), "e1" = c(0), "shared" = c(0))
+  term_n_list <- list("e0" = 0, "e1" = 0, "shared" = 0)
   # Check for mismatched number of items in subterm
-  tform_list <- list("e0" = c("loglinear", "plinear"), "e1" = c("loglinear"), "shared" = c("loglinear"))
+  tform_list <- list("e0" = c("loglinear", "plinear"), "e1" = "loglinear", "shared" = "loglinear")
   expect_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list))
   # Add missing subterm value
-  tform_list <- list("e1" = c("loglin"), "shared" = c("loglin"))
+  tform_list <- list("e1" = "loglin", "shared" = "loglin")
   expect_no_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list))
-  tform_list <- list("e0" = c("loglin"), "e1" = c("loglin"), "shared" = c("loglin"))
+  tform_list <- list("e0" = "loglin", "e1" = "loglin", "shared" = "loglin")
   # Check for mismatched number of items in constant
-  keep_constant_list <- list("e0" = c(0, 1), "e1" = c(0), "shared" = c(0))
+  keep_constant_list <- list("e0" = c(0, 1), "e1" = 0, "shared" = 0)
   expect_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list, keep_constant_list = keep_constant_list, a_n_list = a_n_list))
   # Add missing constant value
-  keep_constant_list <- list("e1" = c(0), "shared" = c(0))
+  keep_constant_list <- list("e1" = 0, "shared" = 0)
   expect_no_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list, keep_constant_list = keep_constant_list, a_n_list = a_n_list))
-  keep_constant_list <- list("e0" = c(0), "e1" = c(0), "shared" = c(0))
+  keep_constant_list <- list("e0" = 0, "e1" = 0, "shared" = 0)
   # Check for mismatched number of items in a_n
-  a_n_list <- list("e0" = c(0.1, 0.1), "e1" = c(0.1), "shared" = c(0.1))
+  a_n_list <- list("e0" = c(0.1, 0.1), "e1" = 0.1, "shared" = 0.1)
   expect_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list, keep_constant_list = keep_constant_list, a_n_list = a_n_list))
   # Add missing a_n value
-  a_n_list <- list("e1" = c(0.1), "shared" = c(0.1))
+  a_n_list <- list("e1" = 0.1, "shared" = 0.1)
   expect_no_error(Joint_Multiple_Events(df, events, name_list = name_list, term_n_list = term_n_list, tform_list = tform_list, keep_constant_list = keep_constant_list, a_n_list = a_n_list))
-  a_n_list <- list("e0" = c(0.1), "e1" = c(0.1), "shared" = c(0.1))
+  a_n_list <- list("e0" = 0.1, "e1" = 0.1, "shared" = 0.1)
 })

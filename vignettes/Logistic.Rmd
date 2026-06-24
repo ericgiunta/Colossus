@@ -27,11 +27,11 @@ library(dplyr)
 
 ## Logistic Modeling for Binomial Odds and Binary Data
 
-One alternative regression method in Colossus for predicting the probability of an event in independent trials is logistic regression. The theory is presented in the following section.
+One alternative regression method in `Colossus` for predicting the probability of an event in independent trials is logistic regression. The theory is presented in the following section.
 
 ### General Theory
 
-We start by describing the structure of the data. The logistic regression models in Colossus assume the data can be represented in terms of trials, events, and risk factors. Similar to a Poisson model using person-years and number of events in each row, a logistic model requires some measure of the number of independent trials and events for each group. A special case is an analysis in which each row represents one trial, and either 0 or 1 events are observed. The likelihood ($L$) for a logistic model is a function of the trials ($N_i$), events ($y_i$), and the probability of a success ($p_i$) for each row, $i$. In Colossus, the log-likelihood ($Ll$) is optimized.
+We start by describing the structure of the data. The logistic regression models in `Colossus` assume the data can be represented in terms of trials, events, and risk factors. Similar to a Poisson model using person-years and number of events in each row, a logistic model requires some measure of the number of independent trials and events for each group. A special case is an analysis in which each row represents one trial, and either 0 or 1 events are observed. The likelihood ($L$) for a logistic model is a function of the trials ($N_i$), events ($y_i$), and the probability of a success ($p_i$) for each row, $i$. In `Colossus`, the log-likelihood ($Ll$) is optimized.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -42,7 +42,7 @@ $$
 $$
 </p>
 
-Similar to other survival models in Colossus, a model is written as a function of the various risk factors ($f(\vec{\beta}, \vec{x})$). This function is related to the probability through a linking function. Four options are currently available: odds, identity, complementary log, and probit linking, the first three were based on the options present in 32-bit Epicure. The last option, probit, uses the cumulative density function of the standard normal distribution ($\Phi$).
+Similar to other survival models in `Colossus`, a model is written as a function of the various risk factors ($f(\vec{\beta}, \vec{x})$). This function is related to the probability through a linking function. Four options are currently available: odds, identity, complementary log, and probit linking, the first three were based on the options present in 32-bit Epicure. The last option, probit, uses the cumulative density function of the standard normal distribution ($\Phi$).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -55,7 +55,7 @@ $$
 $$
 </p>
 
-Similar to other regression models in Colossus, the first derivative vector and second derivative matrix are calculated to optimize the model parameters.
+Similar to other regression models in `Colossus`, the first derivative vector and second derivative matrix are calculated to optimize the model parameters.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -68,7 +68,7 @@ $$
 
 ### Examples of Use
 
-The use of a logistic model in Colossus closely follows the other regression options. We start by loading and preparing the data. In this example, we will be using the Veterans' Administration Lung Cancer study data from the survival package. Every row has 1 trial and a binary event status column. Once again, our model uses a trial column, an event column, and the "risk" equation that will be converted to a probability. In this case, the number of trials is 1, so the column can be omitted, but to illustrate, we will artificially create a trial column named "trial".
+The use of a logistic model in `Colossus` closely follows the other regression options. We start by loading and preparing the data. In this example, we will be using the Veterans' Administration Lung Cancer study data from the `survival` package. Every row has 1 trial and a binary event status column. Once again, our model uses a trial column, an event column, and the "risk" equation that will be converted to a probability. In this case, the number of trials is 1, so the column can be omitted, but to illustrate, we will artificially create a trial column named "trial".
 
 ```{r, eval = TRUE}
 #
@@ -101,7 +101,7 @@ df$karno50 <- df$karno - 50
 df$trial <- 1
 ```
 
-We will start with testing the effects of cell type. By default, Colossus will always remove the first level of a factored column. We can force Colossus to include every level by defining the lowest level to an unused value, -1 in this case. This gives the same final model as if we removed the baseline and added an intercept column (CONST). In this case, the p-values are for the null hypothesis that the cell type has no effect. If we removed the baseline and added an intercept, the p-values would be for the null hypothesis that the cell type has no effect above the baseline.
+We will start with testing the effects of cell type. By default, `Colossus` will always remove the first level of a factored column. We can force `Colossus` to include every level by defining the lowest level to an unused value, -1 in this case. This gives the same final model as if we removed the baseline and added an intercept column (CONST). In this case, the p-values are for the null hypothesis that the cell type has no effect. If we removed the baseline and added an intercept, the p-values would be for the null hypothesis that the cell type has no effect above the baseline.
 
 ```{r, eval = TRUE}
 df$cell <- factor(df$cell, levels = c(-1, 0, 1, 2, 3))

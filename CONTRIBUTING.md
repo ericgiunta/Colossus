@@ -42,15 +42,20 @@ R code is formatted using the styler package, to ensure consistent style. Prior 
 styler::style_pkg()
 ```
 
+Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks to identify other potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed.
+```r
+goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
+```
+
 C++ code is checked against google's `cpplint` tool, excluding warnings for line length and function size and any warnings on `RcppExport` files.
 ```bash
 cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/RcppExports.* src/*.cpp
 cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/RcppExports.* src/*.h
 ```
 
-Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks to identify other potential issues.
-```r
-goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[7:230])
+C++ checks are also performed using the `cppcheck` tool, excluding style warnings which gave false positives. Warnings, portability, and performance checks are used to identify potential issues and mistakes. Specifically the `redundantInitialization`, `constParameter`, `redundantAssignment`, and `unreadVariable` style warnings were found to give incorrect or minor warnings.
+```bash
+cppcheck -i src/RcppExports.cpp --enable=warning,portability,performance --error-exitcode=1 --inline-suppr src
 ```
 
 

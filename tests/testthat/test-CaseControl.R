@@ -1,7 +1,7 @@
 test_that("check errors", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -29,7 +29,7 @@ test_that("check errors", {
 test_that("threshold nonfail", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -52,8 +52,8 @@ test_that("threshold nonfail", {
     devs <- c(847.13843, 619.59108, 619.59108, 1125.09712, 918.33064, 918.33064, 61.45791, 52.75154, 49.85893, 63.53347, 63.53347, 63.53347)
     free_strat <- c(113, 0, 0, 96, 0, 0, 4, 1, 0, 1, 1, 1)
     extra_bool <- "pass"
-    for (time_bool in c(T, F)) {
-      for (strat_bool in c(T, F)) {
+    for (time_bool in c(TRUE, FALSE)) {
+      for (strat_bool in c(TRUE, FALSE)) {
         if (time_bool) {
           if (strat_bool) {
             model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
@@ -81,7 +81,7 @@ test_that("threshold nonfail", {
 test_that("threshold nonfail, single", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -105,8 +105,8 @@ test_that("threshold nonfail, single", {
     free_strat <- c(113, 0, 0, 96, 0, 0, 4, 1, 0, 1, 1, 1)
 
     extra_bool <- "single"
-    for (time_bool in c(T, F)) {
-      for (strat_bool in c(T, F)) {
+    for (time_bool in c(TRUE, FALSE)) {
+      for (strat_bool in c(TRUE, FALSE)) {
         if (time_bool) {
           if (strat_bool) {
             model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
@@ -134,7 +134,7 @@ test_that("threshold nonfail, single", {
 test_that("threshold nonfail, null", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -158,8 +158,8 @@ test_that("threshold nonfail, null", {
     free_strat <- c(113, 0, 0, 96, 0, 0, 4, 1, 0, 1, 1, 1)
 
     extra_bool <- "null"
-    for (time_bool in c(T, F)) {
-      for (strat_bool in c(T, F)) {
+    for (time_bool in c(TRUE, FALSE)) {
+      for (strat_bool in c(TRUE, FALSE)) {
         if (time_bool) {
           if (strat_bool) {
             model <- CaseCon_Strata_Time(time, status, cell) ~ null()
@@ -187,7 +187,7 @@ test_that("threshold nonfail, null", {
 test_that("threshold nonfail, gradient", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -211,77 +211,69 @@ test_that("threshold nonfail, gradient", {
     free_strat <- c(113, 113, 113, 0, 0, 0, 0, 0, 0)
     i_index <- 1
     extra_bool <- "gradient"
-    for (time_bool in c(T)) {
-      for (strat_bool in c(T)) {
-        model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
-        for (thres in c(0, 40, 100)) {
-          for (method in c("momentum", "adadelta", "adam")) {
-            gradient_control <- list()
-            gradient_control[[method]] <- TRUE
-            e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
-            #
-            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
-            expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
-            i_index <- i_index + 1
-          }
-        }
+    time_bool <- TRUE
+    strat_bool <- TRUE
+    model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
+    for (thres in c(0, 40, 100)) {
+      for (method in c("momentum", "adadelta", "adam")) {
+        gradient_control <- list()
+        gradient_control[[method]] <- TRUE
+        e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+        #
+        expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+        expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+        i_index <- i_index + 1
       }
     }
     devs <- c(3112.6391, 1139.7693, 1603.9994, 961.6711, 918.3317, 928.9564, 961.6711, 918.3317, 928.9564)
     free_strat <- c(96, 96, 96, 0, 0, 0, 0, 0, 0)
     i_index <- 1
-    for (time_bool in c(T)) {
-      for (strat_bool in c(F)) {
-        model <- CaseCon_Time(time, status) ~ loglinear(karno50, trt)
-        for (thres in c(0, 40, 100)) {
-          for (method in c("momentum", "adadelta", "adam")) {
-            gradient_control <- list()
-            gradient_control[[method]] <- TRUE
-            e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
-            #
-            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
-            expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
-            i_index <- i_index + 1
-          }
-        }
+    time_bool <- TRUE
+    strat_bool <- FALSE
+    model <- CaseCon_Time(time, status) ~ loglinear(karno50, trt)
+    for (thres in c(0, 40, 100)) {
+      for (method in c("momentum", "adadelta", "adam")) {
+        gradient_control <- list()
+        gradient_control[[method]] <- TRUE
+        e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+        #
+        expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+        expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+        i_index <- i_index + 1
       }
     }
     devs <- c(68.68225, 60.01931, 63.52628, 57.36262, 52.81594, 53.76418, 99.15252, 49.86315, 50.35396)
     free_strat <- c(4, 4, 4, 1, 1, 1, 0, 0, 0)
     i_index <- 1
-    for (time_bool in c(F)) {
-      for (strat_bool in c(T)) {
-        model <- CaseCon_Strata(status, cell) ~ loglinear(karno50, trt)
-        for (thres in c(0, 40, 100)) {
-          for (method in c("momentum", "adadelta", "adam")) {
-            gradient_control <- list()
-            gradient_control[[method]] <- TRUE
-            e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
-            #
-            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
-            expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
-            i_index <- i_index + 1
-          }
-        }
+    time_bool <- FALSE
+    strat_bool <- TRUE
+    model <- CaseCon_Strata(status, cell) ~ loglinear(karno50, trt)
+    for (thres in c(0, 40, 100)) {
+      for (method in c("momentum", "adadelta", "adam")) {
+        gradient_control <- list()
+        gradient_control[[method]] <- TRUE
+        e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+        #
+        expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+        expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+        i_index <- i_index + 1
       }
     }
     devs <- c(69.95769, 62.18752, 63.28939, 113.10995, 69.95769, 62.18752, 63.28939, 113.10995, 69.95769, 62.18752, 63.28939, 113.10995)
     free_strat <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
     i_index <- 1
-    for (time_bool in c(F)) {
-      for (strat_bool in c(F)) {
-        model <- CaseCon(status) ~ loglinear(karno50, trt)
-        for (thres in c(0, 40, 100)) {
-          for (method in c("momentum", "adadelta", "adam", "none")) {
-            gradient_control <- list()
-            gradient_control[[method]] <- TRUE
-            e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
-            #
-            expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
-            expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
-            i_index <- i_index + 1
-          }
-        }
+    time_bool <- FALSE
+    strat_bool <- FALSE
+    model <- CaseCon(status) ~ loglinear(karno50, trt)
+    for (thres in c(0, 40, 100)) {
+      for (method in c("momentum", "adadelta", "adam", "none")) {
+        gradient_control <- list()
+        gradient_control[[method]] <- TRUE
+        e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n)
+        #
+        expect_equal(e$Deviance, devs[i_index], tolerance = 1e-3)
+        expect_equal(e$FreeSets, free_strat[i_index], tolerance = 1e-3)
+        i_index <- i_index + 1
       }
     }
   }
@@ -290,7 +282,7 @@ test_that("threshold nonfail, gradient", {
 test_that("information matrix calculations", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -315,16 +307,6 @@ test_that("information matrix calculations", {
     model2 <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
     model3 <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50) + plinear(trt)
 
-
-    #    model0_sdo <- c(0.01609599, 0.54817862, 0.02048499, 0.57345304, 0.02315814, 0.73703345)
-    #    model1_sdo <- c(0.01374865, 0.42821895, 0.02048498, 0.39593058, 0.02315809, 0.51108894)
-    #    model2_sdo <- c(0.004699080, 0.137902029, 0.005553695, 0.201870857, 0.005553695, 0.201870857)
-    #    model3_sdo <- c(0.004420340, 0.176224467, 0.005553695, 0.160828177, 0.005553695, 0.160828177)
-    #    model0_sde <- c(0.01609599, 0.54817862, 0.02048499, 0.57345304, 0.02315814, 0.73703345)
-    #    model1_sde <- c(0.01405449, 0.47879518, 0.02048499, 0.39593268, 0.02315808, 0.51107695)
-    #    model2_sde <- c(0.004699080, 0.137902029, 0.005553695, 0.201870857, 0.005553695, 0.201870857)
-    #    model3_sde <- c(0.004250846, 0.148569581, 0.005553695, 0.160827320, 0.005553695, 0.160827320)
-
     model0_sdo <- c(0.01403495, 0.49013322, 0.02048067, 0.57330581, 0.02315670, 0.73698750)
     model0_sde <- c(0.01403495, 0.49013322, 0.02048067, 0.57330581, 0.02315670, 0.73698750)
     model1_sdo <- c(0.01376595, 0.43243431, 0.02048033, 0.39577180, 0.02315695, 0.51160976)
@@ -337,29 +319,29 @@ test_that("information matrix calculations", {
 
     i_index <- 1
     for (thres in c(0, 40, 100)) {
-      eo <- CaseControlRun(model0, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
-      ee <- CaseControlRun(model0, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+      eo <- CaseControlRun(model0, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = TRUE)
+      ee <- CaseControlRun(model0, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = FALSE)
       expect_equal(eo$Standard_Deviation[1], model0_sdo[i_index], tolerance = 1e-3)
       expect_equal(eo$Standard_Deviation[2], model0_sdo[i_index + 1], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[1], model0_sde[i_index], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[2], model0_sde[i_index + 1], tolerance = 1e-4)
       #
-      eo <- CaseControlRun(model1, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
-      ee <- CaseControlRun(model1, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+      eo <- CaseControlRun(model1, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = TRUE)
+      ee <- CaseControlRun(model1, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = FALSE)
       expect_equal(eo$Standard_Deviation[1], model1_sdo[i_index], tolerance = 1e-4)
       expect_equal(eo$Standard_Deviation[2], model1_sdo[i_index + 1], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[1], model1_sde[i_index], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[2], model1_sde[i_index + 1], tolerance = 1e-4)
       #
-      eo <- CaseControlRun(model2, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
-      ee <- CaseControlRun(model2, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+      eo <- CaseControlRun(model2, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = TRUE)
+      ee <- CaseControlRun(model2, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = FALSE)
       expect_equal(eo$Standard_Deviation[1], model2_sdo[i_index], tolerance = 1e-4)
       expect_equal(eo$Standard_Deviation[2], model2_sdo[i_index + 1], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[1], model2_sde[i_index], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[2], model2_sde[i_index + 1], tolerance = 1e-4)
       #
-      eo <- CaseControlRun(model3, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = T)
-      ee <- CaseControlRun(model3, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = F)
+      eo <- CaseControlRun(model3, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = TRUE)
+      ee <- CaseControlRun(model3, df, control = control, conditional_threshold = thres, a_n = a_n, observed_info = FALSE)
       expect_equal(eo$Standard_Deviation[1], model3_sdo[i_index], tolerance = 1e-4)
       expect_equal(eo$Standard_Deviation[2], model3_sdo[i_index + 1], tolerance = 1e-4)
       expect_equal(ee$Standard_Deviation[1], model3_sde[i_index], tolerance = 1e-4)

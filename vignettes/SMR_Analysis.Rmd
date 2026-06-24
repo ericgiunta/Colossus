@@ -40,7 +40,7 @@ $$
 $$
 </p>
 
-For this analysis, we will use the veteran lung cancer trial data from the survival package. We will treat events to be status equal to 2, scale the survival time to be per 100 days, and assume every row has an expected event rate of 0.5, roughly double the average rate in the data. In practice, this could be a constant population average or a row-specific rate taken from mapping a table of external events onto the data.
+For this analysis, we will use the veteran lung cancer trial data from the `survival` package. We will treat events to be status equal to 2, scale the survival time to be per 100 days, and assume every row has an expected event rate of 0.5, roughly double the average rate in the data. In practice, this could be a constant population average or a row-specific rate taken from mapping a table of external events onto the data.
 
 ```{r, eval=TRUE}
 if (system.file(package = "survival") != "") {
