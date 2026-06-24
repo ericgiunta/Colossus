@@ -1,7 +1,7 @@
 test_that("Checking basic function", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno
@@ -22,9 +22,9 @@ test_that("Checking basic function", {
     expect_false(isTRUE(all.equal(res$First_Der, res_max$First_Der)))
     expect_false(isTRUE(all.equal(res$First_Der, res_mean$First_Der)))
     #
-    expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0)))
-    expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control, cons_mat = cons_mat0, cons_vec = c(0.0)))
-    expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "mean", control = control, cons_mat = cons_mat0, cons_vec = c(0.0)))
+    expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0))
+    expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control, cons_mat = cons_mat0, cons_vec = 0.0))
+    expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "mean", control = control, cons_mat = cons_mat0, cons_vec = 0.0))
     #
     expect_no_error(res_max <- PoisRun(Pois(time, status) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
     expect_no_error(res_max <- CaseControlRun(CaseCon(status) ~ loglinear(karno50, trt), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
@@ -36,7 +36,7 @@ test_that("Checking basic function", {
 test_that("Checking values converted back", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno
@@ -70,9 +70,9 @@ test_that("Checking values converted back", {
       expect_equal(res$Covariance, res_max$Covariance, tolerance = 1e-2)
       expect_equal(res$Covariance, res_mean$Covariance, tolerance = 1e-2)
       #
-      res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, control = control, cons_mat = cons_mat0, cons_vec = c(0.0))
-      res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, norm = "max", control = control, cons_mat = cons_mat0, cons_vec = c(0.0))
-      res_mean <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, norm = "mean", control = control, cons_mat = cons_mat0, cons_vec = c(0.0))
+      res <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, control = control, cons_mat = cons_mat0, cons_vec = 0.0)
+      res_max <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, norm = "max", control = control, cons_mat = cons_mat0, cons_vec = 0.0)
+      res_mean <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = a_n, norm = "mean", control = control, cons_mat = cons_mat0, cons_vec = 0.0)
       #
       expect_equal(res$constraint_matrix, res_max$constraint_matrix, tolerance = 1e-2)
       expect_equal(res$constraint_matrix, res_mean$constraint_matrix, tolerance = 1e-2)
@@ -96,7 +96,7 @@ test_that("Checking values converted back", {
 test_that("Checking combination with gradient/single/null", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno
@@ -119,7 +119,7 @@ test_that("Checking combination with gradient/single/null", {
 test_that("Checking errors and warnings", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno
@@ -135,18 +135,16 @@ test_that("Checking errors and warnings", {
 
     df$trt_mean <- df$trt - mean(df$trt)
     #
-    # options(warn = -1)
     expect_no_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "max", control = control))
     expect_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "bad", control = control))
     expect_error(PoisRun(Pois(time, status) ~ loglinear(karno, trt_mean), df, a_n = c(-0.1, 0.1), norm = "bad", control = control))
-    # options(warn = 0)
   }
 })
 
 test_that("Checking likelihood bound", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
     # Make the same adjustments as Epicure example 6.5
     karno <- df$karno
@@ -157,7 +155,7 @@ test_that("Checking likelihood bound", {
     cell_lvl <- c("large", "squamous", "smallcell", "adeno")
     df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
     control <- list(ncores = 1, verbose = 4)
-    zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+    zz <- file(paste0(tempfile(), ".txt"), open = "wt")
     sink(zz)
     sink(zz, type = "message")
     #

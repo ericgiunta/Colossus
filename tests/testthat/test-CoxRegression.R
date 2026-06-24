@@ -4,8 +4,8 @@ test_that("Coxph time column missing", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_error(CoxRun(Cox(a_bad, b, c) ~ loglinear(d, 0) + multiplicative(), df, a_n = a_n, control = control))
 })
@@ -28,8 +28,8 @@ test_that("Coxph_strata time column missing", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 0, 0, 1, 0, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_error(CoxRun(Cox_Strata(a_bad, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
 })
@@ -40,8 +40,8 @@ test_that("Coxph_strata no events", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 0, 0, 1, 0, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_error(CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
   #
@@ -56,9 +56,7 @@ test_that("Coxph_strata no events in strata", {
   keep_constant <- c(0, 0)
   a_n <- c(-0.1, 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  # options(warn = -1)
   expect_no_error(CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
-  # options(warn = 0)
 })
 test_that("Coxph_strata no strata", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -67,8 +65,8 @@ test_that("Coxph_strata no strata", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 0, 0, 1, 0, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_error(CoxRun(Cox_Strata(a, b, c, e_bad) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
 })
@@ -79,8 +77,8 @@ test_that("Coxph_strata strata with no error", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 0, 0, 1, 0, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 5, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_no_error(e0 <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
   expect_no_error(e1 <- CoxRun(Cox_Strata(a, b, c, c(e)) ~ loglinear(d, 0) + loglinear(d, 1) + multiplicative(), df, a_n = a_n, control = control))
@@ -108,8 +106,8 @@ test_that("Coxph null no events", {
 #
 test_that("Coxph dose list", {
   fname <- "dose.csv"
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   a_n <- c(1.0, -0.09, -0.09, 1.0, -0.05, 1.1, 2.8, 0.1, 1.4, 0.3, 1.0, 1.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -119,8 +117,8 @@ test_that("Coxph dose list", {
 #
 test_that("Coxph fixed intercept", {
   fname <- "dose.csv"
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(0, 0, 1, 0, 1)
   a_n <- c(-0.1, 0.1, -1, 0.1, -1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -129,10 +127,10 @@ test_that("Coxph fixed intercept", {
 
 test_that("Coxph loglin_M Strata", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
-  keep_constant <- c(0)
-  a_n <- c(0.01)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
+  keep_constant <- 0
+  a_n <- 0.01
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRun(Cox_Strata(t0, t1, lung, fac) ~ loglinear(dose, 0) + multiplicative(), df, a_n = a_n, control = control)
   expect_equal(e$beta_0, c(-0.106), tolerance = 1e-2)
@@ -143,8 +141,8 @@ test_that("Coxph loglin_M Strata", {
 })
 test_that("Coxph loglin_M Single", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -153,8 +151,8 @@ test_that("Coxph loglin_M Single", {
 })
 test_that("Coxph loglin_M Null", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -164,8 +162,8 @@ test_that("Coxph loglin_M Null", {
 #
 test_that("Coxph loglin_M CENSOR", {
   fname <- "ll_cens_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(0, 0)
   a_n <- c(0.01, 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -175,8 +173,8 @@ test_that("Coxph loglin_M CENSOR", {
 
 test_that("Coxph censoring weight", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -197,8 +195,8 @@ test_that("Coxph censoring weight", {
 
 test_that("dose nondose combinations", {
   fname <- "dose.csv"
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   #
   df$dose2 <- df$dose * df$dose
   df$a <- df$dose + 0.001
@@ -207,9 +205,7 @@ test_that("dose nondose combinations", {
   keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   a_n <- c(1.0, -0.1, -0.1, 1, 0.1, 1, 2, 0.3, 1.5, 0.2, 0.7, 1, 1, 1, 1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 2, "epsilon" = 2.0, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  # options(warn = -1)
   expect_no_error(CoxRun(Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_dose(dose, 0) + quad(dose, 0) + step_dose(dose, 0) + lin_quad_dose(dose, 0) + lin_exp_dose(dose, 0) + loglinear(b, 1) + linear(b, 1) + plinear(b, 1) + additive(), df, a_n = a_n, keep_constant = keep_constant, control = control))
-  # options(warn = 0)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }

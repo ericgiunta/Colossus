@@ -1,7 +1,7 @@
 test_that("Coxph strata_basic_single_CR_null log_bound", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   keep_constant <- c(1, 0)
@@ -38,7 +38,7 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
   expect_no_error(LikelihoodBound(coxres_s, df, curve_control, control = control))
   expect_no_error(LikelihoodBound(coxres_c, df, curve_control, control = control))
   expect_no_error(LikelihoodBound(coxres_sc, df, curve_control, control = control))
-  zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+  zz <- file(paste0(tempfile(), ".txt"), open = "wt")
   sink(zz)
   sink(zz, type = "message")
   print(e)
@@ -56,7 +56,7 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
     expect_no_error(LikelihoodBound(coxres_s, df, curve_control, control = control))
     expect_no_error(LikelihoodBound(coxres_c, df, curve_control, control = control))
     expect_no_error(LikelihoodBound(coxres_sc, df, curve_control, control = control))
-    zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+    zz <- file(paste0(tempfile(), ".txt"), open = "wt")
     sink(zz)
     sink(zz, type = "message")
     print(e)
@@ -86,8 +86,8 @@ test_that("Coxph strata_basic_single_CR_null log_bound", {
 })
 test_that("Poisson strata_single log_bound", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$pyr <- df$t1 - df$t0
@@ -123,7 +123,7 @@ test_that("Poisson strata_single log_bound", {
     curve_control <- list("manual" = m)
     expect_no_error(LikelihoodBound(poisres, df, curve_control, control = control, bisect = FALSE))
     expect_no_error(e <- LikelihoodBound(poisres_s, df, curve_control, control = control))
-    zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+    zz <- file(paste0(tempfile(), ".txt"), open = "wt")
     sink(zz)
     sink(zz, type = "message")
     print(e)
@@ -231,7 +231,6 @@ test_that("Coxph, lin both", {
   fname <- "base_example.csv"
   df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE)
   keep_constant <- c(0, 0, 0)
-  # a_n <- c(0.2462, 5.020, -0.5909)
   a_n <- c(-1.493177, 5.020007, 1.438377)
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
@@ -253,9 +252,7 @@ test_that("Coxph, lin both", {
   alpha_list <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 5, "epsilon" = 1e-4, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)
   v_lower <- c(4.98213, 4.939947, 4.901443, 4.883815, 4.825766, 4.788947, 4.756168, 4.717337, 4.690578)
-  # c(4.97252283668956, 4.9349945105648, 4.89804715665926, 4.88084912208962, 4.82369762341988, 4.78721237571926, 4.7546530342797, 4.71603055250556, 4.68938287303871)
   v_upper <- c(5.058015, 5.100656, 5.139868, 5.157913, 5.217754, 5.256045, 5.290357, 5.331277, 5.359649)
-  # c(5.06762896572498, 5.10561529697034, 5.14327069556976, 5.16088604918614, 5.21982880792394, 5.2577860471215, 5.29187760184654, 5.33258757872226, 5.36084782852899)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
@@ -268,9 +265,7 @@ test_that("Coxph, lin both", {
   }
 
   v_lower <- c(1.174142, 0.8706736, 0.565792, 0.4011414, -0.2129912, 0.2830731, -0.07262359, -0.1306881, 0.3065214)
-  # c(-0.643365949558998, -0.677336655540846, -0.706075250211414, -0.718165409196492, -0.753647332793819, -0.773208334303991, -0.789018704115451, -0.806061085000755, -0.816875114954096)
   v_upper <- c(1.702503, 2.0018595, 2.283068, 2.4149146, 2.8653084, 3.1659745, 3.44475771, 3.7898521, 4.0379529)
-  # c(-0.521472203247917, -0.444964438813732, -0.327862977142017, -0.235044092073815, 2.91573713669059, 3.21014641617297, 3.48490803194128, 3.82648584413642, 4.07272009904963)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     alpha <- alpha_list[alpha_i]
     a_n <- c(-1.493177, 5.020007, 1.438377)
@@ -278,7 +273,6 @@ test_that("Coxph, lin both", {
     curve_control <- list("alpha" = alpha, "para_number" = 3, "manual" = TRUE, "maxstep" = 100)
     e <- LikelihoodBound(coxres, df, curve_control, control = control)
     a <- e$Parameter_Limits
-    # expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)
   }
 })
@@ -308,7 +302,6 @@ test_that("Coxph, lin both, curve search", {
   fname <- "base_example.csv"
   df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE)
   keep_constant <- c(0, 0, 0)
-  # a_n <- c(0.2462, 5.020, -0.5909)
   a_n <- c(-1.493177, 5.020007, 1.438377)
   model_control <- list("basic" = FALSE, "maxstep" = 100, "log_bound" = FALSE, "alpha" = 0.005)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-3, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow", "guesses" = 10)

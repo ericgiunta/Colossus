@@ -40,7 +40,7 @@
 
 # Colossus 1.1.1
 
-* ggplot2 no longer required, now optional
+* `ggplot2` no longer required, now optional
 * additional testing added for coverage
 * default Makevars added via bash script
 
@@ -59,7 +59,7 @@
 
 * Cox plotting functions now return the tables used for plots (only last plot table returned)
 * Plotting vignette updated to include more details and plots
-* survival package listed as suggested for plotting vignette
+* `survival` package listed as suggested for plotting vignette
 
 # Colossus 1.1.4.2
 
@@ -161,7 +161,7 @@
 
 * Fixed bug in second derivative risk calculations, wrong correction to multi-term risk values.
 * Improved results printing. Basic regression results only print term number column when multiple terms used. Likelihood boundary results now print the limit and score when negative limit hit.
-* ncores option used for Colossus calculations now also applied to data.table operations. Previous number reset after calculations, may need to be manually reset if the regression hits an error.
+* ncores option used for Colossus calculations now also applied to `data.table` operations. Previous number reset after calculations, may need to be manually reset if the regression hits an error.
 
 # Colossus 1.4.7
 
@@ -213,4 +213,10 @@
 
 * Patched bug in model control options being passed between standard regressions and logarithm based boundary functions
 * Testing on bisection based logarithm boundaries using gradient descent optimization.
+
+# Colossus 1.5.5
+
+* Added probit linking function for logistic regression
+* New linking function is added to testing and vignette
+* Starting update for OpenSSF best practices badge, various changes to meet `checkcpp` and `goodpractice` outputs
 

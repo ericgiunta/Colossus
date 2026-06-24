@@ -6,10 +6,10 @@ test_that("Basic formula and regression passes and fails", {
   )
   model <- logit(b, a) ~ loglinear(d)
   e <- get_form(model, df)$model
-  expect_equal(e$trials, "b")
+  expect_identical(e$trials, "b")
   model <- logit(a) ~ loglinear(d)
   e <- get_form(model, df)$model
-  expect_equal(e$trials, "CONST")
+  expect_identical(e$trials, "CONST")
   expect_no_error(LogisticRun(model, df, ncores = 1))
   expect_no_error(LogisticRun(model, df, ncores = 1, single = TRUE))
   expect_no_error(LogisticRun(model, df, ncores = 1, observed_info = TRUE))
@@ -22,13 +22,13 @@ test_that("Basic formula and regression passes and fails", {
   )
   model <- logit(b, a) ~ loglinear(d)
   expect_error(get_form(model, df))
-  expect_error(LogisticRun(c(0), df, control = control, a_n = a_n))
+  expect_error(LogisticRun(0, df, control = control, a_n = a_n))
 })
 
 test_that("basic regression with link non-fail", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")
-    veteran %>% setDT()
+    veteran |> setDT()
     df <- copy(veteran)
 
     # Make the same adjustments as Epicure example 6.5
@@ -46,24 +46,27 @@ test_that("basic regression with link non-fail", {
 
     control <- list(verbose = 0, step_max = 0.1, maxiter = 100, ncores = 1)
     #
-    zz <- file(paste(tempfile(), "temp.txt", sep = ""), open = "wt")
+    zz <- file(paste0(tempfile(), "temp.txt"), open = "wt")
     sink(zz)
     sink(zz, type = "message")
     #
     def_rate <- log(sum(df$status) / length(df$status))
-    a_n <- c(0.001, -0.95, def_rate)
+    a_n <- c(0.001, -0.001, def_rate)
     model <- logit(status) ~ plinear(karno50) + loglinear(trt, CONST)
     e <- LogisticRun(model, df, control = control, a_n = a_n, verbose = 0)
-    expect_equal(e$LogLik, -44.3606, tolerance = 1e-3)
+    expect_equal(e$LogLik, -44.50846, tolerance = 1e-3)
     expect_no_error(print(e))
     e <- LogisticRun(model, df, control = control, link = "odds", a_n = a_n)
-    expect_equal(e$LogLik, -44.3606, tolerance = 1e-3)
+    expect_equal(e$LogLik, -44.50846, tolerance = 1e-3)
     expect_no_error(print(e))
     e <- LogisticRun(model, df, control = control, link = "ident", a_n = a_n)
-    expect_equal(e$LogLik, -74.62735, tolerance = 1e-3)
+    expect_equal(e$LogLik, -32.48003, tolerance = 1e-3)
     expect_no_error(print(e))
     e <- LogisticRun(model, df, control = control, link = "loglink", a_n = a_n)
-    expect_equal(e$LogLik, -91.35022, tolerance = 1e-3)
+    expect_equal(e$LogLik, -97.8412, tolerance = 1e-3)
+    expect_no_error(print(e))
+    e <- LogisticRun(model, df, control = control, link = "probit", a_n = a_n)
+    expect_equal(e$LogLik, -31.06014, tolerance = 1e-3)
     expect_no_error(print(e))
     sink(type = "message")
     sink(NULL)
@@ -83,10 +86,10 @@ test_that("epicure check", {
   df <- fread("sholom.csv", nThread = min(c(detectCores(), 2)), data.table = TRUE)
 
   control <- list(verbose = 0, ncores = 1)
-  a_n <- c(0.4)
+  a_n <- 0.4
   model <- logit(n, x) ~ linear(CONST)
   e <- LogisticRun(model, df, control = control, a_n = a_n)
-  expect_equal(e$beta_0, c(0.1221859), tolerance = 1e-3)
+  expect_equal(e$beta_0, 0.1221859, tolerance = 1e-3)
 
   a_n <- c(0.12, 0.1, 0.1)
   model <- logit(n, x) ~ linear(CONST, factor(alcohol))
@@ -98,10 +101,10 @@ test_that("epicure check", {
   e <- LogisticRun(model, df, control = control, a_n = a_n)
   expect_equal(e$beta_0, c(0.09881444, 0.12444199, 1.13051162), tolerance = 1e-3)
 
-  a_n <- c(2)
+  a_n <- 2
   model <- logit(n, x) ~ linear(CONST)
   e <- LogisticRun(model, df, control = control, a_n = a_n, link = "loglink")
-  expect_equal(e$beta_0, c(2.217405), tolerance = 1e-3)
+  expect_equal(e$beta_0, 2.217405, tolerance = 1e-3)
 
   a_n <- c(2, 0.1, 0.7)
   model <- logit(n, x) ~ linear(CONST, factor(alcohol))

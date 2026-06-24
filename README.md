@@ -16,8 +16,8 @@ developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.re
 [![](https://cranlogs.r-pkg.org/badges/grand-total/Colossus)](https://CRAN.R-project.org/package=Colossus)
 <!-- badges: end -->
 
-The goal of Colossus is to provide an open-source means of performing
-survival analysis on big data with complex risk formulas. Colossus is
+The goal of `Colossus` is to provide an open-source means of performing
+survival analysis on big data with complex risk formulas. `Colossus` is
 designed to perform Cox Proportional Hazard regressions and Poisson
 regressions on datasets loaded as data.tables or data.frames. The risk
 models allowed are sums or products of linear, log-linear, or several
@@ -25,12 +25,12 @@ other radiation dose response formulas highlighted in the vignettes.
 Additional plotting capabilities are available.
 
 By default, a fully portable version of the code is compiled, which does
-not support OpenMP on every system. Note that Colossus requires OpenMP
+not support OpenMP on every system. Note that `Colossus` requires OpenMP
 support to perform parallel calculations. The environment variable
 “R_COLOSSUS_NOT_CRAN” is checked to determine if OpenMP should be
 disabled for linux compiling with clang. The number of cores is set to 1
 if the environment variable is empty, the operating system is detected
-as linux, and the default compiler or R compiler is clang. Colossus
+as linux, and the default compiler or R compiler is clang. `Colossus`
 testing checks for the “NOT_CRAN” variable to determine if additional
 tests should be run. Setting “NOT_CRAN” to “false” will disable the
 longer tests. Currently, OpenMP support is not configured for linux
@@ -97,6 +97,6 @@ print(e)
 #> Last iteration improved the log-likelihood by: 9.960e-05
 #> Analysis converged
 #> Records Used: 6, Records Removed: 1
-#> Run finished in 0.205 seconds
+#> Run finished in 0.277 seconds
 #> |--------------------------------------------------------------------------------|
 ```

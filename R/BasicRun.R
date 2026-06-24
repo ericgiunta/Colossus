@@ -671,7 +671,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     model_control["logit_odds"] <- TRUE
   } else {
     # "logit_odds", "logit_ident", "logit_loglink"
-    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "odds", "ident", "loglink", "id", "odd", "log")
+    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
     link <- tolower(link)
     link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
     if (link %in% acceptable) {
@@ -681,6 +681,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
         model_control["logit_ident"] <- TRUE
       } else if (link %in% c("logit_loglink", "loglink", "log")) {
         model_control["logit_loglink"] <- TRUE
+      } else if (link %in% c("logit_probit", "probit")) {
+        model_control["logit_probit"] <- TRUE
       } else {
         stop(gettextf(
           "Error: Argument '%s' not matched to set link options",
@@ -708,7 +710,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info",
-    "logit_odds", "logit_ident", "logit_loglink"
+    "logit_odds", "logit_ident", "logit_loglink", "logit_probit"
   )
   for (nm in control_def_names) {
     if (!(nm %in% names(model_control))) {

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,7 +31,7 @@
     <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">`Colossus` Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul></li>
@@ -254,6 +254,24 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.5.2" id="colossus-152">Colossus 1.5.2<a class="anchor" aria-label="anchor" href="#colossus-152"></a></h2>
 <ul><li>Added likelihood-based confidence intervals for logistic regression</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.3" id="colossus-153">Colossus 1.5.3<a class="anchor" aria-label="anchor" href="#colossus-153"></a></h2>
+<ul><li>Added options to print multiple-realizations results</li>
+<li>Monte Carlo Maximum Likelihood results are printed like normal regressions, while also listing the number of realizations used.</li>
+<li>Frequentist Model Averaging results print the general model information and number of realizations, and details on how to access the realization specific results.</li>
+<li>Multiple-realization functions can now be used with the non-derivative option to calculate the log-likelihood at a single point, without calculating derivatives.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.4" id="colossus-154">Colossus 1.5.4<a class="anchor" aria-label="anchor" href="#colossus-154"></a></h2>
+<ul><li>Patched bug in model control options being passed between standard regressions and logarithm based boundary functions</li>
+<li>Testing on bisection based logarithm boundaries using gradient descent optimization.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.5.5" id="colossus-155">Colossus 1.5.5<a class="anchor" aria-label="anchor" href="#colossus-155"></a></h2>
+<ul><li>Added probit linking function for logistic regression</li>
+<li>New linking function is added to testing and vignette</li>
+<li>Starting update for OpenSSF best practices badge</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

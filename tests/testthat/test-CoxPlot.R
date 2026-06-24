@@ -8,8 +8,8 @@ test_that("Coxph plot no type", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   plot_options <- list("martingale" = FALSE, "surv_curv" = FALSE, "studyid" = "a", "verbose" = 0)
@@ -23,14 +23,12 @@ test_that("Coxph plot strata col not in data", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
-  # plot_options <- list("type" = c("surv", "run"), "martingale" = FALSE, "surv_curv" = FALSE, "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
   plot_options <- list(fname = "run", "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
   if (system.file(package = "ggplot2") != "") {
-    # expect_error(plot(e, df, plot_options))
     expect_error(plotSurvival(e, df, plot_options))
   }
 })
@@ -40,14 +38,12 @@ test_that("Coxph plot strata col not given", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
-  # plot_options <- list("type" = c("surv", "run"), "martingale" = FALSE, "surv_curv" = FALSE, "strat_haz" = TRUE, "studyid" = "a", "verbose" = 0)
   plot_options <- list(fname = "run", "strat_haz" = TRUE, "studyid" = "a", "verbose" = 0)
   if (system.file(package = "ggplot2") != "") {
-    # expect_error(plot(e, df, plot_options))
     expect_error(plotSurvival(e, df, plot_options))
   }
 })
@@ -57,8 +53,8 @@ test_that("Coxph plot martingale dose col not in data", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   plot_options <- list("fname" = "run", "martingale" = TRUE, "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
@@ -72,8 +68,8 @@ test_that("Coxph plot martingale dose col not given", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   plot_options <- list("fname" = "run", "martingale" = TRUE, "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
@@ -87,14 +83,12 @@ test_that("Coxph plot Survival ID col not in data", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  # plot_options <- list("type" = c("surv", "run"), "martingale" = FALSE, "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0, "km" = TRUE)
   plot_options <- list(fname = "run", "studyid" = "f", "km" = TRUE, "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    # expect_error(plot(e, df, plot_options))
     expect_error(plotSurvival(e, df, plot_options))
   }
 })
@@ -104,13 +98,12 @@ test_that("Coxph plot Survival ID col not given", {
   c <- c(0, 1, 0, 0, 0, 1, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   plot_options <- list(fname = "run", "martingale" = FALSE, "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "verbose" = 0, "km" = TRUE)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    # expect_error(plot(e, df, plot_options))
     expect_error(plotSurvival(e, df, plot_options))
   }
 })
@@ -121,18 +114,16 @@ test_that("Coxph risk too few unique values", {
   c <- c(1, 0, 1, 0, 1, 0, 0)
   d <- c(3, 1, 3, 1, 2, 3, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "a", "verbose" = 0)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   d <- c(3, 3, 3, 3, 3, 3, 3)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  # options(warn = -1)
   if (system.file(package = "ggplot2") != "") {
     expect_error(plotRisk(e, df, plot_options))
   }
-  # options(warn = 0)
 })
 test_that("Coxph risk plotting above discrete step number limit", {
   a <- rep(c(0, 1, 2, 3, 4, 5, 6), 20)
@@ -141,16 +132,16 @@ test_that("Coxph risk plotting above discrete step number limit", {
   set.seed(3742)
   d <- runif(length(a))
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "a", "verbose" = 0)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_no_error(plotRisk(e, df, "fname" = paste(tempfile(), "run", sep = ""), studyid = "a", verbose = 0))
-    expect_no_error(plotRisk(e, df, "fname" = paste(tempfile(), "run", sep = ""), studyid = "a", verbose = 0, a_n = c(-2.0)))
-    expect_error(plotRisk(e, df, "fname" = paste(tempfile(), "run", sep = ""), studyid = "a", bad = 0))
-    expect_error(plotRisk(e, df, plot_options = c(0))$d)
+    expect_no_error(plotRisk(e, df, "fname" = paste0(tempfile(), "run"), studyid = "a", verbose = 0))
+    expect_no_error(plotRisk(e, df, "fname" = paste0(tempfile(), "run"), studyid = "a", verbose = 0, a_n = -2.0))
+    expect_error(plotRisk(e, df, "fname" = paste0(tempfile(), "run"), studyid = "a", bad = 0))
+    expect_error(plotRisk(e, df, plot_options = 0)$d)
     expect_no_error(ep <- plotRisk(e, df, plot_options)$d)
     expect_equal(ep$y[100], 0.9938494, tolerance = 1e-4)
   }
@@ -162,13 +153,12 @@ test_that("Coxph plot no error", {
   c <- c(1, 0, 1, 0, 1, 0, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list(fname = paste(tempfile(), "run", sep = ""), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0)
+  plot_options <- list(fname = paste0(tempfile(), "run"), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(tend = b, event = c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    # expect_no_error(ep <- plot(e, df, plot_options, verbose = 0)$standard)
     expect_error(ep <- plotSurvival(e, df, plot_options, verbose = 0, wrong_parameter = "really bad"))
     expect_no_error(ep <- plotSurvival(e, df, plot_options, verbose = 0)$standard)
     expect_equal(ep$h, c(0.0000000, 0.2551694, 0.3987517), tolerance = 1e-4)
@@ -181,13 +171,12 @@ test_that("Coxph plot stratafied no error", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 0, 0, 1, 0, 1)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list(fname = paste(tempfile(), "run", sep = ""), "surv_curv" = TRUE, "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
+  plot_options <- list(fname = paste0(tempfile(), "run"), "surv_curv" = TRUE, "strat_haz" = TRUE, "strat_col" = "e", "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    # expect_no_error(ep <- plot(e, df, plot_options)$stratified_survival)
     expect_no_error(ep <- plotSurvival(e, df, plot_options, verbose = 0)$stratified_survival)
     expect_equal(ep$surv[2], 0.5999075, tolerance = 1e-4)
   }
@@ -199,15 +188,15 @@ test_that("Coxph risk no error", {
   c <- c(1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "a", "verbose" = 0)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(ep <- plotRisk(e, df, plot_options)$d)
     expect_equal(ep$y[7], 0.5488116, tolerance = 1e-4)
-    expect_equal(names(ep), c("x", "y"))
+    expect_named(ep, c("x", "y"))
     #
     expect_no_error(ep <- plotRisk(e, df, plot_options, boundary = 1.95)$d)
     expect_equal(ep$"y:lower"[7], 0.01537157, tolerance = 1e-4)
@@ -222,10 +211,10 @@ test_that("Coxph risk no error, with interactions", {
   d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
   e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
+  keep_constant <- 0
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "a", "verbose" = 0)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "studyid" = "a", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max")
   if (system.file(package = "ggplot2") != "") {
     df_test <- data.table(
@@ -242,16 +231,16 @@ test_that("Coxph risk no error, with interactions", {
 
 test_that("Coxph schoenfeld no error", {
   fname <- "MULTI_COV.csv"
-  colTypes <- c("double", "double", "integer", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "integer", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   keep_constant <- c(0, 0)
   a_n <- c(0.01, -15)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   setDTthreads(throttle = 8000) # manually setting the throttle higher, so that the filtering doesn't set off valgrind false positive
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "studyid" = "t0", "verbose" = 0)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "studyid" = "t0", "verbose" = 0)
   e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(a, b, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_error(plotSchoenfeld(e, df, plot_options, verbose = 0, wrongname = T))
+    expect_error(plotSchoenfeld(e, df, plot_options, verbose = 0, wrongname = TRUE))
     expect_no_error(ep <- plotSchoenfeld(e, df, plot_options, verbose = 0)$b)
     expect_equal(ep$y[16], 9.999993e-01, tolerance = 1e-4)
   }
@@ -264,13 +253,13 @@ test_that("Coxph martingale no error", {
   d <- c(3, 4, 5, 6, 7, 8, 9)
   e <- c(1, 1, 2, 2, 3, 3, 3)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "e", "verbose" = 0)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "e", "verbose" = 0)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    expect_error(plotMartingale(e, df, plot_options, verbose = 0, wrongname = T))
+    expect_error(plotMartingale(e, df, plot_options, verbose = 0, wrongname = TRUE))
     expect_no_error(ep <- plotMartingale(e, df, plot_options, verb = 0)$d)
     expect_equal(ep$res_sum[2], -0.2262094, tolerance = 1e-4)
   }
@@ -283,29 +272,27 @@ test_that("Coxph martingale combinations", {
   e <- c(1, 1, 2, 2, 3, 3, 3)
   f <- c(1, 2, 3, 4, 5, 6, 7)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e, "f" = f)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "Not_In", "verbose" = 0)
-  keep_constant <- c(1)
-  # options(warn = -1)
+  plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "Not_In", "verbose" = 0)
+  keep_constant <- 1
   if (system.file(package = "ggplot2") != "") {
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
     expect_error(plotMartingale(e, df, plot_options))
     keep_constant <- c(0, 0)
     a_n <- c(-0.1, 0.1)
-    plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
+    plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     expect_warning(plotMartingale(e, df, plot_options))
-    plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "Not_In", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
+    plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "Not_In", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     expect_error(plotMartingale(e, df, plot_options))
-    plot_options <- list("fname" = paste(tempfile(), "run", sep = ""), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
+    plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     df$c <- rep(0, nrow(df))
     expect_error(plotMartingale(e, df, plot_options))
   }
-  # options(warn = 0)
 })
 test_that("Coxph km no error", {
   a <- c(0, 1, 2, 3, 4, 5, 6)
@@ -313,13 +300,12 @@ test_that("Coxph km no error", {
   c <- c(1, 0, 1, 0, 1, 0, 0)
   d <- c(3, 4, 5, 6, 7, 8, 9)
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d)
-  keep_constant <- c(0)
-  a_n <- c(-0.1)
+  keep_constant <- 0
+  a_n <- -0.1
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  plot_options <- list(fname = paste(tempfile(), "run", sep = ""), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0, "km" = TRUE)
+  plot_options <- list(fname = paste0(tempfile(), "run"), "surv_curv" = TRUE, "studyid" = "a", "verbose" = 0, "km" = TRUE)
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
-    # expect_no_error(ep <- plot(e, df, plot_options)$`kaplin-meier`)
     expect_no_error(ep <- plotSurvival(e, df, plot_options)$`kaplin-meier`)
     expect_equal(ep$n_t[3], 0.7142857, tolerance = 1e-4)
   }

@@ -1,22 +1,22 @@
 test_that("Coxph basic_single_null match", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   time1 <- "t0"
   time2 <- "t1"
   event <- "lung"
-  names <- c("dose")
-  term_n <- c(0)
-  tform <- c("loglin")
-  keep_constant <- c(0)
-  a_n <- c(0.0)
+  names <- "dose"
+  term_n <- 0
+  tform <- "loglin"
+  keep_constant <- 0
+  a_n <- 0.0
   modelform <- "ME"
 
   verbose <- FALSE
 
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  expect_no_error(e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control))
+  expect_no_error(e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = "loglin", keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control))
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
@@ -25,20 +25,20 @@ test_that("Coxph basic_single_null match", {
     for (k in c(TRUE, FALSE)) {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = FALSE, "basic" = j, "single" = k, "null" = l)
-        a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
+        a_n <- 0.0
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = "loglin", keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
   }
   model_control <- list("strata" = TRUE, "basic" = FALSE, "single" = FALSE, "null" = FALSE)
-  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
+  e0 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = "loglin", keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
   for (j in c(TRUE, FALSE)) {
     for (k in c(TRUE, FALSE)) {
       for (l in c(TRUE, FALSE)) {
         model_control <- list("strata" = TRUE, "basic" = j, "single" = k, "null" = l)
-        a_n <- c(0.0)
-        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = c("loglin"), keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
+        a_n <- 0.0
+        e1 <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = "loglin", keep_constant = keep_constant, a_n = a_n, modelform = "ME", control = control, strat_col = "fac", model_control = model_control)
         expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-2)
       }
     }
@@ -46,8 +46,8 @@ test_that("Coxph basic_single_null match", {
 })
 test_that("Pois strata_single", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   time1 <- "t0"
   df$pyr <- df$t1 - df$t0
   pyr <- "pyr"
@@ -68,29 +68,28 @@ test_that("Pois strata_single", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-462.9708, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1344.793)
+  ll_comp <- c(-462.9708, -464.8984, -462.4579, -462.4461, -3033.332, -2734.64, -1104.25, -1344.793)
   for (i in c(TRUE, FALSE)) {
     for (j in c(TRUE, FALSE)) {
       model_control <- list("strata" = i, "single" = j)
       a_n <- c(0.01, 0.1, 0.1)
       modelform <- "PAE"
       e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-      expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+      expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
       j_iterate <- j_iterate + 1
       a_n <- c(0.01, 0.1, 0.1)
       modelform <- "A"
       e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-      expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+      expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
       j_iterate <- j_iterate + 1
     }
   }
-  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 2) + linear(rand, 1) + plinear(rand, 0) + A(), df, a_n = a_n, control = control)
 })
 #
 test_that("Pois comb_forms", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   time1 <- "t0"
   df$pyr <- df$t1 - df$t0
   pyr <- "pyr"
@@ -110,30 +109,28 @@ test_that("Pois comb_forms", {
   verbose <- FALSE
   modelforms <- c("A", "PAE", "ME", "PA")
   j_iterate <- 1
-  LL_comp <- c(-1644.494, -472.2172, -472.2172, -464.709, -1381.102, -1831.403, -1831.403, -464.709)
-  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 1) + linear(rand, 0) + plinear(rand, 0) + loglinear-dose(dose, 0) + PAE(), df, a_n = a_n, control = control)
+  ll_comp <- c(-1644.494, -472.2172, -472.2172, -464.709, -1381.102, -1831.403, -1831.403, -464.709)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
     e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-    expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+    expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
     j_iterate <- j_iterate + 1
   }
-  # e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 1) + linear(rand, 1) + plinear(rand, 1) + loglinear-dose(dose, 0) + A(), df, a_n = a_n, control = control)
   term_n <- c(1, 1, 1, 0, 0)
   for (modelform in modelforms) {
     model_control <- list("strata" = FALSE, "single" = FALSE)
     a_n <- c(0.01, 0.1, 0.1, 1.0, 0.1)
     e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
-    expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+    expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
     j_iterate <- j_iterate + 1
   }
 })
 #
 test_that("Pois strata_single expanded", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   time1 <- "t0"
   df$pyr <- df$t1 - df$t0
   pyr <- "pyr"
@@ -148,42 +145,42 @@ test_that("Pois strata_single expanded", {
   }
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp <- c(-491.2242, -475.0687, -489.9374, -475.0687, -1101.539, -1257.393, -751.6969, -1257.393)
+  ll_comp <- c(-491.2242, -475.0687, -489.9374, -475.0687, -1101.539, -1257.393, -751.6969, -1257.393)
   a_n <- c(-0.4, 0.1, 0.1, 0.1, 0.1, -0.5, 0.1, 0.1, 0.1, 0.1, 0.01, 0.1, 0.1)
   # SINGLE AND STRATA
   e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = TRUE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   # NOT SINGLE AND STRATA
   e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = FALSE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   e <- PoisRun(Pois_Strata(pyr, lung, fac) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = FALSE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   # SINGLE AND NOT STRATA
   e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = TRUE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = TRUE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   # NOT SINGLE AND NOT STRATA
   e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + PAE(), df, control = control, single = FALSE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
   e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, 0) + loglinear - dose(rand, 1) + linear - dose(rand, 1) + quad - dose(rand, 1) + step - dose(rand, 1) + linear - quadratic - dose(rand, 1) + linear - exponential - dose(rand, 1) + A(), df, control = control, single = FALSE, a_n = a_n)
-  expect_equal(e$LogLik, LL_comp[j_iterate], tolerance = 1e-2)
+  expect_equal(e$LogLik, ll_comp[j_iterate], tolerance = 1e-2)
   j_iterate <- j_iterate + 1
 })
 
 test_that("risk check omnibus plain", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
 
@@ -199,7 +196,7 @@ test_that("risk check omnibus plain", {
   modelform <- "ME"
 
 
-  cens_weight <- c(0)
+  cens_weight <- 0
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   expect_no_error(coxres <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + plinear(fac, 0) + linear(dose, 1) + plinear(fac, 1) + loglinear(rand, 1), df, a_n = a_n, control = control))
   verbose <- FALSE
@@ -228,8 +225,8 @@ test_that("risk check omnibus plain", {
 
 test_that("risk check omnibus gmix", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
 
@@ -255,7 +252,7 @@ test_that("risk check omnibus gmix", {
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
-  cens_weight <- c(0)
+  cens_weight <- 0
   control <- list("ncores" = 2, "lr" = 0.75, "maxiters" = c(-1, -1), "halfmax" = -2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   coxres <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, fac, 0) + plinear(dose, fac, 1) + loglinear(rand, 2) + gmix(1.0, e, e, e), df, control = control)
 
@@ -299,8 +296,8 @@ test_that("risk check omnibus gmix", {
 #
 test_that("check deviation calc, expected cox", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   time1 <- "t0"
@@ -314,11 +311,11 @@ test_that("check deviation calc, expected cox", {
   modelform <- "ME"
 
 
-  cens_weight <- c(0)
+  cens_weight <- 0
 
   verbose <- FALSE
 
-  devs <- c()
+  devs <- NULL
 
   modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
@@ -367,8 +364,8 @@ test_that("check deviation calc, expected cox", {
 })
 test_that("check deviation calc, Observed cox", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   time1 <- "t0"
@@ -381,11 +378,11 @@ test_that("check deviation calc, Observed cox", {
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "ME"
 
-  cens_weight <- c(0)
+  cens_weight <- 0
 
   verbose <- FALSE
 
-  devs <- c()
+  devs <- NULL
 
   modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE, "observed_info" = TRUE)
@@ -434,8 +431,8 @@ test_that("check deviation calc, Observed cox", {
 
 test_that("check Linear Constraints", {
   fname <- "l_pl_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$pyr <- df$t1 - df$t0
   time1 <- "t0"
   time2 <- "t1"
@@ -446,8 +443,8 @@ test_that("check Linear Constraints", {
   tform <- c("loglin", "plin")
   keep_constant <- c(0, 0)
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "null" = FALSE, "constraint" = TRUE)
-  Constraint_Matrix <- matrix(c(1, -1), nrow = 1)
-  Constraint_const <- c(0.0)
+  constraint_matrix <- matrix(c(1, -1), nrow = 1)
+  constraint_const <- 0.0
   set.seed(3742)
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
@@ -459,7 +456,7 @@ test_that("check Linear Constraints", {
     a_n <- a_n0 - c(-del / 2, del / 2)
     modelform <- "ME"
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
+    e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = constraint_matrix, cons_vec = constraint_const)
     expect_equal(e$beta_0, c(0.357333, 0.357333), tolerance = 1e-2)
   }
   for (i in 1:5) {
@@ -469,14 +466,14 @@ test_that("check Linear Constraints", {
     a_n <- a_n0 + c(-del / 2, del / 2)
     modelform <- "ME"
     control <- list("ncores" = 2, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = Constraint_Matrix, cons_vec = Constraint_const)
+    e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col = "fac", model_control = model_control, cons_mat = constraint_matrix, cons_vec = constraint_const)
     expect_equal(e$beta_0, c(-0.472812, -0.472812), tolerance = 1e-2)
   }
 })
 test_that("check deviation calc, poisson", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$pyr <- df$t1 - df$t0
@@ -488,10 +485,10 @@ test_that("check deviation calc, poisson", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "ME"
-  devs <- c()
+  devs <- NULL
 
   modelform <- "ME"
-  for (inma_type in c(T, F)) {
+  for (inma_type in c(TRUE, FALSE)) {
     model_control <- list("observed_info" = inma_type)
     for (i in 1:3) {
       a_n <- c(0.6465390, 0.4260961, 0.1572781)
@@ -499,7 +496,6 @@ test_that("check deviation calc, poisson", {
       keep_constant[i] <- 1
       #
       control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-      #      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
       e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + loglinear(rand, 1), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
       devs <- c(devs, sum(e$Standard_Deviation))
     }
@@ -516,7 +512,6 @@ test_that("check deviation calc, poisson", {
       keep_constant[i] <- 1
       #
       control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-      #      e <- RunPoissonRegression_Omnibus(df, pyr, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
       e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + plinear(rand, 0), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
       devs <- c(devs, sum(e$Standard_Deviation))
     }
@@ -526,8 +521,8 @@ test_that("check deviation calc, poisson", {
 
 test_that("Various CoxRegressionOmnibus options", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   time1 <- "t0"
@@ -540,10 +535,9 @@ test_that("Various CoxRegressionOmnibus options", {
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "ME"
 
-  cens_weight <- c(0)
+  cens_weight <- 0
   verbose <- FALSE
-  devs <- c()
-  # options(warn = -1)
+  devs <- NULL
   modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
@@ -575,13 +569,12 @@ test_that("Various CoxRegressionOmnibus options", {
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, -0.1, 0.2)
   expect_error(RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control))
-  # options(warn = 0)
 })
 
 test_that("Various RunPoissonRegression_Omnibus options", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   time1 <- "t0"
@@ -597,9 +590,9 @@ test_that("Various RunPoissonRegression_Omnibus options", {
   a_n <- c(-0.1, 0.1, 0.2)
   modelform <- "ME"
 
-  cens_weight <- c(0)
+  cens_weight <- 0
   verbose <- FALSE
-  devs <- c()
+  devs <- NULL
   modelform <- "ME"
   model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE)
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
@@ -636,8 +629,8 @@ test_that("Various RunPoissonRegression_Omnibus options", {
 
 test_that("Pois various_fixes", {
   fname <- "ll_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   time1 <- "t0"
   df$pyr <- df$t1 - df$t0
   pyr <- "pyr"

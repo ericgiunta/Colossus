@@ -26,17 +26,17 @@ library(parallel)
 
 ## Model Structure
 
-At its full potential, Colossus can analyze a vast number of possible risk/rate models. Specifically, Colossus is designed to allow for a combination of linear and non-linear models to estimate Cox proportional hazard ratios, Poisson model rates, and Fine-Gray Competing risk ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
+At its full potential, `Colossus` can analyze a vast number of possible risk/rate models. Specifically, `Colossus` is designed to allow for a combination of linear and non-linear models to estimate Cox proportional hazard ratios, Poisson model rates, and Fine-Gray Competing risk ratios. The simplest of which is an exponential model. The simplest model generally used for hazard ratios in survival analysis is the exponential of a linear function of covariates.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R(\vec{\beta},\vec{x})=\exp(\vec{\beta} \cdot \vec{x})
+    R \left(\vec{\beta},\vec{x} \right)=\exp \left(\vec{\beta} \cdot \vec{x} \right)
 \end{aligned}
 $$
 </p>
 
-In Colossus, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In Poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a covariates ($x$) and parameters ($\alpha,\beta$).
+In `Colossus`, this general model is extended by abstracting to the sum and product of terms and subterms. In this vignette, the value calculated to quantify the risk of an event will be denoted as the risk, R, however the exact meaning differs. In Cox proportional hazard modeling, the risk calculated is a hazard ratio. In Poisson modeling the risk calculated is an estimated number of events per person-year. The risk ($R$) has a set formula dependent on terms ($T$). Each term has a formula dependent on the product of subterms ($S$). Each subterm is a function of a covariates ($x$) and parameters ($\alpha,\beta$).
 
 There are currently five types of risk models available. The risk can be expressed as an additive model ($R_A$), product additive model ($R_{PA}$), Product additive excess model ($R_{PAE}$), multiplicative relative model ($R_M$), multiplicative excess model ($R_{ME}$), or the geometric mixture model with relative risks or excess risks ($R_{GMIX}$).
 
@@ -45,9 +45,9 @@ $$
 \begin{aligned}
     R_{A} &= \sum_{i=0}^n T_i\\
     R_{PA} &= T_0 \times \sum_{i=1}^n T_i\\
-    R_{PAE} &= T_0 \times (1 + \sum_{i=1}^n T_i)\\
-    R_{M} &= T_0 \times \prod_{i=1}^n(T_i)\\
-    R_{ME} &= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
+    R_{PAE} &= T_0 \times \left(1 + \sum_{i=1}^n T_i \right)\\
+    R_{M} &= T_0 \times \prod_{i=1}^n \left(T_i \right)\\
+    R_{ME} &= T_0 \times \prod_{i=1}^n \left( 1 + T_i \right)\\
     R_{GMIX} &= T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
     T^{*}_i &= \begin{cases} T_i &\text{Relative Risk} \\ T_i+1 &\text{Excess Risk} \end{cases}\\
 \end{aligned}
@@ -59,15 +59,15 @@ Each term is composed of a combination of 4 types of subterms. Every covariate i
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    S_{LL}&=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
-    S_{L}&=\sum_i (x_i \cdot \beta_i)\\
-    S_{PL}&=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}&=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2)\\
+    S_{LL}&=\prod_{i} \left(\exp{ \left(x_i \cdot \beta_i \right)} \right)\\
+    S_{L}&=\sum_i \left(x_i \cdot \beta_i \right)\\
+    S_{PL}&=1+ \sum \left(x_i \cdot \beta_i \right)\\
+    S_{NL}&=\sum_i \left(\alpha_i \times \exp \left(x_i \cdot \beta_i \right)\right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right)\\
     & + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
-    F_{LT} &= \begin{cases} \alpha_i \cdot (x-\beta_i) & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
-    F_{STP} &= \begin{cases} \alpha_i & (x>\beta_i) \\ 0 &\text{else} \end{cases}\\
-    F_{LQ} &= \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} &= \begin{cases} \beta_i \cdot x & (x>\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &\text{else} \end{cases}\\
+    F_{LT} &= \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
+    F_{STP} &= \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
+    F_{LQ} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
+    F_{LEXP} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i - \exp{\left(\nu_i + \mu \cdot x \right)} &\text{else} \end{cases}\\
     T_j&=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$
@@ -79,7 +79,7 @@ In short, every element of the risk model has a subterm type, term number, covar
 
 ## Using The Standard Model
 
-In Colossus, every equation is defined in a very similar fashion. Elements of the risk equation can be viewed as rows of a table: the columns store covariate names, term numbers, subterms types, and a starting point. For more complex regression most parameters can also be set to remain constant over the regression. Doing so forces the parameter value to be constant but not remove the element from the risk calculations. Constant elements are used for risk calculation but are not used for calculating steps or standard deviations. For a multiplicative excess risk model, the following table and equation are equivalent.
+In `Colossus`, every equation is defined in a very similar fashion. Elements of the risk equation can be viewed as rows of a table: the columns store covariate names, term numbers, subterms types, and a starting point. For more complex regression most parameters can also be set to remain constant over the regression. Doing so forces the parameter value to be constant but not remove the element from the risk calculations. Constant elements are used for risk calculation but are not used for calculating steps or standard deviations. For a multiplicative excess risk model, the following table and equation are equivalent.
 
 
 | Term number | subterm type | covariate|
@@ -91,7 +91,7 @@ In Colossus, every equation is defined in a very similar fashion. Elements of th
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right)
 \end{aligned}
 $$
 </p>
@@ -109,14 +109,14 @@ If the user wanted to update the model to include a new term with a product-line
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1 + (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})) \times (2 + \beta_{d} \cdot x_{d})
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1 + \left(\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right) \right) \times \left(2 + \beta_{d} \cdot x_{d} \right)
 \end{aligned}
 $$
 </p>
 
 Note that the multiplicative excess model is taking the product of terms, each of which is the product of subterms. The same equation may be written with subterms distributed over different terms in the multiplicative model without changing the final value. The only exception is subterms moved from or into the "first" term in the multiplicative excess model. The same equation could be expressed in ways with different computational complexity.
 
-Models in Colossus are passed in the form of a formula. Each subterm of the model is expressed as an element of the formula. The model identifiers (A, M, PA, PAE, GMIX) are included at the end of the formula. Every model except the additive and multiplicative models have a distinction between the first and remaining terms. Colossus defaults to term 0 being the unique term.
+Models in `Colossus` are passed in the form of a formula. Each subterm of the model is expressed as an element of the formula. The model identifiers (A, M, PA, PAE, GMIX) are included at the end of the formula. Every model except the additive and multiplicative models have a distinction between the first and remaining terms. `Colossus` defaults to term 0 being the unique term.
 
 The final table is also equivalent to the following code.
 
@@ -136,7 +136,7 @@ Interior colossus functions convert between the vectors and formula representati
 
 ## Survival Time and Event Data
 
-Colossus performs survival analysis via either a Cox Proportional Hazards or a Poisson model regression. In both cases, the user specifies which columns contain time duration and events of interest. For the Poisson model regression, these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression, the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. Colossus supports left-censored data, right-censored data, and interval-censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson model regression the user only provides columns for the person-years per row and number of events. Poisson model regression supports any non-negative number of events.
+`Colossus` performs survival analysis via either a Cox Proportional Hazards or a Poisson model regression. In both cases, the user specifies which columns contain time duration and events of interest. For the Poisson model regression, these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression, the user identifies which columns provide starting and ending times, and what column gives the event status. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. `Colossus` supports left-censored data, right-censored data, and interval-censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times. For Poisson model regression the user only provides columns for the person-years per row and number of events. Poisson model regression supports any non-negative number of events.
 
 On the user side, the names of columns containing the time and events need to be given. Let us assume we have a dataframe organized as follows:
 
@@ -147,7 +147,7 @@ On the user side, the names of columns containing the time and events need to be
 | 213           | 18    | 57         | 1 |
 | ...           | ...    | ...         | ... |
 
-For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. Colossus is designed to allow the user to omit interval columns to represent truncation. Colossus assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. In the formula, the interval endpoints can be named "tstart" and "tend". So in code, these variables would look like this:
+For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. `Colossus` is designed to allow the user to omit interval columns to represent truncation. `Colossus` assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. In the formula, the interval endpoints can be named "tstart" and "tend". So in code, these variables would look like this:
 
 ```{r}
 df <- data.table(
@@ -183,7 +183,7 @@ pyr <- "Person_Years"
 event <- "Cancer_Status"
 ```
 
-The regression types are added to the formula on the left-hand side. Similar to the Surv function in the survival library, the left-hand side of the formula specifies the type of model and which time/event columns are used.
+The regression types are added to the formula on the left-hand side. Similar to the Surv function in the `survival` package, the left-hand side of the formula specifies the type of model and which time/event columns are used.
 
 ```{r}
 # For the interval case
@@ -198,7 +198,7 @@ RHS <- Cox(Ending_Age, Cancer_Status) ~ risk_factors
 
 ## Control and Verbosity
 
-Colossus offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information.
+`Colossus` offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information.
 
 The common convergence parameters are as follows:
 
@@ -231,7 +231,7 @@ In this example, no parameters are held constant and 100 iterations with 5 half-
 
 ## Running the Regression and Output
 
-Finally, the user calls the regression function they need. The names used throughout this vignette are the defaults assumed. Both the Cox PH regression and Poisson model regression are called directly and return a list of results. Colossus contains a suite of additional checks it runs on the inputs before starting any calculations, which are designed to output explicit details on any issues. Printing error details may require the verbose option to be TRUE. In code, the functions are called as follows:
+Finally, the user calls the regression function they need. The names used throughout this vignette are the defaults assumed. Both the Cox PH regression and Poisson model regression are called directly and return a list of results. `Colossus` contains a suite of additional checks it runs on the inputs before starting any calculations, which are designed to output explicit details on any issues. Printing error details may require the verbose option to be TRUE. In code, the functions are called as follows:
 
 ```{r}
 # assuming the table of covariates is stored in a data.table "df"
@@ -263,7 +263,7 @@ The following are output in the regression output lists:
 | Control_List | a list containing the number of iterations, the maximum step at the final iteration, and the highest first derivative magnitude |
 |Converged | TRUE/FALSE if the regression converged |
 
-In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a Colossus run.
+In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a `Colossus` run.
 
 There are additional variants of these functions which are described in greater detail in the other vignettes.
 

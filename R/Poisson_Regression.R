@@ -446,7 +446,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
       stop("Error: Every realization failed.")
     } else if (any(e$Status != "PASSED")) {
       if (control$verbose >= 2) {
-        warning("Warning: Atleast one realization failed.")
+        warning("Warning: Atleast one realization failed.") # nocov
       }
     }
   }

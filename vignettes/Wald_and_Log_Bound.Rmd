@@ -26,13 +26,13 @@ library(dplyr)
 
 ## Available Methods
 
-Colossus supports two methods of calculating a confidence interval for model parameters for Cox proportional hazards models. The Wald method and a likelihood-based boundary method. This vignette will be focused on the differences and what issues may arise.
+`Colossus` supports two methods of calculating a confidence interval for model parameters for Cox proportional hazards models. The Wald method and a likelihood-based boundary method. This vignette will be focused on the differences and what issues may arise.
 
 ### Wald Method
 
-When Colossus finishes a Cox regression, it returns both parameter estimates and standard errors. The simplest form of confidence interval is assuming a normal distribution with the parameter mean and deviation. The standard errors are calculated from the covariance matrix, which is calculated in line with the equation for the expected information matrix presented in the 32-bit Epicure manual. The covariance matrix is calculated using the inverse of the expected information matrix ($I$). The derivation is outlined at the end of this vignette for clarity.
+When `Colossus` finishes a Cox regression, it returns both parameter estimates and standard errors. The simplest form of confidence interval is assuming a normal distribution with the parameter mean and deviation. The standard errors are calculated from the covariance matrix, which is calculated in line with the equation for the expected information matrix presented in the 32-bit Epicure manual. The covariance matrix is calculated using the inverse of the expected information matrix ($I$). The derivation is outlined at the end of this vignette for clarity.
 
-For every event time ($i$) there are a number of events ($d_i$) and a list of subjects at risk ($l \in R_i$). Every valid combination of subject and event time has a hazard ratio ($r_{li}$) and a partial derivative of the hazard ratio with respect to each parameter ($\beta$). This equation is used to compute the covariance matrix and standard errors returned by Colossus by default.
+For every event time ($i$) there are a number of events ($d_i$) and a list of subjects at risk ($l \in R_i$). Every valid combination of subject and event time has a hazard ratio ($r_{li}$) and a partial derivative of the hazard ratio with respect to each parameter ($\beta$). This equation is used to compute the covariance matrix and standard errors returned by `Colossus` by default.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -47,16 +47,16 @@ This gives a symmetric parameter confidence interval which is often accurate for
 
 ### Likelihood-Based Bound
 
-The more exact solution is to directly solve for the boundary. The basic premise is that the model can be optimized with a single parameter ($\beta$) fixed. Each value of $\beta$ has a corresponding maximum log-likelihood. The confidence interval is the range of values of $\beta$ such that the maximum log-likelihood is above a threshold, taken from the asymptotic $\chi^2$ distribution of the generalized likelihood ratio test. Colossus uses the Venzon-Moolgavkar algorithm to iteratively solve for the interval endpoints.
+The more exact solution is to directly solve for the boundary. The basic premise is that the model can be optimized with a single parameter ($\beta$) fixed. Each value of $\beta$ has a corresponding maximum log-likelihood. The confidence interval is the range of values of $\beta$ such that the maximum log-likelihood is above a threshold, taken from the asymptotic $\chi^2$ distribution of the generalized likelihood ratio test. `Colossus` uses the Venzon-Moolgavkar algorithm to iteratively solve for the interval endpoints.
 
-There is one main issue that can arise from this method: this uses a Newton-Raphson algorithm, which may solve for local solutions instead of the global solution. Similar to the general Colossus regressions, limitations can be placed on step size to limit these effects. However, there is no analog to selecting multiple starting locations. This is the basis for alternatives provided that can more directly solve for the true optimum. Methods have been implemented to optimize multiple points and apply a bisection method instead of a derivative-based method.
+There is one main issue that can arise from this method: this uses a Newton-Raphson algorithm, which may solve for local solutions instead of the global solution. Similar to the general `Colossus` regressions, limitations can be placed on step size to limit these effects. However, there is no analog to selecting multiple starting locations. This is the basis for alternatives provided that can more directly solve for the true optimum. Methods have been implemented to optimize multiple points and apply a bisection method instead of a derivative-based method.
 
 This method directly solves the confidence interval, which for linear cases may be non-symmetric or even not have upper or lower bounds. Linear models may be defined only above a parameter threshold. If the optimum value at that parameter threshold is above the $\chi^2$ threshold value, then the interval would not have a lower bound.
 
 
 ### Example and Comparison
 
-For the sake of comparison, we will consider an analysis of the capacitor data available in the survival package. Consider the two regressions, one fully exponential and one with a linear effect. Both regressions converge with similar scores.
+For the sake of comparison, we will consider an analysis of the capacitor data available in the `survival` package. Consider the two regressions, one fully exponential and one with a linear effect. Both regressions converge with similar scores.
 
 ```{r, eval=TRUE}
 if (system.file(package = "survival") != "") {
@@ -172,7 +172,7 @@ print(e, 5)
 
 ### Illustration of Issues with Likelihood-Boundary Algorithm
 
-One important thing to keep in mind is that the likelihood-based boundary algorithm is not perfect, and at times it may be important to manually solve for the likelihood curve. The following example outlines how this is done and what details about the curve can cause issues for the boundary algorithm. The following uses a dataset used by Colossus for unit testing. The linear parameter was selected for analysis. For each point on a grid, the linear parameter was fixed and the model was optimized.
+One important thing to keep in mind is that the likelihood-based boundary algorithm is not perfect, and at times it may be important to manually solve for the likelihood curve. The following example outlines how this is done and what details about the curve can cause issues for the boundary algorithm. The following uses a dataset used by `Colossus` for unit testing. The linear parameter was selected for analysis. For each point on a grid, the linear parameter was fixed and the model was optimized.
 
 ```{r, eval=FALSE}
 fname <- "base_example.csv"

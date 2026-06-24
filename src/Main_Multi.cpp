@@ -65,7 +65,7 @@ using Rcpp::Dimension;
 //' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
 //' @noRd
 //'
-List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, const string& modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -95,18 +95,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector&
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // nocov start
+            //
             Rcout << "null model is not compatable with multi-realization method" << endl;
-            // nocov end
+            //
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     // if (model_bool["single"]) {
     //     if (verbose >= 1) {
-    //         // nocov start
+    //         //
     //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-    //         // nocov end
+    //         //
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
     //     return temp_list;
@@ -266,7 +266,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector&
         Ll_improve = 0.0;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
+        // ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_abs_best = 10;
         iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
@@ -300,14 +300,14 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector&
         //  We can just skip this iteration, but notify the user
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
-                // nocov start
+                //
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
-                // nocov end
+                //
             }
             // We want to fill all of the entries that would normally be filled
             // We can keep in mind that the final results have default values
@@ -541,7 +541,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, StringVector&
 //' @return List of final results: standard cox outputs for the integrated solution
 //' @noRd
 //'
-List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, string ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, const string& modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -567,18 +567,18 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVec
     //  ------------------------------------------------------------------------- //  initialize
     if (model_bool["null"]) {
         if (verbose >= 1) {
-            // nocov start
+            //
             Rcout << "null model is not compatable with multi-realization method" << endl;
-            // nocov end
+            //
         }
         temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_NULL", _["LogLik"] = R_NaN);
         return temp_list;
     }
     // if (model_bool["single"]) {
     //     if (verbose >= 1) {
-    //         // nocov start
+    //         //
     //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-    //         // nocov end
+    //         //
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
     //     return temp_list;
@@ -711,7 +711,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVec
     convgd = FALSE;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
-    ind0 = fir;  //  used for validations
+    // ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
     Ll_abs_best = 10;
     iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
@@ -744,14 +744,14 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVec
         }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
-                // nocov start
+                //
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
-                // nocov end
+                //
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;
@@ -1158,7 +1158,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, StringVec
 //' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
 //' @noRd
 //'
-List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, const string& modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -1181,9 +1181,9 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     //  ------------------------------------------------------------------------- //  initialize
     // if (model_bool["single"]) {
     //     if (verbose >= 1) {
-    //         // nocov start
+    //         //
     //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-    //         // nocov end
+    //         //
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
     //     return temp_list;
@@ -1347,7 +1347,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
         convgd = FALSE;
         iteration = 0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
+        // ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_abs_best = 10;
         iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
@@ -1381,14 +1381,14 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
         //  We can just skip this iteration, but notify the user
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
-                // nocov start
+                //
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
-                // nocov end
+                //
             }
             // We want to fill all of the entries that would normally be filled
             // We can keep in mind that the final results have default values
@@ -1611,7 +1611,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
 //' @return List of final results: standard cox outputs for the integrated solution
 //' @noRd
 //'
-List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, string modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, int fir, const string& modelform, List optim_para, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
@@ -1636,9 +1636,9 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     //  ------------------------------------------------------------------------- //  initialize
     // if (model_bool["single"]) {
     //     if (verbose >= 1) {
-    //         // nocov start
+    //         //
     //         Rcout << "non-derivative model calculation is not compatable with multi-realization method" << endl;
-    //         // nocov end
+    //         //
     //     }
     //     temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_SINGLE", _["LogLik"] = R_NaN);
     //     return temp_list;
@@ -1759,7 +1759,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     bool neg_limit = FALSE;
     iteration = 0;
     halves = 0;  //  number of half-steps taken
-    ind0 = fir;  //  used for validations
+    // ind0 = fir;  //  used for validations
     iteration = 0;  //  iteration number
     Ll_abs_best = 10;
     iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
@@ -1792,14 +1792,14 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         }
         if ((R.minCoeff() <= 0) || (R.hasNaN())) {
             if (verbose >= 1) {
-                // nocov start
+                //
                 Rcout << "C++ Error: A non-positive risk was detected: " << R.minCoeff() << endl;
                 Rcout << "C++ Warning: final failing values ";
                 for (int ijk = 0; ijk < totalnum; ijk++) {
                     Rcout << beta_0[ijk] << " ";
                 }
                 Rcout << " " << endl;
-                // nocov end
+                //
             }
             temp_list = List::create(_["beta_0"] = wrap(beta_0), _["Deviance"] = R_NaN, _["Status"] = "FAILED_WITH_NEGATIVE_RISK", _["LogLik"] = R_NaN);
             return temp_list;

@@ -1,7 +1,7 @@
 test_that("Coxph multidose", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -9,10 +9,10 @@ test_that("Coxph multidose", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -22,9 +22,9 @@ test_that("Coxph multidose", {
 
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp_1 <- c(-450.7215, -382.8276)
-  LL_comp_2 <- c(-449.5319, -381.6798)
-  LL_comp_3 <- c(-450.8742, -382.8966)
+  ll_comp_1 <- c(-450.7215, -382.8276)
+  ll_comp_2 <- c(-449.5319, -381.6798)
+  ll_comp_3 <- c(-450.8742, -382.8966)
   k <- 1
   a_n <- c(-0.1, -0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -37,20 +37,20 @@ test_that("Coxph multidose", {
   e <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   #
   val <- e$LogLik
-  expect_equal(val[1], LL_comp_1[k], tolerance = 1e-4)
-  expect_equal(val[2], LL_comp_2[k], tolerance = 1e-4)
-  expect_equal(val[3], LL_comp_3[k], tolerance = 1e-4)
+  expect_equal(val[1], ll_comp_1[k], tolerance = 1e-4)
+  expect_equal(val[2], ll_comp_2[k], tolerance = 1e-4)
+  expect_equal(val[3], ll_comp_3[k], tolerance = 1e-4)
   k <- k + 1
   e <- CoxRunMulti(Cox_Strata(t0, t1, lung, fac) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   val <- e$LogLik
-  expect_equal(val[1], LL_comp_1[k], tolerance = 1e-4)
-  expect_equal(val[2], LL_comp_2[k], tolerance = 1e-4)
-  expect_equal(val[3], LL_comp_3[k], tolerance = 1e-4)
+  expect_equal(val[1], ll_comp_1[k], tolerance = 1e-4)
+  expect_equal(val[2], ll_comp_2[k], tolerance = 1e-4)
+  expect_equal(val[3], ll_comp_3[k], tolerance = 1e-4)
 })
 test_that("Pois multidose", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -58,10 +58,10 @@ test_that("Pois multidose", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -71,9 +71,9 @@ test_that("Pois multidose", {
 
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp_1 <- c(-329.7453, -329.6589)
-  LL_comp_2 <- c(-328.7705, -328.7010)
-  LL_comp_3 <- c(-329.9031, -329.8220)
+  ll_comp_1 <- c(-329.7453, -329.6589)
+  ll_comp_2 <- c(-328.7705, -328.7010)
+  ll_comp_3 <- c(-329.9031, -329.8220)
   k <- 1
   a_n <- c(-0.02, -0.1, -0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -86,20 +86,20 @@ test_that("Pois multidose", {
   expect_error(PoisRunMulti("bad", df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   e <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   val <- e$LogLik
-  expect_equal(val[1], LL_comp_1[k], tolerance = 1e-4)
-  expect_equal(val[2], LL_comp_2[k], tolerance = 1e-4)
-  expect_equal(val[3], LL_comp_3[k], tolerance = 1e-4)
+  expect_equal(val[1], ll_comp_1[k], tolerance = 1e-4)
+  expect_equal(val[2], ll_comp_2[k], tolerance = 1e-4)
+  expect_equal(val[3], ll_comp_3[k], tolerance = 1e-4)
   k <- k + 1
   e <- PoisRunMulti(Pois_Strata(t1, lung, fac) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control)
   val <- e$LogLik
-  expect_equal(val[1], LL_comp_1[k], tolerance = 1e-4)
-  expect_equal(val[2], LL_comp_2[k], tolerance = 1e-4)
-  expect_equal(val[3], LL_comp_3[k], tolerance = 1e-4)
+  expect_equal(val[1], ll_comp_1[k], tolerance = 1e-4)
+  expect_equal(val[2], ll_comp_2[k], tolerance = 1e-4)
+  expect_equal(val[3], ll_comp_3[k], tolerance = 1e-4)
 })
 test_that("Coxph multidose negative shift check", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -107,10 +107,10 @@ test_that("Coxph multidose negative shift check", {
   df$rand2 <- -1 * df$rand1
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(0, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -123,8 +123,8 @@ test_that("Coxph multidose negative shift check", {
 })
 test_that("Pois multidose negative shift check", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -132,10 +132,10 @@ test_that("Pois multidose negative shift check", {
   df$rand2 <- -1 * df$rand1
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(0, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.02, -0.1, -0.1)
@@ -148,8 +148,8 @@ test_that("Pois multidose negative shift check", {
 })
 test_that("Coxph multidose, extra warnings and checks", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -159,17 +159,16 @@ test_that("Coxph multidose, extra warnings and checks", {
   df$weighting <- floor(runif(nrow(df), min = 0, max = 2))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
   keep_constant <- c(0, 0)
 
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  # options(warn = -1)
   verbose <- FALSE
   j_iterate <- 1
   model_control <- list("cr" = TRUE)
@@ -194,12 +193,11 @@ test_that("Coxph multidose, extra warnings and checks", {
   d$lung <- 0
   df <- rbind(df, d)
   expect_no_error(e <- CoxRunMulti(Cox_Strata(t0, t1, lung, fac) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
-  # options(warn = 0)
 })
 test_that("Coxph multidose failures", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -207,10 +205,10 @@ test_that("Coxph multidose failures", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -227,10 +225,10 @@ test_that("Coxph multidose failures", {
   realization_index <- c("rand", "more_rand")
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   realization_columns <- matrix(c("rand0", "rand1", "bad"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   realization_columns <- matrix(c("rand0", "rand1"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   names <- c("bad", "rand")
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(bad, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   names <- c("dose", "rand")
@@ -239,8 +237,8 @@ test_that("Coxph multidose failures", {
 })
 test_that("Coxph multidose model failures", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -248,10 +246,10 @@ test_that("Coxph multidose model failures", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -271,19 +269,19 @@ test_that("Coxph multidose model failures", {
 })
 test_that("Coxph multidose MCML repeated column", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
-  realization_columns <- matrix(c("rand0"), nrow = 1)
-  realization_index <- c("rand")
+  realization_columns <- matrix("rand0", nrow = 1)
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -301,7 +299,7 @@ test_that("Coxph multidose MCML repeated column", {
   e1 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
 
-  realization_columns <- matrix(c("rand0"), nrow = 1)
+  realization_columns <- matrix("rand0", nrow = 1)
   a_n <- c(-0.1, -0.1)
   e0 <- CoxRunMulti(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
@@ -311,19 +309,19 @@ test_that("Coxph multidose MCML repeated column", {
 })
 test_that("Poisson multidose MCML repeated column", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
-  realization_columns <- matrix(c("rand0"), nrow = 1)
-  realization_index <- c("rand")
+  realization_columns <- matrix("rand0", nrow = 1)
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.02, -0.1, -0.1)
@@ -341,7 +339,7 @@ test_that("Poisson multidose MCML repeated column", {
   e1 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, gradient_control = list(), mcml = TRUE)
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4)
   #
-  realization_columns <- matrix(c("rand0"), nrow = 1)
+  realization_columns <- matrix("rand0", nrow = 1)
   a_n <- c(-0.1, -0.1)
   e0 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, mcml = TRUE)
   realization_columns <- matrix(c("rand0", "rand0"), nrow = 1)
@@ -351,8 +349,8 @@ test_that("Poisson multidose MCML repeated column", {
 })
 test_that("Coxph multidose MCML swapped columns", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -360,10 +358,10 @@ test_that("Coxph multidose MCML swapped columns", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand1", "rand0"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -384,8 +382,8 @@ test_that("Coxph multidose MCML swapped columns", {
 })
 test_that("Pois multidose MCML swapped columns", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -393,10 +391,10 @@ test_that("Pois multidose MCML swapped columns", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand1", "rand0"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.02, -0.1, -0.1)
@@ -418,8 +416,8 @@ test_that("Pois multidose MCML swapped columns", {
 })
 test_that("Multidose errors and warning", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 1, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 1, max = 5))
@@ -427,10 +425,10 @@ test_that("Multidose errors and warning", {
   df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   keep_constant <- c(1, 0)
   a_n <- c(0, 0)
-  cens_weight <- c(0)
+  cens_weight <- 0
   #
   event <- "lung"
   a_n <- c(-0.1, -0.1)
@@ -440,9 +438,9 @@ test_that("Multidose errors and warning", {
 
   verbose <- FALSE
   j_iterate <- 1
-  LL_comp_1 <- c(-450.7215, -382.8276)
-  LL_comp_2 <- c(-449.5319, -381.6798)
-  LL_comp_3 <- c(-450.8742, -382.8966)
+  ll_comp_1 <- c(-450.7215, -382.8276)
+  ll_comp_2 <- c(-449.5319, -381.6798)
+  ll_comp_3 <- c(-450.8742, -382.8966)
   k <- 1
   a_n <- c(0.1, -0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
@@ -456,7 +454,7 @@ test_that("Multidose errors and warning", {
   df$rand1 <- floor(runif(nrow(df), min = 0, max = 0))
   df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
   expect_no_error(e <- CoxRunMulti(Cox(t0, t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
-  expect_equal(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
+  expect_identical(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
   expect_error(CoxRunMulti(Cox(t0, t1, lung) ~ null(), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   #
   a_n <- c(-0.1, -0.1)
@@ -467,15 +465,15 @@ test_that("Multidose errors and warning", {
   df$rand1 <- floor(runif(nrow(df), min = 0, max = 0))
   df$rand2 <- floor(runif(nrow(df), min = 1, max = 5))
   expect_no_error(e <- PoisRunMulti(Pois(t1, lung) ~ linear(rand, 0) + loglinear(dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
-  expect_equal(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
+  expect_identical(e$Status[2], "FAILED_WITH_ZERO_RISK_START")
   expect_error(PoisRunMulti(Pois(t1, lung) ~ null(), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control))
   #
 })
 
 test_that("multidose model, single check", {
   fname <- "ll_comp_0.csv"
-  colTypes <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   set.seed(3742)
   df$rand <- floor(runif(nrow(df), min = 0, max = 5))
   df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
@@ -483,7 +481,7 @@ test_that("multidose model, single check", {
   df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
   df$lung <- (df$lung > 0)
   realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
-  realization_index <- c("rand")
+  realization_index <- "rand"
   #
 
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 1, "halfmax" = 1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 2, "ties" = "breslow")
@@ -501,7 +499,7 @@ test_that("multidose model, single check", {
   e3 <- PoisRunMulti(Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, realization_index = realization_index, control = control, single = TRUE, fma = TRUE, observed_info = TRUE)
   expect_equal(e3$LogLik, c(-330.1266, -330.2527, -330.0428), tolerance = 1e-4)
   #
-  zz <- file(paste(tempfile(), ".txt", sep = ""), open = "wt")
+  zz <- file(paste0(tempfile(), ".txt"), open = "wt")
   sink(zz)
   sink(zz, type = "message")
   expect_no_error(print(e0))
