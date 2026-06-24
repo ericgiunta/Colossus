@@ -141,8 +141,7 @@ jobs:
       - name: Run R CMD check with valgrind
         run: |
           R CMD build Colossus
-          R CMD check --use-valgrind *_*.tar.gz
-        shell: Rscript {0}
+          R CMD check --use-valgrind Colossus_*.tar.gz
   build:
     name: Check Colossus on ${{ matrix.arch }}
     runs-on: ubuntu-24.04${{matrix.arch=='arm64' && '-arm' || ''}}
