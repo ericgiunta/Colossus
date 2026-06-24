@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,19 +107,20 @@
 <div class="section level2">
 <h2 id="logistic-modeling-for-binomial-odds-and-binary-data">Logistic Modeling for Binomial Odds and Binary Data<a class="anchor" aria-label="anchor" href="#logistic-modeling-for-binomial-odds-and-binary-data"></a>
 </h2>
-<p>One alternative regression method in Colossus for predicting the
-probability of an event in independent trials is logistic regression.
-The theory is presented in the following section.</p>
+<p>One alternative regression method in <code>Colossus</code> for
+predicting the probability of an event in independent trials is logistic
+regression. The theory is presented in the following section.</p>
 <div class="section level3">
 <h3 id="general-theory">General Theory<a class="anchor" aria-label="anchor" href="#general-theory"></a>
 </h3>
 <p>We start by describing the structure of the data. The logistic
-regression models in Colossus assume the data can be represented in
-terms of trials, events, and risk factors. Similar to a Poisson model
-using person-years and number of events in each row, a logistic model
-requires some measure of the number of independent trials and events for
-each group. A special case is an analysis in which each row represents
-one trial, and either 0 or 1 events are observed. The likelihood
+regression models in <code>Colossus</code> assume the data can be
+represented in terms of trials, events, and risk factors. Similar to a
+Poisson model using person-years and number of events in each row, a
+logistic model requires some measure of the number of independent trials
+and events for each group. A special case is an analysis in which each
+row represents one trial, and either 0 or 1 events are observed. The
+likelihood
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>)
 for a logistic model is a function of the trials
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>N</mi><mi>i</mi></msub><annotation encoding="application/x-tex">N_i</annotation></semantics></math>),
@@ -129,7 +130,7 @@ and the probability of a success
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mi>i</mi></msub><annotation encoding="application/x-tex">p_i</annotation></semantics></math>)
 for each row,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.
-In Colossus, the log-likelihood
+In <code>Colossus</code>, the log-likelihood
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>l</mi></mrow><annotation encoding="application/x-tex">Ll</annotation></semantics></math>)
 is optimized.</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -139,43 +140,47 @@ is optimized.</p>
     Ll = \sum_i \left [ y_i \ln(p_i) + (N_i - y_i) \ln(1-p_i) \right ] \\
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Similar to other survival models in Colossus, a model is written as a
-function of the various risk factors
+<p>Similar to other survival models in <code>Colossus</code>, a model is
+written as a function of the various risk factors
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(\vec{\beta}, \vec{x})</annotation></semantics></math>).
 This function is related to the probability through a linking function.
-Three options are currently available: odds, identity, and complementary
-log linking, based on the options present in 32-bit Epicure.</p>
+Four options are currently available: odds, identity, complementary log,
+and probit linking, the first three were based on the options present in
+32-bit Epicure. The last option, probit, uses the cumulative density
+function of the standard normal distribution
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Φ</mi><annotation encoding="application/x-tex">\Phi</annotation></semantics></math>).</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>o</mi><mi>d</mi><mi>d</mi><mi>s</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>1</mn><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>i</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>c</mi><mi>o</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>=</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>o</mi><mi>d</mi><mi>d</mi><mi>s</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mn>1</mn><mo>+</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>i</mi><mi>d</mi></mrow></msub><mo>=</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>c</mi><mi>o</mi><mi>m</mi><mi>p</mi></mrow></msub><mo>=</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>p</mi><mrow><mi>p</mi><mi>r</mi><mi>o</mi><mi>b</mi><mi>i</mi><mi>t</mi></mrow></msub><mo>=</mo><mi mathvariant="normal">Φ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>f</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    p_{odds} = \frac{f(\vec{\beta}, \vec{x})}{1+f(\vec{\beta}, \vec{x})} \\
-    p_{id} = f(\vec{\beta}, \vec{x}) \\
-    p_{comp} = e^{-f(\vec{\beta}, \vec{x})}
+    p_{odds} = \frac{f \left(\vec{\beta}, \vec{x} \right)}{1+f \left(\vec{\beta}, \vec{x} \right)} \\
+    p_{id} = f \left(\vec{\beta}, \vec{x} \right) \\
+    p_{comp} = e^{-f \left(\vec{\beta}, \vec{x} \right)} \\
+    p_{probit} = \Phi \left( f \left(\vec{\beta},\vec{x} \right) \right)
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Similar to other regression models in Colossus, the first derivative
-vector and second derivative matrix are calculated to optimize the model
-parameters.</p>
+<p>Similar to other regression models in <code>Colossus</code>, the
+first derivative vector and second derivative matrix are calculated to
+optimize the model parameters.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>l</mi></mrow><mrow><mi>∂</mi><mi>μ</mi></mrow></mfrac><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>l</mi></mrow><mrow><mi>∂</mi><mi>μ</mi><mi>∂</mi><mi>ν</mi></mrow></mfrac><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi><mi>∂</mi><mi>ν</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>ν</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi><mi>∂</mi><mi>ν</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>ν</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>l</mi></mrow><mrow><mi>∂</mi><mi>μ</mi></mrow></mfrac><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><mi>L</mi><mi>l</mi></mrow><mrow><mi>∂</mi><mi>μ</mi><mi>∂</mi><mi>ν</mi></mrow></mfrac><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi><mi>∂</mi><mi>ν</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo>−</mo><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>ν</mi></mrow><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>N</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi>∂</mi><mn>2</mn></msup><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi><mi>∂</mi><mi>ν</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>μ</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mfrac><mrow><mi>∂</mi><msub><mi>p</mi><mi>i</mi></msub><mi>/</mi><mi>∂</mi><mi>ν</mi></mrow><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \frac{\partial Ll}{\partial \mu} = \sum_i \left [ y_i \frac{\partial p_i/\partial \mu}{p_i} - (N_i - y_i) \frac{\partial p_i/\partial \mu}{1-p_i} \right ] \\
-    \frac{\partial^2 Ll}{\partial \mu \partial \nu} = \sum_i \left [ y_i \left (\frac{\partial^2 p_i/\partial \mu \partial \nu}{p_i} - \frac{\partial p_i/\partial \mu}{p_i} \frac{\partial p_i/\partial \nu}{p_i} \right ) - (N_i - y_i) \left ( \frac{\partial^2 p_i/\partial \mu \partial \nu}{1-p_i} + \frac{\partial p_i/\partial \mu}{1-p_i} \frac{\partial p_i/\partial \nu}{1-p_i} \right ) \right ] \\
+    \frac{\partial Ll}{\partial \mu} = \sum_i \left [ y_i \frac{\partial p_i/\partial \mu}{p_i} - \left(N_i - y_i \right) \frac{\partial p_i/\partial \mu}{1-p_i} \right ] \\
+    \frac{\partial^2 Ll}{\partial \mu \partial \nu} = \sum_i \left [ y_i \left (\frac{\partial^2 p_i/\partial \mu \partial \nu}{p_i} - \frac{\partial p_i/\partial \mu}{p_i} \frac{\partial p_i/\partial \nu}{p_i} \right ) - \left(N_i - y_i \right) \left ( \frac{\partial^2 p_i/\partial \mu \partial \nu}{1-p_i} + \frac{\partial p_i/\partial \mu}{1-p_i} \frac{\partial p_i/\partial \nu}{1-p_i} \right ) \right ] \\
 \end{aligned}
 </annotation></semantics></math></p>
 </div>
 <div class="section level3">
 <h3 id="examples-of-use">Examples of Use<a class="anchor" aria-label="anchor" href="#examples-of-use"></a>
 </h3>
-<p>The use of a logistic model in Colossus closely follows the other
-regression options. We start by loading and preparing the data. In this
-example, we will be using the Veterans’ Administration Lung Cancer study
-data from the survival package. Every row has 1 trial and a binary event
-status column. Once again, our model uses a trial column, an event
-column, and the “risk” equation that will be converted to a probability.
-In this case, the number of trials is 1, so the column can be omitted,
-but to illustrate, we will artificially create a trial column named
-“trial”.</p>
+<p>The use of a logistic model in <code>Colossus</code> closely follows
+the other regression options. We start by loading and preparing the
+data. In this example, we will be using the Veterans’ Administration
+Lung Cancer study data from the <code>survival</code> package. Every row
+has 1 trial and a binary event status column. Once again, our model uses
+a trial column, an event column, and the “risk” equation that will be
+converted to a probability. In this case, the number of trials is 1, so
+the column can be omitted, but to illustrate, we will artificially
+create a trial column named “trial”.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
@@ -206,14 +211,14 @@ but to illustrate, we will artificially create a trial column named
 <span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">trial</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></code></pre></div>
 <p>We will start with testing the effects of cell type. By default,
-Colossus will always remove the first level of a factored column. We can
-force Colossus to include every level by defining the lowest level to an
-unused value, -1 in this case. This gives the same final model as if we
-removed the baseline and added an intercept column (CONST). In this
-case, the p-values are for the null hypothesis that the cell type has no
-effect. If we removed the baseline and added an intercept, the p-values
-would be for the null hypothesis that the cell type has no effect above
-the baseline.</p>
+<code>Colossus</code> will always remove the first level of a factored
+column. We can force <code>Colossus</code> to include every level by
+defining the lowest level to an unused value, -1 in this case. This
+gives the same final model as if we removed the baseline and added an
+intercept column (CONST). In this case, the p-values are for the null
+hypothesis that the cell type has no effect. If we removed the baseline
+and added an intercept, the p-values would be for the null hypothesis
+that the cell type has no effect above the baseline.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span><span class="op">$</span><span class="va">cell</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">cell</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -237,12 +242,12 @@ the baseline.</p>
 <span><span class="co">#&gt; Odds Ratio Linking Function Used</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
-<span><span class="co">#&gt; Iterations run: 8</span></span>
+<span><span class="co">#&gt; Iterations run: 7</span></span>
 <span><span class="co">#&gt; maximum step size: 6.739e-03, maximum first derivative: 2.208e-03</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 8.753e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.038 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.037 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this analysis, we were using the default of the odds ratio. The
 linking function can be changed by using the “link” option. The
@@ -272,12 +277,12 @@ models.</p>
 <span><span class="co">#&gt; Odds Ratio Linking Function Used</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
-<span><span class="co">#&gt; Iterations run: 8</span></span>
+<span><span class="co">#&gt; Iterations run: 7</span></span>
 <span><span class="co">#&gt; maximum step size: 6.013e-03, maximum first derivative: 1.961e-03</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 6.929e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.018 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.017 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
@@ -297,12 +302,12 @@ models.</p>
 <span><span class="co">#&gt; Identity Linking Function Used</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
-<span><span class="co">#&gt; Iterations run: 8</span></span>
+<span><span class="co">#&gt; Iterations run: 7</span></span>
 <span><span class="co">#&gt; maximum step size: 1.209e-04, maximum first derivative: 2.863e-02</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.173e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.017 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
@@ -322,9 +327,34 @@ models.</p>
 <span><span class="co">#&gt; Complementary Log Linking Function Used</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
-<span><span class="co">#&gt; Iterations run: 10</span></span>
+<span><span class="co">#&gt; Iterations run: 9</span></span>
 <span><span class="co">#&gt; maximum step size: 2.008e-03, maximum first derivative: 7.219e-04</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 8.184e-06</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/LogisticRun.html">LogisticRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, link <span class="op">=</span> <span class="st">"probit"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:    cell_0  loglin            0.581          0.251         0.0209</span></span>
+<span><span class="co">#&gt; 2:    cell_1  loglin            0.186          0.231         0.4218</span></span>
+<span><span class="co">#&gt; 3:    cell_2  loglin            0.428          0.185         0.0208</span></span>
+<span><span class="co">#&gt; 4:    cell_3  loglin            0.581          0.251         0.0209</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Probability Unit (probit) Linking Function Used</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
+<span><span class="co">#&gt; Iterations run: 6</span></span>
+<span><span class="co">#&gt; maximum step size: 1.818e-03, maximum first derivative: 9.635e-03</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.895e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
 <span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,26 +97,26 @@
 <div class="section level2">
 <h2 id="model-structure">Model Structure<a class="anchor" aria-label="anchor" href="#model-structure"></a>
 </h2>
-<p>At its full potential, Colossus can analyze a vast number of possible
-risk/rate models. Specifically, Colossus is designed to allow for a
-combination of linear and non-linear models to estimate Cox proportional
-hazard ratios, Poisson model rates, and Fine-Gray Competing risk ratios.
-The simplest of which is an exponential model. The simplest model
-generally used for hazard ratios in survival analysis is the exponential
-of a linear function of covariates.</p>
+<p>At its full potential, <code>Colossus</code> can analyze a vast
+number of possible risk/rate models. Specifically, <code>Colossus</code>
+is designed to allow for a combination of linear and non-linear models
+to estimate Cox proportional hazard ratios, Poisson model rates, and
+Fine-Gray Competing risk ratios. The simplest of which is an exponential
+model. The simplest model generally used for hazard ratios in survival
+analysis is the exponential of a linear function of covariates.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>⋅</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>⋅</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    R(\vec{\beta},\vec{x})=\exp(\vec{\beta} \cdot \vec{x})
+    R \left(\vec{\beta},\vec{x} \right)=\exp \left(\vec{\beta} \cdot \vec{x} \right)
 \end{aligned}
 </annotation></semantics></math></p>
-<p>In Colossus, this general model is extended by abstracting to the sum
-and product of terms and subterms. In this vignette, the value
-calculated to quantify the risk of an event will be denoted as the risk,
-R, however the exact meaning differs. In Cox proportional hazard
-modeling, the risk calculated is a hazard ratio. In Poisson modeling the
-risk calculated is an estimated number of events per person-year. The
-risk
+<p>In <code>Colossus</code>, this general model is extended by
+abstracting to the sum and product of terms and subterms. In this
+vignette, the value calculated to quantify the risk of an event will be
+denoted as the risk, R, however the exact meaning differs. In Cox
+proportional hazard modeling, the risk calculated is a hazard ratio. In
+Poisson modeling the risk calculated is an estimated number of events
+per person-year. The risk
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>)
 has a set formula dependent on terms
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>).
@@ -140,13 +140,13 @@ multiplicative excess model
 or the geometric mixture model with relative risks or excess risks
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>G</mi><mi>M</mi><mi>I</mi><mi>X</mi></mrow></msub><annotation encoding="application/x-tex">R_{GMIX}</annotation></semantics></math>).</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mi>A</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>n</mi></munderover><msub><mi>T</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>P</mi><mi>A</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>T</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>P</mi><mi>A</mi><mi>E</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>T</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mi>M</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>M</mi><mi>E</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>T</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>G</mi><mi>M</mi><mi>I</mi><mi>X</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msubsup><mi>T</mi><mi>i</mi><mo>*</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mi>θ</mi></msup><mo>×</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msubsup><mi>T</mi><mi>i</mi><mo>*</mo></msubsup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mn>1</mn><mo>−</mo><mi>θ</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msubsup><mi>T</mi><mi>i</mi><mo>*</mo></msubsup></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>T</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Relative Risk</mtext></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>T</mi><mi>i</mi></msub><mo>+</mo><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Excess Risk</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mi>A</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mi>n</mi></munderover><msub><mi>T</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>P</mi><mi>A</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>T</mi><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>P</mi><mi>A</mi><mi>E</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>T</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mi>M</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>T</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>M</mi><mi>E</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>T</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>R</mi><mrow><mi>G</mi><mi>M</mi><mi>I</mi><mi>X</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>T</mi><mn>0</mn></msub><mo>×</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msubsup><mi>T</mi><mi>i</mi><mo>*</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mi>θ</mi></msup><mo>×</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msubsup><mi>T</mi><mi>i</mi><mo>*</mo></msubsup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mn>1</mn><mo>−</mo><mi>θ</mi></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msubsup><mi>T</mi><mi>i</mi><mo>*</mo></msubsup></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>T</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Relative Risk</mtext></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>T</mi><mi>i</mi></msub><mo>+</mo><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Excess Risk</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
     R_{A} &amp;= \sum_{i=0}^n T_i\\
     R_{PA} &amp;= T_0 \times \sum_{i=1}^n T_i\\
-    R_{PAE} &amp;= T_0 \times (1 + \sum_{i=1}^n T_i)\\
-    R_{M} &amp;= T_0 \times \prod_{i=1}^n(T_i)\\
-    R_{ME} &amp;= T_0 \times \prod_{i=1}^n( 1 + T_i)\\
+    R_{PAE} &amp;= T_0 \times \left(1 + \sum_{i=1}^n T_i \right)\\
+    R_{M} &amp;= T_0 \times \prod_{i=1}^n \left(T_i \right)\\
+    R_{ME} &amp;= T_0 \times \prod_{i=1}^n \left( 1 + T_i \right)\\
     R_{GMIX} &amp;= T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
     T^{*}_i &amp;= \begin{cases} T_i &amp;\text{Relative Risk} \\ T_i+1 &amp;\text{Excess Risk} \end{cases}\\
 \end{aligned}
@@ -174,17 +174,17 @@ and linear-exponential terms
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mrow><mi>L</mi><mi>E</mi><mi>X</mi><mi>P</mi></mrow></msub><annotation encoding="application/x-tex">F_{LEXP}</annotation></semantics></math>).
 Each term is the product of the non-empty subterms.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mrow><mi>L</mi><mi>L</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∏</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mi>L</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mrow><mi>P</mi><mi>L</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>1</mn><mo>+</mo><mo>∑</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mrow><mi>N</mi><mi>L</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mi>i</mi></msub><mo>×</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mi>i</mi></msub><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>+</mi><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>L</mi><mi>T</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>S</mi><mi>T</mi><mi>P</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>L</mi><mi>Q</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>L</mi><mi>E</mi><mi>X</mi><mi>P</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>L</mi><mi>T</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>α</mi><mi>i</mi></msub><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>S</mi><mi>T</mi><mi>P</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>α</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>L</mi><mi>Q</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>β</mi><mi>i</mi></msub><mo>⋅</mo><mi>x</mi></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>α</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>λ</mi><mi>i</mi></msub><mo>⋅</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msub><mi>ν</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>L</mi><mi>E</mi><mi>X</mi><mi>P</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>β</mi><mi>i</mi></msub><mo>⋅</mo><mi>x</mi></mtd><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>α</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>λ</mi><mi>i</mi></msub><mo>−</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>ν</mi><mi>i</mi></msub><mo>+</mo><mi>μ</mi><mo>⋅</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>T</mi><mi>j</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>S</mi><mrow><mi>L</mi><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><msub><mi>S</mi><mrow><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><msub><mi>S</mi><mrow><mi>P</mi><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><msub><mi>S</mi><mrow><mi>N</mi><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mrow><mi>L</mi><mi>L</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∏</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="normal">exp</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mi>L</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mrow><mi>P</mi><mi>L</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>1</mn><mo>+</mo><mo>∑</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>S</mi><mrow><mi>N</mi><mi>L</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>α</mi><mi>i</mi></msub><mo>×</mo><mi mathvariant="normal">exp</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mi>i</mi></msub><mo>⋅</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mi>+</mi><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>L</mi><mi>T</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>S</mi><mi>T</mi><mi>P</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>L</mi><mi>Q</mi></mrow></msub><mo>+</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>F</mi><mrow><mi>L</mi><mi>E</mi><mi>X</mi><mi>P</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>L</mi><mi>T</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>α</mi><mi>i</mi></msub><mo>⋅</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>−</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>S</mi><mi>T</mi><mi>P</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>α</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>L</mi><mi>Q</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>β</mi><mi>i</mi></msub><mo>⋅</mo><mi>x</mi></mtd><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>α</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>λ</mi><mi>i</mi></msub><mo>⋅</mo><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><msub><mi>ν</mi><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>F</mi><mrow><mi>L</mi><mi>E</mi><mi>X</mi><mi>P</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>β</mi><mi>i</mi></msub><mo>⋅</mo><mi>x</mi></mtd><mtd columnalign="left" style="text-align: left"><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>&gt;</mo><msub><mi>α</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>λ</mi><mi>i</mi></msub><mo>−</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ν</mi><mi>i</mi></msub><mo>+</mo><mi>μ</mi><mo>⋅</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">else</mtext></mtd></mtr></mtable></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mi>T</mi><mi>j</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mi>S</mi><mrow><mi>L</mi><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><msub><mi>S</mi><mrow><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><msub><mi>S</mi><mrow><mi>P</mi><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><msub><mi>S</mi><mrow><mi>N</mi><mi>L</mi><mo>,</mo><mi>j</mi></mrow></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    S_{LL}&amp;=\prod_{i} (\exp{(x_i \cdot \beta_i)})\\
-    S_{L}&amp;=\sum_i (x_i \cdot \beta_i)\\
-    S_{PL}&amp;=1+ \sum (x_i \cdot \beta_i)\\
-    S_{NL}&amp;=\sum_i (\alpha_i \times \exp(x_i \cdot \beta_i)) + \sum_i (\beta_i \cdot (x_i)^2)\\
+    S_{LL}&amp;=\prod_{i} \left(\exp{ \left(x_i \cdot \beta_i \right)} \right)\\
+    S_{L}&amp;=\sum_i \left(x_i \cdot \beta_i \right)\\
+    S_{PL}&amp;=1+ \sum \left(x_i \cdot \beta_i \right)\\
+    S_{NL}&amp;=\sum_i \left(\alpha_i \times \exp \left(x_i \cdot \beta_i \right)\right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right)\\
     &amp; + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
-    F_{LT} &amp;= \begin{cases} \alpha_i \cdot (x-\beta_i) &amp; (x&gt;\beta_i) \\ 0 &amp;\text{else} \end{cases}\\
-    F_{STP} &amp;= \begin{cases} \alpha_i &amp; (x&gt;\beta_i) \\ 0 &amp;\text{else} \end{cases}\\
-    F_{LQ} &amp;= \begin{cases} \beta_i \cdot x &amp; (x&gt;\alpha_i) \\ \lambda_i \cdot x^2 + \nu_i &amp;\text{else} \end{cases}\\
-    F_{LEXP} &amp;= \begin{cases} \beta_i \cdot x &amp; (x&gt;\alpha_i) \\ \lambda_i - \exp{(\nu_i + \mu \cdot x)} &amp;\text{else} \end{cases}\\
+    F_{LT} &amp;= \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) &amp; \left(x&gt;\beta_i \right) \\ 0 &amp;\text{else} \end{cases}\\
+    F_{STP} &amp;= \begin{cases} \alpha_i &amp; \left(x&gt;\beta_i \right) \\ 0 &amp;\text{else} \end{cases}\\
+    F_{LQ} &amp;= \begin{cases} \beta_i \cdot x &amp; \left(x&gt;\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &amp;\text{else} \end{cases}\\
+    F_{LEXP} &amp;= \begin{cases} \beta_i \cdot x &amp; \left(x&gt;\alpha_i \right) \\ \lambda_i - \exp{\left(\nu_i + \mu \cdot x \right)} &amp;\text{else} \end{cases}\\
     T_j&amp;=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 </annotation></semantics></math></p>
@@ -194,9 +194,9 @@ number, covariate, and parameter value.</p>
 <div class="section level2">
 <h2 id="using-the-standard-model">Using The Standard Model<a class="anchor" aria-label="anchor" href="#using-the-standard-model"></a>
 </h2>
-<p>In Colossus, every equation is defined in a very similar fashion.
-Elements of the risk equation can be viewed as rows of a table: the
-columns store covariate names, term numbers, subterms types, and a
+<p>In <code>Colossus</code>, every equation is defined in a very similar
+fashion. Elements of the risk equation can be viewed as rows of a table:
+the columns store covariate names, term numbers, subterms types, and a
 starting point. For more complex regression most parameters can also be
 set to remain constant over the regression. Doing so forces the
 parameter value to be constant but not remove the element from the risk
@@ -229,9 +229,9 @@ equivalent.</p>
 </tbody>
 </table>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mi>a</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>a</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>β</mi><mi>b</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>b</mi></msub><mo>+</mo><msub><mi>β</mi><mi>c</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mi>a</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>a</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>β</mi><mi>b</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>b</mi></msub><mo>+</mo><msub><mi>β</mi><mi>c</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>c</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right)
 \end{aligned}
 </annotation></semantics></math></p>
 <p>If the user wanted to update the model to include a new term with a
@@ -267,9 +267,9 @@ with a new row.</p>
 </tbody>
 </table>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mi>a</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>a</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mi>b</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>b</mi></msub><mo>+</mo><msub><mi>β</mi><mi>c</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>c</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>+</mo><msub><mi>β</mi><mi>d</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>d</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mi>a</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>a</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mi>b</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>b</mi></msub><mo>+</mo><msub><mi>β</mi><mi>c</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>c</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>+</mo><msub><mi>β</mi><mi>d</mi></msub><mo>⋅</mo><msub><mi>x</mi><mi>d</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    R = \exp{(\beta_{a} \cdot x_{a})} \times (1 + (\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c})) \times (2 + \beta_{d} \cdot x_{d})
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1 + \left(\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right) \right) \times \left(2 + \beta_{d} \cdot x_{d} \right)
 \end{aligned}
 </annotation></semantics></math></p>
 <p>Note that the multiplicative excess model is taking the product of
@@ -279,12 +279,12 @@ multiplicative model without changing the final value. The only
 exception is subterms moved from or into the “first” term in the
 multiplicative excess model. The same equation could be expressed in
 ways with different computational complexity.</p>
-<p>Models in Colossus are passed in the form of a formula. Each subterm
-of the model is expressed as an element of the formula. The model
-identifiers (A, M, PA, PAE, GMIX) are included at the end of the
+<p>Models in <code>Colossus</code> are passed in the form of a formula.
+Each subterm of the model is expressed as an element of the formula. The
+model identifiers (A, M, PA, PAE, GMIX) are included at the end of the
 formula. Every model except the additive and multiplicative models have
-a distinction between the first and remaining terms. Colossus defaults
-to term 0 being the unique term.</p>
+a distinction between the first and remaining terms.
+<code>Colossus</code> defaults to term 0 being the unique term.</p>
 <p>The final table is also equivalent to the following code.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"a"</span>, <span class="st">"b"</span>, <span class="st">"c"</span>, <span class="st">"d"</span><span class="op">)</span></span>
@@ -308,21 +308,21 @@ types, etc.</p>
 <div class="section level2">
 <h2 id="survival-time-and-event-data">Survival Time and Event Data<a class="anchor" aria-label="anchor" href="#survival-time-and-event-data"></a>
 </h2>
-<p>Colossus performs survival analysis via either a Cox Proportional
-Hazards or a Poisson model regression. In both cases, the user specifies
-which columns contain time duration and events of interest. For the
-Poisson model regression, these would be which column contains the
-person-years and number of events for each row of data. For the Cox
-Proportional Hazards regression, the user identifies which columns
-provide starting and ending times, and what column gives the event
-status. The event status is assumed to be a binary covariate which is 1
-for intervals containing an event. Colossus supports left-censored data,
-right-censored data, and interval-censored data. The data is interval
-censored by default, so left and right censoring are handled by defining
-interval endpoints outside the minimum or maximum event times. For
-Poisson model regression the user only provides columns for the
-person-years per row and number of events. Poisson model regression
-supports any non-negative number of events.</p>
+<p><code>Colossus</code> performs survival analysis via either a Cox
+Proportional Hazards or a Poisson model regression. In both cases, the
+user specifies which columns contain time duration and events of
+interest. For the Poisson model regression, these would be which column
+contains the person-years and number of events for each row of data. For
+the Cox Proportional Hazards regression, the user identifies which
+columns provide starting and ending times, and what column gives the
+event status. The event status is assumed to be a binary covariate which
+is 1 for intervals containing an event. <code>Colossus</code> supports
+left-censored data, right-censored data, and interval-censored data. The
+data is interval censored by default, so left and right censoring are
+handled by defining interval endpoints outside the minimum or maximum
+event times. For Poisson model regression the user only provides columns
+for the person-years per row and number of events. Poisson model
+regression supports any non-negative number of events.</p>
 <p>On the user side, the names of columns containing the time and events
 need to be given. Let us assume we have a dataframe organized as
 follows:</p>
@@ -364,12 +364,13 @@ follows:</p>
 the starting age, the ending age, and if an event happened during the
 interval. In this case that would be “Starting_Age”, “Ending_Age”, and
 “Cancer_Status”. In this example, we have interval data but that may not
-always be the case. Colossus is designed to allow the user to omit
-interval columns to represent truncation. Colossus assumes that this
-means that the person has the missing endpoint outside of the available
-data range and creates a dummy column to reference as the interval
-endpoint. In the formula, the interval endpoints can be named “tstart”
-and “tend”. So in code, these variables would look like this:</p>
+always be the case. <code>Colossus</code> is designed to allow the user
+to omit interval columns to represent truncation. <code>Colossus</code>
+assumes that this means that the person has the missing endpoint outside
+of the available data range and creates a dummy column to reference as
+the interval endpoint. In the formula, the interval endpoints can be
+named “tstart” and “tend”. So in code, these variables would look like
+this:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  UserID <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">112</span>, <span class="fl">114</span>, <span class="fl">213</span>, <span class="fl">214</span>, <span class="fl">115</span>, <span class="fl">116</span>, <span class="fl">117</span><span class="op">)</span>,</span>
@@ -436,9 +437,9 @@ following:</p>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="st">"Person_Years"</span></span>
 <span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span></code></pre></div>
 <p>The regression types are added to the formula on the left-hand side.
-Similar to the Surv function in the survival library, the left-hand side
-of the formula specifies the type of model and which time/event columns
-are used.</p>
+Similar to the Surv function in the <code>survival</code> package, the
+left-hand side of the formula specifies the type of model and which
+time/event columns are used.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># For the interval case</span></span>
 <span><span class="va">RHS</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="va">risk_factors</span></span>
@@ -452,12 +453,12 @@ are used.</p>
 <div class="section level2">
 <h2 id="control-and-verbosity">Control and Verbosity<a class="anchor" aria-label="anchor" href="#control-and-verbosity"></a>
 </h2>
-<p>Colossus offers several options that control how the input data is
-used and returned. This can be split into two general categories. The
-first category is convergence parameters. These cover the number of
-iterations used, limits on parameter changes, and stopping criteria. The
-second category is parameters used for debugging and additional
-information.</p>
+<p><code>Colossus</code> offers several options that control how the
+input data is used and returned. This can be split into two general
+categories. The first category is convergence parameters. These cover
+the number of iterations used, limits on parameter changes, and stopping
+criteria. The second category is parameters used for debugging and
+additional information.</p>
 <p>The common convergence parameters are as follows:</p>
 <table class="table">
 <colgroup>
@@ -551,11 +552,11 @@ used if not declared.</p>
 <p>Finally, the user calls the regression function they need. The names
 used throughout this vignette are the defaults assumed. Both the Cox PH
 regression and Poisson model regression are called directly and return a
-list of results. Colossus contains a suite of additional checks it runs
-on the inputs before starting any calculations, which are designed to
-output explicit details on any issues. Printing error details may
-require the verbose option to be TRUE. In code, the functions are called
-as follows:</p>
+list of results. <code>Colossus</code> contains a suite of additional
+checks it runs on the inputs before starting any calculations, which are
+designed to output explicit details on any issues. Printing error
+details may require the verbose option to be TRUE. In code, the
+functions are called as follows:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># assuming the table of covariates is stored in a data.table "df"</span></span>
 <span></span>
@@ -585,7 +586,7 @@ as follows:</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.032 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.029 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -613,7 +614,7 @@ as follows:</p>
 <span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
 <span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
 <span><span class="co">#&gt; Records Used: 7, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">
@@ -684,7 +685,7 @@ means that the score was still changing significantly even at low step
 sizes. To find a better solution the user would likely have to either
 change the model equation or provide a new starting guess with a lower
 step size limit. This is an example of how to interpret the results of a
-Colossus run.</p>
+<code>Colossus</code> run.</p>
 <p>There are additional variants of these functions which are described
 in greater detail in the other vignettes.</p>
 </div>

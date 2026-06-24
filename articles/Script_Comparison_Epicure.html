@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,9 +93,9 @@
 <div class="section level2">
 <h2 id="introduction-to-colossus">Introduction to Colossus<a class="anchor" aria-label="anchor" href="#introduction-to-colossus"></a>
 </h2>
-<p>Colossus was developed in the context of radiation epidemiologists
-wanting to use new methods and more data. At the time of development,
-32-bit Epicure was a popular software for running radiation
+<p><code>Colossus</code> was developed in the context of radiation
+epidemiologists wanting to use new methods and more data. At the time of
+development, 32-bit Epicure was a popular software for running radiation
 epidemiological analysis. This vignette was written with that in mind to
 help any transitioning users see how the two are similar and different,
 in addition to providing guidance for converting between the two. The
@@ -161,17 +161,17 @@ script starts by reading the input file. The only difference is that R
 does not require memory to be set aside before reading the file.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_Dose</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/fread.html" class="external-link">fread</a></span><span class="op">(</span><span class="st">"EX_DOSE.csv"</span><span class="op">)</span></span></code></pre></div>
-<p>Colossus defines the model as a formula. The left-hand side of the
-formula defines the type of model, the time observed, and the event
-columns. The right-hand side defines the risk factors in each term and
-subterm. The model is a Cox regression, the intervals are defined by the
-age_entry/age_exit columns, and the event status is stored in the nonCLL
-column. This is denoted by ‘Cox(age_entry, age_exit, nonCLL)’. The
-loglinear and product-linear subterms are added to the formula by
-specifying the subterm type, included columns, and term number,
-i.e. ‘subterm(column 1, column 2, …, term number)’. Factored columns are
-added by using ‘factor(column)’, the default level is assumed to be the
-first level.</p>
+<p><code>Colossus</code> defines the model as a formula. The left-hand
+side of the formula defines the type of model, the time observed, and
+the event columns. The right-hand side defines the risk factors in each
+term and subterm. The model is a Cox regression, the intervals are
+defined by the age_entry/age_exit columns, and the event status is
+stored in the nonCLL column. This is denoted by ‘Cox(age_entry,
+age_exit, nonCLL)’. The loglinear and product-linear subterms are added
+to the formula by specifying the subterm type, included columns, and
+term number, i.e. ‘subterm(column 1, column 2, …, term number)’.
+Factored columns are added by using ‘factor(column)’, the default level
+is assumed to be the first level.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_ERR</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">age_entry</span>, <span class="va">age_exit</span>, <span class="va">nonCLL</span><span class="op">)</span> <span class="op">~</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">cumulative_dose</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">loglinear</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">SES_CAT</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">YOB_CAT</span><span class="op">)</span>, <span class="va">sexm</span><span class="op">)</span></span></code></pre></div>
@@ -188,8 +188,8 @@ printed to the console.</p>
 <span>  ll_epsilon <span class="op">=</span> <span class="fl">1e-9</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Finally, the regression is run and a list of the results is returned
-to a variable “e”. Regressions in Colossus return a list of results, a
-summary can be printed.</p>
+to a variable “e”. Regressions in <code>Colossus</code> return a list of
+results, a summary can be printed.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model_ERR</span>, <span class="va">df_dose</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span></code></pre></div>

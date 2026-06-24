@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -97,11 +97,12 @@ many additional cancer cases occurred due to radiation exposures?”. This
 is often generalized to the question of how many cases are background
 cases and how many cases are excess cases. These are calculated by
 splitting a poisson model into a background term and excess terms. In
-Colossus, the background term is assumed to be the first term, and every
-other term is assumed to be causing excess cases. Colossus has a
-function, <code><a href="../reference/EventAssignment.html">EventAssignment()</a></code>, which calculates the number of
-background/excess cases for both average predicted counts and true
-counts. Let us assume we have the following model for event rate:</p>
+<code>Colossus</code>, the background term is assumed to be the first
+term, and every other term is assumed to be causing excess cases.
+<code>Colossus</code> has a function, <code><a href="../reference/EventAssignment.html">EventAssignment()</a></code>,
+which calculates the number of background/excess cases for both average
+predicted counts and true counts. Let us assume we have the following
+model for event rate:</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo>,</mo><mi>x</mi><mo>,</mo><mi>α</mi><mo>,</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>β</mi><mo>⋅</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>*</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>α</mi><mo>⋅</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -124,8 +125,8 @@ and background/excess count
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mrow><mi>B</mi><mi>K</mi></mrow></msub><mo>,</mo><msub><mi>c</mi><mrow><mi>E</mi><mi>X</mi></mrow></msub></mrow><annotation encoding="application/x-tex">c_{BK}, c_{EX}</annotation></semantics></math>).
 Additionally, every row has a measure of person-time
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>).
-Colossus also computes the predicted number of total, background, and
-excess cases
+<code>Colossus</code> also computes the predicted number of total,
+background, and excess cases
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>,</mo><msub><mi>P</mi><mrow><mi>B</mi><mi>K</mi></mrow></msub><mi>.</mi><msub><mi>P</mi><mrow><mi>E</mi><mi>X</mi></mrow></msub></mrow><annotation encoding="application/x-tex">P, P_{BK}. P_{EX}</annotation></semantics></math>).
 For every model we assume the average number of background cases is the
 background rate multiplied by time, the remaining cases are excess, and
@@ -145,11 +146,12 @@ predicted cases.</p>
     c_{EX} = c * \frac{P_{EX}}{P}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Colossus returns two matrices, one for the true cases and one for the
-predicted cases. Each matrix has three columns for the events assigned
-to background, excess, and total. This provides information on both the
-relative amount of background and excess cases, as well as differences
-between the expected and true number of cases.</p>
+<p><code>Colossus</code> returns two matrices, one for the true cases
+and one for the predicted cases. Each matrix has three columns for the
+events assigned to background, excess, and total. This provides
+information on both the relative amount of background and excess cases,
+as well as differences between the expected and true number of
+cases.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/EventAssignment.html">EventAssignment</a></span><span class="op">(</span><span class="va">poisres</span>, <span class="va">df</span><span class="op">)</span></span>
 <span></span>

@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -153,8 +153,8 @@ outcomes</td>
 <tr class="even">
 <td align="center">Distributed Initial Parameter Sets</td>
 <td align="center">The user provides distribution for each starting
-parameter, Colossus runs low iteration regressions at random points, and
-then a full run at the best guess</td>
+parameter, <code>Colossus</code> runs low iteration regressions at
+random points, and then a full run at the best guess</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
@@ -212,20 +212,20 @@ columns.</p>
 </h3>
 <p>Poisson model regression does not have risk groups to account for,
 but the theory is the same. To remove the influence of stratification
-covariate a new term is added to account for their effects. In Colossus,
-this is a Log-Linear term. So the following may be the model used
-without stratification:</p>
+covariate a new term is added to account for their effects. In
+<code>Colossus</code>, this is a Log-Linear term. So the following may
+be the model used without stratification:</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    R = \sum_i (x_i \cdot \beta_i)
+    R = \sum_i \left(x_i \cdot \beta_i \right)
 \end{aligned}
 </annotation></semantics></math></p>
 <p>Then the stratified model may look like this:</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><munder><mo>∑</mo><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>⋅</mo><msub><mi>β</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi mathvariant="normal">exp</mi><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></munder><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>x</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>⋅</mo><msub><mi>β</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    R = (\sum_i (x_i \cdot \beta_i)) \times (\exp{(\sum_{strata} (x_{strata} \cdot \beta_{strata}))})
+    R = \left(\sum_i \left(x_i \cdot \beta_i \right) \right) \times \left(\exp{ \left(\sum_{strata} \left(x_{strata} \cdot \beta_{strata} \right) \right)} \right)
 \end{aligned}
 </annotation></semantics></math></p>
 <p>Only results associated with the non-stratified parameters are
@@ -234,15 +234,16 @@ of the events in each strata to the sum of person-years multiplied by
 risk in each strata. The derivatives are then written, substituting the
 strata effect.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mrow><mi>e</mi><mi>v</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mo stretchy="false" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>P</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>R</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>β</mi><mrow><mi>s</mi><mi>t</mi><mi>r</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mrow><mi>e</mi><mi>v</mi><mi>e</mi><mi>n</mi><mi>t</mi></mrow><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>P</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>R</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \beta_{strata} = (\sum_i {event}_i) / (\sum_i P_i \cdot R_i)
+    \beta_{strata} = \left(\sum_i {event}_i \right) / \left(\sum_i P_i \cdot R_i \right)
 \end{aligned}
 </annotation></semantics></math></p>
 <p>In code, this is done by adding in a list of stratification columns
-and using a different response term in the model. Colossus combines the
-list of stratification columns into a single interaction, so it does not
-matter if the user provides a list or combines them themselves.</p>
+and using a different response term in the model. <code>Colossus</code>
+combines the list of stratification columns into a single interaction,
+so it does not matter if the user provides a list or combines them
+themselves.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e"</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="fu">Poisson_Strata</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span>, <span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
@@ -253,13 +254,13 @@ matter if the user provides a list or combines them themselves.</p>
 <div class="section level2">
 <h2 id="non-derivative-calculation">Non-Derivative Calculation<a class="anchor" aria-label="anchor" href="#non-derivative-calculation"></a>
 </h2>
-<p>Colossus uses Newton’s method to perform the regression, which can
-become computationally intensive as the model becomes more complicated.
-So, Colossus contains functions to calculate only the scores for a
-parameter set and skip the derivative calculations. These results could
-be used to perform a bisection method of regression or plot the
-dependence between the score and parameter values. This ability is left
-for the user’s convenience.</p>
+<p><code>Colossus</code> uses Newton’s method to perform the regression,
+which can become computationally intensive as the model becomes more
+complicated. So, <code>Colossus</code> contains functions to calculate
+only the scores for a parameter set and skip the derivative
+calculations. These results could be used to perform a bisection method
+of regression or plot the dependence between the score and parameter
+values. This ability is left for the user’s convenience.</p>
 <p>The code is similar to previous examples:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
@@ -280,10 +281,10 @@ competing event occurring. In sensitivity analysis, two extremes are
 generally tested. Either every person with a competing event is treated
 as having the event of interest instead, or they are assumed to never
 experience the event of interest. However, there are methods to find a
-more realistic alternative. Colossus applies the Fine-Gray model for
-competing risks, which instead weights the contribution of competing
-event intervals in future intervals by the probability they would not
-have been censored.</p>
+more realistic alternative. <code>Colossus</code> applies the Fine-Gray
+model for competing risks, which instead weights the contribution of
+competing event intervals in future intervals by the probability they
+would not have been censored.</p>
 <p>As previously established, the risk groups are formed to measure the
 probability that an individual survived up to the time and experienced
 the event of interest, given that they did not experience an event up to
@@ -311,7 +312,7 @@ risk. If we assume that no time-dependent covariates are being used,
 then all that remains is to weigh the contribution of these competing
 events. In general, a weighting column is provided before regression,
 the values can be solved from a survival curve or by using the
-“finegray” function of the survival library.</p>
+“finegray” function of the <code>survival</code> package.</p>
 <p>In code, the call is similar to the standard function. The process
 for finding a weighting is included below. In this example, we assume
 the event column, lung, to contain a 0 for no events, 1 for the primary
@@ -365,10 +366,10 @@ is the same for each event.</p>
 </tbody>
 </table>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>λ</mi><mi>y</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>β</mi><mo>*</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mi>y</mi></msub><mo>*</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>λ</mi><mi>z</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>β</mi><mo>*</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mi>z</mi></msub><mo>*</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>λ</mi><mi>y</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>β</mi><mo>*</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>y</mi></msub><mo>*</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>λ</mi><mi>z</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>β</mi><mo>*</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>z</mi></msub><mo>*</mo><mi>a</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \lambda_y(a) = \beta*\exp{(\mu_y*a)}\\
-    \lambda_z(a) = \beta*\exp{(\mu_z*a)}
+    \lambda_y(a) = \beta*\exp{\left(\mu_y*a \right)}\\
+    \lambda_z(a) = \beta*\exp{\left(\mu_z*a \right)}
 \end{aligned}
 </annotation></semantics></math></p>
 <p>If one were to solve the equations separately the table would be
@@ -417,15 +418,15 @@ solved at once allowing for shared and event-specific parameters.</p>
 </tbody>
 </table>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><msub><mi>α</mi><mi>y</mi></msub><mo>,</mo><msub><mi>α</mi><mi>z</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>β</mi><mo>*</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mi>y</mi></msub><mo>*</mo><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>*</mo><msub><mi>α</mi><mi>y</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msub><mi>μ</mi><mi>z</mi></msub><mo>*</mo><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>*</mo><msub><mi>α</mi><mi>z</mi></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>,</mo><msub><mi>α</mi><mi>y</mi></msub><mo>,</mo><msub><mi>α</mi><mi>z</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi>β</mi><mo>*</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>y</mi></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>*</mo><msub><mi>α</mi><mi>y</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>μ</mi><mi>z</mi></msub><mo>*</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>a</mi><mo>*</mo><msub><mi>α</mi><mi>z</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \lambda(a,\alpha_y,\alpha_z) = \beta*\exp{(\mu_y*(a*\alpha_y) + \mu_z*(a*\alpha_z))}
+    \lambda \left(a,\alpha_y,\alpha_z \right) = \beta*\exp{ \left(\mu_y* \left(a*\alpha_y \right) + \mu_z* \left(a*\alpha_z \right) \right)}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>Colossus includes several functions to apply this method, a function
-that produces input for a joint analysis regression and a function that
-also runs the regression. The most general converts a table and lists of
-formula into the input for a regression.</p>
+<p><code>Colossus</code> includes several functions to apply this
+method, a function that produces input for a joint analysis regression
+and a function that also runs the regression. The most general converts
+a table and lists of formula into the input for a regression.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
@@ -438,12 +439,13 @@ formula into the input for a regression.</p>
 <span><span class="va">df</span><span class="op">$</span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">t1</span> <span class="op">-</span> <span class="va">df</span><span class="op">$</span><span class="va">t0</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="st">"pyr"</span></span>
 <span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e0"</span>, <span class="st">"e1"</span><span class="op">)</span></span></code></pre></div>
-<p>Colossus generally accepts a formula to describe the elements of the
-model. For a joint analysis, Colossus instead expects a list of formula.
-The formula are expect to cover the model elements specific to each
-event, and potentially a model for shared elements. Colossus expects the
-name of the shared model to be “shared”. The left hand side of the
-shared model is not used.</p>
+<p><code>Colossus</code> generally accepts a formula to describe the
+elements of the model. For a joint analysis, <code>Colossus</code>
+instead expects a list of formula. The formula are expect to cover the
+model elements specific to each event, and potentially a model for
+shared elements. <code>Colossus</code> expects the name of the shared
+model to be “shared”. The left hand side of the shared model is not
+used.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model_1</span> <span class="op">&lt;-</span> <span class="fu">Pois</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">e0</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/loglin.html" class="external-link">loglin</a></span><span class="op">(</span><span class="va">fac</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span><span class="va">model_2</span> <span class="op">&lt;-</span> <span class="fu">Pois</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">e1</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/stats/loglin.html" class="external-link">loglin</a></span><span class="op">(</span><span class="va">fac</span>, <span class="fl">0</span><span class="op">)</span></span>
@@ -512,8 +514,8 @@ object.</p>
 <span><span class="co">#&gt; 11:     1     2      1     0     1     0     1      0      0</span></span>
 <span><span class="co">#&gt; 12:     1     2      1     0     1     0     1      0      0</span></span></code></pre></div>
 <p>These results could be used as input for any of the available
-regression functions. Colossus also includes a wrapper function to
-directly call the Poisson model regression function.</p>
+regression functions. <code>Colossus</code> also includes a wrapper
+function to directly call the Poisson model regression function.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  ncores <span class="op">=</span> <span class="fl">1</span>, lr <span class="op">=</span> <span class="fl">0.75</span>, maxiter <span class="op">=</span> <span class="fl">10</span>, halfmax <span class="op">=</span> <span class="fl">5</span>, epsilon <span class="op">=</span> <span class="fl">1e-6</span>,</span>
@@ -540,7 +542,7 @@ directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.589e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 12, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

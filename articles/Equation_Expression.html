@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,23 +89,23 @@
 <span><span class="co">#&gt; The following object is masked from 'package:base':</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     %notin%</span></span></code></pre></div>
-<p>The underlying functions in Colossus specify a survival model using a
-series of vectors, which can be overly complicated at times. Colossus
-includes functions to interpret formulas, and then call the underlying
-functions.</p>
+<p>The underlying functions in <code>Colossus</code> specify a survival
+model using a series of vectors, which can be overly complicated at
+times. <code>Colossus</code> includes functions to interpret formulas,
+and then call the underlying functions.</p>
 <div class="section level2">
 <h2 id="equation-expression">Equation Expression<a class="anchor" aria-label="anchor" href="#equation-expression"></a>
 </h2>
 <p>Generally, a survival model is defined by using a Surv object,
 initialized with the interval and event columns, and a list of columns.
-Because Colossus can handle much more complicated models, the definition
-has to be more complicated. Instead of a Surv object, the model is
-specified with ‘cox’, ‘poisson’, or ‘finegray’, each also including a
-strata option. The right side of the equation is listed similarly.
-Columns are added to subterm types (loglinear, linear, plinear, etc.).
-Each subterm has a list of columns and a term number. Finally, the
-method to combine terms is added as a separate item (multiplicative,
-additive, etc.).</p>
+Because <code>Colossus</code> can handle much more complicated models,
+the definition has to be more complicated. Instead of a Surv object, the
+model is specified with ‘cox’, ‘poisson’, or ‘finegray’, each also
+including a strata option. The right side of the equation is listed
+similarly. Columns are added to subterm types (loglinear, linear,
+plinear, etc.). Each subterm has a list of columns and a term number.
+Finally, the method to combine terms is added as a separate item
+(multiplicative, additive, etc.).</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">Surv(interval, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mtext mathvariant="normal">name + ... + factor(name)</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Survival(interval, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> subterm(name, factor(name), term_number) + ... + term_model()’</mtext></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}

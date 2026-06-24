@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,16 +94,16 @@
 </h2>
 <p>There are many instances in which a user may want to use data that is
 known up to a distribution, in these cases it may not be sufficient to
-use a single realization. Colossus provides two ways to use multiple
-realizations. The first runs multiple regressions in a row, each with a
-different realization. The second optimizes the average Log-Likelihood
-over the realizations. These methods were designed to assist in
-circumstances in which combinations of shared and unshared errors are
-present, and a two-dimensional Monte Carlo method is used to generate
-realizations for at least one covariate column. Note that this method
-does not apply to uncertainties in the event/cases or interval/duration
-columns. These methods also are not currently available for
-stratification columns.</p>
+use a single realization. <code>Colossus</code> provides two ways to use
+multiple realizations. The first runs multiple regressions in a row,
+each with a different realization. The second optimizes the average
+Log-Likelihood over the realizations. These methods were designed to
+assist in circumstances in which combinations of shared and unshared
+errors are present, and a two-dimensional Monte Carlo method is used to
+generate realizations for at least one covariate column. Note that this
+method does not apply to uncertainties in the event/cases or
+interval/duration columns. These methods also are not currently
+available for stratification columns.</p>
 <div class="section level3">
 <h3 id="specifics-of-use">Specifics of Use<a class="anchor" aria-label="anchor" href="#specifics-of-use"></a>
 </h3>
@@ -114,21 +114,21 @@ known, exposure is known up to a distribution that could be shared among
 individuals, and sleep is randomly distributed and independent in each
 interval.</p>
 <p class="text-center" style="background-color: aliceblue">
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mi>a</mi></msub><mo>×</mo><mi>a</mi><mo>+</mo><msub><mi>β</mi><mi>a</mi></msub><mo>×</mo><mi>r</mi><mo>+</mo><msub><mi>β</mi><mi>a</mi></msub><mo>×</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>r</mi><mo>,</mo><mi>s</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>β</mi><mi>a</mi></msub><mo>×</mo><mi>a</mi><mo>+</mo><msub><mi>β</mi><mi>a</mi></msub><mo>×</mo><mi>r</mi><mo>+</mo><msub><mi>β</mi><mi>a</mi></msub><mo>×</mo><mi>s</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
-    \lambda(a, r, s) = \exp{(\beta_a \times a + \beta_a \times r + \beta_a \times s)}
+    \lambda(a, r, s) = \exp{ \left(\beta_a \times a + \beta_a \times r + \beta_a \times s \right)}
 \end{aligned}
 </annotation></semantics></math></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="va">r0</span>, <span class="va">s0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
-<p>Colossus requires two items to apply multiple realizations, a list of
-columns to replace, and a matrix of columns for each realization.
-Suppose the user generates 5 realizations. Then there are two
-distributed columns and five realizations. Similar to other regression
-options, Colossus always expects column names listed in the model to be
-in the table.</p>
+<p><code>Colossus</code> requires two items to apply multiple
+realizations, a list of columns to replace, and a matrix of columns for
+each realization. Suppose the user generates 5 realizations. Then there
+are two distributed columns and five realizations. Similar to other
+regression options, <code>Colossus</code> always expects column names
+listed in the model to be in the table.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dose_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r0"</span>, <span class="st">"s0"</span><span class="op">)</span></span>
 <span><span class="co"># The two columns in the model to replace are the radiation/sleeping covariates</span></span>
@@ -146,12 +146,12 @@ in the final parameter estimates. Note that there is no strict
 requirement for the realization columns to be realizations of a
 distributed column. A user could use this method to compare models with
 the same formula but different covariates. The only difficulty is that
-Colossus does not refresh the parameter estimates between realization
-regressions, so the user may need to keep in mind feasible parameter
-space. If individual realizations are being optimized and the initial
-parameter estimate is infeasible, the parameter estimates associated
-with the negative term are reduced in magnitude. In most cases, this is
-enough to find a nearby feasible space to start at.</p>
+<code>Colossus</code> does not refresh the parameter estimates between
+realization regressions, so the user may need to keep in mind feasible
+parameter space. If individual realizations are being optimized and the
+initial parameter estimate is infeasible, the parameter estimates
+associated with the negative term are reduced in magnitude. In most
+cases, this is enough to find a nearby feasible space to start at.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e_fma</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRunMulti.html">CoxRunMulti</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>,</span>
