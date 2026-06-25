@@ -727,11 +727,12 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
     }
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
     if (model_bool["observed_info"]) {
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
+        //
         cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
@@ -1392,11 +1393,11 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
     }
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
     if (model_bool["observed_info"]) {
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
@@ -2285,7 +2286,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     }
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
-    //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);  //  simplfied information matrix
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2301,12 +2301,12 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
     }
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
     //
     if (model_bool["observed_info"]) {
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {
@@ -3056,11 +3056,11 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         Lldd_vec[jk * reqrdnum + ij] = Lldd_vec[ij * reqrdnum + jk];
     }
     Lldd_vec.attr("dim") = Dimension(reqrdnum, reqrdnum);
-    const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     //
     MatrixXd cov;
     VectorXd stdev = VectorXd::Zero(totalnum);
     if (model_bool["observed_info"]) {
+        const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
         cov = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
         for (int ij = 0; ij < totalnum; ij++) {
             if (KeepConstant[ij] == 0) {

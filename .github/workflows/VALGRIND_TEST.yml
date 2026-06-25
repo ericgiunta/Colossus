@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  ubuntu_valgrind_check:
+  ubuntu_valgrind_R_CMD_check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -27,5 +27,17 @@ jobs:
           Ncpus: 2
       - name: Run R CMD check with valgrind
         run: |
-          R CMD build .
+          R CMD build ---no-build-vignettes --no-manual .
           R CMD check --use-valgrind --no-vignettes --no-manual *_*.tar.gz
+  ubuntu_valgrind_R_D_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          Ncpus: 2
+      - name: Run R CMD check with valgrind
+        run: |
+          printf "devtools::run_examples()\ndevtools::test()" > memcheck.R
+          R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < memcheck.R
