@@ -27,7 +27,8 @@ jobs:
           Ncpus: 2
       - name: Run R CMD check with valgrind
         run: |
-          R CMD build ---no-build-vignettes --no-manual .
+          R CMD build --no-build-vignettes --no-manual .
+          ls
           R CMD check --use-valgrind --no-vignettes --no-manual *_*.tar.gz
   ubuntu_valgrind_R_D_check:
     runs-on: ubuntu-latest
@@ -40,4 +41,5 @@ jobs:
       - name: Run R CMD check with valgrind
         run: |
           printf "devtools::run_examples()\ndevtools::test()" > memcheck.R
-          R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < memcheck.R
+          ls
+          R -d "valgrind --tool=memcheck --leak-check=full run --vanilla" < memcheck.R
