@@ -66,4 +66,4 @@ jobs:
         run: |
           printf "devtools::run_examples()\ndevtools::test()" > memcheck.R
           ls
-          R -d "valgrind --tool=memcheck --leak-check=full run --vanilla" < memcheck.R
+          R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < memcheck.R
