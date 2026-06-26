@@ -10,9 +10,7 @@ name: Valgrind_Test
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '30 5 1,15 * *'
-    branches: [main]
+    branches: [main, dev]
 
 permissions:
   contents: read
