@@ -10,7 +10,8 @@ name: Valgrind_Test
 
 on:
   workflow_dispatch:
-  push:
+  schedule:
+    - cron: '30 5 1,15 * *'
     branches: [main]
 
 permissions:
@@ -66,4 +67,5 @@ jobs:
         run: |
           printf "devtools::run_examples()\ndevtools::test()" > memcheck.R
           ls
+          Rscript -e "devtools::install()"
           R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < memcheck.R

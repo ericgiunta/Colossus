@@ -86,7 +86,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -194,9 +194,23 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     model_control[["cr"]] <- TRUE
   }
   if (!missing(cons_mat)) {
-    model_control[["constraint"]] <- TRUE
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
+  print(gradient_control)
   if (!missing(gradient_control)) {
+    print(gradient_control)
+    print(inherits(gradient_control, "list"))
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
+    print("it passed")
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -355,7 +369,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -441,10 +455,20 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     if (all(poismodel$strata != "NONE")) {
       model_control["strata"] <- TRUE
     }
-    if (ncol(cons_mat) > 1) {
-      model_control["constraint"] <- TRUE
+    if (!missing(cons_mat)) {
+      if (missing(cons_vec)) {
+        const_res <- check_constraints(a_n, model_control, cons_mat = cons_mat, verbose = control$verbose)
+      } else {
+        const_res <- check_constraints(a_n, model_control, cons_mat = cons_mat, cons_vec = cons_vec, verbose = control$verbose)
+      }
+      model_control <- const_res$control
+      cons_mat <- const_res$mat
+      cons_vec <- const_res$vec
     }
     if (!missing(gradient_control)) {
+      if (!inherits(gradient_control, "list")) {
+        stop("Error: Gradient control list was not a list")
+      }
       model_control["gradient"] <- TRUE
       for (nm in names(gradient_control)) {
         model_control[nm] <- gradient_control[nm]
@@ -606,7 +630,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -696,10 +720,20 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       ), domain = NA)
     }
   }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -862,7 +896,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -935,6 +969,9 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     model_control[["time_risk"]] <- TRUE
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -1094,7 +1131,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -1150,10 +1187,20 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -1955,7 +2002,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -2036,10 +2083,20 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control[["constraint"]] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -2189,7 +2246,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -2250,10 +2307,20 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]

@@ -244,6 +244,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     } else {
       a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
     }
+    #
     e <- cox_ph_Omnibus_transition(
       term_n, tform, a_ns, dfc, x_all, 0,
       modelform, control, as.matrix(df[, ce, with = FALSE]), tu,

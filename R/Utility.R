@@ -82,6 +82,139 @@ parse_literal_string <- function(string) {
   string
 }
 
+#' checks the input constraint matrix, to verify that it is valid
+#'
+#' \code{check_constraints} checks the input constraint matrix, applies fixes, and updates the model_control
+#'
+#' @noRd
+#' @family Data Cleaning Functions
+#' @return returns a list with the updated values
+check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), verbose = 2) {
+  # check that the constraint matrix is valid
+  # It should be a numeric matrix
+  if (is.null(cons_mat)) {
+    stop("Error: Constraint matrix was empty.")
+  } else if (suppressWarnings(any(is.character(cons_mat)))) {
+    stop("Error: Constraint matrix was not numeric")
+  } else if (is.Date(cons_mat)) {
+    stop("Error: Constraint matrix was a date")
+  } else if (!is.null(levels(cons_mat))) {
+    stop("Error: Constraint matrix was a factor")
+  } else if ((suppressWarnings(any(is.na(as.matrix(as.numeric(cons_mat)))))) || (is.list(cons_mat))) {
+    stop("Error: Constraint matrix was not a numeric matrix.")
+  } else {
+    if (!is.matrix(cons_mat)) {
+      row_count <- 1
+    } else {
+      row_count <- nrow(cons_mat)
+    }
+    cons_mat <- matrix(as.numeric(unlist(cons_mat)), nrow = row_count)
+  }
+  if (nrow(cons_mat) < 1) {
+    stop("Error: Constraint matrix was empty.")
+  }
+  if (ncol(cons_mat) < length(a_n)) {
+    if (verbose >= 2) {
+      warning("Warning: The constraint matrix was missing columns.")
+    }
+    cons_mat <- cbind(cons_mat, matrix(rep(0, nrow(cons_mat) * (length(a_n) - ncol(cons_mat))), nrow = nrow(cons_mat)))
+  } else if (ncol(cons_mat) > length(a_n)) {
+    stop("Error: Constraint matrix had too many columns.")
+  }
+  if (!missing(cons_vec)) {
+    if (is.null(cons_vec)) {
+      stop("Error: Constraint vector was empty.")
+    } else if (suppressWarnings(any(is.character(cons_vec)))) {
+      stop("Error: Constraint vector was not numeric")
+    } else if (is.Date(cons_vec)) {
+      stop("Error: Constraint vector was a date")
+    } else if (!is.null(levels(cons_vec))) {
+      stop("Error: Constraint vector was a factor")
+    } else if ((suppressWarnings(any(is.na(as.numeric(cons_vec))))) || (is.list(cons_vec))) {
+      stop("Error: Constraint vector was not a numeric vector.")
+    } else {
+      cons_vec <- as.numeric(cons_vec)
+    }
+    if (length(cons_vec) < nrow(cons_mat)) {
+      if (verbose >= 2) {
+        warning("Warning: The constraint solution vector was too short. Zeros added for missing values.")
+      }
+      cons_vec <- c(cons_vec, rep(0.0, nrow(cons_mat) - length(cons_vec)))
+    } else if (length(cons_vec) > nrow(cons_mat)) {
+      stop("Error: The Constraint vector had too many entries")
+    }
+  } else {
+    # Values may be set to zero by default, check each row
+    for (i in 1:nrow(cons_mat)) {
+      if (sum(cons_mat[i, ] != 0) == 1) {
+        # There is only one non-zero entry in this row, and the solution vector defaults to zero
+        stop("Error: Constraint solution would set parameter to zero by default. It is preferable to manually set cons_vec to zero if this is intended.")
+      }
+    }
+    cons_vec <- c(rep(0.0, nrow(cons_mat)))
+  }
+  #
+  row_remove <- c()
+  for (i in 1:nrow(cons_mat)) {
+    if (all(cons_mat[i, ] == rep(0, ncol(cons_mat)))) {
+      row_remove <- c(row_remove, 0)
+    } else {
+      row_remove <- c(row_remove, NA)
+    }
+  }
+  if (!all(is.na(row_remove))) {
+    if (verbose >= 2) {
+      warning("Warning: Atleast one row of the constraint matrix was all zero.")
+    }
+    cons_mat <- matrix(cons_mat[is.na(row_remove), ], nrow = nrow(cons_mat))
+    cons_vec <- cons_vec[is.na(row_remove)]
+  }
+  # If we have more than one row, then they could be linearly dependent
+  if (nrow(cons_mat) > 1) {
+    # We want to simplify the matrix
+    # Start by removing the linearly dependent rows and identifying incorrect rows
+    total_mat <- cbind(cons_mat, unlist(cons_vec, use.names = FALSE))
+    row_removed <- c(0)
+    for (i in 2:nrow(total_mat)) {
+      new_full_rank <- qr(total_mat[1:i, ])$rank # rank for the full solution matrix
+      new_base_rank <- qr(cons_mat[1:i, ])$rank # rank for the constraint values
+      if (new_full_rank == i - sum(row_removed)) {
+        # the two full values were linearly independent
+        # The original constraint values could still be linearly dependent
+        if (new_base_rank == i - sum(row_removed)) {
+          # it is all linearly independent
+          row_removed <- c(row_removed, 0)
+        } else {
+          # The constraint matrix had linearly dependent values, but the vector portions were not equal
+          row_removed <- c(row_removed, 1)
+          stop("Error: Two linearly dependent constraint matrix rows had different solutions.")
+        }
+      } else {
+        # the row was linearly dependent
+        row_removed <- c(row_removed, 1)
+      }
+    }
+    # Remove the offending rows
+    total_mat <- total_mat[(row_removed == 0), ]
+    # Convert to reduced row echelon format to simplify future calculations
+    total_mat <- rref(total_mat)
+    # Pull out the new matrix and vector
+    cons_mat <- total_mat[, 1:(ncol(total_mat) - 1)]
+    cons_vec <- total_mat[, ncol(total_mat)]
+  }
+  #
+  if (nrow(cons_mat) * ncol(cons_mat) > 0) {
+    model_control$constraint <- TRUE
+  } else {
+    if (verbose >= 2) {
+      warning("Warning: Constraint matrix was given, but was not valid.")
+    }
+    model_control$constraint <- FALSE
+  }
+  #
+  res <- list("control" = model_control, "mat" = cons_mat, "vec" = cons_vec)
+}
+
 #' Calculates and applies the interaction between a list of factor columns
 #'
 #' \code{Make_Interaction_Strata} iterates through a list of factors and finds all of the valid interactions
@@ -296,54 +429,10 @@ Def_Control <- function(control) {
     }
   }
   # nocov end
-  for (nm in names(control_def)) {
-    if (nm %in% names(control)) {
-      if (nm == "ncores") {
-        # nocov start
-        if (control$ncores > control_def$ncores) {
-          stop(
-            "Error: Cores Requested:", control["ncores"],
-            ", Cores Available:", control_def["ncores"]
-          )
-        }
-        # nocov end
-      } else if (nm == "verbose") {
-        control$verbose <- Check_Verbose(control$verbose)
-      }
-    } else {
-      control[nm] <- control_def[nm]
-    }
-  }
-  # nocov start
-  if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
-    control$ncores <- min(c(control$ncores, 2, as.numeric(detectCores()))) # reduces cores for cran checks
-  }
-  # nocov end
-  if (control$epsilon >= control$step_max) {
-    if (control["verbose"] > 1) {
-      warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.") # nocov
-    }
-    control$epsilon <- 0.1 * control$step_max
-  }
-  control["ties"] <- tolower(control["ties"])
-  control_min <- list(
-    verbose = 0, lr = 0.0, maxiter = -1,
-    halfmax = 0, epsilon = 0.0, ll_epsilon = 0.0,
-    deriv_epsilon = 0.0, step_max = 0.0,
-    thres_step_max = 0.0
-  )
-  for (nm in names(control_min)) {
-    if (control[[nm]] < control_min[[nm]]) {
-      control[nm] <- control_min[nm]
-    }
-  }
-  control_int <- list(
-    verbose = 0, maxiter = -1,
-    halfmax = 0
-  )
-  for (nm in names(control_int)) {
-    control[nm] <- as.integer(control[nm])
-  }
+  # Take advantage of code to check control values
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control_def <- do.call(ColossusControl, control[control_args])
+  control <- c(control[!(names(control) %in% names(control_def))], control_def)
   control
 }
 
@@ -371,7 +460,14 @@ Def_model_control <- function(control) {
   control <- control[!duplicated(names(control))] # filter down
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
-      # fine
+      if (((length(control[[nm]]) > 1) || is.list(control[[nm]]))) {
+        stop(paste0("Error: ", nm, " was not a single value."))
+      }
+      if (suppressWarnings(is.na(as.logical(control[nm])))) {
+        stop(paste0("Error: ", nm, " had a non-logical value"))
+      } else {
+        control[nm] <- as.logical(control[nm])
+      }
     } else {
       control[nm] <- FALSE
     }
@@ -386,35 +482,68 @@ Def_model_control <- function(control) {
     control["single"] <- TRUE
   }
   if ("step_size" %in% names(control)) {
-    # fine
+    if (suppressWarnings(any(is.na(as.numeric(control["step_size"]))))) {
+      stop("Error: model control step size had a non-numeric value")
+    } else {
+      control["step_size"] <- as.numeric(control["step_size"])
+    }
   } else {
     control["step_size"] <- 0.5
   }
   if ("unique_values" %in% names(control)) {
-    # fine
+    if (suppressWarnings(any(is.na(as.numeric(control["unique_values"]))))) {
+      stop("Error: unique values had a non-numeric value")
+    } else {
+      control["unique_values"] <- as.integer(control["unique_values"])
+    }
   } else {
     control["unique_values"] <- 2
   }
   if ("gmix_theta" %in% names(control)) {
-    # fine
+    if (suppressWarnings(any(is.na(as.numeric(control["gmix_theta"]))))) {
+      stop("Error: gmix theta had a non-numeric value")
+    } else {
+      control["gmix_theta"] <- as.numeric(control["gmix_theta"])
+    }
+    if (abs(control[["gmix_theta"]] - 0.5) > 0.5) {
+      warning("Warning: gmix theta was outside of [0,1.0]. Not the intended use, errors may occur.")
+    }
   } else {
     control["gmix_theta"] <- 0.5
   }
   if ("gmix_term" %in% names(control)) {
-    # fine
+    if (suppressWarnings(any(is.na(as.integer(control$gmix_term))))) {
+      stop("Error: gmix term had a non-numeric value")
+    } else {
+      control$gmix_term <- as.integer(control$gmix_term)
+    }
   } else {
     control["gmix_term"] <- c(0)
   }
   if ("conditional_threshold" %in% names(control)) {
-    # fine
+    if (suppressWarnings(any(is.na(as.numeric(control["conditional_threshold"]))))) {
+      stop("Error: conditional threshold had a non-numeric value")
+    } else {
+      control["conditional_threshold"] <- as.integer(control["conditional_threshold"])
+    }
+    control["conditional_threshold"] <- max(c(control[["conditional_threshold"]], 0))
   } else {
     control["conditional_threshold"] <- 50
   }
   if (control[["log_bound"]]) {
     if ("qchi" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["qchi"]))))) {
+        stop("Error: chi squared value had a non-numeric value")
+      } else {
+        control["qchi"] <- as.numeric(control["qchi"])
+      }
     } else {
       if ("alpha" %in% names(control)) {
+        if (suppressWarnings(any(is.na(as.numeric(control["alpha"]))))) {
+          stop("Error: alpha value had a non-numeric value")
+        } else {
+          control["alpha"] <- as.numeric(control["alpha"])
+        }
         control["qchi"] <- qchisq(1 - control[["alpha"]], df = 1) / 2
       } else {
         control["alpha"] <- 0.05
@@ -426,32 +555,56 @@ Def_model_control <- function(control) {
       control["para_number"] <- control["para_num"]
     }
     if ("para_number" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["para_number"]))))) {
+        stop("Error: parameter number was non-numeric")
+      } else {
+        control["para_number"] <- as.integer(control["para_number"])
+      }
     } else {
       control["para_number"] <- 1
     }
     if ("maxstep" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["maxstep"]))))) {
+        stop("Error: maximum step size was non-numeric")
+      } else {
+        control["maxstep"] <- as.integer(control["maxstep"])
+      }
     } else {
       control["maxstep"] <- 10
     }
     if ("manual" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.logical(control["manual"]))))) {
+        stop("Error: manual search was non-logical")
+      } else {
+        control["manual"] <- as.logical(control["manual"])
+      }
     } else {
       control["manual"] <- FALSE
     }
     if ("search_mult" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["search_mult"]))))) {
+        stop("Error: solution search multiplier was non-numeric")
+      } else {
+        control["search_mult"] <- as.numeric(control["search_mult"])
+      }
     } else {
       control["search_mult"] <- 1.0
     }
     if ("step_size" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["step_size"]))))) {
+        stop("Error: step size was non-numeric")
+      } else {
+        control["step_size"] <- as.numeric(control["step_size"])
+      }
     } else {
       control["step_size"] <- 0.5
     }
     if ("bisect" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.logical(control["bisect"]))))) {
+        stop("Error: bisection search was non-logical")
+      } else {
+        control["bisect"] <- as.logical(control["bisect"])
+      }
     } else {
       control["bisect"] <- FALSE
     }
@@ -462,36 +615,60 @@ Def_model_control <- function(control) {
     )
     for (nm in control_def_names) {
       if (nm %in% names(control)) {
-        # fine
+        if (suppressWarnings(any(is.na(as.logical(control[nm]))))) {
+          stop(paste0("Error: ", nm, " was non-logical"))
+        } else {
+          control[nm] <- as.logical(control[nm])
+        }
       } else {
         control[nm] <- FALSE
       }
     }
     # add different parameters
     if ("momentum_decay" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["momentum_decay"]))))) {
+        stop("Error: momentum decay was non-numeric")
+      } else {
+        control["momentum_decay"] <- as.numeric(control["momentum_decay"])
+      }
     } else {
       control["momentum_decay"] <- 0.9
     }
     if ("learning_decay" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["learning_decay"]))))) {
+        stop("Error: learning decay was non-numeric")
+      } else {
+        control["learning_decay"] <- as.numeric(control["learning_decay"])
+      }
     } else {
       control["learning_decay"] <- 0.999
     }
     if ("epsilon_decay" %in% names(control)) {
-      # fine
+      if (suppressWarnings(any(is.na(as.numeric(control["epsilon_decay"]))))) {
+        stop("Error: epsilon decay was non-numeric")
+      } else {
+        control["epsilon_decay"] <- as.numeric(control["epsilon_decay"])
+      }
     } else {
       control["epsilon_decay"] <- 1e-4
     }
     if (control["constraint"] == TRUE) {
       # needs to add constraint penalty
       if ("penalty_weight" %in% names(control)) {
-        # fine
+        if (suppressWarnings(any(is.na(as.numeric(control["penalty_weight"]))))) {
+          stop("Error: penalty weight was non-numeric")
+        } else {
+          control["penalty_weight"] <- as.numeric(control["penalty_weight"])
+        }
       } else {
         control["penalty_weight"] <- 1.0
       }
       if ("penalty_method" %in% names(control)) {
-        # fine
+        if (suppressWarnings(any(is.na(as.character(control["penalty_method"]))))) {
+          stop("Error: penalty method was not a string")
+        } else {
+          control["penalty_method"] <- as.character(control["penalty_method"])
+        }
       } else {
         control["penalty_method"] <- "sqr_error"
       }

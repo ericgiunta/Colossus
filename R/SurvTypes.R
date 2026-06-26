@@ -1130,7 +1130,7 @@ get_form_risk <- function(model_obj, df) {
               # all good
               removed <- c(removed, 0)
             } else {
-              # the column was linearlly dependent
+              # the column was linearly dependent
               removed <- c(removed, 1)
               all_remove[new_index[i]] <- 1
             }

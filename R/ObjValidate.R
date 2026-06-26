@@ -124,6 +124,11 @@ new_logitresbound <- function(x = list()) {
 
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
+  # Check if not numeric
+  if (suppressWarnings(any(is.na(as.numeric(x$term_n))))) {
+    stop("Error: the term numbers had a non-numeric value")
+  }
+  #
   if (any(x$term_n != round(x$term_n))) {
     stop("Error: term_n expects integer values, atleast one value was noninteger")
   }
@@ -171,6 +176,11 @@ validate_formula <- function(x, df, verbose = FALSE) {
     x$term_n <- x$term_n[seq_along(x$names)]
   }
   # --------------------------------------------------------------------- #
+  # Check if not numeric
+  if (suppressWarnings(any(is.na(as.numeric(x$keep_constant))))) {
+    stop("Error: keep_constant had a non-numeric value")
+  }
+  #
   if (length(x$keep_constant) < length(x$names)) {
     x$keep_constant <- c(x$keep_constant, rep(0, length(x$names) -
       length(x$keep_constant)))
@@ -193,6 +203,9 @@ validate_formula <- function(x, df, verbose = FALSE) {
     stop("Error: keep_constant expects 0/1 values, atleast one value was noninteger")
   }
   # --------------------------------------------------------------------- #
+  # Convert to string
+  x$tform <- as.character(x$tform)
+  #
   if (length(x$tform) < length(x$names)) {
     if (verbose >= 2) {
       # nocov start
@@ -298,6 +311,11 @@ validate_formula <- function(x, df, verbose = FALSE) {
     if (typeof(x$a_n) == "list") {
       x$a_n <- x$a_n[[1]]
     }
+    # Check if not numeric
+    if (suppressWarnings(any(is.na(as.numeric(x$a_n))))) {
+      stop("Error: the intial parameter guesses had a non-numeric value")
+    }
+    #
     if (length(x$a_n) < length(x$names)) {
       if (verbose >= 2) {
         # nocov start
@@ -317,7 +335,17 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
   } else {
     a_0 <- x$a_n[[1]]
+    # Check if not numeric
+    if (suppressWarnings(any(is.na(as.numeric(a_0))))) {
+      stop("Error: the intial parameter guesses had a non-numeric value")
+    }
+    #
     for (a_i in x$a_n) {
+      # Check if not numeric
+      if (suppressWarnings(any(is.na(as.numeric(a_i))))) {
+        stop("Error: the intial parameter guesses had a non-numeric value")
+      }
+      #
       if (length(a_i) != length(a_0)) {
         stop(
           "Error: Parameters used in first option: ",
@@ -352,6 +380,9 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
   }
   # --------------------------------------------------------------------- #
+  # Convert to string
+  x$names <- as.character(x$names)
+  #
   name_check <- unique(x$names)
   if (!all(name_check %in% names(df))) {
     stop("Error: Atleast one model covariate not in the data")
@@ -714,10 +745,37 @@ ColossusControl <- function(verbose = 1,
                             thres_step_max = 1.0,
                             ties = "breslow",
                             ncores = as.numeric(detectCores())) {
+  # Check if maxiter is non-numeric
+  if ((length(maxiter) > 1) || is.list(maxiter)) {
+    stop("Error: maxiter was not a single value")
+  }
+  if (suppressWarnings(is.na(as.numeric(maxiter)))) {
+    stop("Error: maxiter had a non-numeric value")
+  } else {
+    maxiter <- as.integer(as.character(maxiter))
+  }
+  #
   if (missing(maxiters)) {
     maxiters <- c(1, maxiter)
     if (maxiter < 0) {
       maxiters <- c(-1, -1)
+    }
+  } else {
+    if (is.list(maxiters)) {
+      stop("Error: maxiters was not a vector")
+    }
+    if (suppressWarnings(any(is.na(as.numeric(maxiters))))) {
+      stop("Error: maxiters had a non-numeric value")
+    } else {
+      if ((any(!is.null(levels(maxiters)))) || (any(is.Date(maxiters)))) {
+        stop(paste0("Error: Maxiteration vector was an invalid type."))
+      }
+      maxiters <- as.numeric(maxiters)
+    }
+    if (length(maxiters) == 1) {
+      maxiters <- rep(maxiters, 2)
+    } else if (length(maxiters) == 0) {
+      stop("Error: Maxiters was given, but it was empty.")
     }
   }
   maxiters <- as.integer(maxiters)
@@ -750,6 +808,9 @@ ColossusControl <- function(verbose = 1,
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
+        if (suppressWarnings(is.na(as.integer(control[[nm]])))) {
+          stop(paste0("Error: Control parameter ", nm, " couldn't be changed to integer."))
+        }
         if (control$ncores > control_def$ncores) {
           stop(
             "Error: Cores Requested:", control["ncores"],
@@ -762,9 +823,38 @@ ColossusControl <- function(verbose = 1,
     } else {
       control[nm] <- control_def[nm]
     }
+    if (((length(control[[nm]]) > 1) || is.list(control[[nm]]))) {
+      stop(paste0("Error: ", nm, " was not a single value."))
+    }
+    if ((!is.null(levels(control[[nm]]))) || (is.Date(control[[nm]]))) {
+      stop(paste0("Error: Control parameter ", nm, " was invalid type."))
+    }
   }
+  #
   control["ties"] <- tolower(control["ties"])
   control["ties"] <- vapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  control_int <- list(
+    verbose = 0, maxiter = -1,
+    halfmax = 0
+  )
+  for (nm in names(control_int)) {
+    if (suppressWarnings(is.na(as.integer(control[[nm]])))) {
+      stop(paste0("Error: Control parameter ", nm, " couldn't be changed to integer."))
+    }
+    control[nm] <- as.integer(control[nm])
+  }
+  control_dbl <- list(
+    lr = 0.0,
+    epsilon = 0.0, ll_epsilon = 0.0,
+    deriv_epsilon = 0.0, step_max = 0.0,
+    thres_step_max = 0.0
+  )
+  for (nm in names(control_dbl)) {
+    if (suppressWarnings(is.na(as.numeric(control[[nm]])))) {
+      stop(paste0("Error: Control parameter ", nm, " couldn't be changed to numeric."))
+    }
+    control[nm] <- as.numeric(control[nm])
+  }
   control_min <- list(
     verbose = 0, lr = 0.0, maxiter = -1,
     halfmax = 0, epsilon = 0.0, ll_epsilon = 0.0,
@@ -776,12 +866,22 @@ ColossusControl <- function(verbose = 1,
       control[nm] <- control_min[nm]
     }
   }
-  control_int <- list(
-    verbose = 0, maxiter = -1,
-    halfmax = 0
-  )
-  for (nm in names(control_int)) {
-    control[nm] <- as.integer(control[nm])
+  if (control$epsilon >= control$step_max) {
+    if (control["verbose"] > 1) {
+      warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.") # nocov
+    }
+    control$epsilon <- 0.1 * control$step_max
+  }
+  if (control["verbose"] > 1) {
+    if (control$lr == 0.0) {
+      warning("Warning: The learning rate was zero, parameters cannot change")
+    }
+    if (control$step_max == 0.0) {
+      warning("Warning: The step size was zero, parameters cannot change")
+    }
+    if (sum(c(control$ll_epsilon, control$epsilon, control$deriv_epsilon)) == 0.0) {
+      warning("Warning: The thresholds were all zero, analysis cannot be classified as converged.")
+    }
   }
   #
   control
