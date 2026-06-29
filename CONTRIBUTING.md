@@ -42,7 +42,7 @@ R code is formatted using the styler package, to ensure consistent style. Prior 
 styler::style_pkg()
 ```
 
-Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks to identify other potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed.
+Additional R code checking is performed using the `goodpractice` package to identify potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed.
 ```r
 goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
 ```

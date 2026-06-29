@@ -125,8 +125,11 @@ new_logitresbound <- function(x = list()) {
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
   # Check if not numeric
-  if (suppressWarnings(any(is.na(as.numeric(x$term_n))))) {
+  if (suppressWarnings(!is(x$term_n, "numeric"))) {
     stop("Error: the term numbers had a non-numeric value")
+  }
+  if ((any(is.null(x$term_n))) || (any(is.na(x$term_n)))) {
+    stop(paste0("Error: The term_numbers must not be NA or NULL.")) # nocov
   }
   #
   if (any(x$term_n != round(x$term_n))) {
@@ -177,8 +180,15 @@ validate_formula <- function(x, df, verbose = FALSE) {
   }
   # --------------------------------------------------------------------- #
   # Check if not numeric
-  if (suppressWarnings(any(is.na(as.numeric(x$keep_constant))))) {
-    stop("Error: keep_constant had a non-numeric value")
+  if (length(x$keep_constant) > 0) {
+    if ((any(is.null(x$keep_constant))) || (any(is.na(x$keep_constant)))) {
+      stop(paste0("Error: The constant vector must not be NA or NULL.")) # nocov
+    }
+    if (is(x$keep_constant, "logical")) {
+      x$keep_constant <- as.numeric(x$keep_constant)
+    } else if (suppressWarnings(!is(x$keep_constant, "numeric"))) {
+      stop("Error: the constant vector had a non-numeric value")
+    }
   }
   #
   if (length(x$keep_constant) < length(x$names)) {
@@ -204,7 +214,9 @@ validate_formula <- function(x, df, verbose = FALSE) {
   }
   # --------------------------------------------------------------------- #
   # Convert to string
-  x$tform <- as.character(x$tform)
+  if (!is(x$tform, "character")) {
+    stop("Error: tform contained a non-character.")
+  }
   #
   if (length(x$tform) < length(x$names)) {
     if (verbose >= 2) {
@@ -437,26 +449,55 @@ validate_coxsurv <- function(x, df) {
   if (!is(x, "coxmodel")) {
     stop("Error: Non cox formula used in cox regression") # nocov
   }
-  if ((x$event == "") || (is.null(x$event))) {
-    stop("Error: The event column must not be empty") # nocov
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "start_age", "end_age", "weight")
+  name_vec <- c("event", "starting age", "ending age", "weight")
+  for (i in 1:4) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
   }
-  if ((x$start_age == "") || (is.null(x$start_age))) {
-    stop("Error: Interval start column must not be empty") # nocov
+  for (i in 1:3) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!(x[[col]] %in% names(df))) {
+      stop(paste0("Error: ", name, " column not in the data")) # nocov
+    }
   }
-  if ((x$end_age == "") || (is.null(x$end_age))) {
-    stop("Error: Interval end column must not be empty") # nocov
+  # Want to check for strata issues
+  if (!is(x$strata, "character")) {
+    stop(paste0("Error: The strata must be string.")) # nocov
   }
-  if (!(x$start_age %in% names(df))) {
-    stop("Error: Interval start column not in the data") # nocov
+  if (length(x$strata) == 0) {
+    stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if (!(x$end_age %in% names(df))) {
-    stop("Error: Interval end column not in the data") # nocov
+  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+    stop(paste0("Error: The strata must not be empty.")) # nocov
   }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
   if (x$start_age == x$end_age) {
     stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
-  }
-  if (!(x$event %in% names(df))) {
-    stop("Error: Event column not in the data") # nocov
   }
 }
 
@@ -464,24 +505,75 @@ validate_poissurv <- function(x, df) {
   if (!is(x, "poismodel")) {
     stop("Error: Non Poisson formula used in Poisson regression") # nocov
   }
-  if ((x$event == "") || (is.null(x$event))) {
-    stop("Error: The event column must not be empty") # nocov
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "person_year")
+  name_vec <- c("event", "person year")
+  for (i in 1:2) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (!(x[[col]] %in% names(df))) {
+      stop(psate0("Error: ", name, " column not in the data")) # nocov
+    }
   }
-  if ((x$person_year == "") || (is.null(x$person_year))) {
-    stop("Error: Person-Year column must not be empty") # nocov
+  # Want to check for strata issues
+  if (!is(x$strata, "character")) {
+    stop(paste0("Error: The strata must be string.")) # nocov
   }
-  if (!(x$person_year %in% names(df))) {
-    stop("Error: Person-Year column not in the data") # nocov
+  if (length(x$strata) == 0) {
+    stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if (!(x$event %in% names(df))) {
-    stop("Error: Event column not in the data")
+  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+    stop(paste0("Error: The strata must not be empty.")) # nocov
   }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
 }
 
 validate_caseconsurv <- function(x, df) {
   if (!is(x, "caseconmodel")) {
     stop("Error: Non Case-Control formula used in Case_Control regression") # nocov
   }
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "start_age", "end_age")
+  name_vec <- c("event", "starting age", "ending age")
+  for (i in 1:3) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+  }
+  #
   if (x$start_age == x$end_age) {
     if (x$start != "NONE") {
       stop("Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'") # nocov
@@ -494,33 +586,84 @@ validate_caseconsurv <- function(x, df) {
       stop("Error: Interval end column not in the data") # nocov
     }
   }
-  if (x$event == "") {
-    stop("Error: The event column must not be empty") # nocov
-  }
   if (!(x$event %in% names(df))) {
     stop("Error: Event column not in the data") # nocov
   }
+  # Want to check for strata issues
+  if (!is(x$strata, "character")) {
+    stop(paste0("Error: The strata must be string.")) # nocov
+  }
+  if (length(x$strata) == 0) {
+    stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
+  }
+  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+    stop(paste0("Error: The strata must not be empty.")) # nocov
+  }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
 }
 
 validate_logitsurv <- function(x, df) {
   if (!is(x, "logitmodel")) {
     stop("Error: Non logistic formula used in logistic regression") # nocov
   }
-  if (x$event == "") {
-    stop("Error: The event column must not be empty") # nocov
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "trials")
+  name_vec <- c("event", "trials")
+  for (i in 1:2) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (!(x[[col]] %in% names(df))) {
+      stop(psate0("Error: ", name, " column not in the data")) # nocov
+    }
   }
-  if (x$trials == "") {
-    stop("Error: The trials column must not be empty") # nocov
-  }
-  if (!(x$trials %in% names(df))) {
-    stop("Error: Interval start column not in the data") # nocov
-  }
-  if (!(x$event %in% names(df))) {
-    stop("Error: Event column not in the data") # nocov
-  }
+  #
   if (any(df[, x$event, with = FALSE] > df[, x$trials, with = FALSE])) {
     stop("Error: In atleast one row, the number of events was larger than the number of trials") # nocov
   }
+  # # check for null issues
+  # if (!is(x$null, "logical")) {
+  #   stop(paste0("Error: The null boolean must be a logical")) # nocov
+  # }
+  # if (length(x$null) == 0) {
+  #   stop(paste0("Error: The null boolean must not be empty")) # nocov
+  # }
+  # if (length(x$null) > 1) {
+  #   stop(paste0("Error: The null boolean had multiple values")) # nocov
+  # }
+  #
+  # # Want to check for strata issues
+  # if (!is(x$strata, "character")) {
+  #   stop(paste0("Error: The strata must be string.")) # nocov
+  # }
+  # if (length(x$strata) == 0) {
+  #   stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
+  # }
+  # if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+  #   stop(paste0("Error: The strata must not be empty.")) # nocov
+  # }
+  # #
 }
 
 validate_coxres <- function(x, df) {

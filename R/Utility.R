@@ -500,22 +500,35 @@ Def_model_control <- function(control) {
     control["unique_values"] <- 2
   }
   if ("gmix_theta" %in% names(control)) {
-    if (suppressWarnings(any(is.na(as.numeric(control["gmix_theta"]))))) {
+    if (suppressWarnings(!is(control$gmix_theta, "numeric"))) {
       stop("Error: gmix theta had a non-numeric value")
-    } else {
-      control["gmix_theta"] <- as.numeric(control["gmix_theta"])
     }
-    if (abs(control[["gmix_theta"]] - 0.5) > 0.5) {
+    if (length(control$gmix_theta) > 1) {
+      stop("Error: gmix theta had multiple values.")
+    }
+    if (abs(control$gmix_theta - 0.5) > 0.5) {
       warning("Warning: gmix theta was outside of [0,1.0]. Not the intended use, errors may occur.")
     }
   } else {
     control["gmix_theta"] <- 0.5
   }
   if ("gmix_term" %in% names(control)) {
-    if (suppressWarnings(any(is.na(as.integer(control$gmix_term))))) {
-      stop("Error: gmix term had a non-numeric value")
+    if (suppressWarnings(!is(control$gmix_term, "numeric"))) {
+      if (is(control$gmix_term, "character")) {
+        if (all(vapply(control$gmix_term, grepl, x = "er", logical(1)))) {
+          control$gmix_term <- as.numeric(control$gmix_term == "e")
+        } else {
+          # Remaining entry was wrong
+          stop("Error: Gmix term had an invalid option. Please only use 'e/r' or '0/1'.")
+        }
+      } else {
+        stop("Error: Gmix term had an invalid option. Please only use 'e/r' or '0/1'.")
+      }
     } else {
       control$gmix_term <- as.integer(control$gmix_term)
+    }
+    if (any(abs(control[["gmix_term"]] - 0.5) > 0.5)) {
+      stop("Error: gmix term was outside of [0,1.0]. Not the intended use, errors will occur.")
     }
   } else {
     control["gmix_term"] <- c(0)
@@ -1078,6 +1091,27 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     )
   }
   # nocov end
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  name_vec <- c("starting age", "ending age", "event")
+  for (i in 1:3) {
+    name <- name_vec[i]
+    if (!is(ce[[i]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(ce[[i]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(ce[[i]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((ce[[i]] == "") || (is.null(ce[[i]])) || (is.na(ce[[i]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+  }
+  if (ce[1] == ce[2]) {
+    stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
+  }
+  #
   verbose <- Check_Verbose(verbose)
   if (ce[1] %in% c("%trunc%", "right_trunc")) {
     if (ce[2] %in% c("%trunc%", "left_trunc")) {
@@ -1621,6 +1655,9 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
 #' @family Data Cleaning Functions
 #' @return returns list with the normalized values
 apply_norm <- function(df, norm, names, input, values, model_control) {
+  if ((!is(norm, "character")) || (length(norm) > 1)) {
+    stop("Error: normalization factor was not an individual string.")
+  }
   if (input) {
     a_n <- values$a_n
     cons_mat <- values$cons_mat
@@ -1905,9 +1942,44 @@ System_Version <- function() {
   gcc <- gcc_version()
   Rcomp <- Rcomp_version()
   OMP <- OMP_Check()
+  #
+  omp_check <- FALSE
+  gcc_check <- FALSE
+  if (!OMP) {
+    omp_check <- FALSE
+  } else {
+    omp_check <- TRUE
+    gcc_check <- TRUE
+    if (os == "linux") {
+      if (gcc != "") {
+        if (gcc == "package_missing") {
+          # just going to assume it will not work
+          gcc_check <- FALSE
+        } else if (cpp_compiler == "gcc") {
+          if (Rcomp != "gcc") {
+            gcc_check <- FALSE
+          }
+        } else if (cpp_compiler == "clang") {
+          gcc_check <- FALSE
+        }
+      } else {
+        if (Rcomp != "gcc") {
+          gcc_check <- FALSE
+        }
+      }
+    }
+  }
+  #
+  omp_allowed <- TRUE
+  if (!omp_check) {
+    omp_allowed <- FALSE
+  } else if (!gcc_check) {
+    omp_allowed <- FALSE
+  }
+  #
   list(
     `Operating System` = os, `Default c++` = gcc, `R Compiler` = Rcomp,
-    `OpenMP Enabled` = OMP
+    `OpenMP Enabled` = OMP, `Multicore Allowed` = omp_allowed
   )
 }
 

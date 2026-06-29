@@ -117,19 +117,19 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # nocov start
+  # nocov end
+  # Checks that the current coxmodel is valid
+  validate_coxsurv(coxmodel, df)
+  if (!coxmodel$null) {
+    coxmodel <- validate_formula(coxmodel, df, control$verbose)
+  }
   ce <- c(coxmodel$start_age, coxmodel$end_age, coxmodel$event)
   val <- Check_Trunc(df, ce)
   if (any(val$ce != ce)) {
     df <- val$df
     ce <- val$ce
     coxmodel$start_age <- ce[1]
-    coxmodel$end_age <- ce[1]
-  }
-  # nocov end
-  # Checks that the current coxmodel is valid
-  validate_coxsurv(coxmodel, df)
-  if (!coxmodel$null) {
-    coxmodel <- validate_formula(coxmodel, df, control$verbose)
+    coxmodel$end_age <- ce[2]
   }
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
@@ -203,21 +203,33 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     cons_mat <- const_res$mat
     cons_vec <- const_res$vec
   }
-  print(gradient_control)
   if (!missing(gradient_control)) {
-    print(gradient_control)
-    print(inherits(gradient_control, "list"))
     if (!inherits(gradient_control, "list")) {
       stop("Error: Gradient control list was not a list")
     }
-    print("it passed")
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -475,8 +487,24 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       }
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -739,8 +767,24 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info",
@@ -977,9 +1021,33 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
-  model_control["conditional_threshold"] <- conditional_threshold
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
+  if (!missing(conditional_threshold)) {
+    if (length(conditional_threshold) > 1) {
+      stop("Error: conditional threshold was not a single value.")
+    }
+    if (!is(conditional_threshold, "numeric")) {
+      stop("Error: conditional threshold was not numeric.")
+    }
+    model_control["conditional_threshold"] <- conditional_threshold
+  }
   control_def_names <- c(
     "single", "basic", "null", "time_risk",
     "gradient", "constraint", "strata", "observed_info"
@@ -1206,8 +1274,24 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -2127,8 +2211,24 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       model_control["mcml"] <- mcml
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -2351,8 +2451,24 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
       model_control["mcml"] <- mcml
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
