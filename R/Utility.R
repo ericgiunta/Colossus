@@ -1764,11 +1764,11 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
               if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
-                res$Standard_Deviation[i] <- res$Standard_Deviation[i] * norm_weight[i]
+                res$Standard_Error[i] <- res$Standard_Error[i] * norm_weight[i]
               } else {
                 res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
-                res$Standard_Deviation[i] <- res$Standard_Deviation[i] / norm_weight[i]
+                res$Standard_Error[i] <- res$Standard_Error[i] / norm_weight[i]
               }
               for (j in seq_along(names)) {
                 if (keep_constant[j] == 0) {
@@ -2243,6 +2243,8 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
   df <- as_tibble(table)
   `%within%` <- lubridate::`%within%`
   `%>%` <- dplyr::`%>%`
+  #
+  table_names <- names(table)
   # Setting default date values
   year_default <- 1900
   month_default <- 1
@@ -2268,7 +2270,7 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
     evt_list[evt_df] <- paste("count AS ", evt_col, sep = "")
   }
   summaries <- c(evt_list, summaries[!(names(summaries) %in% names(evt_list))])
-  names(summaries) <- lapply(names(summaries), function(x) tryCatch(match.arg(x, choices = names(table)), error = function(error_message) x)) # match against columns in the table
+  names(summaries) <- lapply(names(summaries), function(x) tryCatch(match.arg(x, choices = table_names), error = function(error_message) x)) # match against columns in the table
   #
   names(pyr) <- tolower(names(pyr)) # set the names to lowercase
   #
@@ -2284,14 +2286,14 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
       cat_df <- cat
       cat_col <- paste(cat, "category", sep = "_")
     }
-    cat_df <- lapply(cat_df, function(x) tryCatch(match.arg(x, choices = names(table)), error = function(error_message) x))[[1]] # match against columns in the table
+    cat_df <- lapply(cat_df, function(x) tryCatch(match.arg(x, choices = table_names), error = function(error_message) x))[[1]] # match against columns in the table
     if (cat_col %in% names(df)) { # check that the category doesn't already exist in the original dataframe
       stop("Error: ", cat_col, " already exists, use ' AS ' to rename if needed")
     }
     if (!is.null(names(categ[[cat]]))) { # boundary as lists
       names(categ[[cat]]) <- tolower(names(categ[[cat]])) # set the names to lowercase
       if ("lower" %in% names(categ[[cat]])) { # lower and upper boundary intervals
-        if (!cat_df %in% names(table)) {
+        if (!cat_df %in% table_names) {
           stop("Error: ", cat_df, " not in table")
         }
         temp0 <- categ[[cat]]$lower
@@ -2358,33 +2360,35 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
         }
         df <- df %>% mutate("PYR" := 0)
         interval <- "unassigned"
+        entry <- make_date(day = rep(day_default, nrow(df)), year = rep(year_default, nrow(df)), month = rep(month_default, nrow(df)))
+        exit <- make_date(day = rep(day_default, nrow(df)), year = rep(year_default, nrow(df)), month = rep(month_default, nrow(df)))
         if ("exit" %in% names(pyr)) { # format the exit as date column
           pyr_exit <- pyr$exit
           names(pyr_exit) <- tolower(names(pyr_exit)) # set the names to lowercase
           if ("year" %in% names(pyr_exit)) { # nocov
             if ("month" %in% names(pyr_exit)) { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]], day = table[[pyr_exit$day]]) # nocov
+                exit <- make_date(year = df[[pyr_exit$year]], month = df[[pyr_exit$month]], day = df[[pyr_exit$day]]) # nocov
               } else { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]], day = rep(day_default, nrow(table))) # nocov
+                exit <- make_date(year = df[[pyr_exit$year]], month = df[[pyr_exit$month]], day = rep(day_default, nrow(df))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]], day = table[[pyr_exit$day]], month = rep(month_default, nrow(table))) # nocov
+                exit <- make_date(year = df[[pyr_exit$year]], day = df[[pyr_exit$day]], month = rep(month_default, nrow(df))) # nocov
               } else { # nocov
-                exit <- make_date(year = table[[pyr_exit$year]], day = rep(day_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
+                exit <- make_date(year = df[[pyr_exit$year]], day = rep(day_default, nrow(df)), month = rep(month_default, nrow(df))) # nocov
               }
             }
           } else {
             if ("month" %in% names(pyr_exit)) { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(month = table[[pyr_exit$month]], day = table[[pyr_exit$day]], year = rep(year_default, nrow(table))) # nocov
+                exit <- make_date(month = df[[pyr_exit$month]], day = df[[pyr_exit$day]], year = rep(year_default, nrow(df))) # nocov
               } else { # nocov
-                exit <- make_date(month = table[[pyr_exit$month]], year = rep(year_default, nrow(table)), day = rep(day_default, nrow(table))) # nocov
+                exit <- make_date(month = df[[pyr_exit$month]], year = rep(year_default, nrow(df)), day = rep(day_default, nrow(df))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_exit)) { # nocov
-                exit <- make_date(day = table[[pyr_exit$day]], year = rep(year_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
+                exit <- make_date(day = df[[pyr_exit$day]], year = rep(year_default, nrow(df)), month = rep(month_default, nrow(df))) # nocov
               } else {
                 stop("Error: person-year exit missing day, month, and year")
               }
@@ -2397,27 +2401,27 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
             if ("year" %in% names(pyr_entry)) { # nocov
               if ("month" %in% names(pyr_entry)) { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
+                  entry <- make_date(year = df[[pyr_entry$year]], month = df[[pyr_entry$month]], day = df[[pyr_entry$day]]) # nocov
                 } else { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = rep(day_default, nrow(table))) # nocov
+                  entry <- make_date(year = df[[pyr_entry$year]], month = df[[pyr_entry$month]], day = rep(day_default, nrow(df))) # nocov
                 }
               } else { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]], month = rep(month_default, nrow(table))) # nocov
+                  entry <- make_date(year = df[[pyr_entry$year]], day = df[[pyr_entry$day]], month = rep(month_default, nrow(df))) # nocov
                 } else { # nocov
-                  entry <- make_date(year = table[[pyr_entry$year]], day = rep(day_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
+                  entry <- make_date(year = df[[pyr_entry$year]], day = rep(day_default, nrow(df)), month = rep(month_default, nrow(df))) # nocov
                 }
               }
             } else { # nocov
               if ("month" %in% names(pyr_entry)) { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]], year = rep(year_default, nrow(table))) # nocov
+                  entry <- make_date(month = df[[pyr_entry$month]], day = df[[pyr_entry$day]], year = rep(year_default, nrow(df))) # nocov
                 } else { # nocov
-                  entry <- make_date(month = table[[pyr_entry$month]], day = rep(day_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
+                  entry <- make_date(month = df[[pyr_entry$month]], day = rep(day_default, nrow(df)), year = rep(year_default, nrow(df))) # nocov
                 }
               } else { # nocov
                 if ("day" %in% names(pyr_entry)) { # nocov
-                  entry <- make_date(day = table[[pyr_entry$day]], month = rep(month_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
+                  entry <- make_date(day = df[[pyr_entry$day]], month = rep(month_default, nrow(df)), year = rep(year_default, nrow(df))) # nocov
                 } else {
                   stop("Error: person-year entry missing day, month, and year")
                 }
@@ -2433,27 +2437,27 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
           if ("year" %in% names(pyr_entry)) { # nocov
             if ("month" %in% names(pyr_entry)) { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
+                entry <- make_date(year = df[[pyr_entry$year]], month = df[[pyr_entry$month]], day = df[[pyr_entry$day]]) # nocov
               } else { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = rep(day_default, nrow(table))) # nocov
+                entry <- make_date(year = df[[pyr_entry$year]], month = df[[pyr_entry$month]], day = rep(day_default, nrow(df))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]], month = rep(month_default, nrow(table))) # nocov
+                entry <- make_date(year = df[[pyr_entry$year]], day = df[[pyr_entry$day]], month = rep(month_default, nrow(df))) # nocov
               } else { # nocov
-                entry <- make_date(year = table[[pyr_entry$year]], day = rep(day_default, nrow(table)), month = rep(month_default, nrow(table))) # nocov
+                entry <- make_date(year = df[[pyr_entry$year]], day = rep(day_default, nrow(df)), month = rep(month_default, nrow(df))) # nocov
               }
             }
           } else { # nocov
             if ("month" %in% names(pyr_entry)) { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]], year = rep(year_default, nrow(table))) # nocov
+                entry <- make_date(month = df[[pyr_entry$month]], day = df[[pyr_entry$day]], year = rep(year_default, nrow(df))) # nocov
               } else { # nocov
-                entry <- make_date(month = table[[pyr_entry$month]], day = rep(day_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
+                entry <- make_date(month = df[[pyr_entry$month]], day = rep(day_default, nrow(df)), year = rep(year_default, nrow(df))) # nocov
               }
             } else { # nocov
               if ("day" %in% names(pyr_entry)) { # nocov
-                entry <- make_date(day = table[[pyr_entry$day]], month = rep(month_default, nrow(table)), year = rep(year_default, nrow(table))) # nocov
+                entry <- make_date(day = df[[pyr_entry$day]], month = rep(month_default, nrow(df)), year = rep(year_default, nrow(df))) # nocov
               } else {
                 stop("Error: person-year entry missing day, month, and year")
               }
@@ -2464,6 +2468,16 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
         } else {
           stop("Error: Date columns given for category, but person-year data not in date format") # pyr does not have exit or entry values
         }
+        #
+        df[["entry"]] <- entry
+        df[["exit"]] <- exit
+        df[["interval_dur"]] <- as.duration(interval(entry, exit))
+        df <- df |> filter(interval_dur >= days(0))
+        entry <- df$entry
+        exit <- df$exit
+#        kept <- interval_dur >= days(0)
+#        df <- df[kept]
+        #
         df_added <- tibble()
         pyr_unit <- "years" # default person-years to years
         if ("unit" %in% names(pyr)) {
@@ -2480,6 +2494,7 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
             iend <- iend - days(1)
           }
           # Now the interval is only fully inclusive if the width is zero
+          # The end of the categorical interval is counted, so if it is within, then we add the extra day
           cat_str <- paste(cat_str, paste("[", istart, " to ", iend, "]", sep = ""), sep = " ") # prepare the interval info
           categ_interval <- interval(istart, iend) # define as date interval
           c_categ <- list()
@@ -2492,31 +2507,32 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
             b_categ <- case_when(a_categ == as.character(time_i) ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = 0) # for every row with exit in interval, track the duration from interval start to row end
             risk_interval <- interval(iend, exit) # interval from interval end to row end
             a_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # track rows which end after the interval, set to i
-            b_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval), pyr_unit), .default = b_categ) # rows which end after interval are at risk the full interval
+            b_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval) + ddays(1), pyr_unit), .default = b_categ) # rows which end after interval are at risk the full interval
           } else if (interval == "right trunc") {
             # only entry
             a_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = "0") #  start during the interval, set to i
             for (evt in event_cols) {
               c_categ[[evt]] <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[[evt]], .default = 0) # start during interval, set to event value
             }
-            b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(entry, iend)), pyr_unit), .default = 0) # every row which starts during the interval, tracks duration from entry to interval end
+            b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(entry, iend)) + ddays(1), pyr_unit), .default = 0) # every row which starts during the interval, tracks duration from entry to interval end
             risk_interval <- interval(entry, istart)
             a_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # tracks which rows start before the interval
-            b_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval), pyr_unit), .default = b_categ) # rows which start before the interval are at risk the full interval
+            b_categ <- case_when(as.numeric(as.duration(risk_interval)) > 0 & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval) + ddays(1), pyr_unit), .default = b_categ) # rows which start before the interval are at risk the full interval
           } else {
             # both entry and exit
             risk_interval <- interval(entry, exit)
-            a_categ <- case_when(istart %within% risk_interval & iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = "0") # interval fully contained, set to i
+            a_categ <- case_when(istart %within% risk_interval & iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = "0") # category fully contained, set to i
             a_categ <- case_when(iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # interval ends during row interval, set to i
             a_categ <- case_when(istart %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # interval starts during row interval, set to i
             a_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.character(time_i), .default = a_categ) # row interval fully contained in category interval, set to i
             for (evt in event_cols) {
               c_categ[[evt]] <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[[evt]], .default = 0) # row ends during category interval, set to event value
             }
-            b_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(risk_interval), pyr_unit), .default = 0) # row interval fully in category interval, track full row interval
-            b_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = b_categ) # rows which end during the category interval, track category interval start to row end
-            b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(interval(entry, iend)), pyr_unit), .default = b_categ) # rows which enter during the category interval, track entry to category interval end
-            b_categ <- case_when(istart %within% risk_interval & iend %within% risk_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(categ_interval), pyr_unit), .default = b_categ) # category interval fully in row interval, track full category interval
+            b_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(risk_interval), pyr_unit), .default = -1) # row interval fully in category interval, track full row interval
+            b_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" & b_categ == -1 ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = b_categ) # rows which end during the category interval, track category interval start to row end
+            b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" & b_categ == -1 ~ as.numeric(as.duration(interval(entry, iend)) + ddays(1), pyr_unit), .default = b_categ) # rows which enter during the category interval, track entry to category interval end
+            b_categ <- case_when(istart %within% risk_interval & iend %within% risk_interval & df[[cat_col]] == "Unassigned" & b_categ == -1 ~ as.numeric(as.duration(categ_interval) + ddays(1), pyr_unit), .default = b_categ) # category interval fully in row interval, track full category interval
+            b_categ <- case_when( b_categ == -1 ~ 0.0, .default = b_categ) # set every unused interval to 0
           }
           index_kept <- seq_len(nrow(df))
           index_kept <- index_kept[a_categ == time_i] # indexes which contain the category interval to some level
@@ -2537,7 +2553,7 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
       }
       categ_bounds[[cat_col]] <- cat_str # update the list of category boundaries
     } else { # boundary as string, not a time category
-      if (!cat_df %in% names(table)) {
+      if (!cat_df %in% table_names) {
         stop("Error: ", cat_df, " not in table")
       }
       if (tolower(categ[[cat]]) == "factor") {
@@ -2612,27 +2628,27 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
       if ("year" %in% names(pyr_exit)) { # nocov
         if ("month" %in% names(pyr_exit)) { # nocov
           if ("day" %in% names(pyr_exit)) { # nocov
-            exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]], day = table[[pyr_exit$day]]) # nocov
+            exit <- make_date(year = df[[pyr_exit$year]], month = df[[pyr_exit$month]], day = df[[pyr_exit$day]]) # nocov
           } else { # nocov
-            exit <- make_date(year = table[[pyr_exit$year]], month = table[[pyr_exit$month]]) # nocov
+            exit <- make_date(year = df[[pyr_exit$year]], month = df[[pyr_exit$month]]) # nocov
           }
         } else { # nocov
           if ("day" %in% names(pyr_exit)) { # nocov
-            exit <- make_date(year = table[[pyr_exit$year]], day = table[[pyr_exit$day]]) # nocov
+            exit <- make_date(year = df[[pyr_exit$year]], day = df[[pyr_exit$day]]) # nocov
           } else { # nocov
-            exit <- make_date(year = table[[pyr_exit$year]]) # nocov
+            exit <- make_date(year = df[[pyr_exit$year]]) # nocov
           }
         }
       } else {
         if ("month" %in% names(pyr_exit)) { # nocov
           if ("day" %in% names(pyr_exit)) { # nocov
-            exit <- make_date(month = table[[pyr_exit$month]], day = table[[pyr_exit$day]]) # nocov
+            exit <- make_date(month = df[[pyr_exit$month]], day = df[[pyr_exit$day]]) # nocov
           } else { # nocov
-            exit <- make_date(month = table[[pyr_exit$month]]) # nocov
+            exit <- make_date(month = df[[pyr_exit$month]]) # nocov
           }
         } else { # nocov
           if ("day" %in% names(pyr_exit)) { # nocov
-            exit <- make_date(day = table[[pyr_exit$day]]) # nocov
+            exit <- make_date(day = df[[pyr_exit$day]]) # nocov
           } else {
             stop("Error: person-year exit missing day, month, and year")
           }
@@ -2645,27 +2661,27 @@ Event_Time_Gen <- function(table, pyr = list(), categ = list(), summaries = list
         if ("year" %in% names(pyr_entry)) { # nocov
           if ("month" %in% names(pyr_entry)) { # nocov
             if ("day" %in% names(pyr_entry)) { # nocov
-              entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
+              entry <- make_date(year = df[[pyr_entry$year]], month = df[[pyr_entry$month]], day = df[[pyr_entry$day]]) # nocov
             } else { # nocov
-              entry <- make_date(year = table[[pyr_entry$year]], month = table[[pyr_entry$month]]) # nocov
+              entry <- make_date(year = df[[pyr_entry$year]], month = df[[pyr_entry$month]]) # nocov
             }
           } else { # nocov
             if ("day" %in% names(pyr_entry)) { # nocov
-              entry <- make_date(year = table[[pyr_entry$year]], day = table[[pyr_entry$day]]) # nocov
+              entry <- make_date(year = df[[pyr_entry$year]], day = df[[pyr_entry$day]]) # nocov
             } else { # nocov
-              entry <- make_date(year = table[[pyr_entry$year]]) # nocov
+              entry <- make_date(year = df[[pyr_entry$year]]) # nocov
             }
           }
         } else { # nocov
           if ("month" %in% names(pyr_entry)) { # nocov
             if ("day" %in% names(pyr_entry)) { # nocov
-              entry <- make_date(month = table[[pyr_entry$month]], day = table[[pyr_entry$day]]) # nocov
+              entry <- make_date(month = df[[pyr_entry$month]], day = df[[pyr_entry$day]]) # nocov
             } else { # nocov
-              entry <- make_date(month = table[[pyr_entry$month]]) # nocov
+              entry <- make_date(month = df[[pyr_entry$month]]) # nocov
             }
           } else { # nocov
             if ("day" %in% names(pyr_entry)) { # nocov
-              entry <- make_date(day = table[[pyr_entry$day]]) # nocov
+              entry <- make_date(day = df[[pyr_entry$day]]) # nocov
             } else {
               stop("Error: person-year entry missing day, month, and year")
             }
@@ -3017,9 +3033,12 @@ Interpret_Output <- function(out_list, digits = 3) {
           term_n <- out_list$Parameter_Lists$term_n
           beta_0 <- out_list$beta_0
           keep_constant <- out_list$Parameter_Lists$keep_constant == 1
-          if ("Standard_Deviation" %in% names(out_list)) {
-            stdev <- out_list$Standard_Deviation
+          if ("Standard_Error" %in% names(out_list)) {
+            stdev <- out_list$Standard_Error
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
+            CI_low <- as.numeric(format(beta_0 - 1.96*stdev, digits = digits))
+            CI_high <- as.numeric(format(beta_0 + 1.96*stdev, digits = digits))
+            CI <- paste0("(",CI_low," - ", CI_high,")")
             res_table <- data.table(
               Covariate = names,
               Subterm = tforms,
@@ -3027,6 +3046,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               Constant = keep_constant,
               `Central Estimate` = as.numeric(format(beta_0, digits = digits)),
               `Standard Error` = as.numeric(format(stdev, digits = digits)),
+              `95% Confidence Interval` = CI,
               `2-tail p-value` = as.numeric(format(pval, digits = digits))
             )
           } else {
@@ -3139,9 +3159,12 @@ Interpret_Output <- function(out_list, digits = 3) {
           term_n <- out_list$Parameter_Lists$term_n
           beta_0 <- out_list$beta_0
           keep_constant <- out_list$Parameter_Lists$keep_constant == 1
-          if ("Standard_Deviation" %in% names(out_list)) {
-            stdev <- out_list$Standard_Deviation
+          if ("Standard_Error" %in% names(out_list)) {
+            stdev <- out_list$Standard_Error
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
+            CI_low <- beta_0 - 1.96*stdev
+            CI_high <- beta_0 + 1.96*stdev
+            CI <- paste0("(",CI_low," - ", CI_high,")")
             res_table <- data.table(
               Covariate = names,
               Subterm = tforms,
@@ -3149,6 +3172,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               Constant = keep_constant,
               `Central Estimate` = as.numeric(format(beta_0, digits = digits)),
               `Standard Error` = as.numeric(format(stdev, digits = digits)),
+              `95% Confidence Interval` = CI,
               `2-tail p-value` = as.numeric(format(pval, digits = digits))
             )
           } else {

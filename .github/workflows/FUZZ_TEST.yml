@@ -18,62 +18,6 @@ permissions:
   contents: read
 
 jobs:
-  mac_OMP_check:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          Ncpus: 2
-          remove-openmp-macos: false
-      - name: move to package and install
-        run: |
-          Rscript -e "install.packages(c('devtools', 'remotes', 'fuzzr'))"
-          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
-          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: run tests
-        run: |
-          Rscript fuzz_testing/fuzz_test.R
-  mac_no_OMP_check:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          Ncpus: 2
-          remove-openmp-macos: false
-      - name: move to package and install
-        run: |
-          ls
-          Rscript -e "install.packages(c('devtools', 'remotes', 'fuzzr'))"
-          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
-          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: run tests
-        run: |
-          Rscript fuzz_testing/fuzz_test.R
-  win_check:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
-        with:
-          Ncpus: 2
-      - name: move to package and check
-        run: |
-          ls
-          Rscript -e "install.packages(c('devtools', 'remotes', 'fuzzr'))"
-          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
-          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
-          Rscript -e "devtools::install()"
-      - name: run tests
-        run: |
-          Rscript fuzz_testing/fuzz_test.R
   ubuntu_check:
     runs-on: ubuntu-latest
     steps:
@@ -94,4 +38,5 @@ jobs:
           Rscript -e "devtools::install()"
       - name: run tests
         run: |
-          Rscript fuzz_testing/fuzz_test.R
+          Rscript fuzz_testing/fuzz_test_base.R
+          Rscript fuzz_testing/fuzz_test_extended.R

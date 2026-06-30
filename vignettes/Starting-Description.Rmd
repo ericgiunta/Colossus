@@ -256,7 +256,7 @@ The following are output in the regression output lists:
 | First_Der | First derivative of Log-Likelihood at the final point |
 | Second_Der | Matrix of second derivatives of Log-Likelihood at the final point |
 | beta_0 | The final parameter list |
-| Standard_Deviation | Inverse-Hessian estimate of the standard deviation |
+| Standard_Error | Inverse-Hessian estimate of the standard deviation |
 | AIC | Akaike information criterion for the final solution |
 | Deviance | Deviance calculated using the difference in log-likelihood contributions between the saturated model and the current model |
 | Parameter_Lists | the term numbers and term formulas used, to compare against the expected |

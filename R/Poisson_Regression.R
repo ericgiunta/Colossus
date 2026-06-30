@@ -329,7 +329,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' \code{RunPoisRegression_Omnibus_Multidose} uses user provided data, time/event columns,
 #'       vectors specifying the model, and options to control the convergence
 #'       and starting positions. Used for 2DMC column uncertainty methods.
-#'       Returns optimized parameters, log-likelihood, and standard deviation for each realization.
+#'       Returns optimized parameters, log-likelihood, and standard error for each realization.
 #'       Has additional options for using stratification
 #'
 #' @inheritParams R_template

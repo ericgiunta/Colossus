@@ -224,6 +224,16 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
     }
     x <- e$x
     y <- e$y
+    if (!is(boundary, "numeric")) {
+      stop("Error: The boundary z-score was not numeric.")
+    }
+    if (length(boundary) != 1) {
+      stop("Error: The boundary z-score was not single-valued")
+    }
+    if (boundary < 0) {
+      warning("Warning: The boundary z-score was negative. Set to positive to keep labeling correct.")
+      boundary <- abs(boundary)
+    }
     if (boundary != 0.0) {
       # We get risk on the boundaries
       # Start with lower

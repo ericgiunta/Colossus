@@ -1543,7 +1543,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1623,7 +1623,7 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1700,7 +1700,7 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1810,7 +1810,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1952,7 +1952,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -3226,7 +3226,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   } else {
     a_n <- object$beta_0
-    stdev <- object$Standard_Deviation
+    stdev <- object$Standard_Error
     #
     # running a boundary solution
     e_mid <- RunPoissonEventAssignment(

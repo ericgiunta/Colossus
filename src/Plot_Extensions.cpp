@@ -163,7 +163,7 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
     //
     NumericVector w_R = wrap(R.col(0));
     //  returns the baseline approximates and the risk information
-    List res_list = List::create(_["baseline"] = baseline, _["standard_error"] = hazard_error, _["Risks"] = w_R, _["Green_Error"] = greenwood_error, _["Beta_Error"] = dSdbeta);
+    List res_list = List::create(_["baseline"] = baseline, _["Standard_Error"] = hazard_error, _["Risks"] = w_R, _["Green_Error"] = greenwood_error, _["Beta_Error"] = dSdbeta);
     //
     return res_list;
 }
@@ -257,7 +257,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
     NumericVector w_R = wrap(R.col(0));
     NumericVector w_Green = wrap(greenwood_error);
     //  returns the baseline approximates and the risk information
-    List res_list = List::create(_["baseline"] = w_base, _["standard_error"] = w_base_er, _["Risks"] = w_R, _["Green_Error"] = w_Green, _["Beta_Error"] = dSdbeta);
+    List res_list = List::create(_["baseline"] = w_base, _["Standard_Error"] = w_base_er, _["Risks"] = w_R, _["Green_Error"] = w_Green, _["Beta_Error"] = dSdbeta);
     //
     return res_list;
 }
