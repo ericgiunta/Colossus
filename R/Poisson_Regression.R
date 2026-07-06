@@ -146,6 +146,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     e$strata_levels <- length(strata_vals)
   }
   e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
@@ -456,6 +457,8 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   if (model_control$strata == TRUE) {
     e$strata_levels <- length(strata_vals)
   }
+  e$modelcontrol <- model_control
+  e$control <- control
   e$Survival_Type <- "Pois_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start

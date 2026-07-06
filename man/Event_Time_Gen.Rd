@@ -7,6 +7,7 @@
 Event_Time_Gen(
   table,
   pyr = list(),
+  time_scale = list(),
   categ = list(),
   summaries = list(),
   events = c(),
@@ -18,7 +19,9 @@ Event_Time_Gen(
 
 \item{pyr}{list with entry and exit lists, containing day/month/year columns in the table}
 
-\item{categ}{list with category columns and methods, methods can be either strings or lists of boundaries, includes a time category or entry/exit are both required for the pyr list}
+\item{time_scale}{list with the time scale information, either a calendar category or an age category}
+
+\item{categ}{list with category columns and methods, methods can be either strings or lists of boundaries}
 
 \item{summaries}{list of columns to summarize, supports counts, means, and weighted means by person-year and renaming the summary column}
 
@@ -57,6 +60,13 @@ table <- data.table::data.table(
 categ <- list(
   a = "-1/3/5]7"
 )
+calendar_categ <- list(
+  type = "calendar",
+  day = c(1, 1, 1),
+  month = c(1, 1, 1),
+  year = c(1901, 1904, 1908)
+)
+time_scale <- list("time" = calendar_categ)
 summary <- list(
   c = "count AS cases"
 )
@@ -66,7 +76,7 @@ pyr <- list(
   exit = list(year = "i"),
   unit = "years"
 )
-e <- Event_Time_Gen(table, pyr, categ, summary, events)
+e <- Event_Time_Gen(table, pyr, time_scale, categ, summary, events)
 
 }
 \seealso{

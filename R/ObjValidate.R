@@ -524,7 +524,7 @@ validate_poissurv <- function(x, df) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
     if (!(x[[col]] %in% names(df))) {
-      stop(psate0("Error: ", name, " column not in the data")) # nocov
+      stop(paste0("Error: ", name, " column not in the data")) # nocov
     }
   }
   # Want to check for strata issues
@@ -635,7 +635,7 @@ validate_logitsurv <- function(x, df) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
     if (!(x[[col]] %in% names(df))) {
-      stop(psate0("Error: ", name, " column not in the data")) # nocov
+      stop(paste0("Error: ", name, " column not in the data")) # nocov
     }
   }
   #

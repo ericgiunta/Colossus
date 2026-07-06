@@ -262,6 +262,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Cox"
   e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
@@ -556,10 +557,10 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   for (iden_col in c("verbose", "martingale", "surv_curv", "strat_haz", "km")) {
     if (iden_col %in% names(plot_options)) {
       if ((!is(plot_options[[iden_col]], "logical")) && (iden_col != "verbose")) {
-        stop(paste0("Error: The ",iden_col," boolean was not logical."))
+        stop(paste0("Error: The ", iden_col, " boolean was not logical."))
       }
       if ((is.na(plot_options[[iden_col]])) || (is.null(plot_options[[iden_col]]))) {
-        stop(paste0("Error: The ",iden_col," value was null or NA."))
+        stop(paste0("Error: The ", iden_col, " value was null or NA."))
       }
     } else {
       plot_options[iden_col] <- FALSE
@@ -902,6 +903,8 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Survival_Type <- "Cox_Multidose"
+  e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size

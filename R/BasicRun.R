@@ -275,8 +275,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- coxmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -552,8 +552,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count) # nocov
   }
   res$model <- poismodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -831,8 +831,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- logitmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (model_control[["constraint"]]) {
@@ -1095,8 +1095,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- caseconmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -1337,8 +1337,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- poismodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (model_control[["constraint"]]) {
@@ -2242,8 +2242,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- coxmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   res$realizations <- ncol(realization_columns)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
@@ -2482,8 +2482,8 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   # ------------------------------------------------------------------------------ #
   res <- RunPoisRegression_Omnibus_Multidose(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- poismodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   res$realizations <- ncol(realization_columns)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change

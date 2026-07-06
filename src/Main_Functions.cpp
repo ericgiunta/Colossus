@@ -1637,7 +1637,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     double Ll_iter_best = 10;
     ///
     //  Variables that are used for the risk check function shared across cox, poisson, and log bound functions
-    // MatrixXd dev_temp = MatrixXd::Zero(1, 1);
     VectorXd s_weights(1);
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     MatrixXd dfs = MatrixXd::Zero(1, 1);
@@ -2464,7 +2463,6 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
-    // MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 3);
     double dev = 0.0;
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
