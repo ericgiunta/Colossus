@@ -402,6 +402,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// logist_multioutcome_Omnibus_transition
+List logist_multioutcome_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector event_cols, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+RcppExport SEXP _Colossus_logist_multioutcome_Omnibus_transition(SEXP CountEventSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP event_colsSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP df1SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< MatrixXd >::type CountEvent(CountEventSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type event_cols(event_colsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< MatrixXd >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd >::type df1(df1SEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
+    Rcpp::traits::input_parameter< MatrixXd >::type Lin_Sys(Lin_SysSEXP);
+    Rcpp::traits::input_parameter< VectorXd >::type Lin_Res(Lin_ResSEXP);
+    rcpp_result_gen = Rcpp::wrap(logist_multioutcome_Omnibus_transition(CountEvent, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Write_Time_Dep
 void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, const NumericMatrix df0_const, const NumericVector df0_event, double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads);
 RcppExport SEXP _Colossus_Write_Time_Dep(SEXP df0_TimesSEXP, SEXP df0_depSEXP, SEXP df0_constSEXP, SEXP df0_eventSEXP, SEXP dtSEXP, SEXP filenameSEXP, SEXP tform_tdepSEXP, SEXP tuSEXP, SEXP iscoxSEXP, SEXP nthreadsSEXP) {
@@ -448,6 +474,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_pois_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_pois_multidose_Omnibus_transition, 19},
     {"_Colossus_caco_Omnibus_transition", (DL_FUNC) &_Colossus_caco_Omnibus_transition, 16},
     {"_Colossus_logist_Omnibus_transition", (DL_FUNC) &_Colossus_logist_Omnibus_transition, 14},
+    {"_Colossus_logist_multioutcome_Omnibus_transition", (DL_FUNC) &_Colossus_logist_multioutcome_Omnibus_transition, 16},
     {"_Colossus_Write_Time_Dep", (DL_FUNC) &_Colossus_Write_Time_Dep, 10},
     {"_Colossus_OMP_Check", (DL_FUNC) &_Colossus_OMP_Check, 0},
     {NULL, NULL, 0}

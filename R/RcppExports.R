@@ -486,6 +486,17 @@ NULL
 #'
 NULL
 
+#' Primary logistic regression with multiple event columns
+#'
+#' \code{LogLik_Logist_Multioutcome_Omnibus_Serial} Performs the calls to calculation functions, Structures the logistic regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, AIC, BIC, standard error, parameter list, and convergence for each realization
+#' @noRd
+#'
+NULL
+
 #' Utility function to refresh risk and subterm matrices for Cox Omnibus function
 #'
 #' \code{Cox_Refresh_R_TERM} Called to update matrices
@@ -960,6 +971,18 @@ caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelfor
 #'
 logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_logist_Omnibus_transition`, CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
+}
+
+#' Interface between R code and the logistic multicome omnibus regression function
+#'
+#' \code{logist_multioutcome_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @noRd
+#'
+logist_multioutcome_Omnibus_transition <- function(CountEvent, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_logist_multioutcome_Omnibus_transition`, CountEvent, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Generates csv file with time-dependent columns

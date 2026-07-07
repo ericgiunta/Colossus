@@ -990,6 +990,70 @@ List logist_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, String
     return res;
 }
 
+//' Interface between R code and the logistic multicome omnibus regression function
+//'
+//' \code{logist_multioutcome_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+//' @inheritParams CPP_template
+//'
+//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @noRd
+//'
+//  [[Rcpp::export]]
+List logist_multioutcome_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector event_cols, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+    //
+    int verbose = Control["verbose"];
+    //
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = false,
+            _["linear_err"] = false,
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = model_control["single"],
+            _["gradient"] = model_control["gradient"],
+            _["outcome_prob"] = false,
+            _["constraint"] = model_control["constraint"],
+            _["observed_info"] = model_control["observed_info"],
+            _["log_bound"] = false,
+            _["cox"] = false,
+            _["logist"] = true,
+            _["odds"] = model_control["logit_odds"], //for LinkCovertRP
+            _["ident"] = model_control["logit_ident"],
+            _["loglink"] = model_control["logit_loglink"]);
+    List optim_para = List::create(
+            _["lr"] = Control["lr"],
+            _["maxiter"] = Control["maxiter"],
+            _["halfmax"] = Control["halfmax"],
+            _["epsilon"] = Control["epsilon"],
+            _["step_max"] = Control["step_max"],
+            _["thres_step_max"] = Control["thres_step_max"],
+            _["deriv_epsilon"] = Control["deriv_epsilon"],
+            _["ll_epsilon"] = Control["ll_epsilon"]);
+    if (model_bool["gradient"]) {
+        model_bool["momentum"] = model_control["momentum"];
+        model_bool["adadelta"] = model_control["adadelta"];
+        model_bool["adam"] = model_control["adam"];
+        optim_para["momentum_decay"] = model_control["momentum_decay"];
+        optim_para["learning_decay"] = model_control["learning_decay"];
+        optim_para["epsilon_decay"] = model_control["epsilon_decay"];
+        if (model_bool["constraint"]) {
+            optim_para["penalty_weight"] = model_control["penalty_weight"];
+            optim_para["penalty_method"] = model_control["penalty_method"];
+        }
+    }
+    //
+    //  Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = LogLik_Logist_Multioutcome_Omnibus_Serial(CountEvent, term_n, tform, beta_0, df0, df1, event_cols, dfc, fir, modelform, optim_para, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
 
 //' Generates csv file with time-dependent columns
 //'
