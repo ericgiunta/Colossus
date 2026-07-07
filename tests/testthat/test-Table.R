@@ -66,7 +66,7 @@ test_that("basic table check", {
   )
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
-  expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
 })
 test_that("person time, different intervals", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
