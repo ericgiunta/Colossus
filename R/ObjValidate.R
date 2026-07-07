@@ -129,12 +129,14 @@ validate_formula <- function(x, df, verbose = FALSE) {
   }
   if (min(x$term_n) != 0) {
     if (verbose >= 2) {
+      # nocov start
       warning(paste("Warning: term_n expects nonnegative integer values and a minimum of 0, minimum value was ",
         min(x$term_n),
         ". Minimum value set to 0, others shifted by ",
         -1 * min(x$term_n),
         sep = ""
       ))
+      # nocov end
     }
     x$term_n <- x$term_n - min(x$term_n)
   }
@@ -148,19 +150,23 @@ validate_formula <- function(x, df, verbose = FALSE) {
   }
   if (length(x$term_n) < length(x$names)) {
     if (verbose >= 2) {
+      # nocov start
       warning(paste("Warning: Terms used: ", length(x$term_n),
         ", Covariates used: ", length(x$names),
         sep = ""
       ))
+      # nocov end
     }
     x$term_n <- c(x$term_n, rep(0, length(x$names) -
       length(x$term_n)))
   } else if (length(x$term_n) > length(x$names)) {
     if (verbose >= 2) {
+      # nocov start
       warning(paste("Warning: Terms used: ", length(x$term_n),
         ", Covariates used: ", length(x$names),
         sep = ""
       ))
+      # nocov end
     }
     x$term_n <- x$term_n[seq_along(x$names)]
   }
@@ -189,19 +195,23 @@ validate_formula <- function(x, df, verbose = FALSE) {
   # --------------------------------------------------------------------- #
   if (length(x$tform) < length(x$names)) {
     if (verbose >= 2) {
+      # nocov start
       warning(paste("Warning: Term types used: ", length(x$tform),
         ", Covariates used: ", length(x$names),
         sep = ""
       ))
+      # nocov end
     }
     x$tform <- c(x$tform, rep("loglin", length(x$names) -
       length(x$tform)))
   } else if (length(x$tform) > length(x$names)) {
     if (verbose >= 2) {
+      # nocov start
       warning(paste("Warning: Term types used: ", length(x$tform),
         ", Covariates used: ", length(x$names),
         sep = ""
       ))
+      # nocov end
     }
     x$tform <- x$tform[seq_along(x$names)]
   }
@@ -290,11 +300,13 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
     if (length(x$a_n) < length(x$names)) {
       if (verbose >= 2) {
+        # nocov start
         warning(paste("Warning: Parameters used: ",
           length(x$a_n), ", Covariates used: ",
           length(x$names), ", Remaining filled with 0.01",
           sep = ""
         ))
+        # nocov end
       }
       x$a_n <- c(x$a_n, rep(0.01, length(x$names) - length(x$a_n)))
     } else if (length(x$a_n) > length(x$names)) {
@@ -318,11 +330,13 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
     if (length(a_0) < length(x$names)) {
       if (verbose >= 2) {
+        # nocov start
         warning(paste("Warning: Parameters used: ", length(a_0),
           ", Covariates used: ", length(x$names),
           ", Remaining filled with 0.01",
           sep = ""
         ))
+        # nocov end
       }
       for (i in seq_along(x$a_n)) {
         x$a_n[[i]] <- c(

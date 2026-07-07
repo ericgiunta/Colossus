@@ -29,7 +29,7 @@ if (system.file(package = "ggplot2") != "") {
 
 ## Example Setup
 
-We will use analysis of the lung dataset in the survival package to visualize the different plotting methods available in Colossus.
+We will use analysis of the lung dataset in the `survival` package to visualize the different plotting methods available in Colossus.
 
 ```{r, eval=TRUE}
 if (system.file(package = "survival") != "") {
@@ -75,7 +75,7 @@ $$
 $$
 </p>
 
-Suppose every row at risk at a time was twice as likely to experience an event than the baseline. Then we would expect there to be twice as many events as there would be at baseline. The same logic applies to the case with every row at risk being half as likely. This generalizes to any average risk. Colossus allows the instantaneous hazard to be approximated for both stratified and non-stratified models. 
+Suppose every row at risk at a time was twice as likely to experience an event than the baseline. Then we would expect there to be twice as many events as there would be at baseline. The same logic applies to the case with every row at risk being half as likely. This generalizes to any average risk. `Colossus` allows the instantaneous hazard to be approximated for both stratified and non-stratified models. 
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -150,7 +150,7 @@ g
 
 ## Cox Proportional Hazards model assumptions
 
-The Cox proportional hazards model by definition assumes proportional hazards independent of time. If this is violated, then the results of a regression may be misleading. There are two checks that Colossus provides that can be used to test this assumption, the Schoenfeld residuals and Martingale residuals. In both cases, the premise is that if the hazard ratio were independent of time, then the residuals should also be independent of time.
+The Cox proportional hazards model by definition assumes proportional hazards independent of time. If this is violated, then the results of a regression may be misleading. There are two checks that `Colossus` provides that can be used to test this assumption, the Schoenfeld residuals and Martingale residuals. In both cases, the premise is that if the hazard ratio were independent of time, then the residuals should also be independent of time.
 
 ### Schoenfeld Residuals
 
@@ -285,7 +285,7 @@ g
 
 ## General Evaluation of Risk
 
-Colossus also offers scripts that plot the relative risk by covariate value for each covariate in the model, assuming every other covariate is zero. Results for specific covariates can be requested by passing an optional argument, otherwise every covariate used in the risk model is included. Risk at Wald confidence interval boundaries can also be calculated by including a 'boundary' option set to a z-score. In this example, 95 percent confidence intervals are included and plotted.
+`Colossus` also offers scripts that plot the relative risk by covariate value for each covariate in the model, assuming every other covariate is zero. Results for specific covariates can be requested by passing an optional argument, otherwise every covariate used in the risk model is included. Risk at Wald confidence interval boundaries can also be calculated by including a 'boundary' option set to a z-score. In this example, 95 percent confidence intervals are included and plotted.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(

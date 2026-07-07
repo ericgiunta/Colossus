@@ -23,7 +23,7 @@ library(parallel)
 
 ## General Purpose
 
-Before performing a regression on rate or hazard ratio, it is often important to look at a summary of the data. It can be very informative to break columns into categories and summarize the number of events or average column values in each category. Colossus offers two functions designed to create summary tables, Event_Count_Gen and Event_Time_Gen which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
+Before performing a regression on rate or hazard ratio, it is often important to look at a summary of the data. It can be very informative to break columns into categories and summarize the number of events or average column values in each category. `Colossus` offers two functions designed to create summary tables, Event_Count_Gen and Event_Time_Gen which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
 
 ### Person-Count Tables
 
@@ -75,7 +75,7 @@ Event_Count_Gen(table, categ, event)
 
 ### Person-Time Tables
 
-The previous method treats every row as being weighted the same. In many cases, every row has some measure of time which we may want to use. That is the fundamental difference between the person count tables and person time tables, the inclusion of time. The code used to generate a person time table is very similar to the person count table, with several important differences. The first is that the data should have time columns. Similar to the Cox model options in Colossus, the data should have an entry column, exit column, or both. These would denote the scenario where every interval ends at the same point, starts at the same point, or has different start and stop times. This method currently only supports day/month/year information which are combined into complete dates. The Event_Time_Gen function uses a list to input the time columns. This list should have entry and exit items if needed, each list should have a column name for the year, month, and day columns if needed. The dates will default to 1/1/1900 if not provided. The person-year list can also contain a unit, defaulted to years.
+The previous method treats every row as being weighted the same. In many cases, every row has some measure of time which we may want to use. That is the fundamental difference between the person count tables and person time tables, the inclusion of time. The code used to generate a person time table is very similar to the person count table, with several important differences. The first is that the data should have time columns. Similar to the Cox model options in `Colossus`, the data should have an entry column, exit column, or both. These would denote the scenario where every interval ends at the same point, starts at the same point, or has different start and stop times. This method currently only supports day/month/year information which are combined into complete dates. The Event_Time_Gen function uses a list to input the time columns. This list should have entry and exit items if needed, each list should have a column name for the year, month, and day columns if needed. The dates will default to 1/1/1900 if not provided. The person-year list can also contain a unit, defaulted to years.
 
 ```{r, eval=TRUE}
 a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
@@ -124,11 +124,11 @@ categ <- list(
 )
 ```
 
-The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function. The only difference is that a weighted_mean option is added. This is the mean of the group weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval.
+The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function. The only difference is that a weighted_mean option is added. This is the mean of the group weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. By default, the number of events in each grouping is recorded in the final table. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval.
 
 ```{r, eval=TRUE}
-summary <- list(c = "count AS cases", b = "weighted_mean AS b_weighted")
-events <- list("c")
+summary <- list(b = "weighted_mean AS b_weighted")
+events <- list("c AS cases")
 ```
 
 Finally, the function is run. Similar to the person-count table function, the function returns the grouped table and list of category boundaries.

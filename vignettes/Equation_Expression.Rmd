@@ -20,12 +20,12 @@ library(Colossus)
 library(data.table)
 ```
 
-The underlying functions in Colossus specify a survival model using a series of vectors, which can be overly complicated at times. Colossus includes functions to interpret formulas, and then call the underlying functions.
+The underlying functions in `Colossus` specify a survival model using a series of vectors, which can be overly complicated at times. `Colossus` includes functions to interpret formulas, and then call the underlying functions.
 
 ## Equation Expression
 
 
-Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because Colossus can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear, etc.). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive, etc.).
+Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because `Colossus` can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear, etc.). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive, etc.).
 
 <p class="text-center" style="background-color: aliceblue">
 $$

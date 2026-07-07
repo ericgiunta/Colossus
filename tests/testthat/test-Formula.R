@@ -8,26 +8,26 @@ test_that("Basic factor application to formula", {
 
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_2"), e$names)
+  expect_identical(e$names, c("d", "e_2"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(x = e))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_2"), e$names)
+  expect_identical(e$names, c("d", "e_2"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(1, 2), labels = c("low", "high")))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_high"), e$names)
+  expect_identical(e$names, c("d", "e_high"))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e, levels = c(2, 1), labels = c("high", "low")))
   e <- get_form(model, df)$model
-  expect_equal(c("d", "e_low"), e$names)
+  expect_identical(e$names, c("d", "e_low"))
   #
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_identical(e$tform, c("loglin", "loglin"))
   model <- Cox(a, b, c) ~ exponential(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_identical(e$tform, c("loglin", "loglin"))
   model <- Cox(a, b, c) ~ exp(d, factor(e)) + PA()
   e <- get_form(model, df)$model
-  expect_equal(c("loglin", "loglin"), e$tform)
+  expect_identical(e$tform, c("loglin", "loglin"))
 })
 
 test_that("Basic formula failures", {
@@ -67,8 +67,12 @@ test_that("Basic gmix application to formula", {
   expect_no_error(get_form(model, df))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5)
   expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix(0.5, 1)
+  expect_error(get_form(model, df))
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix("e")
   expect_no_error(get_form(model, df))
+  model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix("f")
+  expect_error(get_form(model, df))
   #
   model <- Cox(a, b, c) ~ loglinear(d, factor(e)) + gmix - r()
   expect_no_error(get_form(model, df))
@@ -90,21 +94,21 @@ test_that("Run basic errors and checks", {
   expect_no_error(res <- CoxRun(model, df, ncores = 1))
   expect_no_error(CoxRun(res, df, ncores = 1))
   expect_error(CoxRun(model, df, ncores = 1, bad = "wrong")) # arguement not in control list
-  expect_error(CoxRun(model, df, control = c(2))) # control wasn't a list
+  expect_error(CoxRun(model, df, control = 2)) # control wasn't a list
   e <- get_form(Cox(tstart = a, event = c) ~ loglinear(d), df)
   model <- e$model
   expect_no_error(CoxRun(model, df, ncores = 1))
   #
   model <- Pois(b, c) ~ loglinear(d)
   expect_no_error(PoisRun(model, df, ncores = 1))
-  expect_error(PoisRun(model, df, control = c(2))) # control wasn't a list
+  expect_error(PoisRun(model, df, control = 2)) # control wasn't a list
   expect_error(PoisRun(model, df, ncores = 1, bad = "wrong")) # arguement not in control list
   #
   model <- CaseCon(c) ~ loglinear(d)
   e <- get_form(model, df)
   model <- e$model
-  expect_no_error(res <- CaseControlRun(model, df, ncores = 1, keep_constant = c(0)))
-  expect_no_error(CaseControlRun(res, df, ncores = 1, keep_constant = c(0)))
+  expect_no_error(res <- CaseControlRun(model, df, ncores = 1, keep_constant = 0))
+  expect_no_error(CaseControlRun(res, df, ncores = 1, keep_constant = 0))
   expect_error(CaseControlRun("bad", df, ncores = 1)) # wasn't a formula or model object
   expect_error(CaseControlRun(model, df, control = 2)) # control wasn't a list
   #
@@ -114,8 +118,27 @@ test_that("Run basic errors and checks", {
   expect_no_error(PoisRunJoint(model, df, ncores = 1))
   expect_error(PoisRunJoint("bad", df, ncores = 1)) # wasn't a formula or model object
   expect_error(PoisRunJoint(model, df, control = 2)) # control wasn't a list
-  expect_no_error(PoisRunJoint(model, df, ncores = 1, a_n = c(0.1), keep_constant = c(0)))
+  expect_no_error(PoisRunJoint(model, df, ncores = 1, a_n = 0.1, keep_constant = 0))
   #
+})
+
+test_that("Run basic warnings and checks", {
+  a <- c(0, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(1, 2, 1, 1, 2, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+
+  model <- Cox(a, b, c) ~ loglinear(d)
+  expect_warning(res <- CoxRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- CoxRun(model, df, control = list(ncores = 1, ncores = 1)))
+  model <- Pois(a, b) ~ loglinear(c, d)
+  expect_warning(res <- PoisRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- PoisRun(model, df, control = list(ncores = 1, ncores = 1)))
+  model <- Logit(b, a) ~ loglinear(c, d)
+  expect_warning(res <- LogisticRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- LogisticRun(model, df, control = list(ncores = 1, ncores = 1)))
 })
 
 test_that("Basic ns and bs application to formula", {
@@ -123,30 +146,30 @@ test_that("Basic ns and bs application to formula", {
     df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 0:99)
     model <- Cox(a, b, c) ~ loglinear(d, ns(e, df = 2))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
+    expect_identical(e$names, c("d", "e_ns1", "e_ns2"))
     model <- Cox(a, b, c) ~ loglinear(d, ns(e, intercept = TRUE))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_ns1", "e_ns2"), e$names)
+    expect_identical(e$names, c("d", "e_ns1", "e_ns2"))
     model <- Cox(a, b, c) ~ loglinear(d, bs(e))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+    expect_identical(e$names, c("d", "e_bs1", "e_bs2", "e_bs3"))
     model <- Cox(a, b, c) ~ loglinear(d, bs(e, Boundary.knots = c(0, 99)))
     e <- get_form(model, df)$model
-    expect_equal(c("d", "e_bs1", "e_bs2", "e_bs3"), e$names)
+    expect_identical(e$names, c("d", "e_bs1", "e_bs2", "e_bs3"))
   }
 })
 
 test_that("Basic generic function application to formula", {
   df <- data.table("a" = 1:100, "b" = 2:101, "c" = c(rep(0, 20), rep(1, 80)), "d" = c(rep(1, 20), rep(2, 50), rep(3, 30)), "e" = 1:100)
   for (exp_string in c("log", "sqrt", "exp", "cos")) {
-    model <- as.formula(paste("Cox(a, b, c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
+    model <- as.formula(paste0("Cox(a, b, c) ~ loglinear(d, ", exp_string, "(e))"))
     expect_no_error(e <- get_form(model, df))
   }
-  for (exp_string in c("sqrt")) {
-    model <- as.formula(paste("Cox(tend = b, event = c) ~ loglinear(d, ", exp_string, "(e))", sep = ""))
-    expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
-    expect_no_error(f <- RelativeRisk(e, df))
-  }
+  exp_string <- "sqrt"
+  model <- as.formula(paste0("Cox(tend = b, event = c) ~ loglinear(d, ", exp_string, "(e))"))
+  expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))
+  expect_no_error(f <- RelativeRisk(e, df))
+  #
   model <- Cox(a, b, c) ~ loglinear(factor(d))
   expect_no_error(e <- CoxRun(model, df, ncores = 1))
   expect_no_error(f <- RelativeRisk(e, df))
@@ -166,8 +189,8 @@ test_that("Basic factor application to formula with formula column", {
 test_that("Checking formula works with result modification", {
   if (system.file(package = "splines") != "") {
     fname <- "dose.csv"
-    colTypes <- c("double", "double", "double", "integer")
-    df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+    col_types <- c("double", "double", "double", "integer")
+    df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
     #
     df$dose2 <- df$dose * df$dose
     df$a <- df$dose + 0.001
@@ -190,8 +213,8 @@ test_that("Checking formula works with result modification", {
 test_that("Checking interaction works in formula and call results", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   #
   df$dose2 <- df$dose * df$dose
   df$a <- df$dose + 0.001
@@ -202,7 +225,7 @@ test_that("Checking interaction works in formula and call results", {
   #
   model <- Cox(t0, t1, lung) ~ loglinear(a, a * rand0, a * rand0 * rand1)
   e <- get_form(model, df)
-  expect_equal(e$model$names, c("a", "rand0", "a:rand0", "rand1_1", "a:rand1_1", "rand0:rand1_1", "a:rand0:rand1_1"))
+  expect_identical(e$model$names, c("a", "rand0", "a:rand0", "rand1_1", "a:rand1_1", "rand0:rand1_1", "a:rand0:rand1_1"))
   expect_no_error(e <- CoxRun(model, df, control = list(ncores = 1)))
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 1607.914, tolerance = 1e-2)
@@ -211,12 +234,12 @@ test_that("Checking interaction works in formula and call results", {
 test_that("Checking power works in formula and call results", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   #
   model <- Cox(t0, t1, lung) ~ loglinear(dose, I(dose^2))
   e <- get_form(model, df)
-  expect_equal(e$model$names, c("dose", "dose^2"))
+  expect_identical(e$model$names, c("dose", "dose^2"))
   e <- CoxRun(model, df, control = list(ncores = 1))
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 862.3834, tolerance = 1e-2)
@@ -225,27 +248,27 @@ test_that("Checking power works in formula and call results", {
 test_that("Checking model and formula can be input", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   #
   model <- Cox(t0, t1, lung) ~ loglinear(dose, I(dose^2))
   e <- get_form(model, df)
   expect_no_error(e0 <- CoxRun(model, df, control = list(ncores = 1)))
   expect_no_error(e1 <- CoxRun(e$model, df, control = list(ncores = 1)))
-  expect_equal(e0$beta_0, e1$beta_0)
+  expect_identical(e0$beta_0, e1$beta_0)
 
   model <- Pois(t1, lung) ~ loglinear(CONST, dose, I(dose^2))
   e <- get_form(model, df)
   expect_no_error(e0 <- PoisRun(model, df, control = list(ncores = 1)))
   expect_no_error(e1 <- PoisRun(e$model, df, control = list(ncores = 1)))
-  expect_equal(e0$beta_0, e1$beta_0)
+  expect_identical(e0$beta_0, e1$beta_0)
 })
 
 test_that("Joint Form Errors", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$rand1 <- floor(runif(nrow(df)) * 5)
   #
@@ -283,8 +306,8 @@ test_that("Joint Form Errors", {
 test_that("General Form Errors", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$rand1 <- floor(runif(nrow(df)) * 5)
   #
@@ -294,6 +317,7 @@ test_that("General Form Errors", {
   #
   expect_error(get_form(Cox(t0, t1, lung) ~ dose, df)) # not defined right side term
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^a)), df)) # not a numeric power
+  expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(I(dose^1^2)), df)) # multiple powers
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose * a), df)) # missing interaction column
   #
   expect_error(get_form(Cox(t0, t1, lung) ~ loglinear(dose) + M() + A(), df)) # modelform defined twice
@@ -303,8 +327,8 @@ test_that("General Form Errors", {
 test_that("Colossus Surv Errors", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$rand1 <- floor(runif(nrow(df)) * 5)
   df$weight <- df$t1 / 100
@@ -352,8 +376,8 @@ test_that("Colossus Surv Errors", {
 test_that("Poisson, long formula correction", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$rand1 <- floor(runif(nrow(df)) * 5)
   df$rand2 <- floor(runif(nrow(df)) * 5)
@@ -381,14 +405,14 @@ test_that("Poisson, long formula correction", {
   expect_no_error(get_form(model0, df))
   control <- list(ncores = 1, maxiter = -1, maxiters = c(-1, -1))
   res <- PoisRun(model0, df, control = control)
-  expect_equal(res$strata_level, 19)
+  expect_identical(res$strata_level, 19L)
 })
 
 test_that("Pois multi_surv nonerror", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$rand1 <- floor(runif(nrow(df)) * 5)
   df$weight <- df$t1 / 100
@@ -405,8 +429,8 @@ test_that("Pois multi_surv nonerror", {
 test_that("CaseCon Surv Errors", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$rand1 <- floor(runif(nrow(df)) * 5)
   df$weight <- df$t1 / 100
@@ -443,8 +467,8 @@ test_that("CaseCon Surv Errors", {
 test_that("Object Validation Errors", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$col_bad <- "a"
   #
@@ -458,19 +482,19 @@ test_that("Object Validation Errors", {
   expect_no_error(CoxRun(cox_model, df, control = control))
   ##
   cox_model <- copy(true_cox$model)
-  cox_model$names <- c("col_bad")
+  cox_model$names <- "col_bad"
   expect_error(CoxRun(cox_model, df, control = control))
   cox_model <- copy(true_cox$model)
-  expect_error(CoxRun(cox_model, df, control = control, keep_constant = c(-1)))
-  expect_error(CoxRun(cox_model, df, control = control, keep_constant = c(2)))
-  expect_error(CoxRun(cox_model, df, control = control, keep_constant = c("a")))
+  expect_error(CoxRun(cox_model, df, control = control, keep_constant = -1))
+  expect_error(CoxRun(cox_model, df, control = control, keep_constant = 2))
+  expect_error(CoxRun(cox_model, df, control = control, keep_constant = "a"))
   cox_model <- copy(true_cox$model)
-  cox_model$tform <- c("bad_bad")
+  cox_model$tform <- "bad_bad"
   expect_error(CoxRun(cox_model, df, control = control))
   cox_model <- copy(true_cox$model)
   expect_error(CoxRun(cox_model, df, a_n = c(1, 1, 1, 1, 1), control = control))
   cox_model <- copy(true_cox$model)
-  cox_model$names <- c("dose2dose")
+  cox_model$names <- "dose2dose"
   expect_error(CoxRun(cox_model, df, control = control))
   cox_model <- copy(true_cox$model)
   cox_model$modelform <- "weird"
@@ -508,8 +532,8 @@ test_that("Object Validation Errors", {
 test_that("Multiplicative model check", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$col_bad <- "a"
   control <- list(ncores = 1)
@@ -526,8 +550,8 @@ test_that("Multiplicative model check", {
 test_that("Formula Validation Errors", {
   fname <- "dose.csv"
   set.seed(3742)
-  colTypes <- c("double", "double", "double", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = FALSE, fill = TRUE)
+  col_types <- c("double", "double", "double", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
   df$rand0 <- floor(runif(nrow(df)) * 5)
   df$col_bad <- "a"
   #
@@ -545,7 +569,7 @@ test_that("Formula Validation Errors", {
   expect_error(CoxRun(cox_model, df, control = control))
   #
   cox_model <- copy(true_cox$model)
-  cox_model$term_n <- c(0)
+  cox_model$term_n <- 0
   expect_no_error(CoxRun(cox_model, df, control = control))
   #
   cox_model <- copy(true_cox$model)
@@ -557,7 +581,7 @@ test_that("Formula Validation Errors", {
   expect_error(CoxRun(cox_model, df, control = control))
   #
   cox_model <- copy(true_cox$model)
-  cox_model$tform <- c("loglin")
+  cox_model$tform <- "loglin"
   expect_no_error(CoxRun(cox_model, df, control = control))
   #
   cox_model <- copy(true_cox$model)
@@ -570,7 +594,7 @@ test_that("Formula Validation Errors", {
   #
   a_n <- list(c(0.1, 0.1), c(0.1, 0.1, 0.2))
   expect_error(CoxRun(cox_model, df, control = control, a_n = a_n))
-  a_n <- list(c(0.1), c(0.1))
+  a_n <- list(0.1, 0.1)
   expect_no_error(CoxRun(cox_model, df, control = control, a_n = a_n))
   a_n <- list(c(0.1, 0.1, 0.2), c(0.1, 0.1, 0.2))
   expect_error(CoxRun(cox_model, df, control = control, a_n = a_n))

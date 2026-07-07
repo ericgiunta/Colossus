@@ -27,7 +27,7 @@ library(dplyr)
 
 ## Matched Case-Control Modeling
 
-One alternative regression method in Colossus is matched case-control logistic regression. The theory is presented in the following section.
+One alternative regression method in `Colossus` is matched case-control logistic regression. The theory is presented in the following section.
 
 ### General Theory
 
@@ -106,7 +106,7 @@ $$
 
 It is important to note that the recursive formula calculation can quickly become time-consuming, particularly if there is a large number of cases. To make the matched case-control method generally applicable, the likelihood function can be changed to a logistic regression model in matched sets with a large number of cases. In general, the matched case-control regression function adds an item to the model control list, "cond_thres", to set the threshold to switch to a logistic regression model.
 
-The logistic loglikelihood is defined by treating the matched case-control data as single trial data. The likelihood is a function of the event status ($\theta_i$) and odds ratio ($O_i$). The odds ratio for any row is calculated as the product of the odds ratio for the matched set ($O_s$) and the relative risk for the row ($r_i$). Behind the scenes, Colossus optimizes both the model parameters ($\vec{\beta}$) for the relative risk as well as a logistic model for the matched set odds ratios ($O_s=e^{\alpha_s}$).
+The logistic loglikelihood is defined by treating the matched case-control data as single trial data. The likelihood is a function of the event status ($\theta_i$) and odds ratio ($O_i$). The odds ratio for any row is calculated as the product of the odds ratio for the matched set ($O_s$) and the relative risk for the row ($r_i$). Behind the scenes, `Colossus` optimizes both the model parameters ($\vec{\beta}$) for the relative risk as well as a logistic model for the matched set odds ratios ($O_s=e^{\alpha_s}$).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -123,7 +123,7 @@ $$
 
 ### Examples of Use
 
-The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included in the R survival library. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short, we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
+The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included in the R `survival` package. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short, we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
 
 ```{r, eval = TRUE}
 #

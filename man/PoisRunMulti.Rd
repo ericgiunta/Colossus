@@ -15,7 +15,7 @@ PoisRunMulti(
   gradient_control = list(),
   single = FALSE,
   observed_info = FALSE,
-  fma = FALSE,
+  fma = TRUE,
   mcml = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),

@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 
 ## General Use
 
-There are several control lists used in Colossus that the user can use to customize the regression, all of which have functions defined that assign default values to any missing list items. The following sections will go through each control list, how it is used, and what every item assigned to it means.
+There are several control lists used in `Colossus` that the user can use to customize the regression, all of which have functions defined that assign default values to any missing list items. The following sections will go through each control list, how it is used, and what every item assigned to it means.
 
 ### Standard Control List
 

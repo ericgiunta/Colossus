@@ -18,5 +18,7 @@ plotSchoenfeld(x, df, plot_options, a_n = c(), ...)
 \item{...}{can include the named entries for the plot_options parameter}
 }
 \description{
-\code{plotSchoenfeld} Generic Schoenfeld Residual Plotting
+\code{plotSchoenfeld} Generic Schoenfeld residual plotting function, used by
+the coxres object to calculate Schoenfeld residuals. Currently only returns
+data that could be plotted.
 }

@@ -539,9 +539,9 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
     #endif
     for (int ijk = 0; ijk < group_num; ijk++) {
         if (strata_cond[ijk] == 0) {
-            vector<int>::iterator it_end = strata_cond.begin();
-            advance(it_end, ijk);
-            int pjk_ind = ijk - reduce(strata_cond.begin(), it_end);
+            vector<int>::iterator it_endp = strata_cond.begin();
+            advance(it_endp, ijk);
+            int pjk_ind = ijk - reduce(strata_cond.begin(), it_endp);
             if (isnan(Lldd_strata_solve(ijk))) {
                 if (LlddOdds[pjk_ind*kept_strata+pjk_ind] != 0) {
                     dstrata[ijk] = -lr * LldOdds[pjk_ind] / LlddOdds[pjk_ind*kept_strata+pjk_ind];

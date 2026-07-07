@@ -17,3 +17,4 @@
 ^out.txt
 ^CONTRIBUTING\.md$
 ^.lintr
+^LICENSE\.md$

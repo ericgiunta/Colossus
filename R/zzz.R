@@ -1,4 +1,5 @@
 .onAttach <- function(libname, pkgname) {
+  # nocov start
   # Checks if the system can use openmp
   syscheck <- Colossus::System_Version() # nocov
   # Starts by checking if openmp is linked with C++
@@ -32,4 +33,5 @@
       }
     }
   }
+  # nocov end
 }
