@@ -11,6 +11,8 @@ Event_Time_Gen(
   categ = list(),
   summaries = list(),
   events = c(),
+  fcount = FALSE,
+  lcount = FALSE,
   verbose = FALSE
 )
 }
@@ -26,6 +28,10 @@ Event_Time_Gen(
 \item{summaries}{list of columns to summarize, supports counts, means, and weighted means by person-year and renaming the summary column}
 
 \item{events}{list of events or interests, checks if events are within each time interval}
+
+\item{fcount}{boolean if the \verb{first at risk} count should be returned in the data. Returns the number of observations starting in each combination of categories.}
+
+\item{lcount}{boolean if the \verb{last at risk} count should be returned in the data. Returns the number of observations ending in each combination of categories.}
 
 \item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 }

@@ -155,6 +155,9 @@ pyr <- list(
 print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
 ```
 
+### Additional summary options
+
+There are multiple options for optional returned summaries available for both person-count and person-time tables. Person-time tables calculate the typical `at risk` summary variables for any row at risk, but they also can calculate `first at risk` and `last at risk` summary variables (named `F_AT_RISK` and `L_AT_RISK` respectively). These values can be summarized by setting their corresponding function parameters, `fcount` and `lcount` to true. Note that these are calculated during run-time regardless, so they can be used for taking weighted means regardless of if they are returned by default.
 
 
 

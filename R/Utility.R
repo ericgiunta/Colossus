@@ -2212,6 +2212,8 @@ Event_Count_Gen <- function(table, categ = list(), events = list(), verbose = FA
 #' @param categ list with category columns and methods, methods can be either strings or lists of boundaries
 #' @param summaries list of columns to summarize, supports counts, means, and weighted means by person-year and renaming the summary column
 #' @param events list of events or interests, checks if events are within each time interval
+#' @param fcount boolean if the `first at risk` count should be returned in the data. Returns the number of observations starting in each combination of categories.
+#' @param lcount boolean if the `last at risk` count should be returned in the data. Returns the number of observations ending in each combination of categories.
 #'
 #' @return returns a grouped table and a list of category boundaries used
 #' @family Data Cleaning Functions
@@ -2259,7 +2261,7 @@ Event_Count_Gen <- function(table, categ = list(), events = list(), verbose = FA
 #' )
 #' e <- Event_Time_Gen(table, pyr, time_scale, categ, summary, events)
 #'
-Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = list(), summaries = list(), events = c(), verbose = FALSE) {
+Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = list(), summaries = list(), events = c(), fcount = FALSE, lcount = FALSE, verbose = FALSE) {
   df <- as_tibble(table)
   `%within%` <- lubridate::`%within%`
   `%>%` <- dplyr::`%>%`
@@ -2333,6 +2335,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
   # Start the first at risk category
   # without any time categories, every value will contibute
   df[["F_AT_RISK"]] <- 1
+  df[["L_AT_RISK"]] <- 1
   #
   pyr_entry <- pyr$entry
   pyr_exit <- pyr$exit
@@ -2410,33 +2413,33 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
     }
     if (time_scale[[cat]]$type == "calendar") {
       if ("day" %in% names(time_scale[[cat]])) { # determine the day, month, year data for the category
-        day <- time_scale[[cat]]$day # nocov
+        day_categ <- time_scale[[cat]]$day # nocov
         if ("month" %in% names(time_scale[[cat]])) { # nocov
-          month <- time_scale[[cat]]$month # nocov
+          month_categ <- time_scale[[cat]]$month # nocov
         } else { # nocov
-          month <- rep(month_default, length(day)) # nocov
+          month_categ <- rep(month_default, length(day_categ)) # nocov
         }
         if ("year" %in% names(time_scale[[cat]])) { # nocov
-          year <- time_scale[[cat]]$year # nocov
+          year_categ <- time_scale[[cat]]$year # nocov
         } else {
-          year <- rep(year_default, length(day)) # nocov
+          year_categ <- rep(year_default, length(day_categ)) # nocov
         }
       } else if ("month" %in% names(time_scale[[cat]])) { # nocov
-        month <- time_scale[[cat]]$month # nocov
-        day <- rep(day_default, length(month)) # nocov
+        month_categ <- time_scale[[cat]]$month # nocov
+        day_categ <- rep(day_default, length(month_categ)) # nocov
         if ("year" %in% names(time_scale[[cat]])) { # nocov
-          year <- time_scale[[cat]]$year # nocov
+          year_categ <- time_scale[[cat]]$year # nocov
         } else { # nocov
-          year <- rep(year_default, length(month)) # nocov
+          year_categ <- rep(year_default, length(month_categ)) # nocov
         }
       } else if ("year" %in% names(time_scale[[cat]])) { # nocov
-        year <- time_scale[[cat]]$year # nocov
-        day <- rep(day_default, length(year)) # nocov
-        month <- rep(month_default, length(year)) # nocov
+        year_categ <- time_scale[[cat]]$year # nocov
+        day_categ <- rep(day_default, length(year_categ)) # nocov
+        month_categ <- rep(month_default, length(year_categ)) # nocov
       } else {
         stop("Error: calendar category missing 'day', 'month', and 'year'") # all three are required
       }
-      num_categ <- length(year) - 1
+      num_categ <- length(year_categ) - 1
       categ_cols <- c(categ_cols, cat_col)
       df <- df %>% mutate("{cat_col}" := "Unassigned") # initialize the tibble
       #
@@ -2461,8 +2464,8 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
       exit <- df$exit
       df_added <- tibble()
       for (time_i in 1:num_categ) { # for every time interval
-        istart <- make_date(year = year[time_i], month = month[time_i], day = day[time_i]) # interval start
-        iend <- make_date(year = year[time_i + 1], month = month[time_i + 1], day = day[time_i + 1]) # interval end
+        istart <- make_date(year = year_categ[time_i], month = month_categ[time_i], day = day_categ[time_i]) # interval start
+        iend <- make_date(year = year_categ[time_i + 1], month = month_categ[time_i + 1], day = day_categ[time_i + 1]) # interval end
         # We don't want the upper limit to be inclusive, so we call roll it back 1 day
         # Start by checking if the category is one day
         bin_dur <- as.duration(interval(istart, iend))
@@ -2515,6 +2518,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         }
         # set the first at risk value
         f_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[["F_AT_RISK"]], .default = 0) # if the row starts during the category, set to first at risk value
+        l_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ df[["L_AT_RISK"]], .default = 0) # if the row ends during the category, set to last at risk value
         b_categ <- case_when(entry %within% categ_interval & exit %within% categ_interval & df[[cat_col]] == "Unassigned" ~ as.numeric(as.duration(risk_interval), pyr_unit), .default = -1) # row interval fully in category interval, track full row interval
         b_categ <- case_when(exit %within% categ_interval & df[[cat_col]] == "Unassigned" & b_categ == -1 ~ as.numeric(as.duration(interval(istart, exit)), pyr_unit), .default = b_categ) # rows which end during the category interval, track category interval start to row end
         b_categ <- case_when(entry %within% categ_interval & df[[cat_col]] == "Unassigned" & b_categ == -1 ~ as.numeric(as.duration(interval(entry, iend)) + ddays(1), pyr_unit), .default = b_categ) # rows which enter during the category interval, track entry to category interval end
@@ -2524,7 +2528,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         index_kept <- seq_len(nrow(df))
         index_kept <- index_kept[a_categ == time_i] # indexes which contain the category interval to some level
         b_categ <- b_categ[a_categ == time_i]
-        index_kept <- index_kept[b_categ > 0]
+        index_kept <- index_kept[b_categ >= 0]
         #
         day_enter_categ <- day_enter_categ[a_categ == time_i]
         day_exit_categ <- day_exit_categ[a_categ == time_i]
@@ -2533,12 +2537,12 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         year_enter_categ <- year_enter_categ[a_categ == time_i]
         year_exit_categ <- year_exit_categ[a_categ == time_i]
         #
-        day_enter_categ <- day_enter_categ[b_categ > 0]
-        day_exit_categ <- day_exit_categ[b_categ > 0]
-        month_enter_categ <- month_enter_categ[b_categ > 0]
-        month_exit_categ <- month_exit_categ[b_categ > 0]
-        year_enter_categ <- year_enter_categ[b_categ > 0]
-        year_exit_categ <- year_exit_categ[b_categ > 0]
+        day_enter_categ <- day_enter_categ[b_categ >= 0]
+        day_exit_categ <- day_exit_categ[b_categ >= 0]
+        month_enter_categ <- month_enter_categ[b_categ >= 0]
+        month_exit_categ <- month_exit_categ[b_categ >= 0]
+        year_enter_categ <- year_enter_categ[b_categ >= 0]
+        year_exit_categ <- year_exit_categ[b_categ >= 0]
         #
         row_kept <- slice(df, index_kept) # dataframe at kept rows
         row_kept <- row_kept %>% mutate("{cat_col}" := as.character(time_i)) # time category value
@@ -2553,12 +2557,15 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         for (evt in event_cols) {
           d_categ <- c_categ[[evt]]
           d_categ <- d_categ[a_categ == time_i]
-          d_categ <- d_categ[b_categ > 0]
+          d_categ <- d_categ[b_categ >= 0]
           row_kept <- row_kept %>% mutate("{evt}" := d_categ) # event values
         }
         f_categ <- f_categ[a_categ == time_i]
-        f_categ <- f_categ[b_categ > 0]
+        f_categ <- f_categ[b_categ >= 0]
         row_kept <- row_kept %>% mutate("F_AT_RISK" := f_categ) # first at risk values
+        l_categ <- l_categ[a_categ == time_i]
+        l_categ <- l_categ[b_categ >= 0]
+        row_kept <- row_kept %>% mutate("L_AT_RISK" := l_categ) # last at risk values
         # We don't want to keep rows with negative durations
         #        row_kept <- row_kept %>% filter("PYR" > 0)
         df_added <- bind_rows(df_added, row_kept) # new updates dataset
@@ -2619,7 +2626,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
       df[["interval_dur"]] <- as.numeric(as.duration(interval(entry, exit)), pyr_unit)
       df[["entry_age"]] <- as.numeric(as.duration(interval(birth, entry)), pyr_unit)
       df[["exit_age"]] <- as.numeric(as.duration(interval(birth, exit)), pyr_unit)
-      df <- df |> filter(interval_dur > 0)
+      df <- df |> filter(interval_dur >= 0)
       df <- df |> filter(entry_age >= 0)
       birth <- df$birth
       entry_age <- df$entry_age
@@ -2711,6 +2718,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         }
         #
         f_categ <- case_when(L <= entry_age & entry_age < U & df[[cat_col]] == "Unassigned" ~ df[["F_AT_RISK"]], .default = 0) # if the row starts during the category, set to first at risk value
+        l_categ <- case_when(L <= exit_age & exit_age < U & df[[cat_col]] == "Unassigned" ~ df[["L_AT_RISK"]], .default = 0) # if the row ends during the category, set to last at risk value
         #
         b_categ <- case_when(L <= entry_age & exit_age <= U & df[[cat_col]] == "Unassigned" ~ exit_age - entry_age, .default = -1) # row interval fully in category interval, track full row interval
         b_categ <- case_when(L <= exit_age & exit_age <= U & df[[cat_col]] == "Unassigned" & b_categ == -1 ~ exit_age - L, .default = b_categ) # rows which end during the category interval, track category interval start to row end
@@ -2722,33 +2730,33 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         # Then pull out the calendar dates to get the entry/exit calendar dates
         entry_age_categ <- case_when(L <= entry_age & exit_age <= U & df[[cat_col]] == "Unassigned" ~ entry_age, .default = NaN)
         exit_age_categ <- case_when(L <= entry_age & exit_age <= U & df[[cat_col]] == "Unassigned" ~ exit_age, .default = NaN)
-        e_categ <- case_when(L <= entry_age & exit_age <= U & df[[cat_col]] == "Unassigned" ~ (exit_age + entry_age) / 2, .default = NaN) # row interval fully in category interval, track full row interval
+        e_categ <- case_when(L <= entry_age & exit_age <= U & df[[cat_col]] == "Unassigned" ~ (entry_age_categ + exit_age_categ) / 2, .default = NaN) # row interval fully in category interval, track full row interval
         #
         entry_age_categ <- case_when(L <= exit_age & exit_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ L, .default = entry_age_categ)
         exit_age_categ <- case_when(L <= exit_age & exit_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ exit_age, .default = exit_age_categ)
-        e_categ <- case_when(L <= exit_age & exit_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ (exit_age + L) / 2, .default = e_categ) # rows which end during the category interval, track category interval start to row end
+        e_categ <- case_when(L <= exit_age & exit_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ (entry_age_categ + exit_age_categ) / 2, .default = e_categ) # rows which end during the category interval, track category interval start to row end
         #
         entry_age_categ <- case_when(L <= entry_age & entry_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ entry_age, .default = entry_age_categ)
         exit_age_categ <- case_when(L <= entry_age & entry_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ U, .default = exit_age_categ)
-        e_categ <- case_when(L <= entry_age & entry_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ (U - entry_age) / 2, .default = e_categ) # rows which enter during the category interval, track entry to category interval end
+        e_categ <- case_when(L <= entry_age & entry_age <= U & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ (entry_age_categ + exit_age_categ) / 2, .default = e_categ) # rows which enter during the category interval, track entry to category interval end
         #
         entry_age_categ <- case_when(entry_age <= L & U <= exit_age & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ L, .default = entry_age_categ)
         exit_age_categ <- case_when(entry_age <= L & U <= exit_age & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ U, .default = exit_age_categ)
-        e_categ <- case_when(entry_age <= L & U <= exit_age & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ (U + L) / 2, .default = e_categ) # category interval fully in row interval, track full category interval
+        e_categ <- case_when(entry_age <= L & U <= exit_age & df[[cat_col]] == "Unassigned" & is.nan(e_categ) ~ (entry_age_categ + exit_age_categ) / 2, .default = e_categ) # category interval fully in row interval, track full category interval
         index_kept <- seq_len(nrow(df))
         index_kept <- index_kept[a_categ == time_i] # indexes which contain the category interval to some level
         b_categ <- b_categ[a_categ == time_i]
-        index_kept <- index_kept[b_categ > 0]
+        index_kept <- index_kept[b_categ >= 0]
         #
         e_categ <- e_categ[a_categ == time_i] # average values for kept indexes
         entry_age_categ <- entry_age_categ[a_categ == time_i]
         exit_age_categ <- exit_age_categ[a_categ == time_i]
         birth_categ <- birth[a_categ == time_i]
         #
-        e_categ <- e_categ[b_categ > 0]
-        entry_age_categ <- entry_age_categ[b_categ > 0]
-        exit_age_categ <- exit_age_categ[b_categ > 0]
-        birth_categ <- birth_categ[b_categ > 0]
+        e_categ <- e_categ[b_categ >= 0]
+        entry_age_categ <- entry_age_categ[b_categ >= 0]
+        exit_age_categ <- exit_age_categ[b_categ >= 0]
+        birth_categ <- birth_categ[b_categ >= 0]
         # lubridate has trouble adding decimal years, so we add converted values to get close
         entry_date <- birth_categ
         exit_date <- birth_categ
@@ -2761,6 +2769,9 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
           entry_date <- entry_date %m+% lubridate::years(entry_year)
           exit_date <- exit_date %m+% lubridate::years(exit_year)
           # Now we want to add in the correct number of days
+#          # We could generally assume that the decimal is low enough, so that we can use the number of days in the current year
+#          entry_date <- entry_date %m+% case_when(lubridate::leap_year(entry_date) ~ lubridate::days(round(entry_decimal * 366)), .default = lubridate::days(round(entry_decimal * 365)))
+#          exit_date <- exit_date %m+% case_when(lubridate::leap_year(exit_date) ~ lubridate::days(round(exit_decimal * 366)), .default = lubridate::days(round(exit_decimal * 365)))
           entry_date <- entry_date %m+% lubridate::days(round(entry_decimal * 365.242199))
           exit_date <- exit_date %m+% lubridate::days(round(exit_decimal * 365.242199))
         } else if (pyr_unit == "months") {
@@ -2769,8 +2780,8 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
           entry_decimal <- entry_age_categ - entry_month
           exit_month <- floor(exit_age_categ)
           exit_decimal <- exit_age_categ - exit_month
-          entry_date <- entry_date %m+% lubridate::months(entry_month)
-          exit_date <- exit_date %m+% lubridate::months(exit_month)
+          entry_date <- entry_date %m+% months(entry_month)
+          exit_date <- exit_date %m+% months(exit_month)
           # Now we want to add in the correct number of days
           entry_date <- entry_date %m+% lubridate::days(round(entry_decimal * 365.242199 / 12))
           exit_date <- exit_date %m+% lubridate::days(round(exit_decimal * 365.242199 / 12))
@@ -2805,12 +2816,15 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
         for (evt in event_cols) {
           d_categ <- c_categ[[evt]]
           d_categ <- d_categ[a_categ == time_i]
-          d_categ <- d_categ[b_categ > 0]
+          d_categ <- d_categ[b_categ >= 0]
           row_kept <- row_kept %>% mutate("{evt}" := d_categ) # event values
         }
         f_categ <- f_categ[a_categ == time_i]
-        f_categ <- f_categ[b_categ > 0]
+        f_categ <- f_categ[b_categ >= 0]
         row_kept <- row_kept %>% mutate("F_AT_RISK" := f_categ) # first at risk values
+        l_categ <- l_categ[a_categ == time_i]
+        l_categ <- l_categ[b_categ >= 0]
+        row_kept <- row_kept %>% mutate("L_AT_RISK" := l_categ) # last at risk values
         #
         df_added <- bind_rows(df_added, row_kept) # new updates dataset
       }
@@ -2962,6 +2976,18 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
   df_group <- df %>%
     group_by(across(all_of(categ_cols))) %>%
     summarize(AT_RISK = n(), F_AT_RISK = sum(.data[["F_AT_RISK"]]), PYR = sum(.data[["PYR"]]), .groups = "drop") # group by categories and define the durations and counts
+  if (fcount) {
+    df_temp <- df %>%
+        group_by(across(all_of(categ_cols))) %>%
+        summarize(F_AT_RISK = sum(.data[["F_AT_RISK"]]), .groups = "drop")
+    df_group[["F_AT_RISK"]] <- df_temp[["F_AT_RISK"]]
+  }
+  if (lcount) {
+    df_temp <- df %>%
+        group_by(across(all_of(categ_cols))) %>%
+        summarize(L_AT_RISK = sum(.data[["L_AT_RISK"]]), .groups = "drop")
+    df_group[["L_AT_RISK"]] <- df_temp[["L_AT_RISK"]]
+  }
   for (evt_i in seq_along(names(summaries))) { # for each event summary
     evt <- names(summaries)[evt_i]
     if (!(evt %in% names(df))) {
