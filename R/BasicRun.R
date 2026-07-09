@@ -243,6 +243,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!coxmodel$null) {
@@ -518,6 +519,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!poismodel$null) {
@@ -690,7 +692,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   }
   # Checks that the current coxmodel is valid
   validate_logitsurv(logitmodel, df)
-  logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  if (!logitmodel$null) {
+    logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  }
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   trial0 <- logitmodel$trials
@@ -713,50 +717,66 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
-  if (length(unique(term_n)) == 1) {
-    modelform <- "M"
-  } else if (modelform == "GMIX") {
-    model_control[["gmix_term"]] <- logitmodel$gmix_term
-    model_control[["gmix_theta"]] <- logitmodel$gmix_theta
-  }
-  if (missing(link)) {
+  if (logitmodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
     model_control["logit_odds"] <- TRUE
+    #
+    event_total <- sum(df[, event0, with = FALSE])
+    trial_total <- sum(df[, trial0, with = FALSE])
+    avg_rate <- event_total / trial_total
+    a_n <- c(-log(1 - avg_rate))
   } else {
-    # "logit_odds", "logit_ident", "logit_loglink"
-    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
-    link <- tolower(link)
-    link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-    if (link %in% acceptable) {
-      if (link %in% c("logit_odds", "odds", "odd")) {
-        model_control["logit_odds"] <- TRUE
-      } else if (link %in% c("logit_ident", "ident", "id")) {
-        model_control["logit_ident"] <- TRUE
-      } else if (link %in% c("logit_loglink", "loglink", "log")) {
-        model_control["logit_loglink"] <- TRUE
-      } else if (link %in% c("logit_probit", "probit")) {
-        model_control["logit_probit"] <- TRUE
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+    } else if (modelform == "GMIX") {
+      model_control[["gmix_term"]] <- logitmodel$gmix_term
+      model_control[["gmix_theta"]] <- logitmodel$gmix_theta
+    }
+    if (missing(link)) {
+      model_control["logit_odds"] <- TRUE
+    } else {
+      # "logit_odds", "logit_ident", "logit_loglink"
+      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+      link <- tolower(link)
+      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+      if (link %in% acceptable) {
+        if (link %in% c("logit_odds", "odds", "odd")) {
+          model_control["logit_odds"] <- TRUE
+        } else if (link %in% c("logit_ident", "ident", "id")) {
+          model_control["logit_ident"] <- TRUE
+        } else if (link %in% c("logit_loglink", "loglink", "log")) {
+          model_control["logit_loglink"] <- TRUE
+        } else if (link %in% c("logit_probit", "probit")) {
+          model_control["logit_probit"] <- TRUE
+        } else {
+          stop(gettextf(
+            "Error: Argument '%s' not matched to set link options",
+            link
+          ), domain = NA)
+        }
       } else {
         stop(gettextf(
-          "Error: Argument '%s' not matched to set link options",
+          "Error: Argument '%s' not matched to allowable link options",
           link
         ), domain = NA)
       }
-    } else {
-      stop(gettextf(
-        "Error: Argument '%s' not matched to allowable link options",
-        link
-      ), domain = NA)
     }
-  }
-  if (!missing(cons_mat)) {
-    if (missing(cons_vec)) {
-      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
-    } else {
-      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    if (!missing(cons_mat)) {
+      if (missing(cons_vec)) {
+        const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+      } else {
+        const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+      }
+      model_control <- const_res$control
+      cons_mat <- const_res$mat
+      cons_vec <- const_res$vec
     }
-    model_control <- const_res$control
-    cons_mat <- const_res$mat
-    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
     if (!inherits(gradient_control, "list")) {
@@ -799,6 +819,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -1061,6 +1082,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!caseconmodel$null) {
@@ -1305,6 +1327,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -1477,6 +1500,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   # ------------------------------------------------------------------------------ #
@@ -1931,6 +1955,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   #
   extraArgs <- list(...) # gather additional arguments
@@ -2136,6 +2161,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -2384,6 +2410,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -2654,6 +2681,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   if (all(strat_col != "NONE")) {
     #
@@ -2849,6 +2877,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -3029,6 +3058,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -3207,6 +3237,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   check_num <- 1
   z <- 2
@@ -3403,6 +3434,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   #
   check_num <- x$para_number
@@ -3586,6 +3618,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   # ------------------------------------------------------------------------------ #

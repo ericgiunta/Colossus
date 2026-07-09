@@ -642,16 +642,16 @@ validate_logitsurv <- function(x, df) {
   if (any(df[, x$event, with = FALSE] > df[, x$trials, with = FALSE])) {
     stop("Error: In atleast one row, the number of events was larger than the number of trials") # nocov
   }
-  # # check for null issues
-  # if (!is(x$null, "logical")) {
-  #   stop(paste0("Error: The null boolean must be a logical")) # nocov
-  # }
-  # if (length(x$null) == 0) {
-  #   stop(paste0("Error: The null boolean must not be empty")) # nocov
-  # }
-  # if (length(x$null) > 1) {
-  #   stop(paste0("Error: The null boolean had multiple values")) # nocov
-  # }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
   #
   # # Want to check for strata issues
   # if (!is(x$strata, "character")) {
@@ -848,6 +848,7 @@ caseconmodel <- function(start_age = "",
 logitmodel <- function(trials = "",
                        event = "",
                        strata = "",
+                       null = FALSE,
                        term_n = c(),
                        tform = c(),
                        names = c(),
@@ -865,13 +866,15 @@ logitmodel <- function(trials = "",
   strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   #
   logit_obj <- list(
-    trials = trials, event = event, strata = strata,
+    trials = trials, event = event, strata = strata, null = null,
     term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
     gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   logit_obj <- new_logitmodel(logit_obj)
   validate_logitsurv(logit_obj, df)
-  logit_obj <- validate_formula(logit_obj, df, verbose)
+  if (!null) {
+    logit_obj <- validate_formula(logit_obj, df, verbose)
+  }
   logit_obj
 }
 

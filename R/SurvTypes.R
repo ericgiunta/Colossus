@@ -15,6 +15,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     nthreads <- min(c(2, nthreads))
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # nocov start
   if (class(df)[[1]] != "data.table") {
@@ -235,6 +236,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
     nthreads <- min(c(2, nthreads))
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   if (length(lapply(strsplit(Reduce(paste, deparse(formula)), "", fixed = TRUE), function(x) which(x == "~"))[[1]]) != 1) {
     stop("Error: The formula contained multiple '~', invalid formula")
@@ -288,7 +290,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   } else if ((grepl("casecon", surv_model_type, fixed = TRUE)) || (grepl("case_con", surv_model_type, fixed = TRUE))) {
     model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else if ((grepl("logit", surv_model_type, fixed = TRUE)) || (grepl("logistic", surv_model_type, fixed = TRUE))) {
-    model <- logitmodel(trials, event, strata, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- logitmodel(trials, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
   } else {
     stop("Error: Bad survival model type passed")
   }
