@@ -25,7 +25,7 @@ test_that("basic table check", {
   )
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "mean")
   expect_no_error(Event_Count_Gen(table, categ, summary))
-
+  #
   categ <- list(
     "a" = "-1/-1/3/5]7",
     "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
@@ -42,9 +42,9 @@ test_that("basic table check", {
   expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
   time_scale <- list(
     "time AS time_bin" = list(
-      "day" = "f",
+      "day" = "d",
       "month" = "e",
-      "year" = "d",
+      "year" = "f",
       categories = "0/10/20/30/40/50/60/70/80/90"
     )
   )
@@ -53,9 +53,9 @@ test_that("basic table check", {
   expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
   time_scale <- list(
     "age AS agecat" = list(
-      "day" = "f",
+      "day" = "d",
       "month" = "e",
-      "year" = "d",
+      "year" = "f",
       "categories" = "0/10/20/30/40/50/60/70/80/90"
     ),
     "time AS time_bin" = list(
@@ -67,6 +67,38 @@ test_that("basic table check", {
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
   expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  #
+  categ <- list(
+    "a" = "-1/-1/3/5]7",
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  time_scale <- list(
+    "age AS agecat" = list(
+      "day" = "f",
+      "month" = "e",
+      "year" = "d",
+      "categories" = "0/10/20/30/40/50/60/70/80/90"
+    )
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  pyr <- list(entry = list(year = "d", month = "e", day = "f"), exit = list(year = "i", month = "h", day = "g"))
+  categ <- list(
+    "a" = "-1/-1/3/5]7",
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  time_scale <- list(
+    "age AS agecat" = list(
+      "day" = "d",
+      "month" = "e",
+      "year" = "f",
+      "categories" = "0/10/20/30/40/50/60/70/80/90"
+    )
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
 })
 test_that("person time, different intervals", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
