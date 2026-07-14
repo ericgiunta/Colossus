@@ -175,7 +175,13 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
   df <- df[get(trial0) > 0, ]
+  if (!is.numeric(df[[trial0]])) {
+    stop("Error: Trial column was not numeric: ", trial0)
+  }
   for (i in seq(1,length(realization_columns))){
+    if (!is.numeric(df[, realization_columns[i], with = FALSE])) {
+      stop("Error: event column was not numeric: ", realization_columns[i])
+    }
     if (min(df[, realization_columns[i], with = FALSE]) < 0){
       stop("Error: negative events in atleast one row of column ", realization_columns[i])
     }

@@ -121,6 +121,14 @@ new_logitresbound <- function(x = list()) {
   )
 }
 
+new_logitresfma <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "logitresfma"
+  )
+}
+
 
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
