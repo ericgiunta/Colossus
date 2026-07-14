@@ -2334,7 +2334,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
-#'   event = c(0, 0, 1, 0, 1, 0, 0)
+#'   event = c(0, 0, 1, 0, 1, 0, 0),
 #'   dose = c(0, 1, 1, 0, 1, 0, 1) 
 #' )
 #' set.seed(3742)
