@@ -10,6 +10,7 @@ name: OS_Checks
 
 on:
   workflow_dispatch:
+    branches: [main, dev]
   push:
     branches: [main]
 
@@ -35,7 +36,7 @@ jobs:
       - name: move to package and build examples
         run: |
           brew install pandoc
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+          Rscript -e "devtools::check(error_on = c('warning'), cran=T)"
   mac_no_OMP_check:
     runs-on: macos-latest
 
@@ -67,7 +68,7 @@ jobs:
       - name: move to package and test
         run: |
           brew install pandoc
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+          Rscript -e "devtools::check(error_on = c('warning'), cran=T)"
   win_check:
     runs-on: windows-latest
     steps:
@@ -95,7 +96,7 @@ jobs:
         run: |
           choco install pandoc
           refreshenv
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+          Rscript -e "devtools::check(error_on = c('warning'), cran=T)"
   ubuntu_check:
     runs-on: ubuntu-latest
     steps:
@@ -129,7 +130,7 @@ jobs:
         run: |
           sudo apt-get install pandoc
           sudo apt-get install texlive
-          Rscript -e "devtools::check(error_on = c('error'), cran=T)"
+          Rscript -e "devtools::check(error_on = c('warning'), cran=T)"
   build:
     name: Check Colossus on ${{ matrix.arch }}
     runs-on: ubuntu-24.04${{matrix.arch=='arm64' && '-arm' || ''}}

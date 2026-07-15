@@ -2875,7 +2875,6 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
-    // MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 3);
     //  ------------------------------------------------------------------------- //  initialize
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values

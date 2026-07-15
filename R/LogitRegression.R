@@ -128,6 +128,7 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Logistic"
   e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size

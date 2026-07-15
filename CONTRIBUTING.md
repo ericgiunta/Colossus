@@ -42,7 +42,7 @@ R code is formatted using the styler package, to ensure consistent style. Prior 
 styler::style_pkg()
 ```
 
-Additional R code checking is performed using the `goodpractice` package and the `lintr` and `rcmdcheck` checks to identify other potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed.
+Additional R code checking is performed using the `goodpractice` package to identify potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed.
 ```r
 goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
 ```
@@ -153,6 +153,11 @@ We will then take care of the issue as soon as possible.
 
 
 ## Contributing code
+
+
+### Policy on AI produced code
+
+Colossus as a project was designed to be maintained and improved by students, and further improvements are meant to be learning opportunities. It is important to the development team that contributors understand the code they are submiting, and can take full responsability for any errors or issues caused. AI can not take responsibility or learn from developer feedback, so we ask that any contributions be primarily human written and evaluated.
 
 
 

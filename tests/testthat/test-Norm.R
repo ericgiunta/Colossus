@@ -64,8 +64,8 @@ test_that("Checking values converted back", {
       expect_equal(res$beta_0, res_max$beta_0, tolerance = 1e-2)
       expect_equal(res$beta_0, res_mean$beta_0, tolerance = 1e-2)
       #
-      expect_equal(res$Standard_Deviation, res_max$Standard_Deviation, tolerance = 1e-2)
-      expect_equal(res$Standard_Deviation, res_mean$Standard_Deviation, tolerance = 1e-2)
+      expect_equal(res$Standard_Error, res_max$Standard_Error, tolerance = 1e-2)
+      expect_equal(res$Standard_Error, res_mean$Standard_Error, tolerance = 1e-2)
       #
       expect_equal(res$Covariance, res_max$Covariance, tolerance = 1e-2)
       expect_equal(res$Covariance, res_mean$Covariance, tolerance = 1e-2)

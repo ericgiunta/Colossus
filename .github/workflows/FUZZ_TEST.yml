@@ -1,0 +1,42 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# See https://github.com/r-lib/actions/tree/master/examples#readme for
+# additional example workflows available for the R community.
+
+name: FUZZ_TEST
+
+on:
+  workflow_dispatch:
+    branches: [main, dev]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ubuntu_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          Ncpus: 2
+      - name: install libraries
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev
+      - name: move to package and check
+        run: |
+          ls
+          Rscript -e "install.packages(c('devtools', 'remotes', 'fuzzr'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install()"
+      - name: run tests
+        run: |
+          Rscript fuzz_testing/fuzz_test_base.R
+          Rscript fuzz_testing/fuzz_test_extended.R
