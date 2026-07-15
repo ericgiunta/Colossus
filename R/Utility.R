@@ -743,8 +743,7 @@ Check_Iters <- function(control, a_n) {
 #' paras <- list(cov_0 = c(1, 3.45), cov_1 = c(1.2, 4.5, 0.1))
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
 #'
-Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
-  verbose <- Check_Verbose(verbose)
+Linked_Dose_Formula <- function(tforms, paras) {
   full_paras <- list()
   for (nm in names(tforms)) {
     if (tforms[nm] == "quad") {
@@ -813,8 +812,7 @@ Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
 #' a1_goal <- 15
 #' full_paras <- Linked_Lin_Exp_Para(y, a0, a1_goal)
 #'
-Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
-  verbose <- Check_Verbose(verbose)
+Linked_Lin_Exp_Para <- function(y, a0, a1_goal) {
   b1 <- 10
   lr <- 1.0
   if (a0 < 0) {
@@ -1078,7 +1076,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
-Check_Trunc <- function(df, ce, verbose = 0) {
+Check_Trunc <- function(df, ce) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -1112,7 +1110,6 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
   }
   #
-  verbose <- Check_Verbose(verbose)
   if (ce[1] %in% c("%trunc%", "right_trunc")) {
     if (ce[2] %in% c("%trunc%", "left_trunc")) {
       stop("Error: Both endpoints are truncated, not acceptable")
@@ -2428,8 +2425,8 @@ Interpret_Output <- function(out_list, digits = 3) {
           if ("Standard_Error" %in% names(out_list)) {
             stdev <- out_list$Standard_Error
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
-            CI_low <- beta_0 - 1.96 * stdev
-            CI_high <- beta_0 + 1.96 * stdev
+            CI_low <- as.numeric(format(beta_0 - 1.96 * stdev, digits = digits))
+            CI_high <- as.numeric(format(beta_0 + 1.96 * stdev, digits = digits))
             CI <- paste0("(", CI_low, " - ", CI_high, ")")
             res_table <- data.table(
               Covariate = names,

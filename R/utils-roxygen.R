@@ -205,7 +205,7 @@ NULL
 #' @importFrom callr rcmd
 #' @importFrom stringr str_match str_count
 #' @importFrom processx run
-#' @importFrom dplyr mutate case_when group_by summarize summarise n slice bind_rows across all_of filter
+#' @importFrom dplyr mutate case_when group_by summarize summarise n n_distinct slice bind_rows across all_of filter
 #' @importFrom tibble as_tibble tibble
 #' @importFrom lubridate make_date interval as.duration days is.Date ddays day month year days years
 #' @importFrom pracma rref

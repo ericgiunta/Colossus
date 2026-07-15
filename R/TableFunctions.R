@@ -34,7 +34,7 @@
 #' )
 #' e <- Event_Count_Gen(table, categ, event, T)
 #'
-Event_Count_Gen <- function(table, categ = list(), events = list(), verbose = FALSE) {
+Event_Count_Gen <- function(table, categ = list(), events = list()) {
   df <- as_tibble(table)
   `%>%` <- dplyr::`%>%`
   #
@@ -47,7 +47,7 @@ Event_Count_Gen <- function(table, categ = list(), events = list(), verbose = FA
   categ_cols <- categ_res$categ_cols
   categ_bounds <- categ_res$categ_bounds
   #
-  df_group <- generate_summaries(df, events, c(), c(), categ_cols, fcount = FALSE, lcount = FALSE, time_table = FALSE)
+  df_group <- generate_summaries(df, events, c(), c(), categ_cols, time_table = FALSE)
   # return the grouped list and list of catgegory bounds
   list(df = as.data.table(df_group), bounds = categ_bounds)
 }
@@ -113,7 +113,7 @@ Event_Count_Gen <- function(table, categ = list(), events = list(), verbose = FA
 #' )
 #' e <- Event_Time_Gen(table, pyr, time_scale, categ, summary, events)
 #'
-Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = list(), summaries = list(), events = c(), fcount = FALSE, lcount = FALSE, studyid = "studyID", verbose = FALSE) {
+Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = list(), summaries = list(), events = c(), fcount = FALSE, lcount = FALSE, studyid = "studyID") {
   df <- as_tibble(table)
   # setting commands and known columns to dummy values to avoid `no visible binding` warnings
   `%within%` <- lubridate::`%within%`
@@ -279,12 +279,12 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
   names(summaries) <- lapply(names(summaries), function(x) tryCatch(match.arg(x, choices = table_names), error = function(error_message) x)) # match against columns in the table
   # Process the Calendar time scale
   if (time_scale_version == "calendar") {
-    time_res <- Calendar_Process(df, table_names, pyr, time_scale, event_cols, studyid, verbose)
+    time_res <- Calendar_Process(df, table_names, pyr, time_scale, event_cols, studyid)
     df <- time_res$df
     categ_cols <- time_res$categ_cols
     categ_bounds <- time_res$categ_bounds
   } else {
-    time_res <- UserScale_Process(df, table_names, pyr, time_scale, event_cols, studyid, verbose)
+    time_res <- UserScale_Process(df, table_names, pyr, time_scale, event_cols, studyid)
     df <- time_res$df
     categ_cols <- time_res$categ_cols
     categ_bounds <- time_res$categ_bounds
@@ -301,7 +301,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
   if ("AT_RISK" %in% names(summaries)) { # storing number at risk
     stop("Error: 'AT_RISK' listed as a event column, either remove or rename with ' AS '")
   }
-  df_group <- generate_summaries(df, summaries, event_cols, event_names, categ_cols, fcount, lcount, time_table = TRUE)
+  df_group <- generate_summaries(df, summaries, event_cols, event_names, categ_cols, fcount, lcount, studyid, time_table = TRUE)
   #
   list(df = as.data.table(df_group), bounds = categ_bounds) # , ungrouped = as.data.table(df))
 }
@@ -320,7 +320,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
 #' @return returns calendar based table generation
 #' @family Table Generation Functions
 #' @noRd
-Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(), event_cols = c(), studyid = "studyID", verbose = FALSE) {
+Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(), event_cols = c(), studyid = "studyID") {
   # setting commands and known columns to dummy values to avoid `no visible binding` warnings
   `%within%` <- lubridate::`%within%`
   `%>%` <- dplyr::`%>%`
@@ -370,7 +370,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
       time_scale[[cat]]$type <- type
     } else if (!(time_scale[[cat]]$type %in% c("calendar", "age"))) {
       type <- "none"
-      if (all(names(time_scale[[cat]]) %in% c("day", "month", "year"))) {
+      if (all(names(time_scale[[cat]]) %in% c("day", "month", "year", "type"))) {
         type <- "calendar" # calendar scale only uses day/month/year
       } else if (any(names(time_scale[[cat]]) %in% c("day", "month", "year"))) {
         type <- "age" # age scale only use day/month/year for the birth and other values for the actual categories
@@ -677,22 +677,16 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
       if ("lower" %in% names(time_scale[[cat]])) { # lower and upper boundary intervals
         temp0 <- time_scale[[cat]]$lower
         temp1 <- time_scale[[cat]]$upper
-        if ("name" %in% names(time_scale[[cat]])) { # check for names for each level
-          temp2 <- time_scale[[cat]]$name
-        } else {
-          temp2 <- seq_along(temp0)
-        }
         num_categ <- length(temp0)
         categ_cols <- c(categ_cols, cat_col)
         for (i in 1:num_categ) { # for each level
           L <- as.numeric(temp0[i])
           Ls <- c(Ls, L)
           if (grepl("]", temp1[i], fixed = TRUE)) { # check for including the upper limit
-            stop("Error: Time category included upper limit, currently not supported to avoid double-counting events.")
-          } else {
-            U <- as.numeric(temp1[i]) # get upper limit
-            Us <- c(Us, U)
+            warning("Warning: Time category included upper limit, currently not supported to avoid double-counting events.")
           }
+          U <- as.numeric(temp1[i]) # get upper limit
+          Us <- c(Us, U)
         }
       } else { # boundary as string
         if (!("categories" %in% names(time_scale[[cat]]))) {
@@ -716,7 +710,9 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
             # We are in the last entry
             if (length(temp) - time_i == 2) {
               # There is a label
-              stop("Error: Age categories currently do not support names.")
+              warning("Warning: Age categories currently do not support names.")
+              U <- as.numeric(temp[time_i + 2])
+              Us <- c(Us, U)
             } else {
               # No label
               U <- as.numeric(temp[time_i + 1])
@@ -726,7 +722,9 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
             # Not at last entry
             if (match_index[match_i + 1] - time_i == 3) {
               # There is a label
-              stop("Error: Age categories currently do not support names.")
+              warning("Warning: Age categories currently do not support names.")
+              U <- as.numeric(temp[time_i + 2])
+              Us <- c(Us, U)
             } else {
               # No label
               U <- as.numeric(temp[time_i + 1])
@@ -1014,7 +1012,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
 #' @return returns calendar based table generation
 #' @family Table Generation Functions
 #' @noRd
-UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list(), event_cols = c(), studyid = "studyID", verbose = FALSE) {
+UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list(), event_cols = c(), studyid = "studyID") {
   # setting commands and known columns to dummy values to avoid `no visible binding` warnings
   `%within%` <- lubridate::`%within%`
   `%>%` <- dplyr::`%>%`
@@ -1056,6 +1054,12 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
     entry_duration <- pyr_entry$duration
     exit_duration <- pyr_exit$duration
     # Get the entry and exit durations
+    if (!is.null(levels(df[[entry_duration]]))) {
+      df[[entry_duration]] <- as.numeric(df[[entry_duration]])
+    }
+    if (!is.null(levels(df[[exit_duration]]))) {
+      df[[exit_duration]] <- as.numeric(df[[exit_duration]])
+    }
     entry <- df[[entry_duration]]
     exit <- df[[exit_duration]]
     if (pyr_exit$trunc) {
@@ -1087,22 +1091,16 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
       if ("lower" %in% names(time_scale[[cat]])) { # lower and upper boundary intervals
         temp0 <- time_scale[[cat]]$lower
         temp1 <- time_scale[[cat]]$upper
-        if ("name" %in% names(time_scale[[cat]])) { # check for names for each level
-          temp2 <- time_scale[[cat]]$name
-        } else {
-          temp2 <- seq_along(temp0)
-        }
         num_categ <- length(temp0)
         categ_cols <- c(categ_cols, cat_col)
         for (i in 1:num_categ) { # for each level
           L <- as.numeric(temp0[i])
           Ls <- c(Ls, L)
           if (grepl("]", temp1[i], fixed = TRUE)) { # check for including the upper limit
-            stop("Error: Time category included upper limit, currently not supported to avoid double-counting events.")
-          } else {
-            U <- as.numeric(temp1[i]) # get upper limit
-            Us <- c(Us, U)
+            warning("Warning: Time category included upper limit, currently not supported to avoid double-counting events.")
           }
+          U <- as.numeric(temp1[i]) # get upper limit
+          Us <- c(Us, U)
         }
       } else { # boundary as string
         if (!("categories" %in% names(time_scale[[cat]]))) {
@@ -1126,7 +1124,9 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
             # We are in the last entry
             if (length(temp) - time_i == 2) {
               # There is a label
-              stop("Error: Age categories currently do not support names.")
+              warning("Warning: Age categories currently do not support names.")
+              U <- as.numeric(temp[time_i + 2])
+              Us <- c(Us, U)
             } else {
               # No label
               U <- as.numeric(temp[time_i + 1])
@@ -1136,7 +1136,9 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
             # Not at last entry
             if (match_index[match_i + 1] - time_i == 3) {
               # There is a label
-              stop("Error: Age categories currently do not support names.")
+              warning("Warning: Age categories currently do not support names.")
+              U <- as.numeric(temp[time_i + 2])
+              Us <- c(Us, U)
             } else {
               # No label
               U <- as.numeric(temp[time_i + 1])
@@ -1165,7 +1167,9 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
           # We are in the last entry
           if (length(temp) - time_i == 2) {
             # There is a label
-            stop("Error: Age categories currently do not support names.")
+            warning("Warning: Age categories currently do not support names.")
+            U <- as.numeric(temp[time_i + 2])
+            Us <- c(Us, U)
           } else {
             # No label
             U <- as.numeric(temp[time_i + 1])
@@ -1175,7 +1179,9 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
           # Not at last entry
           if (match_index[match_i + 1] - time_i == 3) {
             # There is a label
-            stop("Error: Age categories currently do not support names.")
+            warning("Warning: Age categories currently do not support names.")
+            U <- as.numeric(temp[time_i + 2])
+            Us <- c(Us, U)
           } else {
             # No label
             U <- as.numeric(temp[time_i + 1])
@@ -1295,7 +1301,7 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
 #' @return returns grouped table
 #' @family Table Generation Functions
 #' @noRd
-generate_summaries <- function(df, summaries, event_cols, event_names, categ_cols, fcount = FALSE, lcount = FALSE, time_table = FALSE) {
+generate_summaries <- function(df, summaries, event_cols, event_names, categ_cols, fcount = FALSE, lcount = FALSE, studyid = "studyID", time_table = FALSE) {
   `%>%` <- dplyr::`%>%`
   # Makes a list of named changed events, to allow them to be used with weighting
   evt_name_change <- list()
@@ -1305,7 +1311,7 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
   if (time_table) {
     df_group <- df %>%
       group_by(across(all_of(categ_cols))) %>%
-      summarize(AT_RISK = n(), PYR = sum(.data[["PYR"]]), .groups = "drop") # group by categories and define the durations and counts
+      summarize(AT_RISK = n_distinct(.data[[studyid]]), PYR = sum(.data[["PYR"]]), .groups = "drop") # group by categories and define the durations and counts
     if (fcount) {
       df_temp <- df %>%
         group_by(across(all_of(categ_cols))) %>%
@@ -1395,6 +1401,8 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
       }
       if (method %in% c("rmean")) {
         method <- "weighted_mean" # update to the weighted mean if a weighting column is given
+      } else if (method %in% c("rsum", "count")) {
+        method <- "weighted_sum" # update to the weighted mean if a weighting column is given
       } else if (method %in% c("mean", "sum", "xmean", "xsum")) {
         method <- paste0("weighted_", method)
       } else if (!(method %in% c("weighted_sum", "weighted_mean", "mean", "rmean"))) {
@@ -1483,11 +1491,14 @@ Category_Process <- function(df, table_names, categ, categ_cols, categ_bounds) {
     if (cat_col %in% names(df)) { # check that the category doesn't already exist in the original dataframe
       stop("Error: ", cat_col, " already exists, use ' AS ' to rename if needed")
     }
+    if (!cat_df %in% table_names) {
+      stop("Error: ", cat_df, " not in table")
+    }
+    if (!is.null(levels(df[[cat_df]]))) {
+      df[[cat_df]] <- as.numeric(df[[cat_df]])
+    }
     if (!is.null(names(categ[[cat]]))) { # boundary as lists
       names(categ[[cat]]) <- tolower(names(categ[[cat]])) # set the names to lowercase
-      if (!cat_df %in% table_names) {
-        stop("Error: ", cat_df, " not in table")
-      }
       temp0 <- categ[[cat]]$lower
       temp1 <- categ[[cat]]$upper
       if ("name" %in% names(categ[[cat]])) { # check for names for each level
@@ -1523,9 +1534,9 @@ Category_Process <- function(df, table_names, categ, categ_cols, categ_bounds) {
       }
       if (tolower(categ[[cat]]) == "factor") {
         # It is a factor
-        cat_col <- paste(cat, "category", sep = "_")
+        cat_col <- paste(cat_df, "category", sep = "_")
         categ_cols <- c(categ_cols, cat_col)
-        df[[cat_col]] <- as.factor(df[[cat]])
+        df[[cat_col]] <- as.factor(df[[cat_df]])
         cat_str <- paste(levels(df[[cat_col]]), collapse = "/")
         categ_bounds[[cat_col]] <- cat_str # add to list of intervals
       } else {
@@ -1536,7 +1547,7 @@ Category_Process <- function(df, table_names, categ, categ_cols, categ_bounds) {
         temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
         match_index <- which(temp %in% c("/", "]"))
         if (length(match_index) < 1) {
-          stop(paste("Error: Category ", cat, " did not have categories.", sep = ""))
+          stop(paste("Error: Category ", cat_df, " did not have categories.", sep = ""))
         }
         categ_cols <- c(categ_cols, cat_col)
         df <- df %>% mutate("{cat_col}" := "Unassigned") # initialize column

@@ -13,8 +13,7 @@ Event_Time_Gen(
   events = c(),
   fcount = FALSE,
   lcount = FALSE,
-  studyid = "studyID",
-  verbose = FALSE
+  studyid = "studyID"
 )
 }
 \arguments{
@@ -35,8 +34,6 @@ Event_Time_Gen(
 \item{lcount}{boolean if the \verb{last at risk} count should be returned in the data. Returns the number of observations ending in each combination of categories.}
 
 \item{studyid}{id used to determine distinct subjects used for first and last at risk intervals}
-
-\item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 }
 \value{
 returns a grouped table and a list of category boundaries used
