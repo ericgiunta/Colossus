@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -525,11 +525,16 @@ function to directly call the Poisson model regression function.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:        t0    plin           -0.184          0.385          0.631</span></span>
-<span><span class="co">#&gt; 2:    fac_e0  loglin            0.574          0.468          0.219</span></span>
-<span><span class="co">#&gt; 3:    fac_e1  loglin           -1.033          1.008          0.306</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        t0    plin           -0.184          0.385</span></span>
+<span><span class="co">#&gt; 2:    fac_e0  loglin            0.574          0.468</span></span>
+<span><span class="co">#&gt; 3:    fac_e1  loglin           -1.033          1.008</span></span>
+<span><span class="co">#&gt;                    95% Confidence Interval 2-tail p-value</span></span>
+<span><span class="co">#&gt;                                     &lt;char&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: (-0.938240320188066 - 0.56924255217907)          0.631</span></span>
+<span><span class="co">#&gt; 2: (-0.342261291834589 - 1.49078666168524)          0.219</span></span>
+<span><span class="co">#&gt; 3:  (-3.0089787730636 - 0.943123658017569)          0.306</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Poisson Model Used</span></span>
@@ -542,7 +547,7 @@ function to directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.589e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 12, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.031 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -557,7 +562,7 @@ function to directly call the Poisson model regression function.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

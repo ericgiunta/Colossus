@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -299,10 +299,14 @@ outputs.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e0</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin          -0.0435         0.0232         0.0605</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin          -0.3658         0.7370         0.6197</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin          -0.0435         0.0232     (-0.0888 - 0.00191)</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin          -0.3658         0.7370     (-1.8102 - 1.07872)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         0.0605</span></span>
+<span><span class="co">#&gt; 2:         0.6197</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
@@ -315,15 +319,19 @@ outputs.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 2.357e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.025 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.033 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin          -0.0438         0.0205         0.0324</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin          -0.3699         0.5734         0.5188</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin          -0.0438         0.0205     (-0.084 - -0.00367)</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin          -0.3699         0.5734      (-1.494 - 0.75388)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         0.0324</span></span>
+<span><span class="co">#&gt; 2:         0.5188</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
@@ -336,15 +344,19 @@ outputs.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.852e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.031 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:   karno50  loglin          -0.0448         0.0163        0.00608</span></span>
-<span><span class="co">#&gt; 2:       trt  loglin          -0.3767         0.5567        0.49856</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:   karno50  loglin          -0.0448         0.0163     (-0.0768 - -0.0128)</span></span>
+<span><span class="co">#&gt; 2:       trt  loglin          -0.3767         0.5567      (-1.4678 - 0.7143)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        0.00608</span></span>
+<span><span class="co">#&gt; 2:        0.49856</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Matched Case-Control Model Used</span></span>
@@ -357,7 +369,7 @@ outputs.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 6.414e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -372,7 +384,7 @@ outputs.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

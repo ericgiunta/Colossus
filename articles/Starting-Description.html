@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -567,12 +567,18 @@ functions are called as follows:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0             46.5            NaN            NaN</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.25e+10              1</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1             84.4       1.25e+10              1</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2            101.1       0.00e+00              0</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0             46.5            NaN</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.25e+10</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1             84.4       1.25e+10</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2            101.1       0.00e+00</span></span>
+<span><span class="co">#&gt;                   95% Confidence Interval 2-tail p-value</span></span>
+<span><span class="co">#&gt;                                    &lt;char&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:                            (NaN - NaN)            NaN</span></span>
+<span><span class="co">#&gt; 2:  (-24590948847.0937 - 24590949015.975)              1</span></span>
+<span><span class="co">#&gt; 3: (-24590948847.0861 - 24590949015.9674)              1</span></span>
+<span><span class="co">#&gt; 4:                        (101.1 - 101.1)              0</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
@@ -586,7 +592,7 @@ functions are called as follows:</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.028 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.044 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -595,12 +601,18 @@ functions are called as follows:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0         -0.29681        1.10226       7.88e-01</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1         -0.01166        0.04784       8.07e-01</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1          0.00725        0.00993       4.65e-01</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2         -0.84726        0.19126       9.42e-06</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0         -0.29681        1.10226</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1         -0.01166        0.04784</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1          0.00725        0.00993</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2         -0.84726        0.19126</span></span>
+<span><span class="co">#&gt;                       95% Confidence Interval 2-tail p-value</span></span>
+<span><span class="co">#&gt;                                        &lt;char&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:     (-2.45722899382582 - 1.86361704481854)       7.88e-01</span></span>
+<span><span class="co">#&gt; 2:  (-0.105420307686539 - 0.0820968069854899)       8.07e-01</span></span>
+<span><span class="co">#&gt; 3: (-0.0122138424230783 - 0.0267068239461246)       4.65e-01</span></span>
+<span><span class="co">#&gt; 4:    (-1.2221232577821 - -0.472401118504764)       9.42e-06</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Poisson Model Used</span></span>
@@ -614,7 +626,7 @@ functions are called as follows:</p>
 <span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
 <span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
 <span><span class="co">#&gt; Records Used: 7, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.013 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">
@@ -646,7 +658,7 @@ final point</td>
 <td align="center">The final parameter list</td>
 </tr>
 <tr class="odd">
-<td align="center">Standard_Deviation</td>
+<td align="center">Standard_Error</td>
 <td align="center">Inverse-Hessian estimate of the standard
 deviation</td>
 </tr>
@@ -700,7 +712,7 @@ in greater detail in the other vignettes.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

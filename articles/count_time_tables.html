@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -242,27 +242,31 @@ person-year list can also contain a unit, defaulted to years.</p>
 <span>  unit <span class="op">=</span> <span class="st">"years"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The second major difference is the possible use of time categories.
-Time categories are set by vectors of the day, month, and year of each
-interval splitting point. So intervals changing every 2 days could be
-expressed by “day=c(1,3,5,…)”. Time categories are unique in that each
-row can correspond to multiple time categories, so the duration of each
-row in each time category is kept to distinguish which rows are only
-partially in each time interval. If a time category is not provided,
-then the full duration of each row is used for person-year
-calculations.</p>
+Time categories are either set by calendar date or by age. Calendar time
+scales are set by vectors of the day, month, and year of each interval
+splitting point. So intervals changing every 2 days could be expressed
+by “day=c(1,3,5,…)”. Age time scales use a day/month/year as a reference
+for age, and then set the age categories using the same notation as
+non-time categories. Time categories are unique in that each row can
+correspond to multiple time categories, so the duration of each row in
+each time category is kept to distinguish which rows are only partially
+in each time interval. If a time category is not provided, then the full
+duration of each row is used for person-year calculations. Only one time
+category at a time is currently supported by Colossus.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  a <span class="op">=</span> <span class="st">"-1/3/5]7"</span>,</span>
 <span>  b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>    name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"medium"</span>, <span class="st">"high"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  `time AS time_bin` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>    year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1899</span>, <span class="fl">1903</span>, <span class="fl">1910</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">time_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`time AS time_bin` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1899</span>, <span class="fl">1903</span>, <span class="fl">1910</span><span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The final difference is that person-time tables make a distinction
 between events and summaries. The summary list is nearly identical to
 the event list in the person-count function. The only difference is that
@@ -286,106 +290,157 @@ boundaries.</p>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
 <span>  unit <span class="op">=</span> <span class="st">"years"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases b_weighted</span></span>
-<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     -1 - 3       high        1       1  2.9924709     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:     -1 - 3       high        2       1  0.2600958     0   6.000000</span></span>
-<span><span class="co">#&gt;  3:     -1 - 3        low        1       5 14.7871321     1   1.398815</span></span>
-<span><span class="co">#&gt;  4:     -1 - 3        low        2       3 14.4257358     0   1.485291</span></span>
-<span><span class="co">#&gt;  5:     -1 - 3     medium        1       2  5.9822040     0   3.999542</span></span>
-<span><span class="co">#&gt;  6:     -1 - 3     medium        2       2  1.5167693     1   4.664260</span></span>
-<span><span class="co">#&gt;  7:      3 - 5        low        1       1  2.9952088     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:      3 - 5        low        2       1  1.2566735     0   2.000000</span></span>
-<span><span class="co">#&gt;  9:      3 - 5     medium        1       4 11.7973990     0   3.993270</span></span>
-<span><span class="co">#&gt; 10:      3 - 5     medium        2       4  5.7056810     3   4.175144</span></span>
-<span><span class="co">#&gt; 11:      5 - 7       high        1       2  5.8179329     0   6.499765</span></span>
-<span><span class="co">#&gt; 12:      5 - 7       high        2       2  7.6824093     2   6.554170</span></span>
-<span><span class="co">#&gt; 13:      5 - 7        low        1       1  2.9103354     0   2.000000</span></span>
-<span><span class="co">#&gt; 14:      5 - 7        low        2       1  0.2546201     1   2.000000</span></span>
-<span><span class="co">#&gt; 15:      5 - 7     medium        1       1  2.9075975     0   3.000000</span></span>
-<span><span class="co">#&gt; 16:      5 - 7     medium        2       1  1.2566735     0   3.000000</span></span>
+<span><span class="co">#&gt;     time_bin a_category b_category AT_RISK        PYR F_AT_RISK cases</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt;      &lt;num&gt;     &lt;num&gt; &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:        1     -1 - 3       high       1  2.9952088         1     0</span></span>
+<span><span class="co">#&gt;  2:        1     -1 - 3        low       5 12.4791239         5     1</span></span>
+<span><span class="co">#&gt;  3:        1     -1 - 3     medium       2  5.9876797         2     0</span></span>
+<span><span class="co">#&gt;  4:        1      3 - 5        low       1  2.9979466         1     0</span></span>
+<span><span class="co">#&gt;  5:        1      3 - 5     medium       4 11.8083504         4     0</span></span>
+<span><span class="co">#&gt;  6:        1      5 - 7       high       2  5.8234086         2     0</span></span>
+<span><span class="co">#&gt;  7:        1      5 - 7        low       1  2.9130732         1     0</span></span>
+<span><span class="co">#&gt;  8:        1      5 - 7     medium       1  2.9103354         1     0</span></span>
+<span><span class="co">#&gt;  9:        2     -1 - 3       high       1  0.2600958         0     0</span></span>
+<span><span class="co">#&gt; 10:        2     -1 - 3        low       3 14.4312115         0     0</span></span>
+<span><span class="co">#&gt; 11:        2     -1 - 3     medium       2  1.5167693         0     1</span></span>
+<span><span class="co">#&gt; 12:        2      3 - 5        low       1  1.2566735         0     0</span></span>
+<span><span class="co">#&gt; 13:        2      3 - 5     medium       4  5.7056810         0     3</span></span>
+<span><span class="co">#&gt; 14:        2      5 - 7       high       2  7.6824093         0     2</span></span>
+<span><span class="co">#&gt; 15:        2      5 - 7        low       1  0.2546201         0     1</span></span>
+<span><span class="co">#&gt; 16:        2      5 - 7     medium       1  1.2566735         0     0</span></span>
+<span><span class="co">#&gt;     b_weighted</span></span>
+<span><span class="co">#&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   6.000000</span></span>
+<span><span class="co">#&gt;  2:   1.413339</span></span>
+<span><span class="co">#&gt;  3:   3.999543</span></span>
+<span><span class="co">#&gt;  4:   2.000000</span></span>
+<span><span class="co">#&gt;  5:   3.993276</span></span>
+<span><span class="co">#&gt;  6:   6.499765</span></span>
+<span><span class="co">#&gt;  7:   2.000000</span></span>
+<span><span class="co">#&gt;  8:   3.000000</span></span>
+<span><span class="co">#&gt;  9:   6.000000</span></span>
+<span><span class="co">#&gt; 10:   1.485297</span></span>
+<span><span class="co">#&gt; 11:   4.664260</span></span>
+<span><span class="co">#&gt; 12:   2.000000</span></span>
+<span><span class="co">#&gt; 13:   4.175144</span></span>
+<span><span class="co">#&gt; 14:   6.554170</span></span>
+<span><span class="co">#&gt; 15:   2.000000</span></span>
+<span><span class="co">#&gt; 16:   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 5) [5, 7]"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$b_category</span></span>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
 <span>  unit <span class="op">=</span> <span class="st">"months"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK        PYR cases b_weighted</span></span>
-<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt;      &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     -1 - 3       high        1       1  35.909651     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:     -1 - 3       high        2       1   3.121150     0   6.000000</span></span>
-<span><span class="co">#&gt;  3:     -1 - 3        low        1       5 177.445585     1   1.398815</span></span>
-<span><span class="co">#&gt;  4:     -1 - 3        low        2       3 173.108830     0   1.485291</span></span>
-<span><span class="co">#&gt;  5:     -1 - 3     medium        1       2  71.786448     0   3.999542</span></span>
-<span><span class="co">#&gt;  6:     -1 - 3     medium        2       2  18.201232     1   4.664260</span></span>
-<span><span class="co">#&gt;  7:      3 - 5        low        1       1  35.942505     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:      3 - 5        low        2       1  15.080082     0   2.000000</span></span>
-<span><span class="co">#&gt;  9:      3 - 5     medium        1       4 141.568789     0   3.993270</span></span>
-<span><span class="co">#&gt; 10:      3 - 5     medium        2       4  68.468172     3   4.175144</span></span>
-<span><span class="co">#&gt; 11:      5 - 7       high        1       2  69.815195     0   6.499765</span></span>
-<span><span class="co">#&gt; 12:      5 - 7       high        2       2  92.188912     2   6.554170</span></span>
-<span><span class="co">#&gt; 13:      5 - 7        low        1       1  34.924025     0   2.000000</span></span>
-<span><span class="co">#&gt; 14:      5 - 7        low        2       1   3.055441     1   2.000000</span></span>
-<span><span class="co">#&gt; 15:      5 - 7     medium        1       1  34.891170     0   3.000000</span></span>
-<span><span class="co">#&gt; 16:      5 - 7     medium        2       1  15.080082     0   3.000000</span></span>
+<span><span class="co">#&gt;     time_bin a_category b_category AT_RISK        PYR F_AT_RISK cases</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt;      &lt;num&gt;     &lt;num&gt; &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:        1     -1 - 3       high       1  35.942505         1     0</span></span>
+<span><span class="co">#&gt;  2:        1     -1 - 3        low       5 149.749487         5     1</span></span>
+<span><span class="co">#&gt;  3:        1     -1 - 3     medium       2  71.852156         2     0</span></span>
+<span><span class="co">#&gt;  4:        1      3 - 5        low       1  35.975359         1     0</span></span>
+<span><span class="co">#&gt;  5:        1      3 - 5     medium       4 141.700205         4     0</span></span>
+<span><span class="co">#&gt;  6:        1      5 - 7       high       2  69.880903         2     0</span></span>
+<span><span class="co">#&gt;  7:        1      5 - 7        low       1  34.956879         1     0</span></span>
+<span><span class="co">#&gt;  8:        1      5 - 7     medium       1  34.924025         1     0</span></span>
+<span><span class="co">#&gt;  9:        2     -1 - 3       high       1   3.121150         0     0</span></span>
+<span><span class="co">#&gt; 10:        2     -1 - 3        low       3 173.174538         0     0</span></span>
+<span><span class="co">#&gt; 11:        2     -1 - 3     medium       2  18.201232         0     1</span></span>
+<span><span class="co">#&gt; 12:        2      3 - 5        low       1  15.080082         0     0</span></span>
+<span><span class="co">#&gt; 13:        2      3 - 5     medium       4  68.468172         0     3</span></span>
+<span><span class="co">#&gt; 14:        2      5 - 7       high       2  92.188912         0     2</span></span>
+<span><span class="co">#&gt; 15:        2      5 - 7        low       1   3.055441         0     1</span></span>
+<span><span class="co">#&gt; 16:        2      5 - 7     medium       1  15.080082         0     0</span></span>
+<span><span class="co">#&gt;     b_weighted</span></span>
+<span><span class="co">#&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:   6.000000</span></span>
+<span><span class="co">#&gt;  2:   1.413339</span></span>
+<span><span class="co">#&gt;  3:   3.999543</span></span>
+<span><span class="co">#&gt;  4:   2.000000</span></span>
+<span><span class="co">#&gt;  5:   3.993276</span></span>
+<span><span class="co">#&gt;  6:   6.499765</span></span>
+<span><span class="co">#&gt;  7:   2.000000</span></span>
+<span><span class="co">#&gt;  8:   3.000000</span></span>
+<span><span class="co">#&gt;  9:   6.000000</span></span>
+<span><span class="co">#&gt; 10:   1.485297</span></span>
+<span><span class="co">#&gt; 11:   4.664260</span></span>
+<span><span class="co">#&gt; 12:   2.000000</span></span>
+<span><span class="co">#&gt; 13:   4.175144</span></span>
+<span><span class="co">#&gt; 14:   6.554170</span></span>
+<span><span class="co">#&gt; 15:   2.000000</span></span>
+<span><span class="co">#&gt; 16:   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 5) [5, 7]"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$b_category</span></span>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
 <span>  unit <span class="op">=</span> <span class="st">"days"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     a_category b_category time_bin AT_RISK   PYR cases b_weighted</span></span>
-<span><span class="co">#&gt;         &lt;char&gt;     &lt;char&gt;   &lt;char&gt;   &lt;int&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     -1 - 3       high        1       1  1093     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:     -1 - 3       high        2       1    95     0   6.000000</span></span>
-<span><span class="co">#&gt;  3:     -1 - 3        low        1       5  5401     1   1.398815</span></span>
-<span><span class="co">#&gt;  4:     -1 - 3        low        2       3  5269     0   1.485291</span></span>
-<span><span class="co">#&gt;  5:     -1 - 3     medium        1       2  2185     0   3.999542</span></span>
-<span><span class="co">#&gt;  6:     -1 - 3     medium        2       2   554     1   4.664260</span></span>
-<span><span class="co">#&gt;  7:      3 - 5        low        1       1  1094     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:      3 - 5        low        2       1   459     0   2.000000</span></span>
-<span><span class="co">#&gt;  9:      3 - 5     medium        1       4  4309     0   3.993270</span></span>
-<span><span class="co">#&gt; 10:      3 - 5     medium        2       4  2084     3   4.175144</span></span>
-<span><span class="co">#&gt; 11:      5 - 7       high        1       2  2125     0   6.499765</span></span>
-<span><span class="co">#&gt; 12:      5 - 7       high        2       2  2806     2   6.554170</span></span>
-<span><span class="co">#&gt; 13:      5 - 7        low        1       1  1063     0   2.000000</span></span>
-<span><span class="co">#&gt; 14:      5 - 7        low        2       1    93     1   2.000000</span></span>
-<span><span class="co">#&gt; 15:      5 - 7     medium        1       1  1062     0   3.000000</span></span>
-<span><span class="co">#&gt; 16:      5 - 7     medium        2       1   459     0   3.000000</span></span>
+<span><span class="co">#&gt;     time_bin a_category b_category AT_RISK   PYR F_AT_RISK cases b_weighted</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt; &lt;num&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:        1     -1 - 3       high       1  1094         1     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:        1     -1 - 3        low       5  4558         5     1   1.413339</span></span>
+<span><span class="co">#&gt;  3:        1     -1 - 3     medium       2  2187         2     0   3.999543</span></span>
+<span><span class="co">#&gt;  4:        1      3 - 5        low       1  1095         1     0   2.000000</span></span>
+<span><span class="co">#&gt;  5:        1      3 - 5     medium       4  4313         4     0   3.993276</span></span>
+<span><span class="co">#&gt;  6:        1      5 - 7       high       2  2127         2     0   6.499765</span></span>
+<span><span class="co">#&gt;  7:        1      5 - 7        low       1  1064         1     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:        1      5 - 7     medium       1  1063         1     0   3.000000</span></span>
+<span><span class="co">#&gt;  9:        2     -1 - 3       high       1    95         0     0   6.000000</span></span>
+<span><span class="co">#&gt; 10:        2     -1 - 3        low       3  5271         0     0   1.485297</span></span>
+<span><span class="co">#&gt; 11:        2     -1 - 3     medium       2   554         0     1   4.664260</span></span>
+<span><span class="co">#&gt; 12:        2      3 - 5        low       1   459         0     0   2.000000</span></span>
+<span><span class="co">#&gt; 13:        2      3 - 5     medium       4  2084         0     3   4.175144</span></span>
+<span><span class="co">#&gt; 14:        2      5 - 7       high       2  2806         0     2   6.554170</span></span>
+<span><span class="co">#&gt; 15:        2      5 - 7        low       1    93         0     1   2.000000</span></span>
+<span><span class="co">#&gt; 16:        2      5 - 7     medium       1   459         0     0   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
+<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 5) [5, 7]"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$b_category</span></span>
-<span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="additional-summary-options">Additional summary options<a class="anchor" aria-label="anchor" href="#additional-summary-options"></a>
+</h3>
+<p>There are multiple options for optional returned summaries available
+for both person-count and person-time tables. Person-time tables
+calculate the typical <code>at risk</code> summary variables for any row
+at risk, but they also can calculate <code>first at risk</code> and
+<code>last at risk</code> summary variables (named
+<code>F_AT_RISK</code> and <code>L_AT_RISK</code> respectively). These
+values can be summarized by setting their corresponding function
+parameters, <code>fcount</code> and <code>lcount</code> to true. Note
+that these are calculated during run-time regardless, so they can be
+used for taking weighted means regardless of if they are returned by
+default.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -399,7 +454,7 @@ boundaries.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

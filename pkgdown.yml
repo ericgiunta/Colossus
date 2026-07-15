@@ -1,5 +1,5 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   Alt_Run_Opt: Alt_Run_Opt.html
@@ -18,7 +18,7 @@ articles:
   Starting-Description: Starting-Description.html
   Time_Dep_Cov: Time_Dep_Cov.html
   Wald_and_Log_Bound: Wald_and_Log_Bound.html
-last_built: 2026-06-25T16:02Z
+last_built: 2026-07-15T17:36Z
 urls:
   reference: https://ericgiunta.github.io/Colossus/reference
   article: https://ericgiunta.github.io/Colossus/articles
