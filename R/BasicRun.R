@@ -2050,7 +2050,6 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-#' names <- c("dose", "rand")
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
@@ -2311,7 +2310,6 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-#' names <- c("dose", "rand")
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(

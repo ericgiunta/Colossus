@@ -155,6 +155,11 @@ We will then take care of the issue as soon as possible.
 ## Contributing code
 
 
+### Policy on AI produced code
+
+Colossus as a project was designed to be maintained and improved by students, and further improvements are meant to be learning opportunities. It is important to the development team that contributors understand the code they are submiting, and can take full responsability for any errors or issues caused. AI can not take responsibility or learn from developer feedback, so we ask that any contributions be primarily human written and evaluated.
+
+
 
 ### General workflow
 
