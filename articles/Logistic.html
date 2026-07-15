@@ -230,18 +230,18 @@ that the cell type has no effect above the baseline.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    cell_0  loglin             3.26          1.018</span></span>
-<span><span class="co">#&gt; 2:    cell_1  loglin             2.05          0.531</span></span>
-<span><span class="co">#&gt; 3:    cell_2  loglin             2.71          0.596</span></span>
-<span><span class="co">#&gt; 4:    cell_3  loglin             3.26          1.018</span></span>
-<span><span class="co">#&gt;                  95% Confidence Interval 2-tail p-value</span></span>
-<span><span class="co">#&gt;                                   &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: (1.26058656446089 - 5.25103898327236)       1.38e-03</span></span>
-<span><span class="co">#&gt; 2:  (1.00626557814033 - 3.0887218493244)       1.16e-04</span></span>
-<span><span class="co">#&gt; 3: (1.53894836733543 - 3.87558232461851)       5.58e-06</span></span>
-<span><span class="co">#&gt; 4: (1.26058656446089 - 5.25103898327236)       1.38e-03</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    cell_0  loglin             3.26          1.018           (1.26 - 5.25)</span></span>
+<span><span class="co">#&gt; 2:    cell_1  loglin             2.05          0.531           (1.01 - 3.09)</span></span>
+<span><span class="co">#&gt; 3:    cell_2  loglin             2.71          0.596           (1.54 - 3.88)</span></span>
+<span><span class="co">#&gt; 4:    cell_3  loglin             3.26          1.018           (1.26 - 5.25)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       1.38e-03</span></span>
+<span><span class="co">#&gt; 2:       1.16e-04</span></span>
+<span><span class="co">#&gt; 3:       5.58e-06</span></span>
+<span><span class="co">#&gt; 4:       1.38e-03</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
@@ -253,7 +253,7 @@ that the cell type has no effect above the baseline.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 8.753e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.035 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.031 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this analysis, we were using the default of the odds ratio. The
 linking function can be changed by using the “link” option. The
@@ -271,18 +271,18 @@ models.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    cell_0  loglin             3.26          1.018</span></span>
-<span><span class="co">#&gt; 2:    cell_1  loglin             2.05          0.531</span></span>
-<span><span class="co">#&gt; 3:    cell_2  loglin             2.71          0.596</span></span>
-<span><span class="co">#&gt; 4:    cell_3  loglin             3.26          1.018</span></span>
-<span><span class="co">#&gt;                  95% Confidence Interval 2-tail p-value</span></span>
-<span><span class="co">#&gt;                                   &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: (1.26060561838827 - 5.25151882360664)       1.38e-03</span></span>
-<span><span class="co">#&gt; 2:  (1.00628352457301 - 3.0887638842323)       1.16e-04</span></span>
-<span><span class="co">#&gt; 3: (1.53899434251378 - 3.87572442492722)       5.58e-06</span></span>
-<span><span class="co">#&gt; 4: (1.26060561838827 - 5.25151882360664)       1.38e-03</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    cell_0  loglin             3.26          1.018           (1.26 - 5.25)</span></span>
+<span><span class="co">#&gt; 2:    cell_1  loglin             2.05          0.531           (1.01 - 3.09)</span></span>
+<span><span class="co">#&gt; 3:    cell_2  loglin             2.71          0.596           (1.54 - 3.88)</span></span>
+<span><span class="co">#&gt; 4:    cell_3  loglin             3.26          1.018           (1.26 - 5.25)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       1.38e-03</span></span>
+<span><span class="co">#&gt; 2:       1.16e-04</span></span>
+<span><span class="co">#&gt; 3:       5.58e-06</span></span>
+<span><span class="co">#&gt; 4:       1.38e-03</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
@@ -294,7 +294,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 6.929e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
@@ -302,18 +302,18 @@ models.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    cell_0  loglin          -0.0377         0.0377</span></span>
-<span><span class="co">#&gt; 2:    cell_1  loglin          -0.1213         0.0607</span></span>
-<span><span class="co">#&gt; 3:    cell_2  loglin          -0.0645         0.0373</span></span>
-<span><span class="co">#&gt; 4:    cell_3  loglin          -0.0377         0.0377</span></span>
-<span><span class="co">#&gt;                        95% Confidence Interval 2-tail p-value</span></span>
-<span><span class="co">#&gt;                                         &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    (-0.11171539133709 - 0.0362351051606025)         0.3173</span></span>
-<span><span class="co">#&gt; 2: (-0.240305893545979 - -0.00233479848807921)         0.0457</span></span>
-<span><span class="co">#&gt; 3:  (-0.137520436969365 - 0.00852288197919517)         0.0834</span></span>
-<span><span class="co">#&gt; 4:    (-0.11171539133709 - 0.0362351051606025)         0.3173</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    cell_0  loglin          -0.0377         0.0377      (-0.112 - 0.03624)</span></span>
+<span><span class="co">#&gt; 2:    cell_1  loglin          -0.1213         0.0607      (-0.24 - -0.00233)</span></span>
+<span><span class="co">#&gt; 3:    cell_2  loglin          -0.0645         0.0373      (-0.138 - 0.00852)</span></span>
+<span><span class="co">#&gt; 4:    cell_3  loglin          -0.0377         0.0377      (-0.112 - 0.03624)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         0.3173</span></span>
+<span><span class="co">#&gt; 2:         0.0457</span></span>
+<span><span class="co">#&gt; 3:         0.0834</span></span>
+<span><span class="co">#&gt; 4:         0.3173</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
@@ -325,7 +325,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.173e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
@@ -333,18 +333,18 @@ models.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    cell_0  loglin            -3.28          1.000</span></span>
-<span><span class="co">#&gt; 2:    cell_1  loglin            -2.11          0.500</span></span>
-<span><span class="co">#&gt; 3:    cell_2  loglin            -2.74          0.577</span></span>
-<span><span class="co">#&gt; 4:    cell_3  loglin            -3.28          1.000</span></span>
-<span><span class="co">#&gt;                    95% Confidence Interval 2-tail p-value</span></span>
-<span><span class="co">#&gt;                                     &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: (-5.23582244613686 - -1.31688366977238)       1.05e-03</span></span>
-<span><span class="co">#&gt; 2: (-3.08948751144645 - -1.12834803695246)       2.49e-05</span></span>
-<span><span class="co">#&gt; 3: (-3.87192347712305 - -1.60858113978253)       2.07e-06</span></span>
-<span><span class="co">#&gt; 4: (-5.23582244613686 - -1.31688366977238)       1.05e-03</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    cell_0  loglin            -3.28          1.000         (-5.24 - -1.32)</span></span>
+<span><span class="co">#&gt; 2:    cell_1  loglin            -2.11          0.500         (-3.09 - -1.13)</span></span>
+<span><span class="co">#&gt; 3:    cell_2  loglin            -2.74          0.577         (-3.87 - -1.61)</span></span>
+<span><span class="co">#&gt; 4:    cell_3  loglin            -3.28          1.000         (-5.24 - -1.32)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       1.05e-03</span></span>
+<span><span class="co">#&gt; 2:       2.49e-05</span></span>
+<span><span class="co">#&gt; 3:       2.07e-06</span></span>
+<span><span class="co">#&gt; 4:       1.05e-03</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
@@ -356,7 +356,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 8.184e-06</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
@@ -364,18 +364,18 @@ models.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:    cell_0  loglin            0.581          0.251</span></span>
-<span><span class="co">#&gt; 2:    cell_1  loglin            0.186          0.231</span></span>
-<span><span class="co">#&gt; 3:    cell_2  loglin            0.428          0.185</span></span>
-<span><span class="co">#&gt; 4:    cell_3  loglin            0.581          0.251</span></span>
-<span><span class="co">#&gt;                     95% Confidence Interval 2-tail p-value</span></span>
-<span><span class="co">#&gt;                                      &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  (0.0878104873212451 - 1.07353833702536)         0.0209</span></span>
-<span><span class="co">#&gt; 2: (-0.267339050531632 - 0.638701044601579)         0.4218</span></span>
-<span><span class="co">#&gt; 3:  (0.0652367512891671 - 0.79113824320134)         0.0208</span></span>
-<span><span class="co">#&gt; 4:  (0.0878104873212447 - 1.07353833702536)         0.0209</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:    cell_0  loglin            0.581          0.251        (0.0878 - 1.074)</span></span>
+<span><span class="co">#&gt; 2:    cell_1  loglin            0.186          0.231       (-0.2673 - 0.639)</span></span>
+<span><span class="co">#&gt; 3:    cell_2  loglin            0.428          0.185        (0.0652 - 0.791)</span></span>
+<span><span class="co">#&gt; 4:    cell_3  loglin            0.581          0.251        (0.0878 - 1.074)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         0.0209</span></span>
+<span><span class="co">#&gt; 2:         0.4218</span></span>
+<span><span class="co">#&gt; 3:         0.0208</span></span>
+<span><span class="co">#&gt; 4:         0.0209</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
@@ -387,7 +387,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.895e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 137, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
