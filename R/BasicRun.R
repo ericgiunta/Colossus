@@ -86,7 +86,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -117,19 +117,19 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     }
   }
   # nocov start
+  # nocov end
+  # Checks that the current coxmodel is valid
+  validate_coxsurv(coxmodel, df)
+  if (!coxmodel$null) {
+    coxmodel <- validate_formula(coxmodel, df, control$verbose)
+  }
   ce <- c(coxmodel$start_age, coxmodel$end_age, coxmodel$event)
   val <- Check_Trunc(df, ce)
   if (any(val$ce != ce)) {
     df <- val$df
     ce <- val$ce
     coxmodel$start_age <- ce[1]
-    coxmodel$end_age <- ce[1]
-  }
-  # nocov end
-  # Checks that the current coxmodel is valid
-  validate_coxsurv(coxmodel, df)
-  if (!coxmodel$null) {
-    coxmodel <- validate_formula(coxmodel, df, control$verbose)
+    coxmodel$end_age <- ce[2]
   }
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
@@ -194,16 +194,42 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     model_control[["cr"]] <- TRUE
   }
   if (!missing(cons_mat)) {
-    model_control[["constraint"]] <- TRUE
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -217,6 +243,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!coxmodel$null) {
@@ -249,8 +276,8 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- coxmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -355,7 +382,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -441,18 +468,44 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     if (all(poismodel$strata != "NONE")) {
       model_control["strata"] <- TRUE
     }
-    if (ncol(cons_mat) > 1) {
-      model_control["constraint"] <- TRUE
+    if (!missing(cons_mat)) {
+      if (missing(cons_vec)) {
+        const_res <- check_constraints(a_n, model_control, cons_mat = cons_mat, verbose = control$verbose)
+      } else {
+        const_res <- check_constraints(a_n, model_control, cons_mat = cons_mat, cons_vec = cons_vec, verbose = control$verbose)
+      }
+      model_control <- const_res$control
+      cons_mat <- const_res$mat
+      cons_vec <- const_res$vec
     }
     if (!missing(gradient_control)) {
+      if (!inherits(gradient_control, "list")) {
+        stop("Error: Gradient control list was not a list")
+      }
       model_control["gradient"] <- TRUE
       for (nm in names(gradient_control)) {
         model_control[nm] <- gradient_control[nm]
       }
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -466,6 +519,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!poismodel$null) {
@@ -500,8 +554,8 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count) # nocov
   }
   res$model <- poismodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -606,7 +660,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -638,7 +692,9 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   }
   # Checks that the current coxmodel is valid
   validate_logitsurv(logitmodel, df)
-  logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  if (!logitmodel$null) {
+    logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  }
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   trial0 <- logitmodel$trials
@@ -661,52 +717,94 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
-  if (length(unique(term_n)) == 1) {
-    modelform <- "M"
-  } else if (modelform == "GMIX") {
-    model_control[["gmix_term"]] <- logitmodel$gmix_term
-    model_control[["gmix_theta"]] <- logitmodel$gmix_theta
-  }
-  if (missing(link)) {
+  if (logitmodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
     model_control["logit_odds"] <- TRUE
+    #
+    event_total <- sum(df[, event0, with = FALSE])
+    trial_total <- sum(df[, trial0, with = FALSE])
+    avg_rate <- event_total / trial_total
+    a_n <- c(-log(1 - avg_rate))
   } else {
-    # "logit_odds", "logit_ident", "logit_loglink"
-    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
-    link <- tolower(link)
-    link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-    if (link %in% acceptable) {
-      if (link %in% c("logit_odds", "odds", "odd")) {
-        model_control["logit_odds"] <- TRUE
-      } else if (link %in% c("logit_ident", "ident", "id")) {
-        model_control["logit_ident"] <- TRUE
-      } else if (link %in% c("logit_loglink", "loglink", "log")) {
-        model_control["logit_loglink"] <- TRUE
-      } else if (link %in% c("logit_probit", "probit")) {
-        model_control["logit_probit"] <- TRUE
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+    } else if (modelform == "GMIX") {
+      model_control[["gmix_term"]] <- logitmodel$gmix_term
+      model_control[["gmix_theta"]] <- logitmodel$gmix_theta
+    }
+    if (missing(link)) {
+      model_control["logit_odds"] <- TRUE
+    } else {
+      # "logit_odds", "logit_ident", "logit_loglink"
+      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+      link <- tolower(link)
+      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+      if (link %in% acceptable) {
+        if (link %in% c("logit_odds", "odds", "odd")) {
+          model_control["logit_odds"] <- TRUE
+        } else if (link %in% c("logit_ident", "ident", "id")) {
+          model_control["logit_ident"] <- TRUE
+        } else if (link %in% c("logit_loglink", "loglink", "log")) {
+          model_control["logit_loglink"] <- TRUE
+        } else if (link %in% c("logit_probit", "probit")) {
+          model_control["logit_probit"] <- TRUE
+        } else {
+          stop(gettextf(
+            "Error: Argument '%s' not matched to set link options",
+            link
+          ), domain = NA)
+        }
       } else {
         stop(gettextf(
-          "Error: Argument '%s' not matched to set link options",
+          "Error: Argument '%s' not matched to allowable link options",
           link
         ), domain = NA)
       }
-    } else {
-      stop(gettextf(
-        "Error: Argument '%s' not matched to allowable link options",
-        link
-      ), domain = NA)
+    }
+    if (!missing(cons_mat)) {
+      if (missing(cons_vec)) {
+        const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+      } else {
+        const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+      }
+      model_control <- const_res$control
+      cons_mat <- const_res$mat
+      cons_vec <- const_res$vec
     }
   }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
-  }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info",
@@ -721,6 +819,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -753,8 +852,8 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- logitmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (model_control[["constraint"]]) {
@@ -862,7 +961,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -935,14 +1034,41 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     model_control[["time_risk"]] <- TRUE
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
-  model_control["conditional_threshold"] <- conditional_threshold
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
+  if (!missing(conditional_threshold)) {
+    if (length(conditional_threshold) > 1) {
+      stop("Error: conditional threshold was not a single value.")
+    }
+    if (!is(conditional_threshold, "numeric")) {
+      stop("Error: conditional threshold was not numeric.")
+    }
+    model_control["conditional_threshold"] <- conditional_threshold
+  }
   control_def_names <- c(
     "single", "basic", "null", "time_risk",
     "gradient", "constraint", "strata", "observed_info"
@@ -956,6 +1082,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!caseconmodel$null) {
@@ -990,8 +1117,8 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- caseconmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -1094,7 +1221,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -1150,17 +1277,43 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -1174,6 +1327,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -1206,8 +1360,8 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- poismodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (model_control[["constraint"]]) {
@@ -1346,6 +1500,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   # ------------------------------------------------------------------------------ #
@@ -1412,7 +1567,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1492,7 +1647,7 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1569,7 +1724,7 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1679,7 +1834,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1800,6 +1955,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   #
   extraArgs <- list(...) # gather additional arguments
@@ -1821,7 +1977,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (missing(plot_options)) {
     plot_options <- extraArgs
-  } else if (is.list(plot_options)) {
+  } else if (inherits(plot_options, "list")) {
     plot_options <- c(plot_options, extraArgs)
   } else {
     stop("Error: control argument must be a list")
@@ -1894,7 +2050,6 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-#' names <- c("dose", "rand")
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
@@ -1955,7 +2110,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -2005,6 +2160,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -2036,10 +2192,20 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   if (coxmodel$weight != "NONE") {
     model_control[["cr"]] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control[["constraint"]] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -2070,8 +2236,24 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
       model_control["mcml"] <- mcml
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -2085,8 +2267,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- coxmodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   res$realizations <- ncol(realization_columns)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
@@ -2128,7 +2310,6 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
 #' df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
-#' names <- c("dose", "rand")
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
@@ -2189,7 +2370,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
       }
     }
     control <- do.call(ColossusControl, extraArgs)
-  } else if (is.list(control)) {
+  } else if (inherits(control, "list")) {
     names(control) <- tolower(names(control)) # set the names to lowercase
     names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
     if (anyDuplicated(names(control))) { # check if there are repeated elements
@@ -2227,6 +2408,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -2250,10 +2432,20 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   if (all(poismodel$strata != "NONE")) {
     model_control["strata"] <- TRUE
   }
-  if (ncol(cons_mat) > 1) {
-    model_control["constraint"] <- TRUE
+  if (!missing(cons_mat)) {
+    if (missing(cons_vec)) {
+      const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+    } else {
+      const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+    }
+    model_control <- const_res$control
+    cons_mat <- const_res$mat
+    cons_vec <- const_res$vec
   }
   if (!missing(gradient_control)) {
+    if (!inherits(gradient_control, "list")) {
+      stop("Error: Gradient control list was not a list")
+    }
     model_control["gradient"] <- TRUE
     for (nm in names(gradient_control)) {
       model_control[nm] <- gradient_control[nm]
@@ -2284,8 +2476,24 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
       model_control["mcml"] <- mcml
     }
   }
-  model_control["single"] <- single
-  model_control["observed_info"] <- observed_info
+  if (!missing(single)) {
+    if (length(single) > 1) {
+      stop("Error: single boolean was not a single value.")
+    }
+    if (!is(single, "logical")) {
+      stop("Error: single was not a logical value.")
+    }
+    model_control["single"] <- single
+  }
+  if (!missing(observed_info)) {
+    if (length(observed_info) > 1) {
+      stop("Error: observed information boolean was not a single value.")
+    }
+    if (!is(observed_info, "logical")) {
+      stop("Error: observed information boolean was not a logical value.")
+    }
+    model_control["observed_info"] <- observed_info
+  }
   control_def_names <- c(
     "single", "basic", "null", "cr", "linear_err",
     "gradient", "constraint", "strata", "observed_info"
@@ -2299,8 +2507,8 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   # ------------------------------------------------------------------------------ #
   res <- RunPoisRegression_Omnibus_Multidose(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- poismodel
-  res$modelcontrol <- model_control
-  res$control <- control
+  # res$modelcontrol <- model_control
+  # res$control <- control
   res$realizations <- ncol(realization_columns)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
@@ -2471,6 +2679,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   if (all(strat_col != "NONE")) {
     #
@@ -2666,6 +2875,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -2846,6 +3056,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -3024,6 +3235,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   check_num <- 1
   z <- 2
@@ -3043,7 +3255,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     res <- RunPoissonEventAssignment(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   } else {
     a_n <- object$beta_0
-    stdev <- object$Standard_Deviation
+    stdev <- object$Standard_Error
     #
     # running a boundary solution
     e_mid <- RunPoissonEventAssignment(
@@ -3220,6 +3432,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   #
   check_num <- x$para_number
@@ -3403,6 +3616,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   # ------------------------------------------------------------------------------ #

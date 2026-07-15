@@ -892,7 +892,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
     int ind0 = fir;  //  used for validations
     int iteration = 0;  //  iteration number
     int iter_check = 0;  //  signal to check for convergence
-    MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 3);
+    MatrixXd dev_temp = MatrixXd::Zero(CountEvent.rows(), 2);
     double dev = 0.0;
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
     double Ll_abs_best = 10;

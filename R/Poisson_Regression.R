@@ -146,6 +146,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     e$strata_levels <- length(strata_vals)
   }
   e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
@@ -329,7 +330,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' \code{RunPoisRegression_Omnibus_Multidose} uses user provided data, time/event columns,
 #'       vectors specifying the model, and options to control the convergence
 #'       and starting positions. Used for 2DMC column uncertainty methods.
-#'       Returns optimized parameters, log-likelihood, and standard deviation for each realization.
+#'       Returns optimized parameters, log-likelihood, and standard error for each realization.
 #'       Has additional options for using stratification
 #'
 #' @inheritParams R_template
@@ -456,6 +457,8 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   if (model_control$strata == TRUE) {
     e$strata_levels <- length(strata_vals)
   }
+  e$modelcontrol <- model_control
+  e$control <- control
   e$Survival_Type <- "Pois_Multidose"
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start

@@ -107,7 +107,7 @@ pyr <- list(
 )
 ```
 
-The second major difference is the possible use of time categories. Time categories are set by vectors of the day, month, and year of each interval splitting point. So intervals changing every 2 days could be expressed by "day=c(1,3,5,...)". Time categories are unique in that each row can correspond to multiple time categories, so the duration of each row in each time category is kept to distinguish which rows are only partially in each time interval. If a time category is not provided, then the full duration of each row is used for person-year calculations.
+The second major difference is the possible use of time categories. Time categories are either set by calendar date or by age. Calendar time scales are set by vectors of the day, month, and year of each interval splitting point. So intervals changing every 2 days could be expressed by "day=c(1,3,5,...)". Age time scales use a day/month/year as a reference for age, and then set the age categories using the same notation as non-time categories. Time categories are unique in that each row can correspond to multiple time categories, so the duration of each row in each time category is kept to distinguish which rows are only partially in each time interval. If a time category is not provided, then the full duration of each row is used for person-year calculations. Only one time category at a time is currently supported by Colossus.
 
 ```{r, eval=TRUE}
 categ <- list(
@@ -115,13 +115,14 @@ categ <- list(
   b = list(
     lower = c(-1, 3, 6), upper = c(3, 6, 10),
     name = c("low", "medium", "high")
-  ),
-  `time AS time_bin` = list(
-    day = c(1, 1, 1),
-    month = c(1, 1, 1),
-    year = c(1899, 1903, 1910)
   )
 )
+
+time_scale <- list(`time AS time_bin` = list(
+  day = c(1, 1, 1),
+  month = c(1, 1, 1),
+  year = c(1899, 1903, 1910)
+))
 ```
 
 The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function. The only difference is that a weighted_mean option is added. This is the mean of the group weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. By default, the number of events in each grouping is recorded in the final table. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval.
@@ -139,21 +140,24 @@ pyr <- list(
   exit = list(year = "i", month = "h", day = "g"),
   unit = "years"
 )
-print(Event_Time_Gen(table, pyr, categ, summary, events, T))
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
 pyr <- list(
   entry = list(year = "f", month = "e", day = "d"),
   exit = list(year = "i", month = "h", day = "g"),
   unit = "months"
 )
-print(Event_Time_Gen(table, pyr, categ, summary, events, T))
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
 pyr <- list(
   entry = list(year = "f", month = "e", day = "d"),
   exit = list(year = "i", month = "h", day = "g"),
   unit = "days"
 )
-print(Event_Time_Gen(table, pyr, categ, summary, events, T))
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
 ```
 
+### Additional summary options
+
+There are multiple options for optional returned summaries available for both person-count and person-time tables. Person-time tables calculate the typical `at risk` summary variables for any row at risk, but they also can calculate `first at risk` and `last at risk` summary variables (named `F_AT_RISK` and `L_AT_RISK` respectively). These values can be summarized by setting their corresponding function parameters, `fcount` and `lcount` to true. Note that these are calculated during run-time regardless, so they can be used for taking weighted means regardless of if they are returned by default.
 
 
 

@@ -244,6 +244,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     } else {
       a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
     }
+    #
     e <- cox_ph_Omnibus_transition(
       term_n, tform, a_ns, dfc, x_all, 0,
       modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
@@ -261,6 +262,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Cox"
   e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size
@@ -382,18 +384,40 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     message(paste0("Note: ", length(tu), " risk groups")) # nocov
   }
   if ("type" %in% names(plot_options)) {
-    # fine
+    if (!is(plot_options$type, "character")) {
+      stop("Error: The type of plot was not string.")
+    }
   } else {
     stop("Error: Plot type not given")
   }
   if ("age_unit" %in% names(plot_options)) {
-    # fine
+    if (!is(plot_options$age_unit, "character")) {
+      stop("Error: The age unit of plot was not string.")
+    }
+    if (length(plot_options$age_unit) != 1) {
+      stop("Error: Multiple age units of plot were given.")
+    }
   } else {
     plot_options$age_unit <- "unitless"
   }
   if ("strat_haz" %in% names(plot_options)) {
+    if (!is(plot_options$strat_haz, "logical")) {
+      stop("Error: The stratafied hazard boolean was not logical.")
+    }
+    if (length(plot_options$strat_haz) != 1) {
+      stop("Error: Stratafied hazard boolean had multiple values.")
+    }
+    if ((is.na(plot_options$strat_haz)) || (is.null(plot_options$strat_haz))) {
+      stop(paste0("Error: The stratafied hazard boolean was null or NA."))
+    }
     if (plot_options$strat_haz) {
       if ("strat_col" %in% names(plot_options)) {
+        if (!is(plot_options$strat_col, "character")) {
+          stop("Error: The strata column name was not string.")
+        }
+        if (length(plot_options$strat_col) != 1) {
+          stop("Error: Multiple strata were given.")
+        }
         if (plot_options$strat_col %in% names(df)) {
           # fine
           strat_col <- plot_options$strat_col
@@ -417,8 +441,20 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     plot_options$strat_haz <- FALSE
   }
   if ("martingale" %in% names(plot_options)) {
+    if (!is(plot_options$martingale, "logical")) {
+      stop("Error: The martingale boolean was not logical.")
+    }
+    if (length(plot_options$martingale) != 1) {
+      stop("Error: Martingale boolean had multiple values.")
+    }
+    if ((is.na(plot_options$martingale)) || (is.null(plot_options$martingale))) {
+      stop(paste0("Error: The martingale boolean was null or NA."))
+    }
     if (plot_options$martingale) {
       if ("cov_cols" %in% names(plot_options)) {
+        if (!is(plot_options$cov_cols, "character")) {
+          stop("Error: The covariate columns for calculation were not all string.")
+        }
         plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), FUN.VALUE = "character")
         for (cov_i in seq_along(plot_options$cov_cols)) {
           dose_col <- unlist(plot_options$cov_cols,
@@ -435,6 +471,12 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         stop("Error: dose column not given")
       }
       if ("studyid" %in% names(plot_options)) {
+        if (!is(plot_options$studyid, "character")) {
+          stop("Error: The study id column was not a string.")
+        }
+        if (length(plot_options$studyid) != 1) {
+          stop("Error: The studyid had multiple values.")
+        }
         if (plot_options$studyid %in% names(df)) {
           # fine
         } else {
@@ -448,8 +490,23 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     plot_options$martingale <- FALSE
   }
   if ("km" %in% names(plot_options)) {
+    if (!is(plot_options$km, "logical")) {
+      stop("Error: The Kaplan-Meier boolean was not logical.")
+    }
+    if (length(plot_options$km) != 1) {
+      stop("Error: Kaplan-Meier boolean had multiple values.")
+    }
+    if ((is.na(plot_options$km)) || (is.null(plot_options$km))) {
+      stop(paste0("Error: The Kaplan-Meier boolean was null or NA."))
+    }
     if (plot_options$km) {
       if ("studyid" %in% names(plot_options)) {
+        if (!is(plot_options$studyid, "character")) {
+          stop("Error: The study id column was not a string.")
+        }
+        if (length(plot_options$studyid) != 1) {
+          stop("Error: The studyid had multiple values.")
+        }
         if (plot_options$studyid %in% names(df)) {
           # fine
         } else {
@@ -463,13 +520,24 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   model_control <- Def_model_control(model_control)
   if (tolower(plot_type[1]) == "surv") {
     if ("time_lims" %in% names(plot_options)) {
-      # fine
+      if (!is(plot_options$time_lims, "numeric")) {
+        stop("Error: The time limit values were not numeric.")
+      }
+      if (length(plot_options$time_lims) != 2) {
+        stop("Error: Wrong number of time limits were given, please give two.")
+      }
+      if (plot_options$time_lims[2] - plot_options$time_lims[1] <= 0) {
+        stop("Error: The time limits were not strictly increasing.")
+      }
     } else {
       plot_options$time_lims <- c(min(tu), max(tu))
     }
   }
   if (tolower(plot_type[1]) == "risk") {
     if ("cov_cols" %in% names(plot_options)) {
+      if (!is(plot_options$cov_cols, "character")) {
+        stop("Error: The covariate columns for calculation were not all string.")
+      }
       plot_options$cov_cols <- vapply(plot_options$cov_cols, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), FUN.VALUE = "character")
       for (cov_i in seq_along(plot_options$cov_cols)) {
         dose_col <- unlist(plot_options$cov_cols,
@@ -488,7 +556,12 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   }
   for (iden_col in c("verbose", "martingale", "surv_curv", "strat_haz", "km")) {
     if (iden_col %in% names(plot_options)) {
-      # fine
+      if ((!is(plot_options[[iden_col]], "logical")) && (iden_col != "verbose")) {
+        stop(paste0("Error: The ", iden_col, " boolean was not logical."))
+      }
+      if ((is.na(plot_options[[iden_col]])) || (is.null(plot_options[[iden_col]]))) {
+        stop(paste0("Error: The ", iden_col, " value was null or NA."))
+      }
     } else {
       plot_options[iden_col] <- FALSE
     }
@@ -522,7 +595,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   )
   control$maxiter <- maxiterc
   b <- e$beta_0
-  er <- e$Standard_Deviation
+  er <- e$Standard_Error
   cov_mat <- e$Covariance
   plot_table <- list()
   if (tolower(plot_type[1]) == "surv") {
@@ -647,7 +720,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 #' \code{RunCoxRegression_Omnibus_Multidose} uses user provided data, time/event columns,
 #'       vectors specifying the model, and options to control the convergence
 #'       and starting positions. Used for 2DMC column uncertainty methods.
-#'       Returns optimized parameters, log-likelihood, and standard deviation for each realization.
+#'       Returns optimized parameters, log-likelihood, and standard error for each realization.
 #'       Has additional options for using stratification,
 #'       multiplicative loglinear 1-term,
 #'       competing risks, and calculation without derivatives
@@ -830,6 +903,8 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   e$Parameter_Lists$modelformula <- modelform
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Survival_Type <- "Cox_Multidose"
+  e$modelcontrol <- model_control
+  e$control <- control
   func_t_end <- Sys.time()
   e$RunTime <- func_t_end - func_t_start
   e$UsedRecords <- run_size

@@ -199,6 +199,8 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
+  e$modelcontrol <- model_control
+  e$control <- control
   e$Survival_Type <- "CaseControl"
   func_t_end <- Sys.time()
   e$UsedRecords <- run_size

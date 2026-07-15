@@ -106,12 +106,12 @@ Overall, the Wald and likelihood-based boundaries are not the same. The boundari
 names <- c("temperature", "voltage")
 tform <- c("loglin", "loglin")
 ci_1 <- c(
-  e1$beta_0[1] - 1.96 * e1$Standard_Deviation[1],
-  e1$beta_0[1] + 1.96 * e1$Standard_Deviation[1]
+  e1$beta_0[1] - 1.96 * e1$Standard_Error[1],
+  e1$beta_0[1] + 1.96 * e1$Standard_Error[1]
 )
 ci_2 <- c(
-  e1$beta_0[2] - 1.96 * e1$Standard_Deviation[2],
-  e1$beta_0[2] + 1.96 * e1$Standard_Deviation[2]
+  e1$beta_0[2] - 1.96 * e1$Standard_Error[2],
+  e1$beta_0[2] + 1.96 * e1$Standard_Error[2]
 )
 
 
@@ -140,12 +140,12 @@ Next, we analyze a model with a linear effect. We would expect the predictions t
 
 ```{r, eval=TRUE}
 ci_1 <- c(
-  e2$beta_0[1] - 1.96 * e2$Standard_Deviation[1],
-  e2$beta_0[1] + 1.96 * e2$Standard_Deviation[1]
+  e2$beta_0[1] - 1.96 * e2$Standard_Error[1],
+  e2$beta_0[1] + 1.96 * e2$Standard_Error[1]
 )
 ci_2 <- c(
-  e2$beta_0[2] - 1.96 * e2$Standard_Deviation[2],
-  e2$beta_0[2] + 1.96 * e2$Standard_Deviation[2]
+  e2$beta_0[2] - 1.96 * e2$Standard_Error[2],
+  e2$beta_0[2] + 1.96 * e2$Standard_Error[2]
 )
 
 curve_control <- list(

@@ -10,8 +10,7 @@ name: Valgrind_Test
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
+    branches: [main, dev]
 
 permissions:
   contents: read
@@ -25,9 +24,22 @@ jobs:
         uses: r-lib/actions/setup-r@v2
         with:
           Ncpus: 2
+      - name: install libraries
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev
+      - name: move to package and check
+        run: |
+          ls
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
+          sudo apt-get install pandoc
+          sudo apt-get install texlive
+          sudo apt install valgrind
       - name: Run R CMD check with valgrind
         run: |
-          R CMD build ---no-build-vignettes --no-manual .
+          R CMD build --no-build-vignettes --no-manual .
+          ls
           R CMD check --use-valgrind --no-vignettes --no-manual *_*.tar.gz
   ubuntu_valgrind_R_D_check:
     runs-on: ubuntu-latest
@@ -37,7 +49,21 @@ jobs:
         uses: r-lib/actions/setup-r@v2
         with:
           Ncpus: 2
+      - name: install libraries
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev
+      - name: move to package and check
+        run: |
+          ls
+          Rscript -e "install.packages(c('devtools', 'remotes'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
+          sudo apt-get install pandoc
+          sudo apt-get install texlive
+          sudo apt install valgrind
       - name: Run R CMD check with valgrind
         run: |
           printf "devtools::run_examples()\ndevtools::test()" > memcheck.R
+          ls
+          Rscript -e "devtools::install()"
           R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < memcheck.R

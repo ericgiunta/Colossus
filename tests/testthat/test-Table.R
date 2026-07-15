@@ -25,10 +25,12 @@ test_that("basic table check", {
   )
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "mean")
   expect_no_error(Event_Count_Gen(table, categ, summary))
-
+  #
   categ <- list(
     "a" = "-1/-1/3/5]7",
-    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10")),
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  time_scale <- list(
     "time AS time_bin" = list(
       "day" = c(1, 1, 1),
       "month" = c(1, 1, 1),
@@ -37,7 +39,66 @@ test_that("basic table check", {
   )
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
-  expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  time_scale <- list(
+    "time AS time_bin" = list(
+      "day" = "d",
+      "month" = "e",
+      "year" = "f",
+      categories = "0/10/20/30/40/50/60/70/80/90"
+    )
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  time_scale <- list(
+    "age AS agecat" = list(
+      "day" = "d",
+      "month" = "e",
+      "year" = "f",
+      "categories" = "0/10/20/30/40/50/60/70/80/90"
+    ),
+    "time AS time_bin" = list(
+      "day" = c(1, 1, 1),
+      "month" = c(1, 1, 1),
+      "year" = c(1899, 1903, 1910)
+    )
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  #
+  categ <- list(
+    "a" = "-1/-1/3/5]7",
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  time_scale <- list(
+    "age AS agecat" = list(
+      "day" = "f",
+      "month" = "e",
+      "year" = "d",
+      "categories" = "0/10/20/30/40/50/60/70/80/90"
+    )
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  pyr <- list(entry = list(year = "d", month = "e", day = "f"), exit = list(year = "i", month = "h", day = "g"))
+  categ <- list(
+    "a" = "-1/-1/3/5]7",
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  time_scale <- list(
+    "age AS agecat" = list(
+      "day" = "d",
+      "month" = "e",
+      "year" = "f",
+      "categories" = "0/10/20/30/40/50/60/70/80/90"
+    )
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
 })
 test_that("person time, different intervals", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
@@ -64,19 +125,19 @@ test_that("person time, different intervals", {
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "mean")
   categ <- list(
     "a" = "-1/-1/3/5]7",
-    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10")),
-    "time AS time_bin" = list(
-      "day" = c(1, 1, 1),
-      "month" = c(1, 1, 1),
-      "year" = c(1899, 1903, 1910)
-    )
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
   )
+  time_scale <- list("time AS time_bin" = list(
+    "day" = c(1, 1, 1),
+    "month" = c(1, 1, 1),
+    "year" = c(1899, 1903, 1910)
+  ))
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
   pyr <- list(exit = list(year = "i", month = "h", day = "g"))
-  expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
   pyr <- list(entry = list(year = "f", month = "e", day = "d"))
-  expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
   pyr <- list(entry = list(year = "f", month = "e", day = "d"), exit = list(year = "i", month = "h", day = "g"))
   categ <- list(
     "a" = "-1/-1/3/5]7",
@@ -84,7 +145,38 @@ test_that("person time, different intervals", {
   )
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
-  expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+  expect_no_error(Event_Time_Gen(table, pyr, list(), categ, summary, events, TRUE))
+})
+test_that("person time, different intervals and user scale", {
+  a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
+  b <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
+  c <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
+  d <- c(1, 1, 2, 2, 10, 10, 15, 15, 20, 20, 30, 30, 40, 40, 50, 50, 60)
+  e <- c(11, 11, 22, 22, 30, 30, 45, 45, 50, 50, 60, 60, 70, 70, 80, 80, 90)
+  table <- data.table::data.table(
+    "a" = a, "b" = b, "c" = c,
+    "d" = d, "e" = e
+  )
+  pyr <- list(entry = "d", exit = "e")
+  categ <- list(
+    "a" = "-1/-1/3/5]7",
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  time_scale <- list("time AS time_bin" = "0 / 10 / 50 / 100")
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  pyr <- list(entry = "d")
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  pyr <- list(exit = "e")
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
+  pyr <- list(entry = "d", exit = "e")
+  categ <- list(
+    "a" = "-1/-1/3/5]7",
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
+  )
+  summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
+  events <- list("c")
+  expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
 })
 test_that("basic table error check", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
@@ -119,16 +211,16 @@ test_that("basic table error check", {
     "b" = list(
       lower = c(-1, 3, 6), upper = c(3, 6, 10),
       name = c("low", "medium", "high")
-    ),
-    "time AS time_bin" = list(
-      "day" = c(1, 1, 1),
-      "month" = c(1, 1, 1),
-      "year" = c(1899, 1903, 1910)
     )
   )
+  time_scale <- list("time AS time_bin" = list(
+    "day" = c(1, 1, 1),
+    "month" = c(1, 1, 1),
+    "year" = c(1899, 1903, 1910)
+  ))
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
-  expect_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+  expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
 })
 test_that("person time, different intervals", {
   a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
@@ -155,13 +247,13 @@ test_that("person time, different intervals", {
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "mean")
   categ <- list(
     "a" = "-1/-1/3/5]7",
-    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10")),
-    "time AS time_bin" = list(
-      "day" = c(1, 1, 1),
-      "month" = c(1, 1, 1),
-      "year" = c(1899, 1903, 1910)
-    )
+    "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
   )
+  time_scale <- list("time AS time_bin" = list(
+    "day" = c(1, 1, 1),
+    "month" = c(1, 1, 1),
+    "year" = c(1899, 1903, 1910)
+  ))
   summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
   events <- list("c")
   for (i in 1:2) {
@@ -186,46 +278,46 @@ test_that("person time, different intervals", {
           pyr <- list(entry = pyr_entry, exit = pyr_exit)
           categ <- list(
             "a" = "-1/-1/3/5]7",
-            "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10")),
-            "time AS time_bin" = list(
-              "day" = c(1, 1, 1),
-              "month" = c(1, 1, 1),
-              "year" = c(1899, 1903, 1910)
-            )
+            "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
           )
-          expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          time_scale <- list("time AS time_bin" = list(
+            "day" = c(1, 1, 1),
+            "month" = c(1, 1, 1),
+            "year" = c(1899, 1903, 1910)
+          ))
+          expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
           pyr <- list(entry = pyr_entry)
-          expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
           pyr <- list(exit = pyr_exit)
-          expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          expect_no_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
           pyr <- list(entry = pyr_entry, exit = pyr_exit)
           categ <- list(
             "a" = "-1/-1/3/5]7",
             "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
           )
-          expect_no_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          expect_no_error(Event_Time_Gen(table, pyr, list(), categ, summary, events, TRUE))
         } else {
           pyr <- list(entry = pyr_entry, exit = pyr_exit)
           categ <- list(
             "a" = "-1/-1/3/5]7",
-            "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10")),
-            "time AS time_bin" = list(
-              "day" = c(1, 1, 1),
-              "month" = c(1, 1, 1),
-              "year" = c(1899, 1903, 1910)
-            )
+            "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
           )
-          expect_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          time_scale <- list("time AS time_bin" = list(
+            "day" = c(1, 1, 1),
+            "month" = c(1, 1, 1),
+            "year" = c(1899, 1903, 1910)
+          ))
+          expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
           pyr <- list(entry = pyr_entry)
-          expect_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
           pyr <- list(exit = pyr_exit)
-          expect_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          expect_error(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, TRUE))
           pyr <- list(entry = pyr_entry, exit = pyr_exit)
           categ <- list(
             "a" = "-1/-1/3/5]7",
             "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
           )
-          expect_error(Event_Time_Gen(table, pyr, categ, summary, events, TRUE))
+          expect_error(Event_Time_Gen(table, pyr, list(), categ, summary, events, TRUE))
         }
       }
     }

@@ -18,3 +18,4 @@
 ^CONTRIBUTING\.md$
 ^.lintr
 ^LICENSE\.md$
+^fuzz_testing$

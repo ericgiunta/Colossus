@@ -211,6 +211,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
     NumericVector AIC_fin(dose_cols.cols());
     NumericVector BIC_fin(dose_cols.cols());
     LogicalVector conv_fin(dose_cols.cols());
+    LogicalVector neg_limit_fin(dose_cols.cols());
     CharacterVector status_fin(dose_cols.cols());
     NumericMatrix std_fin(dose_cols.cols(), totalnum);
     IntegerVector dfc_0(dfc.length());
@@ -241,7 +242,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
     bool neg_limit = FALSE;
     double Ll_improve = 0.0;
     //
-    List out_list;
     for (int guess = 0; guess <guesses; guess++) {
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         fill(Ll.begin(), Ll.end(), 0.0);
@@ -316,6 +316,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
             LL_fin[guess] = R_NaN;
             AIC_fin[guess] = R_NaN;
             BIC_fin[guess] = R_NaN;
+            neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_ZERO_RISK_START";
             // We can let the central estimates and standard deviations just stay zero
 //            beta_fin(guess, _) = a_n;
@@ -329,6 +330,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
             while ((iteration < maxiter) && (iter_stop == 0)) {
                 iteration++;
                 //
+                neg_limit = FALSE;
                 beta_a = beta_c;  //
                 beta_best = beta_c;  //
                 Ll_improve = Ll[0];
@@ -449,6 +451,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
             AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
             BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
             status_fin[guess] = "PASSED";
+            neg_limit_fin[guess] = neg_limit;
             if (!model_bool["single"]) {
                 MatrixXd cov;
                 NumericVector stdev(totalnum);
@@ -526,7 +529,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
     if (model_bool["single"]) {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Parameter_Lists"] = para_list, _["Status"] = wrap(status_fin), _["RiskGroups"] = total_risk_groups);
     } else {
-        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["RiskGroups"] = total_risk_groups);
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["Ended on Negative Limit"] = neg_limit_fin, _["RiskGroups"] = total_risk_groups);
     }
     //  returns a list of results
     return res_list;
@@ -689,7 +692,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
     double Ll_improve = 0.0;
     vector<double> beta_abs_best(totalnum, 0.0);
     //  Variables that are used for the risk check function shared across cox, poisson, and log bound functions
-    // MatrixXd dev_temp = MatrixXd::Zero(1, 1);
     VectorXd s_weights(1);
     MatrixXd PyrC = MatrixXd::Zero(1, 1);
     MatrixXd dfs = MatrixXd::Zero(1, 1);
@@ -1144,7 +1146,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
+    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     //  returns a list of results
     return res_list;
 }
@@ -1286,6 +1288,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     NumericVector BIC_fin(dose_cols.cols());
     NumericVector dev_fin(dose_cols.cols());
     LogicalVector conv_fin(dose_cols.cols());
+    LogicalVector neg_limit_fin(dose_cols.cols());
     NumericMatrix std_fin(dose_cols.cols(), totalnum);
     CharacterVector status_fin(dose_cols.cols());
     IntegerVector dfc_0(dfc.length());
@@ -1323,7 +1326,6 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     bool neg_limit = FALSE;
     double Ll_improve = 0.0;
     //
-    List out_list;
     for (int guess = 0; guess <guesses; guess++) {
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
@@ -1397,6 +1399,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             LL_fin[guess] = R_NaN;
             AIC_fin[guess] = R_NaN;
             BIC_fin[guess] = R_NaN;
+            neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_ZERO_RISK_START";
             // We can let the central estimates and standard deviations just stay zero
 //            beta_fin(guess, _) = a_n;
@@ -1410,6 +1413,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             while ((iteration < maxiter) && (iter_stop == 0)) {
                 iteration++;
                 //
+                neg_limit = FALSE;
                 beta_a = beta_c;  //
                 beta_best = beta_c;  //
                 Ll_improve = Ll[0];
@@ -1525,6 +1529,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
             BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
             dev_fin[guess] = dev;
+            neg_limit_fin[guess] = neg_limit;
             status_fin[guess] = "PASSED";
             if (!model_bool["single"]) {
                 MatrixXd cov;
@@ -1596,7 +1601,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     if (model_bool["single"]) {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviance"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Parameter_Lists"] = para_list, _["Status"] = wrap(status_fin));
     } else {
-        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviance"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin));
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviance"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["Ended on Negative Limit"] = neg_limit_fin);
     }
     //  returns a list of results
     return res_list;
@@ -2189,7 +2194,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = dev_total, _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Deviation"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = dev_total, _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }

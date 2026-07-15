@@ -124,6 +124,14 @@ new_logitresbound <- function(x = list()) {
 
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
+  # Check if not numeric
+  if (suppressWarnings(!is(x$term_n, "numeric"))) {
+    stop("Error: the term numbers had a non-numeric value")
+  }
+  if ((any(is.null(x$term_n))) || (any(is.na(x$term_n)))) {
+    stop(paste0("Error: The term_numbers must not be NA or NULL.")) # nocov
+  }
+  #
   if (any(x$term_n != round(x$term_n))) {
     stop("Error: term_n expects integer values, atleast one value was noninteger")
   }
@@ -171,6 +179,18 @@ validate_formula <- function(x, df, verbose = FALSE) {
     x$term_n <- x$term_n[seq_along(x$names)]
   }
   # --------------------------------------------------------------------- #
+  # Check if not numeric
+  if (length(x$keep_constant) > 0) {
+    if ((any(is.null(x$keep_constant))) || (any(is.na(x$keep_constant)))) {
+      stop(paste0("Error: The constant vector must not be NA or NULL.")) # nocov
+    }
+    if (is(x$keep_constant, "logical")) {
+      x$keep_constant <- as.numeric(x$keep_constant)
+    } else if (suppressWarnings(!is(x$keep_constant, "numeric"))) {
+      stop("Error: the constant vector had a non-numeric value")
+    }
+  }
+  #
   if (length(x$keep_constant) < length(x$names)) {
     x$keep_constant <- c(x$keep_constant, rep(0, length(x$names) -
       length(x$keep_constant)))
@@ -193,6 +213,11 @@ validate_formula <- function(x, df, verbose = FALSE) {
     stop("Error: keep_constant expects 0/1 values, atleast one value was noninteger")
   }
   # --------------------------------------------------------------------- #
+  # Convert to string
+  if (!is(x$tform, "character")) {
+    stop("Error: tform contained a non-character.")
+  }
+  #
   if (length(x$tform) < length(x$names)) {
     if (verbose >= 2) {
       # nocov start
@@ -298,6 +323,11 @@ validate_formula <- function(x, df, verbose = FALSE) {
     if (typeof(x$a_n) == "list") {
       x$a_n <- x$a_n[[1]]
     }
+    # Check if not numeric
+    if (suppressWarnings(any(is.na(as.numeric(x$a_n))))) {
+      stop("Error: the intial parameter guesses had a non-numeric value")
+    }
+    #
     if (length(x$a_n) < length(x$names)) {
       if (verbose >= 2) {
         # nocov start
@@ -317,7 +347,17 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
   } else {
     a_0 <- x$a_n[[1]]
+    # Check if not numeric
+    if (suppressWarnings(any(is.na(as.numeric(a_0))))) {
+      stop("Error: the intial parameter guesses had a non-numeric value")
+    }
+    #
     for (a_i in x$a_n) {
+      # Check if not numeric
+      if (suppressWarnings(any(is.na(as.numeric(a_i))))) {
+        stop("Error: the intial parameter guesses had a non-numeric value")
+      }
+      #
       if (length(a_i) != length(a_0)) {
         stop(
           "Error: Parameters used in first option: ",
@@ -352,6 +392,9 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
   }
   # --------------------------------------------------------------------- #
+  # Convert to string
+  x$names <- as.character(x$names)
+  #
   name_check <- unique(x$names)
   if (!all(name_check %in% names(df))) {
     stop("Error: Atleast one model covariate not in the data")
@@ -406,26 +449,55 @@ validate_coxsurv <- function(x, df) {
   if (!is(x, "coxmodel")) {
     stop("Error: Non cox formula used in cox regression") # nocov
   }
-  if ((x$event == "") || (is.null(x$event))) {
-    stop("Error: The event column must not be empty") # nocov
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "start_age", "end_age", "weight")
+  name_vec <- c("event", "starting age", "ending age", "weight")
+  for (i in 1:4) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
   }
-  if ((x$start_age == "") || (is.null(x$start_age))) {
-    stop("Error: Interval start column must not be empty") # nocov
+  for (i in 1:3) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!(x[[col]] %in% names(df))) {
+      stop(paste0("Error: ", name, " column not in the data")) # nocov
+    }
   }
-  if ((x$end_age == "") || (is.null(x$end_age))) {
-    stop("Error: Interval end column must not be empty") # nocov
+  # Want to check for strata issues
+  if (!is(x$strata, "character")) {
+    stop(paste0("Error: The strata must be string.")) # nocov
   }
-  if (!(x$start_age %in% names(df))) {
-    stop("Error: Interval start column not in the data") # nocov
+  if (length(x$strata) == 0) {
+    stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if (!(x$end_age %in% names(df))) {
-    stop("Error: Interval end column not in the data") # nocov
+  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+    stop(paste0("Error: The strata must not be empty.")) # nocov
   }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
   if (x$start_age == x$end_age) {
     stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
-  }
-  if (!(x$event %in% names(df))) {
-    stop("Error: Event column not in the data") # nocov
   }
 }
 
@@ -433,24 +505,75 @@ validate_poissurv <- function(x, df) {
   if (!is(x, "poismodel")) {
     stop("Error: Non Poisson formula used in Poisson regression") # nocov
   }
-  if ((x$event == "") || (is.null(x$event))) {
-    stop("Error: The event column must not be empty") # nocov
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "person_year")
+  name_vec <- c("event", "person year")
+  for (i in 1:2) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (!(x[[col]] %in% names(df))) {
+      stop(paste0("Error: ", name, " column not in the data")) # nocov
+    }
   }
-  if ((x$person_year == "") || (is.null(x$person_year))) {
-    stop("Error: Person-Year column must not be empty") # nocov
+  # Want to check for strata issues
+  if (!is(x$strata, "character")) {
+    stop(paste0("Error: The strata must be string.")) # nocov
   }
-  if (!(x$person_year %in% names(df))) {
-    stop("Error: Person-Year column not in the data") # nocov
+  if (length(x$strata) == 0) {
+    stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if (!(x$event %in% names(df))) {
-    stop("Error: Event column not in the data")
+  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+    stop(paste0("Error: The strata must not be empty.")) # nocov
   }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
 }
 
 validate_caseconsurv <- function(x, df) {
   if (!is(x, "caseconmodel")) {
     stop("Error: Non Case-Control formula used in Case_Control regression") # nocov
   }
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "start_age", "end_age")
+  name_vec <- c("event", "starting age", "ending age")
+  for (i in 1:3) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+  }
+  #
   if (x$start_age == x$end_age) {
     if (x$start != "NONE") {
       stop("Error: The starting and ending interval times were set to the same column, they must be different or both '%trunc%'") # nocov
@@ -463,33 +586,84 @@ validate_caseconsurv <- function(x, df) {
       stop("Error: Interval end column not in the data") # nocov
     }
   }
-  if (x$event == "") {
-    stop("Error: The event column must not be empty") # nocov
-  }
   if (!(x$event %in% names(df))) {
     stop("Error: Event column not in the data") # nocov
   }
+  # Want to check for strata issues
+  if (!is(x$strata, "character")) {
+    stop(paste0("Error: The strata must be string.")) # nocov
+  }
+  if (length(x$strata) == 0) {
+    stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
+  }
+  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+    stop(paste0("Error: The strata must not be empty.")) # nocov
+  }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
 }
 
 validate_logitsurv <- function(x, df) {
   if (!is(x, "logitmodel")) {
     stop("Error: Non logistic formula used in logistic regression") # nocov
   }
-  if (x$event == "") {
-    stop("Error: The event column must not be empty") # nocov
+  # We need to make sure that the variable is a string, not length 0, not empty string, and not null
+  col_vec <- c("event", "trials")
+  name_vec <- c("event", "trials")
+  for (i in 1:2) {
+    col <- col_vec[i]
+    name <- name_vec[i]
+    if (!is(x[[col]], "character")) {
+      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+    }
+    if (length(x[[col]]) == 0) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (length(x[[col]]) > 1) {
+      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+    }
+    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+    }
+    if (!(x[[col]] %in% names(df))) {
+      stop(paste0("Error: ", name, " column not in the data")) # nocov
+    }
   }
-  if (x$trials == "") {
-    stop("Error: The trials column must not be empty") # nocov
-  }
-  if (!(x$trials %in% names(df))) {
-    stop("Error: Interval start column not in the data") # nocov
-  }
-  if (!(x$event %in% names(df))) {
-    stop("Error: Event column not in the data") # nocov
-  }
+  #
   if (any(df[, x$event, with = FALSE] > df[, x$trials, with = FALSE])) {
     stop("Error: In atleast one row, the number of events was larger than the number of trials") # nocov
   }
+  # check for null issues
+  if (!is(x$null, "logical")) {
+    stop(paste0("Error: The null boolean must be a logical")) # nocov
+  }
+  if (length(x$null) == 0) {
+    stop(paste0("Error: The null boolean must not be empty")) # nocov
+  }
+  if (length(x$null) > 1) {
+    stop(paste0("Error: The null boolean had multiple values")) # nocov
+  }
+  #
+  # # Want to check for strata issues
+  # if (!is(x$strata, "character")) {
+  #   stop(paste0("Error: The strata must be string.")) # nocov
+  # }
+  # if (length(x$strata) == 0) {
+  #   stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
+  # }
+  # if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+  #   stop(paste0("Error: The strata must not be empty.")) # nocov
+  # }
+  # #
 }
 
 validate_coxres <- function(x, df) {
@@ -674,6 +848,7 @@ caseconmodel <- function(start_age = "",
 logitmodel <- function(trials = "",
                        event = "",
                        strata = "",
+                       null = FALSE,
                        term_n = c(),
                        tform = c(),
                        names = c(),
@@ -691,13 +866,15 @@ logitmodel <- function(trials = "",
   strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   #
   logit_obj <- list(
-    trials = trials, event = event, strata = strata,
+    trials = trials, event = event, strata = strata, null = null,
     term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
     gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   logit_obj <- new_logitmodel(logit_obj)
   validate_logitsurv(logit_obj, df)
-  logit_obj <- validate_formula(logit_obj, df, verbose)
+  if (!null) {
+    logit_obj <- validate_formula(logit_obj, df, verbose)
+  }
   logit_obj
 }
 
@@ -714,10 +891,37 @@ ColossusControl <- function(verbose = 1,
                             thres_step_max = 1.0,
                             ties = "breslow",
                             ncores = as.numeric(detectCores())) {
+  # Check if maxiter is non-numeric
+  if ((length(maxiter) > 1) || is.list(maxiter)) {
+    stop("Error: maxiter was not a single value")
+  }
+  if (suppressWarnings(is.na(as.numeric(maxiter)))) {
+    stop("Error: maxiter had a non-numeric value")
+  } else {
+    maxiter <- as.integer(as.character(maxiter))
+  }
+  #
   if (missing(maxiters)) {
     maxiters <- c(1, maxiter)
     if (maxiter < 0) {
       maxiters <- c(-1, -1)
+    }
+  } else {
+    if (is.list(maxiters)) {
+      stop("Error: maxiters was not a vector")
+    }
+    if (suppressWarnings(any(is.na(as.numeric(maxiters))))) {
+      stop("Error: maxiters had a non-numeric value")
+    } else {
+      if ((any(!is.null(levels(maxiters)))) || (any(is.Date(maxiters)))) {
+        stop(paste0("Error: Maxiteration vector was an invalid type."))
+      }
+      maxiters <- as.numeric(maxiters)
+    }
+    if (length(maxiters) == 1) {
+      maxiters <- rep(maxiters, 2)
+    } else if (length(maxiters) == 0) {
+      stop("Error: Maxiters was given, but it was empty.")
     }
   }
   maxiters <- as.integer(maxiters)
@@ -750,6 +954,9 @@ ColossusControl <- function(verbose = 1,
   for (nm in names(control_def)) {
     if (nm %in% names(control)) {
       if (nm == "ncores") {
+        if (suppressWarnings(is.na(as.integer(control[[nm]])))) {
+          stop(paste0("Error: Control parameter ", nm, " couldn't be changed to integer."))
+        }
         if (control$ncores > control_def$ncores) {
           stop(
             "Error: Cores Requested:", control["ncores"],
@@ -762,9 +969,38 @@ ColossusControl <- function(verbose = 1,
     } else {
       control[nm] <- control_def[nm]
     }
+    if (((length(control[[nm]]) > 1) || is.list(control[[nm]]))) {
+      stop(paste0("Error: ", nm, " was not a single value."))
+    }
+    if ((!is.null(levels(control[[nm]]))) || (is.Date(control[[nm]]))) {
+      stop(paste0("Error: Control parameter ", nm, " was invalid type."))
+    }
   }
+  #
   control["ties"] <- tolower(control["ties"])
   control["ties"] <- vapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  control_int <- list(
+    verbose = 0, maxiter = -1,
+    halfmax = 0
+  )
+  for (nm in names(control_int)) {
+    if (suppressWarnings(is.na(as.integer(control[[nm]])))) {
+      stop(paste0("Error: Control parameter ", nm, " couldn't be changed to integer."))
+    }
+    control[nm] <- as.integer(control[nm])
+  }
+  control_dbl <- list(
+    lr = 0.0,
+    epsilon = 0.0, ll_epsilon = 0.0,
+    deriv_epsilon = 0.0, step_max = 0.0,
+    thres_step_max = 0.0
+  )
+  for (nm in names(control_dbl)) {
+    if (suppressWarnings(is.na(as.numeric(control[[nm]])))) {
+      stop(paste0("Error: Control parameter ", nm, " couldn't be changed to numeric."))
+    }
+    control[nm] <- as.numeric(control[nm])
+  }
   control_min <- list(
     verbose = 0, lr = 0.0, maxiter = -1,
     halfmax = 0, epsilon = 0.0, ll_epsilon = 0.0,
@@ -776,12 +1012,22 @@ ColossusControl <- function(verbose = 1,
       control[nm] <- control_min[nm]
     }
   }
-  control_int <- list(
-    verbose = 0, maxiter = -1,
-    halfmax = 0
-  )
-  for (nm in names(control_int)) {
-    control[nm] <- as.integer(control[nm])
+  if (control$epsilon >= control$step_max) {
+    if (control["verbose"] > 1) {
+      warning("Warning: the maximum step size was equal to or lower than the step size threshold. Threshold set 10x lower then maximum step size.") # nocov
+    }
+    control$epsilon <- 0.1 * control$step_max
+  }
+  if (control["verbose"] > 1) {
+    if (control$lr == 0.0) {
+      warning("Warning: The learning rate was zero, parameters cannot change")
+    }
+    if (control$step_max == 0.0) {
+      warning("Warning: The step size was zero, parameters cannot change")
+    }
+    if (sum(c(control$ll_epsilon, control$epsilon, control$deriv_epsilon)) == 0.0) {
+      warning("Warning: The thresholds were all zero, analysis cannot be classified as converged.")
+    }
   }
   #
   control
