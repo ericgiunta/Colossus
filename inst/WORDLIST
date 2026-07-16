@@ -93,7 +93,9 @@ pyr
 qchi
 Raphson
 rmax
+rmean
 rmin
+rsum
 RMS
 schoenfeld
 Schoenfeld
@@ -113,3 +115,5 @@ unshared
 UserID
 vec
 Venzon
+xmean
+xsum

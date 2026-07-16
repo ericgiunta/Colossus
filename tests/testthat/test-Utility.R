@@ -421,79 +421,77 @@ test_that("Gen_time_dep no error step not cox", {
 test_that("linked quad negative slope error", {
   tforms <- list("first" = "quad")
   paras <- list("first" = c(-0.1, 10))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked quad string slope error", {
   tforms <- list("first" = "quad")
   paras <- list("first" = c("a", 10))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked quad string threshold error", {
   tforms <- list("first" = "quad")
   paras <- list("first" = c(0.1, "a"))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked quad no error", {
   tforms <- list("first" = "quad")
   paras <- list("first" = c(0.1, 10))
-  expect_no_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_no_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked exp negative slope error", {
   tforms <- list("first" = "exp")
   paras <- list("first" = c(-0.1, 10, 5))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked exp string slope error", {
   tforms <- list("first" = "exp")
   paras <- list("first" = c("a", 10, 5))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked exp string threshold error", {
   tforms <- list("first" = "exp")
   paras <- list("first" = c(0.1, "a", 5))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked exp string exp slope error", {
   tforms <- list("first" = "exp")
   paras <- list("first" = c(0.1, 10, "a"))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked exp no error", {
   tforms <- list("first" = "exp")
   paras <- list("first" = c(0.1, 10, 5))
-  expect_no_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_no_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked formula combinations", {
   tforms <- list("first" = "quad")
-  paras <- list("first" = c(0.1, 10))
-  expect_error(Linked_Dose_Formula(tforms, paras, verbose = "p"))
   paras <- list("first" = c(0.1, "10"))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
   #
   tforms <- list("first" = "exp")
   paras <- list("first" = c(0.1, "10", 5))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
   paras <- list("first" = c(0.1, 10, "5"))
-  expect_error(Linked_Dose_Formula(tforms, paras, TRUE))
+  expect_error(Linked_Dose_Formula(tforms, paras))
 })
 
 test_that("linked exp parameter low goal error", {
   y <- 10
   a0 <- 1
   a_goal <- 5
-  expect_error(Linked_Lin_Exp_Para(y, a0, a_goal, TRUE))
+  expect_error(Linked_Lin_Exp_Para(y, a0, a_goal))
 })
 test_that("linked exp parameter negative slope error", {
   y <- 10
   a0 <- -0.1
   a_goal <- 5
-  expect_error(Linked_Lin_Exp_Para(y, a0, a_goal, TRUE))
+  expect_error(Linked_Lin_Exp_Para(y, a0, a_goal))
 })
 test_that("linked exp parameter no error", {
   y <- 10
   a0 <- 0.1
   a_goal <- 5
-  expect_no_error(Linked_Lin_Exp_Para(y, a0, a_goal, TRUE))
+  expect_no_error(Linked_Lin_Exp_Para(y, a0, a_goal))
 })
 
 test_that("Missing Value missing column error", {
