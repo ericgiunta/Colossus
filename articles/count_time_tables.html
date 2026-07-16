@@ -220,7 +220,7 @@ denote the scenario where every interval ends at the same point, starts
 at the same point, or has different start and stop times. There are two
 formats of time allowed, calendar and user scale.</p>
 <p>Calendar time data is listed in day, month, and year columns which
-are combined into dates. User time data is intrepretted as durations
+are combined into dates. User time data is interpreted as durations
 observed, without any inherent units. These apply to both a person-year
 list, which specifies the entry and exit columns, as well as the time
 categories which split the data into intervals. For the calendar time
@@ -481,7 +481,7 @@ for a user defined scale is similar to the age-based calendar scale
 categories. It is assumed to be provided as a single string or a list
 with upper and lower limits. While we can technically provide multiple
 categories, they can always be condensed into a single category similar
-to the calendary categories.</p>
+to the calendar categories.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"a"</span> <span class="op">=</span> <span class="st">"-1/-1/3/5]7"</span>,</span>
@@ -536,7 +536,7 @@ respectively). These values can be summarized by setting their
 corresponding function parameters, <code>fcount</code> and
 <code>lcount</code> to true. Note that these are not calculated during
 run-time otherwise, so they can be used for taking weighted means only
-if they are returned. Notibly, these summaries determine the first and
+if they are returned. Notably, these summaries determine the first and
 last observed time category for each subject. This means that even if a
 subject is observed past the last time category, they are still
 considered “last at risk” during the final time category. Similarly for
