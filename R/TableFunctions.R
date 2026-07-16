@@ -32,7 +32,7 @@
 #'   c = "count AS cases",
 #'   a = "mean", b = "mean"
 #' )
-#' e <- Event_Count_Gen(table, categ, event, T)
+#' e <- Event_Count_Gen(table, categ, event)
 #'
 Event_Count_Gen <- function(table, categ = list(), events = list()) {
   df <- as_tibble(table)

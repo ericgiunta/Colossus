@@ -41,7 +41,7 @@ event <- list(
   c = "count AS cases",
   a = "mean", b = "mean"
 )
-e <- Event_Count_Gen(table, categ, event, T)
+e <- Event_Count_Gen(table, categ, event)
 
 }
 \seealso{
