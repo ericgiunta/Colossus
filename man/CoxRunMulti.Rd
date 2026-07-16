@@ -84,7 +84,7 @@ control <- list(
   verbose = 0, ties = "breslow", double_step = 1
 )
 formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-res <- CoxRun(formula, df, control = control)
+res <- CoxRunMulti(formula, df, control = control, realization_columns=realization_columns, realization_index=realization_index)
 }
 \seealso{
 Other Cox Wrapper Functions:

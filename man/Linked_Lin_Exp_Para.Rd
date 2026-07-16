@@ -25,5 +25,4 @@ y <- 7.6
 a0 <- 1.2
 a1_goal <- 15
 full_paras <- Linked_Lin_Exp_Para(y, a0, a1_goal)
-
 }

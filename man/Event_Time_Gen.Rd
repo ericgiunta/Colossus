@@ -13,7 +13,8 @@ Event_Time_Gen(
   events = c(),
   fcount = FALSE,
   lcount = FALSE,
-  studyid = "studyID"
+  studyid = "studyID",
+  verbose = FALSE
 )
 }
 \arguments{
@@ -33,7 +34,9 @@ Event_Time_Gen(
 
 \item{lcount}{boolean if the \verb{last at risk} count should be returned in the data. Returns the number of observations ending in each combination of categories.}
 
-\item{studyid}{id used to determine distinct subjects used for first and last at risk intervals}
+\item{studyid}{id used to determine distinct subjects used for first and last at risk intervals.}
+
+\item{verbose}{boolean if updates should be printed to the console.}
 }
 \value{
 returns a grouped table and a list of category boundaries used
@@ -83,7 +86,6 @@ pyr <- list(
   unit = "years"
 )
 e <- Event_Time_Gen(table, pyr, time_scale, categ, summary, events)
-
 }
 \seealso{
 Other Table Generation Functions:
