@@ -67,7 +67,8 @@
 <span>  events <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  fcount <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  lcount <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  studyid <span class="op">=</span> <span class="st">"studyID"</span></span>
+<span>  studyid <span class="op">=</span> <span class="st">"studyID"</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -108,7 +109,11 @@
 
 
 <dt id="arg-studyid">studyid<a class="anchor" aria-label="anchor" href="#arg-studyid"></a></dt>
-<dd><p>id used to determine distinct subjects used for first and last at risk intervals</p></dd>
+<dd><p>id used to determine distinct subjects used for first and last at risk intervals.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>boolean if updates should be printed to the console.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -164,7 +169,7 @@
 <span class="r-in"><span>  unit <span class="op">=</span> <span class="st">"years"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu">Event_Time_Gen</span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Necessary_Columns(table_names = table_names, events = events,     categ = categ, pyr = pyr, time_scale = time_scale, summaries = summaries,     studyid = studyid):</span> Error: Too many category reference dates given.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
