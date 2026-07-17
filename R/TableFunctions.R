@@ -1799,7 +1799,7 @@ Necessary_Columns <- function(table_names = c(), events = c(), categ = list(), p
         if (!all(vapply(names(time_scale[[cat]]), is.character, logical(1)))) {
           stop("Error: Time category list names were not strings.")
         }
-        if (all(names(time_scale[[cat]]) %in% c("day", "month", "year"))) {
+        if (all(names(time_scale[[cat]]) %in% c("day", "month", "year", "type"))) {
           type <- "calendar" # calendar scale only uses day/month/year
         } else if (any(names(time_scale[[cat]]) %in% c("day", "month", "year"))) {
           type <- "age" # age scale only use day/month/year for the birth and other values for the actual categories
@@ -1814,7 +1814,7 @@ Necessary_Columns <- function(table_names = c(), events = c(), categ = list(), p
         if (!is.atomic(ref_check)) {
           stop("Error: Category reference dates did not combine into a vector.")
         }
-        if (length(ref_check) != 3) {
+        if (length(ref_check) > 3) {
           stop("Error: Too many category reference dates given.")
         }
         if (!all(vapply(ref_check, is.character, logical(1)))) {

@@ -72,7 +72,7 @@ grt_f <- function(df, time_col) {
 func_form <- c("lin")
 df_new <- gen_time_dep(
   df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
-  c(grt_f), paste0(tempfile(),"test_new.csv"), func_form, 1
+  c(grt_f), paste0(tempfile(), "test_new.csv"), func_form, 1
 )
 }
 \seealso{

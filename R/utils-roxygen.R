@@ -198,7 +198,7 @@ NULL
 #' @importFrom Rcpp evalCpp
 #' @importFrom data.table data.table fread setkeyv copy setnames as.data.table set := .SD setDT setDTthreads fcase
 #' @importFrom parallel detectCores
-#' @importFrom stats runif weighted.mean pnorm approxfun qchisq pchisq
+#' @importFrom stats runif weighted.mean pnorm approxfun qchisq pchisq time
 #' @importFrom utils combn head
 #' @importFrom rlang .data
 #' @importFrom methods is
