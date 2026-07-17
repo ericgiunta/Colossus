@@ -1020,6 +1020,16 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
       model_control[["gmix_term"]] <- caseconmodel$gmix_term
       model_control[["gmix_theta"]] <- caseconmodel$gmix_theta
     }
+    if (!missing(cons_mat)) {
+      if (missing(cons_vec)) {
+        const_res <- check_constraints(a_n, model_control, cons_mat, verbose = control$verbose)
+      } else {
+        const_res <- check_constraints(a_n, model_control, cons_mat, cons_vec, verbose = control$verbose)
+      }
+      model_control <- const_res$control
+      cons_mat <- const_res$mat
+      cons_vec <- const_res$vec
+    }
   }
   if (all(caseconmodel$strata != "NONE")) {
     model_control[["strata"]] <- TRUE
@@ -1112,7 +1122,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     }
   }
   # ------------------------------------------------------------------------------ #
-  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control) # , cons_mat, cons_vec)
+  res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
@@ -1388,6 +1398,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
 #' @param x result object from a regression, class coxres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
+#' @family Predicted Risk and Rate
 #' @export
 RelativeRisk <- function(x, df, ...) {
   UseMethod("RelativeRisk", x)
@@ -1416,7 +1427,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #'
 #' @return returns a class fully describing the model and the regression results
 #' @export
-#' @family Cox Analysis Functions
+#' @family Predicted Risk and Rate
 #' @examples
 #' library(data.table)
 #' df <- data.table::data.table(
@@ -2060,10 +2071,11 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-#' res <- CoxRunMulti(formula, df, control = control, 
-#'                    realization_columns = realization_columns,
-#'                    realization_index = realization_index
-#'                   )
+#' res <- CoxRunMulti(formula, df,
+#'   control = control,
+#'   realization_columns = realization_columns,
+#'   realization_index = realization_index
+#' )
 CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
@@ -2323,10 +2335,11 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
-#' res <- PoisRunMulti(formula, df, control = control, 
-#'                    realization_columns = realization_columns,
-#'                    realization_index = realization_index
-#'                   )
+#' res <- PoisRunMulti(formula, df,
+#'   control = control,
+#'   realization_columns = realization_columns,
+#'   realization_index = realization_index
+#' )
 PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
@@ -2540,6 +2553,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
+#' @family Likelihood Boundaries
 LikelihoodBound <- function(x, df, curve_control = list(), control = list(), ...) {
   UseMethod("LikelihoodBound", x)
 }
@@ -2567,7 +2581,7 @@ LikelihoodBound.default <- function(x, df, curve_control = list(), control = lis
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Cox Wrapper Functions
+#' @family Likelihood Boundaries
 LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list(), ...) {
   coxmodel <- x$model
   norm <- x$norm
@@ -2778,7 +2792,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Poisson Wrapper Functions
+#' @family Likelihood Boundaries
 LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = list(), ...) {
   poismodel <- x$model
   norm <- x$norm
@@ -2958,7 +2972,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Logistic Wrapper Functions
+#' @family Likelihood Boundaries
 LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = list(), ...) {
   logitmodel <- x$model
   norm <- x$norm
@@ -3136,6 +3150,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
+#' @family Poisson Event Assignment
 EventAssignment <- function(x, df, ...) {
   UseMethod("EventAssignment", x)
 }
@@ -3164,7 +3179,7 @@ EventAssignment.default <- function(x, df, ...) {
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Poisson Wrapper Functions
+#' @family Poisson Event Assignment
 EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
   poismodel <- x$model
   pyr0 <- poismodel$person_year
@@ -3360,7 +3375,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Poisson Wrapper Functions
+#' @family Poisson Event Assignment
 EventAssignment.poisresbound <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
   poisres <- x$poisres
   poismodel <- poisres$model
@@ -3537,6 +3552,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
+#' @family Poisson Residuals
 Residual <- function(x, df, ...) {
   UseMethod("Residual", x)
 }
@@ -3566,7 +3582,7 @@ Residual.default <- function(x, df, ...) {
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Poisson Wrapper Functions
+#' @family Poisson Residuals
 Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
   poismodel <- x$model
   pyr0 <- poismodel$person_year

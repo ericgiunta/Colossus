@@ -713,12 +713,12 @@ Check_Iters <- function(control, a_n) {
         ))
         # nocov end
       }
-      if (length(control$maxiters) < length(a_n) + 1) {
+      if (length(control$maxiters) < length(a_n) + 1) { # If we have too few entries, we fill in by repeating the first entry
         additional <- length(a_n) + 1 - length(control$maxiters)
-        control$maxiters <- c(control$maxiters, rep(1, additional))
-      } else {
-        additional <- length(a_n) + 1
-        control$maxiters <- control$maxiters[1:additional]
+        control$maxiters <- c(rep(control$maxiters[1], additional), control$maxiters)
+      } else { # if we have too many, we keep the first length(a_n) and final entry
+        additional <- length(a_n)
+        control$maxiters <- c(control$maxiters[1:additional], control$maxiters[length(control$maxiters)])
       }
     }
     control$guesses <- length(control$maxiters) - 1
@@ -737,6 +737,7 @@ Check_Iters <- function(control, a_n) {
 #'
 #' @return returns list of full parameters
 #' @export
+#' @family Piece-wise Assistance Functions
 #' @examples
 #' library(data.table)
 #' tforms <- list(cov_0 = "quad", cov_1 = "exp")
@@ -804,6 +805,7 @@ Linked_Dose_Formula <- function(tforms, paras) {
 #'
 #' @return returns parameter used by Colossus
 #' @export
+#' @family Piece-wise Assistance Functions
 #' @examples
 #' library(data.table)
 #' y <- 7.6

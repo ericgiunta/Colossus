@@ -58,7 +58,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Linked_Lin_Exp_Para</span><span class="op">(</span><span class="va">y</span>, <span class="va">a0</span>, <span class="va">a1_goal</span>, verbose <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">Linked_Lin_Exp_Para</span><span class="op">(</span><span class="va">y</span>, <span class="va">a0</span>, <span class="va">a1_goal</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -76,10 +76,6 @@
 <dt id="arg-a-goal">a1_goal<a class="anchor" aria-label="anchor" href="#arg-a-goal"></a></dt>
 <dd><p>exponential maximum desired</p></dd>
 
-
-<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.</p></dd>
-
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -93,7 +89,6 @@
 <span class="r-in"><span><span class="va">a0</span> <span class="op">&lt;-</span> <span class="fl">1.2</span></span></span>
 <span class="r-in"><span><span class="va">a1_goal</span> <span class="op">&lt;-</span> <span class="fl">15</span></span></span>
 <span class="r-in"><span><span class="va">full_paras</span> <span class="op">&lt;-</span> <span class="fu">Linked_Lin_Exp_Para</span><span class="op">(</span><span class="va">y</span>, <span class="va">a0</span>, <span class="va">a1_goal</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

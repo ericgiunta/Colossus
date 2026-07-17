@@ -30,4 +30,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
 
 void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& step_max, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata);
 
+void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res, const int& nthreads, List& model_bool, const int& totalnum, const int& group_num, List& optim_para, int& iteration, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, NumericVector& m_g_store, NumericVector& v_beta_store, const VectorXd& beta_0, vector<double>& dbeta, IntegerVector KeepConstant, vector<int>& strata_cond, vector<double>& LldOdds, vector<double>& dstrata);
+
 #endif  //  SRC_STEP_GRAD_H_

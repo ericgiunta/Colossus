@@ -979,7 +979,7 @@ Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filenam
 #' \code{OMP_Check} Called directly from R, checks the omp flag and returns true if omp is enabled
 #'
 #' @return boolean: True for OMP allowed
-#'
+#' @family Output and Information Functions
 OMP_Check <- function() {
     .Call(`_Colossus_OMP_Check`)
 }
@@ -1046,6 +1046,16 @@ NULL
 #'
 NULL
 
+#' Utility function to calculate the change to make each iteration with gradient step and background terms with constraint
+#'
+#' \code{Calc_Change_Background_Gradient_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
 #' Utility function to calculate the change to make each iteration, applying linear constraints
 #'
 #' \code{Calc_Change_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations with a system of constraints
@@ -1089,6 +1099,16 @@ NULL
 #' Utility function to calculate the change to make each iteration, applies to background terms as well
 #'
 #' \code{Calc_Change_Background} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration with constraints, applies to background terms as well
+#'
+#' \code{Calc_Change_Background_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix

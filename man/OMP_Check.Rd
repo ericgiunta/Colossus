@@ -12,3 +12,8 @@ boolean: True for OMP allowed
 \description{
 \code{OMP_Check} Called directly from R, checks the omp flag and returns true if omp is enabled
 }
+\seealso{
+Other Output and Information Functions:
+\code{\link[=System_Version]{System_Version()}}
+}
+\concept{Output and Information Functions}

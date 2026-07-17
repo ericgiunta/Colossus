@@ -18,3 +18,8 @@ RelativeRisk(x, df, ...)
 currently only used by the coxres object, to calculate relative risks
 for either the last parameter or a custom point.
 }
+\seealso{
+Other Predicted Risk and Rate:
+\code{\link[=RelativeRisk.coxres]{RelativeRisk.coxres()}}
+}
+\concept{Predicted Risk and Rate}

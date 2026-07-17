@@ -47,4 +47,8 @@ res <- CoxRun(formula, df,
 )
 res_risk <- RelativeRisk(res, df)
 }
-\concept{Cox Analysis Functions}
+\seealso{
+Other Predicted Risk and Rate:
+\code{\link[=RelativeRisk]{RelativeRisk()}}
+}
+\concept{Predicted Risk and Rate}

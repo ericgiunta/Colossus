@@ -35,9 +35,9 @@ CoxRunMulti(
 
 \item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
 
@@ -84,14 +84,14 @@ control <- list(
   verbose = 0, ties = "breslow", double_step = 1
 )
 formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-res <- CoxRunMulti(formula, df, control = control, 
-                   realization_columns = realization_columns,
-                   realization_index = realization_index
-                  )
+res <- CoxRunMulti(formula, df,
+  control = control,
+  realization_columns = realization_columns,
+  realization_index = realization_index
+)
 }
 \seealso{
 Other Cox Wrapper Functions:
-\code{\link[=CoxRun]{CoxRun()}},
-\code{\link[=LikelihoodBound.coxres]{LikelihoodBound.coxres()}}
+\code{\link[=CoxRun]{CoxRun()}}
 }
 \concept{Cox Wrapper Functions}

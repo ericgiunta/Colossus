@@ -29,9 +29,9 @@ LogisticRun(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{link}{Used in logistic regression, the linking function relating the input model and event probability. Current options are "odds", "ident", and "loglink" for the odds ratio, identity, and complimentary loglink options.}
 
@@ -74,9 +74,5 @@ control <- list(
 formula <- logit(Cancer_Status) ~
   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 res <- LogisticRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
-}
-\seealso{
-Other Logistic Wrapper Functions:
-\code{\link[=LikelihoodBound.logitres]{LikelihoodBound.logitres()}}
 }
 \concept{Logistic Wrapper Functions}

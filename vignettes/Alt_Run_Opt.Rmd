@@ -23,14 +23,15 @@ library(data.table)
 
 Both Cox proportional hazards and Poisson model regressions have additional functions that can account for specific situations. There general situations are as follows:
 
-| Option | Description | Cox PH | Poisson |
-| :---------: | :----------: | :----------: | :-------: |
-| Stratification | In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson model regression the stratification is an additional term in the model to account for the effects of stratified covariates | x | x |
-| Simplified Model | For a multiplicative Log-Linear model, simplifications can be made to the code. These give a faster version. | x |  |
-| Non-Derivative Calculation | If a single iteration is needed without derivatives, there is time and memory that can be saved | x | x |
-| Competing Risks | If there is a competing event, rows are weighted by an estimate of the censoring rate to approximate a dataset without the effect of a competing event | x |  |
-| Joint Analysis | A Poisson method which allows a model to solve for multiple outcomes, by creating multiple copies of rows with multiple events and using a factor variable to add covariates for specific outcomes |  | x |
-| Distributed Initial Parameter Sets | The user provides distribution for each starting parameter, `Colossus` runs low iteration regressions at random points, and then a full run at the best guess | x | x |
+| Option | Description | Cox PH | Poisson | Logistic | Matched Case-Control |
+| :---------: | :----------: | :----------: | :-------: | :-------: | :-------: |
+| Stratification | In Cox PH, the stratification is applied in the risks groups to compare only like rows. In Poisson model regression the stratification is an additional term in the model to account for the effects of stratified covariates. Matched case-control is a specific application of stratified logistic regression. | x | x | | x |
+| Simplified Model | For a multiplicative Log-Linear model, simplifications can be made to the code. These give a faster version. | x |  |  |  |
+| Non-Derivative Calculation | If a single iteration is needed without derivatives, there is time and memory that can be saved | x | x | x | x |
+| Competing Risks | If there is a competing event, rows are weighted by an estimate of the censoring rate to approximate a dataset without the effect of a competing event | x |  |  |  |
+| Joint Analysis | A Poisson method which allows a model to solve for multiple outcomes, by creating multiple copies of rows with multiple events and using a factor variable to add covariates for specific outcomes |  | x |  |  |
+| Multiple Initial Parameter Sets | The user provides multiple guesses for each starting parameter, `Colossus` runs low iteration regressions at each guess, and then a full run at the best guess | x | x | x | x |
+| Linear Constraints | Applies a linear system of equations to the model parameters, which is applied during optimization. | x | x | x | x |
 
 The following sections review the math behind the basic functions and how each option changes that.
 
@@ -104,6 +105,10 @@ e <- PoisRun(Poisson_Strata(pyr, event, e) ~ loglinear(dose), df,
   a_n = a_n, control = control
 )
 ```
+
+### Logistic and Matched Case-Control Regression
+
+See the [Matched Case-Control vignette](Matched_Case_Control.html) for more details about how stratified logistic regression is performed.
 
 ## Non-Derivative Calculation
 
@@ -232,6 +237,105 @@ e <- PoisRunJoint(formula_list, df, control = control)
 print(e)
 ```
 
+## Linear Constraints
 
+Applying linear constraints adds an additional goal to the optimization, to solve for the parameters that both optimize the likelihood as well as solve the linear system of equations. The system of equations could be used to force parameter values to be off by constant values or have constant ratios. The initial parameter set need not satisfy the system of equations. One important detail is that linear constraints can be used with both the default Newton-Raphson optimization algorithm as well as the available gradient descent algorithms using a penalty.
 
+### General Input
 
+Linear constraints are added by passing both a matrix with constraint equations ($M$) and a vector of constraint values ($b$). In Colossus, the constraint matrix is passed to the `cons_mat` parameter and the constraint values are passed to the `cons_vec` parameter. The constraint values can be omitted and defaulted to zero.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \forall j: \sum_i ( M_{j,i} \cdot \beta_i) = b_j 
+\end{aligned}
+$$
+</p>
+
+```{r, eval=TRUE}
+a <- c(0, 0, 0, 1, 1, 1)
+b <- c(1, 1, 1, 2, 2, 2)
+c <- c(0, 0, 1, 0, 1, 0)
+d <- c(1, 1, 0, 0, 1, 1)
+e <- c(0, 1, 1, 1, 0, 0)
+df <- data.table(t0 = a, t1 = b, e = c, fac0 = d, fac1 = e)
+
+model <- Cox(t0, t1, e) ~ loglinear(fac0, fac1)
+
+# suppose we want the factors to be a value of 0.5 apart
+# 1*fac0 + -1*fac1 = 0.5
+cons_mat <- c(1, -1)
+cons_vec <- c(0.5)
+
+e <- CoxRun(model, df, cons_mat = cons_mat, cons_vec = cons_vec)
+print(e)
+
+# instead we could make the values opposite
+# 1*fac0 + 1*fac1 = 0.0
+cons_mat <- c(1, 1)
+cons_vec <- c(0.0)
+
+e <- CoxRun(model, df, cons_mat = cons_mat, cons_vec = cons_vec)
+print(e)
+```
+
+### Application to gradient descent
+
+Linear constraints can be directly combined with the optimization equations used in a Newton-Raphson algorithm, but they can still be used with a gradient descent algorithm. For more details on the differences, reference the [vignette on the differences between optimization algorithms](Grad_Hess.html). The linear constraints are added to the optimization using a penalty approach, regardless of the gradient descent option used.
+
+To begin, a penalty weight is set by the user through the `penalty_weight` parameter ($\lambda$) of the `gradient_control` list. This penalty is applied to an updated score ($LL^{*}$) which accounts for both the log-likelihood as well as the constraint accuracy ($\delta b$). The updated score is optimized by a parameter set that solves the linear constraints and optimizes the log-likelihood.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    LL^{*} = LL + \lambda \sum_j \left ( M_{,j} \times \beta - b_j \right )^2 \\
+    \frac{\partial(LL^{*})}{\partial \beta_k} = \frac{\partial LL}{\partial \beta_k} -2 \lambda (\delta b \cdot M_{i,})
+\end{aligned}
+$$
+</p>
+
+Unlike the Newton-Raphson approach, this is not guaranteed to produce a result that solves for the linear constraints. One issue is the difference between the optimization criteria and the stopping criteria. If the constraint and log-likelihood portions of the score derivative cancel out, then the predicted step size may be near zero. This can lead to regressions being "stuck". One way to avoid this issue is to slowly weight the penalty, so that the constraint portion will eventually out-weight the log-likelihood portion.  As the iterations increase ($i$), this weight is slowly increased to force the algorithm to solve for the linear constraints.
+ 
+ <p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda^{*} = \lambda \times 1.1^i
+\end{aligned}
+$$
+</p>
+
+## Multiple Initial Parameter Sets
+
+Every basic regression option in Colossus allows the input of no initial parameter guess, a single guess, or multiple guesses. The basic process is that Colossus will run regressions starting at each guess, record the final point and score, and then compare to determine the best result. Colossus then restarts the regression at the best point, and then returns the final result. This has two useful properties: multiple regressions can be performed at different points without reformatting the data and the convergence values can be reset between the guesses and best guess regressions.
+
+The first is an issue of time. Before a regression is run there are checks made to transform the data and model into the formats used for regression. By using multiple guesses, taking advantage of the data being constant, we can skip the time that would usually be required over multiple independent regressions. The second is an issue of how step sizes are controlled over a regression. As the regression converges, the maximum step size is decreased to reduce overstepping. This can lead to a regression getting caught in a local extrema. The step size is reset between regressions, so the best guess regression can possibly step outside of local extrema.
+
+Two changes are made to the standard function call to use multiple initial parameter sets. The first is that the `a_n` parameter should be a list of multiple vectors, one for each guess. The second is that the maximum iterations can be set for each guess. The number of iterations are controlled by the `maxiters` parameter, which is a list with iterations for each guess and best guess regressions. The default is running each guess for 1 iteration and the best guess for `maxiter` iterations (defaulted to 20). If you want to run the guesses with more iterations, you can either manually fill out `maxiters` for each guess or set `maxiters` to a vector with two entries for the guesses iterations and best guess iterations.
+
+```{r, eval=TRUE}
+a <- c(0, 0, 0, 1, 1, 1)
+b <- c(1, 1, 1, 2, 2, 2)
+c <- c(0, 0, 1, 0, 1, 0)
+d <- c(1, 1, 0, 0, 1, 1)
+e <- c(0, 1, 1, 1, 0, 0)
+df <- data.table(t0 = a, t1 = b, e = c, fac0 = d, fac1 = e)
+
+model <- Cox(t0, t1, e) ~ loglinear(fac0, fac1)
+
+# suppose we have several parameter sets we think could be the best
+# we can put each parameter set into a list
+a_ns <- list(c(0.1, 0.1), c(-0.1, 0.1), c(-0.1, -0.1), c(0.1, -0.1))
+
+# The default
+maxiters <- c(1, 1, 1, 20)
+# Running each guess for 5 iterations
+maxiters <- c(5, 5, 5, 20)
+maxiters <- c(5, 20)
+
+e <- CoxRun(model, df, a_n = a_ns, maxiters = maxiters)
+print(e)
+
+# We can also print out the intermediate results
+print(e$Guess_Results)
+```

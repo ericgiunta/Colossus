@@ -26,3 +26,8 @@ a0 <- 1.2
 a1_goal <- 15
 full_paras <- Linked_Lin_Exp_Para(y, a0, a1_goal)
 }
+\seealso{
+Other Piece-wise Assistance Functions:
+\code{\link[=Linked_Dose_Formula]{Linked_Dose_Formula()}}
+}
+\concept{Piece-wise Assistance Functions}

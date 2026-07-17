@@ -265,7 +265,7 @@ The following are output in the regression output lists:
 
 In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a `Colossus` run.
 
-There are additional variants of these functions which are described in greater detail in the other vignettes.
+There are additional variants of these functions which are described in greater detail in the other vignettes, like the [matched case-control regression](Matched_Case_Control.html), [logistic regression](Logistic.html), and [alternative run options](Alt_Run_Opt.html) vignettes.
 
 
 

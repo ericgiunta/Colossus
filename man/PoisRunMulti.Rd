@@ -35,9 +35,9 @@ PoisRunMulti(
 
 \item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
 
@@ -84,18 +84,15 @@ control <- list(
   verbose = 0, ties = "breslow", double_step = 1
 )
 formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
-res <- PoisRunMulti(formula, df, control = control, 
-                   realization_columns = realization_columns,
-                   realization_index = realization_index
-                  )
+res <- PoisRunMulti(formula, df,
+  control = control,
+  realization_columns = realization_columns,
+  realization_index = realization_index
+)
 }
 \seealso{
 Other Poisson Wrapper Functions:
-\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
-\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
-\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
 \code{\link[=PoisRun]{PoisRun()}},
-\code{\link[=PoisRunJoint]{PoisRunJoint()}},
-\code{\link[=Residual.poisres]{Residual.poisres()}}
+\code{\link[=PoisRunJoint]{PoisRunJoint()}}
 }
 \concept{Poisson Wrapper Functions}

@@ -350,3 +350,49 @@ test_that("information matrix calculations", {
     }
   }
 })
+
+test_that("constraint non-fail, gradient and hessian", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran |> setDT()
+    df <- copy(veteran)
+
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+
+    df$karno50 <- df$karno - 50
+    a_n <- c(0.1, 0.1)
+    cons_mat0 <- matrix(c(1, 1), nrow = 1)
+
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
+    #
+    i_index <- 1
+    #
+    vals <- c(-0.03625298, 1.5, -0.1414994, 1.5, -0.03565239, -0.0737104, 0.0406554, -0.009756468, -0.03565239, -0.0737104, 0.0406554, -0.009756468)
+    i_index <- 1
+    extra_bool <- "gradient"
+    time_bool <- TRUE
+    strat_bool <- TRUE
+    model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
+    for (thres in c(0, 40, 100)) {
+      e <- CaseControlRun(model, df, control = control, conditional_threshold = thres, a_n = a_n, cons_mat = cons_mat0, cons_vec = 0.0)
+      expect_equal(sum(e$beta_0), 0.0, tolerance = 1e-4)
+      expect_equal(e$beta_0[1], vals[i_index], tolerance = 1e-4)
+      i_index <- i_index + 1
+      for (method in c("momentum", "adadelta", "adam")) {
+        gradient_control <- list()
+        gradient_control[[method]] <- TRUE
+        e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n, cons_mat = cons_mat0, cons_vec = 0.0)
+        expect_equal(sum(e$beta_0), 0.0, tolerance = 1e-4)
+        expect_equal(e$beta_0[1], vals[i_index], tolerance = 1e-4)
+        i_index <- i_index + 1
+      }
+    }
+  }
+})

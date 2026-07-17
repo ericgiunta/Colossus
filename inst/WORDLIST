@@ -19,6 +19,7 @@ ColossusCoxStrataSurv
 coxph
 coxres
 coxresbound
+CoxRun
 cr
 csv
 datatable
@@ -31,6 +32,7 @@ dlimits
 DMC
 efron
 et
+EventAssignment
 extrema
 expres
 fg
@@ -49,6 +51,7 @@ infty
 iteratively
 Karnofsky
 LEXP
+LikelihoodBound
 lin
 lintr
 linux
@@ -88,6 +91,7 @@ plinear
 pois
 poisres
 poisresbound
+PoisRun
 poisson
 pyr
 qchi

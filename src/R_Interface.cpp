@@ -1239,7 +1239,7 @@ void Write_Time_Dep(const NumericMatrix df0_Times, const NumericMatrix df0_dep, 
 //' \code{OMP_Check} Called directly from R, checks the omp flag and returns true if omp is enabled
 //'
 //' @return boolean: True for OMP allowed
-//'
+//' @family Output and Information Functions
 //  [[Rcpp::export]]
 bool OMP_Check() {
     bool res = false;

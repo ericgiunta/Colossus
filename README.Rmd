@@ -30,7 +30,7 @@ The goal of `Colossus` is to provide an open-source means of performing survival
 
 By default, a fully portable version of the code is compiled, which does not support OpenMP on every system. Note that `Colossus` requires OpenMP support to perform parallel calculations. The environment variable "R_COLOSSUS_NOT_CRAN" is checked to determine if OpenMP should be disabled for linux compiling with clang. The number of cores is set to 1 if the environment variable is empty, the operating system is detected as linux, and the default compiler or R compiler is clang. `Colossus` testing checks for the "NOT_CRAN" variable to determine if additional tests should be run. Setting "NOT_CRAN" to "false" will disable the longer tests. Currently, OpenMP support is not configured for linux compiling with clang.
 
-Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with `CoxRun()` and `PoisRun()` and formula inputs. Please see the `vignette("Equation_Expression")` vignette for more details.
+Note: From versions 1.3.1 to 1.4.1 the expected inputs changed. Regressions are now run with [CoxRun()](reference/CoxRun.html) and [PoisRun()](reference/PoisRun.html) and formula inputs. Please see the [Unified Equation Representation vignette](articles/Equation_Expression.html) for more details.
 
 ## Example
 
@@ -41,23 +41,20 @@ library(data.table)
 library(parallel)
 library(Colossus)
 ## basic example code reproduced from the starting-description vignette
-
+set.seed(3742)
 df <- data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "a" = c(0, 1, 1, 0, 1, 0, 1),
-  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  "c" = c(10, 11, 10, 11, 12, 9, 11),
-  "d" = c(0, 0, 0, 1, 1, 1, 1)
+  "UserID" = 1:100,
+  "Starting_Age" = c(rep(10, 25), rep(15, 25), rep(20, 25), rep(25, 25)),
+  "Ending_Age" = c(rep(16, 25), rep(21, 25), rep(26, 25), rep(31, 25)),
+  "a" = rbinom(100, 3, 0.35),
+  "b" = rbinom(100, 5, 0.25)
 )
 
-model <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
+df$Cancer_Status <- vapply(df$a, function(x) rbinom(1, 1, x / 4), numeric(1))
 
-a_n <- c(0.1, 0.1, 0.1, 0.1)
+model <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + plinear(b, 0) + multiplicative()
 
-keep_constant <- c(0, 0, 0, 0)
+a_n <- c(0.1, 0.1)
 
 control <- list(
   "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,

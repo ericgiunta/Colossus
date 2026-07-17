@@ -286,6 +286,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
+    NumericVector AIC_fin(a_ns.rows());
+    NumericVector BIC_fin(a_ns.rows());
     //
     double Ll_abs_best = 10;
     vector<double> beta_abs_best(totalnum, 0.0);
@@ -347,7 +349,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         }
         if (verbose >= 4) {
             //
-            Rcout << "C++ Note: starting guess " << guess << endl;
+            Rcout << "C++ Note: starting guess " << guess << " with " << maxiter << " maximum iterations" << endl;
             //
         }
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
@@ -456,6 +458,12 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                     }
                 }
             }
+            Lld_worst = abs(Lld[0]);
+            for (int ij = 1; ij < reqrdnum; ij++) {
+                if (abs(Lld[ij]) > Lld_worst) {
+                    Lld_worst = abs(Lld[ij]);
+                }
+            }
             dbeta_max = abs(dbeta[0]);
             for (int ij = 1; ij < totalnum; ij++) {
                 if (abs(dbeta[ij]) > dbeta_max) {
@@ -487,6 +495,8 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
+        AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
+        BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
             Ll_abs_best = Ll[ind0];
             beta_abs_best = beta_c;
@@ -517,6 +527,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
     convgd = FALSE;
     iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     //
+    List guess_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin));
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
         //
@@ -694,7 +705,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
     //
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
         //  returns a list of results
         return res_list;
     }
@@ -780,7 +791,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(df0.rows())-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     //  returns a list of results
     return res_list;
 }
@@ -938,6 +949,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
+    NumericVector AIC_fin(a_ns.rows());
+    NumericVector BIC_fin(a_ns.rows());
     //
     double Ll_abs_best = 10;
     vector<double> beta_abs_best(totalnum, 0.0);
@@ -1162,6 +1175,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         //
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
+        AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
+        BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
             Ll_abs_best = Ll[ind0];
             beta_abs_best = beta_c;
@@ -1191,6 +1206,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     convgd = FALSE;
     iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     //
+    List guess_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin));
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
         //
@@ -1373,7 +1389,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -1437,7 +1453,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -1454,15 +1470,15 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
 List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
-    if (model_bool["constraint"]) {
-        if (verbose >= 1) {
-            //
-            Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl;
-            //
-        }
-        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-        return temp_list;
-    }
+//    if (model_bool["constraint"]) {
+//        if (verbose >= 1) {
+//            //
+//            Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl;
+//            //
+//        }
+//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
+//        return temp_list;
+//    }
     //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
@@ -1629,6 +1645,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     NumericMatrix strata_fin(a_ns.rows(), group_num);
     NumericMatrix beta_fin(a_ns.rows(), totalnum);
     NumericVector LL_fin(a_ns.rows());
+    NumericVector AIC_fin(a_ns.rows());
+    NumericVector BIC_fin(a_ns.rows());
     //
     double Ll_abs_best = 10;
     vector<double> beta_abs_best(totalnum, 0.0);
@@ -1729,11 +1747,20 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
             strata_a = strata_c;  //
             strata_best = strata_c;  //
             neg_limit = FALSE;
-            if (model_bool["gradient"]) {
-                Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+            if (model_bool["constraint"]) {
+                if (model_bool["gradient"]) {
+                    Calc_Change_Background_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+                } else {
+                    Calc_Change_Background_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
+                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+                }
             } else {
-                Calc_Change_Background(nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
-                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+                if (model_bool["gradient"]) {
+                    Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+                } else {
+                    Calc_Change_Background(nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
+                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+                }
             }
             if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
                 Ll_iter_best = Ll[ind0];
@@ -1945,6 +1972,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
             strata_fin(guess, i) = strata_odds[i];
         }
         LL_fin[guess] = Ll[0];
+        AIC_fin[guess] = 2*(reqrdnum + reqrdcond)-2*Ll[0];
+        BIC_fin[guess] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0];
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
             Ll_abs_best = Ll[ind0];
             beta_abs_best = beta_c;
@@ -1984,6 +2013,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     convgd = FALSE;
     iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     //
+    List guess_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin));
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
         //
@@ -2026,12 +2056,6 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
     List res_list;
     //
-//    if (model_bool["single"]) {
-//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
-//        //  returns a list of results
-//        return res_list;
-//    }
-    //
     while ((iteration < maxiter) && (iter_stop == 0)) {
         iteration++;
         Ll_improve = Ll[ind0];
@@ -2044,11 +2068,20 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         strata_a = strata_c;  //
         strata_best = strata_c;  //
         neg_limit = FALSE;
-        if (model_bool["gradient"]) {
-            Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+        if (model_bool["constraint"]) {
+            if (model_bool["gradient"]) {
+                Calc_Change_Background_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+            } else {
+                Calc_Change_Background_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
+                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+            }
         } else {
-            Calc_Change_Background(nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
-            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+            if (model_bool["gradient"]) {
+                Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
+            } else {
+                Calc_Change_Background(nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
+                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
+            }
         }
         if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
             Ll_iter_best = Ll[ind0];
@@ -2279,7 +2312,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"] = 2*(reqrdnum + reqrdcond)+dev, _["BIC"] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0], _["beta_0"] = wrap(beta_0), _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -2344,7 +2377,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"] = 2*(reqrdnum + reqrdcond)+dev, _["BIC"] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0], _["beta_0"] = wrap(beta_0), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -2495,6 +2528,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     //
     NumericMatrix beta_fin(a_ns.rows(), a_ns.cols());
     NumericVector LL_fin(a_ns.rows());
+    NumericVector AIC_fin(a_ns.rows());
+    NumericVector BIC_fin(a_ns.rows());
     double Ll_improve = -1*Ll[0];
     //
     double Ll_abs_best = 10;
@@ -2760,6 +2795,8 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         //
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
+        AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
+        BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
             Ll_abs_best = Ll[ind0];
             beta_abs_best = beta_c;
@@ -2789,6 +2826,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     convgd = FALSE;
     iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
     //
+    List guess_list = List::create(_["LogLik"] = wrap(LL_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin));
     int guess_max = guess_abs_best;
     if (verbose >= 3) {
         //
@@ -2827,11 +2865,6 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     //
     List res_list;
     //
-//    if (model_bool["single"]) {
-//        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0)), _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
-//        //  returns a list of results
-//        return res_list;
-//    }
     for (int i = 0; i < beta_0.size(); i++) {
         beta_c[i] = beta_0[i];
     }
@@ -3033,7 +3066,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     //
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -3094,7 +3127,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }

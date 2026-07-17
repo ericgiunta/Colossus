@@ -18,3 +18,8 @@ Residual(x, df, ...)
 results. Note that the Cox residuals are calculated using the various
 plotting based functions.
 }
+\seealso{
+Other Poisson Residuals:
+\code{\link[=Residual.poisres]{Residual.poisres()}}
+}
+\concept{Poisson Residuals}
