@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![](https://img.shields.io/github/languages/code-size/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus)
-[![](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![](https://img.shields.io/badge/lifecycle-stable-green.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![Project Status: Active - The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -78,12 +78,18 @@ e <- CoxRun(model, df, a_n = a_n, control = control)
 print(e)
 #> |--------------------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value
-#>       <char>  <char>       <int>            <num>          <num>          <num>
-#> 1:         a  loglin           0             44.2       1.14e+08          1.000
-#> 2:         b     lin           1             84.4       1.33e+04          0.995
-#> 3:         c     lin           1             84.4       6.81e+01          0.215
-#> 4:         d    plin           2            101.1       2.18e+03          0.963
+#>    Covariate Subterm Term Number Central Estimate Standard Error
+#>       <char>  <char>       <int>            <num>          <num>
+#> 1:         a  loglin           0             44.2       1.14e+08
+#> 2:         b     lin           1             84.4       1.33e+04
+#> 3:         c     lin           1             84.4       6.81e+01
+#> 4:         d    plin           2            101.1       2.18e+03
+#>    95% Confidence Interval 2-tail p-value
+#>                     <char>          <num>
+#> 1:  (-2.24e+08 - 2.24e+08)          1.000
+#> 2:        (-26000 - 26200)          0.995
+#> 3:             (-49 - 218)          0.215
+#> 4:          (-4180 - 4380)          0.963
 #> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Cox Model Used
@@ -97,6 +103,6 @@ print(e)
 #> Last iteration improved the log-likelihood by: 9.960e-05
 #> Analysis converged
 #> Records Used: 6, Records Removed: 1
-#> Run finished in 0.277 seconds
+#> Run finished in 0.324 seconds
 #> |--------------------------------------------------------------------------------|
 ```

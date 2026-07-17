@@ -742,9 +742,7 @@ Check_Iters <- function(control, a_n) {
 #' tforms <- list(cov_0 = "quad", cov_1 = "exp")
 #' paras <- list(cov_0 = c(1, 3.45), cov_1 = c(1.2, 4.5, 0.1))
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
-#'
-Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
-  verbose <- Check_Verbose(verbose)
+Linked_Dose_Formula <- function(tforms, paras) {
   full_paras <- list()
   for (nm in names(tforms)) {
     if (tforms[nm] == "quad") {
@@ -812,9 +810,7 @@ Linked_Dose_Formula <- function(tforms, paras, verbose = 0) {
 #' a0 <- 1.2
 #' a1_goal <- 15
 #' full_paras <- Linked_Lin_Exp_Para(y, a0, a1_goal)
-#'
-Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
-  verbose <- Check_Verbose(verbose)
+Linked_Lin_Exp_Para <- function(y, a0, a1_goal) {
   b1 <- 10
   lr <- 1.0
   if (a0 < 0) {
@@ -863,7 +859,6 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal, verbose = 0) {
 #' val <- factorize(df, col_list)
 #' df <- val$df
 #' new_col <- val$cols
-#'
 factorize <- function(df, col_list, verbose = 0) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
@@ -932,7 +927,6 @@ factorize <- function(df, col_list, verbose = 0) {
 #' )
 #' null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
 #' score <- Likelihood_Ratio_Test(alternative_model, null_model)
-#'
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   alt_is_null <- alternative_model$modelcontrol$null
   null_is_null <- null_model$modelcontrol$null
@@ -1078,7 +1072,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns the updated data and time period columns
-Check_Trunc <- function(df, ce, verbose = 0) {
+Check_Trunc <- function(df, ce) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -1112,7 +1106,6 @@ Check_Trunc <- function(df, ce, verbose = 0) {
     stop("Error: The starting and ending interval times were set to the same column, they must be different") # nocov
   }
   #
-  verbose <- Check_Verbose(verbose)
   if (ce[1] %in% c("%trunc%", "right_trunc")) {
     if (ce[2] %in% c("%trunc%", "left_trunc")) {
       stop("Error: Both endpoints are truncated, not acceptable")
@@ -1170,10 +1163,8 @@ Check_Trunc <- function(df, ce, verbose = 0) {
 #' func_form <- c("lin")
 #' df_new <- gen_time_dep(
 #'   df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
-#'   c(grt_f), paste("test", "_new.csv", sep = ""), func_form, 1
+#'   c(grt_f), paste0(tempfile(), "test_new.csv"), func_form, 1
 #' )
-#' file.remove("test_new.csv")
-#'
 gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form, fname, tform, nthreads = as.numeric(detectCores())) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
@@ -1671,7 +1662,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       norm_weight <- c()
       if (tolower(norm) == "max") {
         for (i in seq_along(names)) {
-          val <- summarise(df, max_value = max(abs(get(names[i]))))[[1]]
+          val <- summarize(df, max_value = max(abs(get(names[i]))))[[1]]
           if (val == 0.0) {
             warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = "")) # nocov
             val <- 1.0
@@ -1683,7 +1674,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         }
       } else if (tolower(norm) == "mean") {
         for (i in seq_along(names)) {
-          val <- summarise(df, mean_value = mean(get(names[i])))[[1]]
+          val <- summarize(df, mean_value = mean(get(names[i])))[[1]]
           if (val == 0.0) {
             warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = "")) # nocov
             val <- 1.0
@@ -2428,8 +2419,8 @@ Interpret_Output <- function(out_list, digits = 3) {
           if ("Standard_Error" %in% names(out_list)) {
             stdev <- out_list$Standard_Error
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
-            CI_low <- beta_0 - 1.96 * stdev
-            CI_high <- beta_0 + 1.96 * stdev
+            CI_low <- as.numeric(format(beta_0 - 1.96 * stdev, digits = digits))
+            CI_high <- as.numeric(format(beta_0 + 1.96 * stdev, digits = digits))
             CI <- paste0("(", CI_low, " - ", CI_high, ")")
             res_table <- data.table(
               Covariate = names,

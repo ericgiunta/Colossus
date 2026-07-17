@@ -37,5 +37,4 @@ alternative_model <- CoxRun(model, df,
 )
 null_model <- CoxRun(Cox(a, b, c) ~ null(), df, control = control)
 score <- Likelihood_Ratio_Test(alternative_model, null_model)
-
 }

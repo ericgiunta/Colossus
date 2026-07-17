@@ -4,7 +4,7 @@
 \alias{Event_Count_Gen}
 \title{uses a table, list of categories, and list of event summaries to generate person-count tables}
 \usage{
-Event_Count_Gen(table, categ = list(), events = list(), verbose = FALSE)
+Event_Count_Gen(table, categ = list(), events = list())
 }
 \arguments{
 \item{table}{dataframe with every category/event column needed}
@@ -12,8 +12,6 @@ Event_Count_Gen(table, categ = list(), events = list(), verbose = FALSE)
 \item{categ}{list with category columns and methods, methods can be either strings or lists of boundaries}
 
 \item{events}{list of columns to summarize, supports counts and means and renaming the summary column}
-
-\item{verbose}{integer valued 0-4 controlling what information is printed to the terminal. Each level includes the lower levels. 0: silent, 1: errors printed, 2: warnings printed, 3: notes printed, 4: debug information printed. Errors are situations that stop the regression, warnings are situations that assume default values that the user might not have intended, notes provide information on regression progress, and debug prints out C++ progress and intermediate results. The default level is 2 and True/False is converted to 3/0.}
 }
 \value{
 returns a grouped table and a list of category boundaries used
@@ -43,8 +41,7 @@ event <- list(
   c = "count AS cases",
   a = "mean", b = "mean"
 )
-e <- Event_Count_Gen(table, categ, event, T)
-
+e <- Event_Count_Gen(table, categ, event)
 }
 \seealso{
 Other Table Generation Functions:

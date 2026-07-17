@@ -30,10 +30,6 @@ formula_pois <- Pois(Ending_Age, Cancer_Status) ~ loglinear(CONST, a_val)
 cox_res <- CoxRun(formula_cox, df, ncores = 1)
 pois_res <- PoisRun(formula_pois, df, ncores = 1)
 
-print(pois_res)
-print(cox_res)
-stop()
-
 # test_all(), test_char(), test_int(), test_dbl(), test_lgl(), test_fctr(), test_date(), test_raw(), test_df(), test_null()
 
 
@@ -72,3 +68,5 @@ for (bool_arg in bool_opts) {
     }
   }
 }
+
+print("finished extended")

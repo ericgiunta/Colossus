@@ -196,16 +196,16 @@ NULL
 NULL
 
 #' @importFrom Rcpp evalCpp
-#' @importFrom data.table data.table fread setkeyv copy setnames as.data.table set := .SD setDT setDTthreads
+#' @importFrom data.table data.table fread setkeyv copy setnames as.data.table set := .SD setDT setDTthreads fcase
 #' @importFrom parallel detectCores
-#' @importFrom stats runif weighted.mean pnorm approxfun time qchisq pchisq
+#' @importFrom stats runif weighted.mean pnorm approxfun qchisq pchisq time
 #' @importFrom utils combn head
 #' @importFrom rlang .data
 #' @importFrom methods is
 #' @importFrom callr rcmd
 #' @importFrom stringr str_match str_count
 #' @importFrom processx run
-#' @importFrom dplyr mutate case_when group_by summarize summarise n slice bind_rows across all_of filter
+#' @importFrom dplyr mutate case_when replace_when group_by summarize n n_distinct slice bind_rows across all_of filter
 #' @importFrom tibble as_tibble tibble
 #' @importFrom lubridate make_date interval as.duration days is.Date ddays day month year days years
 #' @importFrom pracma rref

@@ -2060,7 +2060,10 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-#' res <- CoxRun(formula, df, control = control)
+#' res <- CoxRunMulti(formula, df, control = control, 
+#'                    realization_columns = realization_columns,
+#'                    realization_index = realization_index
+#'                   )
 CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
@@ -2320,7 +2323,10 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
-#' res <- PoisRun(formula, df, control = control)
+#' res <- PoisRunMulti(formula, df, control = control, 
+#'                    realization_columns = realization_columns,
+#'                    realization_index = realization_index
+#'                   )
 PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {

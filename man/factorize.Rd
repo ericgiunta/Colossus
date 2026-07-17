@@ -30,7 +30,6 @@ col_list <- c("c")
 val <- factorize(df, col_list)
 df <- val$df
 new_col <- val$cols
-
 }
 \seealso{
 Other Data Cleaning Functions:

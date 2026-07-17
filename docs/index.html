@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.5.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,7 @@
     <li><a class="dropdown-item" href="articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
     <li><a class="dropdown-item" href="articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="articles/Starting-Description.html">`Colossus` Description</a></li>
+    <li><a class="dropdown-item" href="articles/Starting-Description.html">Colossus Description</a></li>
     <li><a class="dropdown-item" href="articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -112,12 +112,18 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error 2-tail p-value</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0             44.2       1.14e+08          1.000</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.33e+04          0.995</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1             84.4       6.81e+01          0.215</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2            101.1       2.18e+03          0.963</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0             44.2       1.14e+08</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.33e+04</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1             84.4       6.81e+01</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2            101.1       2.18e+03</span></span>
+<span><span class="co">#&gt;    95% Confidence Interval 2-tail p-value</span></span>
+<span><span class="co">#&gt;                     &lt;char&gt;          &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:  (-2.24e+08 - 2.24e+08)          1.000</span></span>
+<span><span class="co">#&gt; 2:        (-26000 - 26200)          0.995</span></span>
+<span><span class="co">#&gt; 3:             (-49 - 218)          0.215</span></span>
+<span><span class="co">#&gt; 4:          (-4180 - 4380)          0.963</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
@@ -131,7 +137,7 @@
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.277 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.314 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>

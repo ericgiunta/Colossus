@@ -61,9 +61,11 @@ jobs:
           sudo apt-get install pandoc
           sudo apt-get install texlive
           sudo apt install valgrind
-      - name: Run R CMD check with valgrind
+      - name: Prepare valgrind script and install
         run: |
           printf "devtools::run_examples()\ndevtools::test()" > memcheck.R
           ls
           Rscript -e "devtools::install()"
+      - name: Run R CMD check with valgrind
+        run: |
           R -d "valgrind --tool=memcheck --leak-check=full" --vanilla < memcheck.R
