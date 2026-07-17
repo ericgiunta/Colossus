@@ -42,7 +42,6 @@ event <- list(
   a = "mean", b = "mean"
 )
 e <- Event_Count_Gen(table, categ, event)
-
 }
 \seealso{
 Other Table Generation Functions:

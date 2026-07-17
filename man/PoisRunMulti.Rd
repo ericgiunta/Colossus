@@ -84,7 +84,10 @@ control <- list(
   verbose = 0, ties = "breslow", double_step = 1
 )
 formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
-res <- PoisRun(formula, df, control = control)
+res <- PoisRunMulti(formula, df, control = control, 
+                   realization_columns = realization_columns,
+                   realization_index = realization_index
+                  )
 }
 \seealso{
 Other Poisson Wrapper Functions:
