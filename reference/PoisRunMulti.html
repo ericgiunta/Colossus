@@ -184,7 +184,10 @@ run a Colossus poisson regression function</p>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="fl">0</span>, ties <span class="op">=</span> <span class="st">"breslow"</span>, double_step <span class="op">=</span> <span class="fl">1</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">formula</span> <span class="op">&lt;-</span> <span class="fu">Pois</span><span class="op">(</span><span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">CONST</span>, <span class="va">dose</span>, <span class="va">rand</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">PoisRunMulti</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, realization_columns<span class="op">=</span><span class="va">realization_columns</span>, realization_index<span class="op">=</span><span class="va">realization_index</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu">PoisRunMulti</span><span class="op">(</span><span class="va">formula</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span>, </span></span>
+<span class="r-in"><span>                   realization_columns <span class="op">=</span> <span class="va">realization_columns</span>,</span></span>
+<span class="r-in"><span>                   realization_index <span class="op">=</span> <span class="va">realization_index</span></span></span>
+<span class="r-in"><span>                  <span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
