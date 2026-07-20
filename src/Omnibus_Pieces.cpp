@@ -169,36 +169,36 @@ void Cox_Term_Risk_Calc(const string& modelform, const StringVector& tform, cons
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         //
         TTerm = R.col(0).array();
-        if (verbose >= 4) {
-           //
-           Rcout << "C++ Note: Values checked ";
-           for (int ijk = 0; ijk < totalnum; ijk++) {
-               Rcout << beta_0[ijk] << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk checked ";
-           for (int ijk = 0; ijk < 1; ijk++) {
-               Rcout << R.col(0).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk1 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Rd.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk2 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           //
-           Rcout << "C++ Note: ALL risk2 checked ";
-           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-               Rcout << Rdd.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           //
-       }
+    //     if (verbose >= 4) {
+    //        //
+    //        Rcout << "C++ Note: Values checked ";
+    //        for (int ijk = 0; ijk < totalnum; ijk++) {
+    //            Rcout << beta_0[ijk] << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk checked ";
+    //        for (int ijk = 0; ijk < 1; ijk++) {
+    //            Rcout << R.col(0).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk1 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Rd.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        //
+    //        Rcout << "C++ Note: ALL risk2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+    //            Rcout << Rdd.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        //
+    //    }
     } else if (model_bool["single"]) {
         //  Calculates the subterm and term values
         Make_subterms_Single(totalnum, term_n, tform, dfc, fir, T0, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, beta_0, df0, nthreads, KeepConstant);
@@ -227,61 +227,61 @@ void Cox_Term_Risk_Calc(const string& modelform, const StringVector& tform, cons
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
-        if (verbose >= 4) {
-           //
-           Rcout << "C++ Note: Values checked ";
-           for (int ijk = 0; ijk < totalnum; ijk++) {
-               Rcout << beta_0[ijk] << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: term checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << T0.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: term1 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Td0.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: term2 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk checked ";
-           for (int ijk = 0; ijk < 1; ijk++) {
-               Rcout << R.col(0).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk1 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Rd.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk2 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           //
-           Rcout << "C++ Note: ALL risk2 checked ";
-           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-               Rcout << Rdd.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           //
-       }
+    //     if (verbose >= 4) {
+    //        //
+    //        Rcout << "C++ Note: Values checked ";
+    //        for (int ijk = 0; ijk < totalnum; ijk++) {
+    //            Rcout << beta_0[ijk] << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: term checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << T0.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: term1 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Td0.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: term2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk checked ";
+    //        for (int ijk = 0; ijk < 1; ijk++) {
+    //            Rcout << R.col(0).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk1 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Rd.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        //
+    //        Rcout << "C++ Note: ALL risk2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+    //            Rcout << Rdd.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        //
+    //    }
     }
     return;
 }
 
 //' Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
 //'
-//' \code{Cox_Side_LL_Calc} Called to perform repeated term and risk calculations
+//' \code{Cox_Side_LL_Calc} Called to perform repeated risk group calculations
 //' @inheritParams CPP_template
 //'
-//' @return Updates matrices in place: risk storage matrices
+//' @return Updates matrices in place: log-likelihood and intermediate values
 //' @noRd
 //'
 void Cox_Side_LL_Calc(const int& reqrdnum, const int& ntime, const StringVector& tform, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const vector<vector<vector<int> > >& RiskPairs_Strata, const int& totalnum, const int& fir, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Rls1, MatrixXd& Rls2, MatrixXd& Rls3, MatrixXd& Lls1, MatrixXd& Lls2, MatrixXd& Lls3, const VectorXd& cens_weight, NumericVector& Strata_vals, VectorXd beta_0, MatrixXd& RdR, MatrixXd& RddR, vector<double>& Ll, vector<double>& Lld, vector<double>& Lldd, const int& nthreads, const IntegerVector& KeepConstant, const string& ties_method, int verbose, List& model_bool, int& iter_stop) {
@@ -455,51 +455,51 @@ void Pois_Term_Risk_Calc(const string& modelform, const StringVector& tform, con
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
         int reqrdnum = totalnum - sum(KeepConstant);
-        if (verbose >= 4) {
-           //
-           Rcout << "C++ Note: Values checked ";
-           for (int ijk = 0; ijk < totalnum; ijk++) {
-               Rcout << beta_0[ijk] << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: term checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << T0.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: term1 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Td0.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: term2 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk checked ";
-           for (int ijk = 0; ijk < 1; ijk++) {
-               Rcout << R.col(0).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk1 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Rd.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           Rcout << "C++ Note: risk2 checked ";
-           for (int ijk = 0; ijk < reqrdnum; ijk++) {
-               Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           //
-           Rcout << "C++ Note: ALL risk2 checked ";
-           for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
-               Rcout << Rdd.col(ijk).sum() << " ";
-           }
-           Rcout << " " << endl;
-           //
-       }
+    //     if (verbose >= 4) {
+    //        //
+    //        Rcout << "C++ Note: Values checked ";
+    //        for (int ijk = 0; ijk < totalnum; ijk++) {
+    //            Rcout << beta_0[ijk] << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: term checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << T0.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: term1 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Td0.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: term2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Tdd0.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk checked ";
+    //        for (int ijk = 0; ijk < 1; ijk++) {
+    //            Rcout << R.col(0).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk1 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Rd.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        Rcout << "C++ Note: risk2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum; ijk++) {
+    //            Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        //
+    //        Rcout << "C++ Note: ALL risk2 checked ";
+    //        for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+    //            Rcout << Rdd.col(ijk).sum() << " ";
+    //        }
+    //        Rcout << " " << endl;
+    //        //
+    //    }
         //
         //
         if (R.minCoeff() <= 0) {
@@ -516,7 +516,7 @@ void Pois_Term_Risk_Calc(const string& modelform, const StringVector& tform, con
 
 //' Utility function to perform calculation of Log-Likelihood and Deviance for Poisson Omnibus
 //'
-//' \code{Pois_Dev_LL_Calc} Called to perform repeated term and risk calculations
+//' \code{Pois_Dev_LL_Calc} Called to perform repeated devience and log-likelihood calculations
 //' @inheritParams CPP_template
 //' @param dev_temp temporary storage for deviation calculation
 //' @param dev model deviation
@@ -687,7 +687,7 @@ void Cox_Pois_Log_Loop(double& step_max, List& model_bool, VectorXd beta_0, vect
     return;
 }
 
-//' Run a complete regression for a cox model
+//' Run a complete regression for a cox model, used for multi-input and bisection calculations
 //'
 //' \code{Cox_Full_Run} Called to perform one full regression
 //' @inheritParams CPP_template
@@ -862,7 +862,6 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
-        // iter_stop = 1;
         convgd = TRUE;
     }
     List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED", _["NegativeLimit"] = neg_limit);
@@ -870,7 +869,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
     return res_list;
 }
 
-//' Run a complete regression for a logistic model
+//' Run a complete regression for a logistic model, used for multi-input and bisection calculations
 //'
 //' \code{Logist_Full_Run} Called to perform one full regression
 //' @inheritParams CPP_template
@@ -1089,7 +1088,6 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
-        // iter_stop = 1;
         convgd = TRUE;
     }
     List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED", _["NegativeLimit"] = neg_limit);
@@ -1097,7 +1095,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
     return res_list;
 }
 
-//' Run a complete regression for a poisson model
+//' Run a complete regression for a poisson model, used for multi-input and bisection calculations
 //'
 //' \code{Pois_Full_Run} Called to perform one full regression
 //' @inheritParams CPP_template
@@ -1275,7 +1273,6 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
-        // iter_stop = 1;
         convgd = TRUE;
     }
     List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["Converged"] = convgd, _["Status"] = "PASSED", _["NegativeLimit"] = neg_limit);
@@ -1284,9 +1281,9 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
 }
 
 
-//' Utility function to calculate Information Matrix, from Epicure manual
+//' Utility function to calculate Information Matrix for a cox model
 //'
-//' \code{Expected_Inform_Matrix_Cox} Called to update information matrix
+//' \code{Expected_Inform_Matrix_Cox} Called to update information matrix for a cox model
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: information matrix
@@ -1337,9 +1334,9 @@ void Expected_Inform_Matrix_Cox(const int& nthreads, const IntegerMatrix& RiskFa
     return;
 }
 
-//' Utility function to calculate Information Matrix with strata, from Epicure manual
+//' Utility function to calculate Information Matrix with strata for a cox model
 //'
-//' \code{Expected_Inform_Matrix_Cox_Strata} Called to update information matrix with strata
+//' \code{Expected_Inform_Matrix_Cox_Strata} Called to update information matrix with strata for cox model
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: information matrix
@@ -1394,9 +1391,9 @@ void Expected_Inform_Matrix_Cox_Strata(const int& nthreads, const IntegerMatrix&
     return;
 }
 
-//' Utility function to calculate Information Matrix with competing risks, adapted from Epicure manual
+//' Utility function to calculate Information Matrix with competing risks for a fine-gray model
 //'
-//' \code{Expected_Inform_Matrix_Cox_CR} Called to update information matrix with competing risks
+//' \code{Expected_Inform_Matrix_Cox_CR} Called to update information matrix with competing risks for a fine-gray model
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: information matrix
@@ -1455,9 +1452,9 @@ void Expected_Inform_Matrix_Cox_CR(const int& nthreads, const IntegerMatrix& Ris
     return;
 }
 
-//' Utility function to calculate Information Matrix with strata and competing risks, adapted from from Epicure manual
+//' Utility function to calculate Information Matrix with strata and competing risks for a fine-gray model
 //'
-//' \code{Expected_Inform_Matrix_Cox_Strata_CR} Called to update information matrix with strata and competing risks
+//' \code{Expected_Inform_Matrix_Cox_Strata_CR} Called to update information matrix with strata and competing risks for a fine-gray model
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: information matrix
@@ -1526,7 +1523,7 @@ void Expected_Inform_Matrix_Cox_Strata_CR(const int& nthreads, const IntegerMatr
 //' \code{Expected_Inform_Matrix_Poisson} Called to update information matrix
 //' @inheritParams CPP_template
 //'
-//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @return Updates matrices in place: information matrix
 //' @noRd
 //'
 void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
@@ -1552,7 +1549,7 @@ void Expected_Inform_Matrix_Poisson(const int& nthreads, const int& totalnum, co
 //' \code{Expected_Inform_Matrix_Poisson_Strata} Called to update information matrix
 //' @inheritParams CPP_template
 //'
-//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @return Updates matrices in place: information matrix
 //' @noRd
 //'
 void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& totalnum, const vector<vector<int> >& RiskPairs_Strata_Pois, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, const Ref<const MatrixXd>& PyrC, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, vector<double>& InMa, const IntegerVector& KeepConstant) {
@@ -1653,7 +1650,7 @@ void Expected_Inform_Matrix_Poisson_Strata(const int& nthreads, const int& total
 //' \code{Expected_Inform_Matrix_Logist} Called to update information matrix
 //' @inheritParams CPP_template
 //'
-//' @return Updates matrices in place: Log-likelihood vectors/matrix
+//' @return Updates matrices in place: information matrix
 //' @noRd
 //'
 void Expected_Inform_Matrix_Logist(const int& nthreads, const int& totalnum, const Ref<const MatrixXd>& CountEvent, const MatrixXd& PdP, const MatrixXd& PnotdP, vector<double>& InMa, const IntegerVector& KeepConstant) {
@@ -1689,7 +1686,7 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
     bool probit = model_bool["probit"];
     bool single = model_bool["single"];
     bool gradient = model_bool["gradient"];
-    if (ident == true) {
+    if (ident == true) {  // identity linking function
         P.col(0) = R.col(0);
         Pnot.col(0) = 1 - P.col(0).array();
         if (!single) {
@@ -1708,7 +1705,7 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
                 }
             }
         }
-    }  else if (loglink == true) {
+    }  else if (loglink == true) {  // log-linking function
         P.col(0) = (-1*R.col(0).array()).exp();
         Pnot.col(0) = 1 - P.col(0).array();
         if (!single) {
@@ -1735,7 +1732,7 @@ void LinkCovertRP(List& model_bool, const int& reqrdnum, const MatrixXd& R, cons
                 }
             }
         }
-    } else if (odds == true) {
+    } else if (odds == true) {  // odds ratio linking function
         MatrixXd Ftemp = MatrixXd::Zero(R.rows(), 4);
         Ftemp.col(0) = 1 + R.col(0).array();  //  1+r
         Ftemp.col(1) = Ftemp.col(0).array().pow(-1);  // (1+r)^-1
@@ -1892,13 +1889,11 @@ void Calc_Recursive_Exp(List& model_bool, const int& group_num, const IntegerMat
 //'
 //' \code{Expected_Inform_Matrix_CaseCon} Called to update the expected information matrix
 //'
-//' @return Updates matrices in place: risk storage matrices
+//' @return Updates matrices in place: information matrix
 //' @noRd
 //'
 void Expected_Inform_Matrix_CaseCon(List& model_bool, const int& group_num, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const int& totalnum, const int& ntime, const MatrixXd& R, const MatrixXd& Rd, const MatrixXd& Rdd, const MatrixXd& RdR, const MatrixXd& RddR, vector<double>& InMa, vector<vector<double> >& Recur_Base, vector<vector<vector<double> > >& Recur_First, vector<vector<vector<double> > >& Recur_Second, vector<double>& strata_odds, const int& nthreads, const IntegerVector& KeepConstant, vector<int>& strata_cond) {
     int reqrdnum = totalnum - sum(KeepConstant);
-//    int kept_strata = group_num - reduce(strata_cond.begin(), strata_cond.end());
-//    int total_val = reqrdnum + kept_strata;
     #ifdef _OPENMP
     #pragma omp declare reduction(vec_double_plus : vector<double> : \
         transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), plus<double>())) \

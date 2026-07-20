@@ -56,7 +56,7 @@ template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
 }
 
-//' Primary Cox PH likelihood bounds calculation function.
+//' Primary Cox PH likelihood bounds calculation function. Uses Van-Moolgavkar algorithm.
 //'
 //' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -496,7 +496,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
     return res_list;
 }
 
-//' Primary Cox PH likelihood bounds calculation function.
+//' Primary Cox PH likelihood bounds calculation function. Uses Van-Moolgavkar algorithm after checking initial step at multiple points.
 //'
 //' \code{LogLik_Cox_PH_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -1433,7 +1433,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
     return res_list;
 }
 
-//' Primary Poisson likelihood bounds calculation function.
+//' Primary Poisson likelihood bounds calculation function. Uses Van-Moolgavkar algorithm.
 //'
 //' \code{LogLik_Poisson_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -1853,7 +1853,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     return res_list;
 }
 
-//' Primary Poisson likelihood bounds calculation function.
+//' Primary Poisson likelihood bounds calculation function. Uses Van-Moolgavkar algorithm after checking initial step at multiple points.
 //'
 //' \code{LogLik_Poisson_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -2743,7 +2743,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     return res_list;
 }
 
-//' Primary Logistic likelihood bounds calculation function.
+//' Primary Logistic likelihood bounds calculation function. Uses Van-Moolgavkar algorithm.
 //'
 //' \code{LogLik_Logist_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -3245,7 +3245,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
     return res_list;
 }
 
-//' Primary Logistic likelihood bounds calculation function.
+//' Primary Logistic likelihood bounds calculation function. Uses Van-Moolgavkar algorithm after checking initial step at multiple points.
 //'
 //' \code{LogLik_Logist_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -4198,7 +4198,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
     return res_list;
 }
 
-//' Primary Cox PH likelihood bounds calculation function.
+//' Primary Cox PH likelihood bounds calculation function. Uses the bisection method to check optimum score at window boundaries, slowly decreasing window width.
 //'
 //' \code{LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -4684,7 +4684,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector& term_n, const St
     return res_list;
 }
 
-//' Primary Cox PH likelihood bounds calculation function.
+//' Primary Cox PH likelihood bounds calculation function. Uses the bisection method to check optimum score at window boundaries, slowly decreasing window width.
 //'
 //' \code{LogLik_Poisson_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 //'
@@ -5153,7 +5153,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_CurveSearch(const Ref<const MatrixXd>& Pyr
     return res_list;
 }
 
-//' Primary Logistic likelihood bounds calcualtion function.
+//' Primary Logistic likelihood bounds calculation function. Uses the bisection method to check optimum score at window boundaries, slowly decreasing window width.
 //'
 //' \code{LogLik_Logist_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 //'

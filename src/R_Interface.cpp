@@ -57,7 +57,7 @@ using Rcpp::Rcout;
 //' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Cox_PH output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -118,7 +118,7 @@ List cox_ph_Omnibus_transition(IntegerVector& term_n, const StringVector& tform,
 //' \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Cox_PH output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -298,12 +298,12 @@ List Plot_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, N
     return res;
 }
 
-//' Interface between R code and the Cox PH omnibus bounds regression function
+//' Interface between R code and the Cox PH omnibus bounds regression function using combined likelihood optimization function
 //'
 //' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Cox_PH_Omnibus_Log_Bound or LogLik_Cox_PH_Omnibus_Log_Bound_Search output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -362,12 +362,12 @@ List cox_ph_Omnibus_Bounds_transition(IntegerVector& term_n, const StringVector&
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
-//' Interface between R code and the Cox PH omnibus bounds regression function
+//' Interface between R code and the Cox PH omnibus bounds curve search regression function, using a bisection approach
 //'
 //' \code{cox_ph_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -434,12 +434,12 @@ List cox_ph_Omnibus_CurveSearch_transition(IntegerVector& term_n, const StringVe
     return res;
 }
 
-//' Interface between R code and the Logistic omnibus bounds regression function
+//' Interface between R code and the Logistic omnibus bounds regression function using combined likelihood optimization function
 //'
-//' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+//' \code{logist_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Logist_Omnibus_Log_Bound or LogLik_Logist_Omnibus_Log_Bound_Search output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -501,12 +501,12 @@ List logist_Omnibus_Bounds_transition(MatrixXd& CountEvent, IntegerVector& term_
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
-//' Interface between R code and the logistic omnibus bounds regression function
+//' Interface between R code and the logistic omnibus bounds regression function using a bisection approach
 //'
-//' \code{cox_ph_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
+//' \code{logist_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Logist_Omnibus_Log_Bound_CurveSearch output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -576,12 +576,12 @@ List logist_Omnibus_CurveSearch_transition(MatrixXd& CountEvent, IntegerVector& 
     return res;
 }
 
-//' Interface between R code and the poisson omnibus bounds regression function
+//' Interface between R code and the poisson omnibus bounds regression function with bisection approach
 //'
 //' \code{pois_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Poisson_Omnibus_Log_Bound_CurveSearch output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -651,12 +651,12 @@ List pois_Omnibus_CurveSearch_transition(MatrixXd& PyrC, IntegerVector& term_n, 
     return res;
 }
 
-//' Interface between R code and the poisson omnibus bounds regression function
+//' Interface between R code and the poisson omnibus bounds regression function with combined likelihood optimization function
 //'
 //' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Poisson_Omnibus_Log_Bound or LogLik_Poisson_Omnibus_Log_Bound_Search output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -768,7 +768,7 @@ List pois_Residual_transition(MatrixXd& PyrC, IntegerVector& term_n, const Strin
 //' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Cox_PH_Multidose_Omnibus_Serial or LogLik_Cox_PH_Multidose_Omnibus_Integrated output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -837,7 +837,7 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector& term_n, const StringVect
 //' \code{pois_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Pois output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Pois_Multidose_Omnibus_Serial or LogLik_Pois_Multidose_Omnibus_Integrated output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -904,7 +904,7 @@ List pois_multidose_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, co
 //' \code{caco_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_CaseCon_Omnibus output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_CaseCon_Omnibus output
 //' @noRd
 //'
 //  [[Rcpp::export]]
@@ -968,7 +968,7 @@ List caco_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, N
 //' \code{logist_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 //' @inheritParams CPP_template
 //'
-//' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return LogLik_Logist_Omnibus output
 //' @noRd
 //'
 //  [[Rcpp::export]]

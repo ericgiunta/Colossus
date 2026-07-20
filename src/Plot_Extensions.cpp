@@ -81,14 +81,6 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
     NumericMatrix hazard_error(ntime, Strata_vals.size());
     NumericMatrix greenwood_error(ntime, Strata_vals.size());
     NumericMatrix dSdbeta(ntime*Strata_vals.size(), reqrdnum);  //  Each row is ordered by time in each strata
-//    NumericVector dSdbeta(ntime*Strata_vals.size()*reqrdnum);  //  Storing the derivative values by time x strata x beta
-//    dSdbeta.attr("dim") = Dimension(ntime, Strata_vals.size(), reqrdnum);
-//    #ifdef _OPENMP
-//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//    #endif
-//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk], 2);
-//    }
     //
     //  Iterates through the risk groups and approximates the baseline
     //
@@ -184,12 +176,6 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
     vector<double> hazard_error(ntime, 0.0);
     vector<double> greenwood_error(ntime, 0.0);
     NumericMatrix dSdbeta(ntime, reqrdnum);
-//    #ifdef _OPENMP
-//    #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//    #endif
-//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
-//        Rd.col(ijk) = Rd.col(ijk).array().pow(2).array() * pow(a_er[ijk], 2);
-//    }
     //
     //  Iterates through the risk groups and approximates the baseline
     //
@@ -270,7 +256,7 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
 //'
 //' @inheritParams CPP_template
 //'
-//' @return List of results: scaled schoenfeld residuals
+//' @return List of results: scaled and unscaled schoenfeld residuals
 //' @noRd
 //'
 List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const MatrixXd& R, MatrixXd& Lldd_inv, const IntegerMatrix& RiskFail, const vector<vector<int> >& RiskPairs, const IntegerVector& dfc, int verbose, IntegerVector KeepConstant, int nthreads) {
@@ -333,7 +319,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
 //'
 //' @inheritParams CPP_template
 //'
-//' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return List of final results dependent on plot type used
 //' @noRd
 //'
 List Plot_Omnibus(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, int fir, int der_iden, const string& modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
@@ -576,13 +562,13 @@ List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<Ve
     return res_list;
 }
 
-//' Primary plotting function.
+//' Calculates residuals for a poisson model
 //'
-//' \code{Poisson_Residuals} Performs the calls to calculation functions
+//' \code{Poisson_Residuals} Performs the calls to calculation functions and returns the residuals
 //'
 //' @inheritParams CPP_template
 //'
-//' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+//' @return List of final results, risk and residuals
 //' @noRd
 //'
 List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {

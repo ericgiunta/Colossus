@@ -838,8 +838,6 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         totalnum = 1;
         reqrdnum = 1;
     }
-//    int totalnum = term_n.size();
-//    int reqrdnum = totalnum - sum(KeepConstant);
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
@@ -1458,9 +1456,9 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     return res_list;
 }
 
-//' Primary Matched Case-Control starting point
+//' Primary Matched Case-Control regression
 //'
-//' \code{LogLik_CaseCon_Omnibus} Primary Matched Case-Control starting point
+//' \code{LogLik_CaseCon_Omnibus} Primary Matched Case-Control regression
 //'
 //' @inheritParams CPP_template
 //'
@@ -1470,15 +1468,6 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
 List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, List optim_para, const Ref<const MatrixXd>& df_m, NumericVector tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
-//    if (model_bool["constraint"]) {
-//        if (verbose >= 1) {
-//            //
-//            Rcout << "linear constataints are currently not compatable with Case-Control model calculation" << endl;
-//            //
-//        }
-//        temp_list = List::create(_["Status"] = "FAILED_WITH_BAD_MODEL_CONSTRAINT", _["LogLik"] = R_NaN);
-//        return temp_list;
-//    }
     //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
