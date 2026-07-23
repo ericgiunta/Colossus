@@ -763,7 +763,6 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
         double Ll_improve = Ll[0];
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
@@ -773,6 +772,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
             } else {
                 Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
             }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         } else if (model_bool["basic"]) {
             if (model_bool["constraint"]) {
                 Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
@@ -805,6 +805,7 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
             Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, reqrdnum, tform, RiskFail, RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             Ll_improve = Ll[ind0] - Ll_improve;
         } else {
+            beta_best = beta_c;  //
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -859,6 +860,11 @@ List Cox_Full_Run(const int& reqrdnum, const int& ntime, const StringVector& tfo
                     iter_stop = 1;
                 }
             }
+        }
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
@@ -964,7 +970,6 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
         double Ll_improve = Ll[0];
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
@@ -1021,6 +1026,7 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
             Ll_improve = Ll[ind0] - Ll_improve;
         } else {
             halves = 0;
+            beta_best = beta_c;  //
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                     break;
@@ -1085,6 +1091,11 @@ List Logist_Full_Run(const Ref<const MatrixXd>& CountEvent, const int& reqrdnum,
                     iter_stop = 1;
                 }
             }
+        }
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
@@ -1182,7 +1193,6 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
         neg_limit = FALSE;
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
             if (model_bool["constraint"]) {
@@ -1196,8 +1206,8 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
             } else {
                 Calc_Change(nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             }
-            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         }
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         //
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
             Ll_abs_best = Ll[ind0];
@@ -1217,6 +1227,7 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
             Ll_improve = Ll[ind0] - Ll_improve;
         } else {
             halves = 0;
+            beta_best = beta_c;  //
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                     break;
@@ -1270,6 +1281,11 @@ List Pois_Full_Run(const Ref<const MatrixXd>& PyrC, const int& reqrdnum, const S
                     iter_stop = 1;
                 }
             }
+        }
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough

@@ -23,7 +23,7 @@ library(parallel)
 
 ## General Purpose
 
-Before performing a regression on rate or hazard ratio, it is often important to look at a summary of the data. It can be very informative to break columns into categories and summarize the number of events or average column values in each category. `Colossus` offers two functions designed to create summary tables, Event_Count_Gen and Event_Time_Gen which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
+There are multiple reasons why individual level data may be grouped. It could be for visualizing the data. It can be very informative to break columns into categories and summarize the number of events or average column values in each category. It may also be to perform analysis on aggregates of the data, to reduce noise or remove identifying health information. Either way the process is similar, we want to take a table and apply categorizations and summarize events. `Colossus` offers two functions designed to create grouped tables, [Event_Count_Gen()](../reference/Event_Count_Gen.html) and [Event_Time_Gen()](../reference/Event_Time_Gen.html) which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
 
 ### Person-Count Tables
 
@@ -51,27 +51,47 @@ The list notation is very similar. There are 2 values required in the list and 1
 Suppose we want to break the apple column into the intervals: [0, 3), [3, 5), [5,7] and break our oranges column into the intervals: [-1,3), [3,6), [6,10) with the labels: few, good, and excessive. That would look like the following code. This splits each category into 3 levels and in total 9 combinations.
 
 ```{r, eval=TRUE}
+# We can make our apple categories change at 0, 3, 5, 7
+# We can also make category 3 include the upper value
 apple_category <- "0/3/5]7"
+
+# We can also use a list of categories. The list should have entries
+# for the lower bounds, upper bounds, and optionally the names for
+# each category level
 orange_category <- list(
   lower = c(-1, 3, 6),
   upper = c(3, 6, 10),
   name = c("few", "good", "excessive")
 )
+
+# Finally we combine them into a list. The list names should be column
+# names that the categories will be applied to.
 categ <- list(
   apples = apple_category,
   oranges = orange_category
 )
+# We could also rename a category using `column AS new_name` in the list names.
+# This is demonstrated later in the vignette.
 ```
 
 Now we define what summary variables we want. Once again, we define a list. Every item in the list is named with the column it is applied to and contains a string specifying what summary method to use. There are many options supported currently, two common for a person-event table are count and mean, which will provide the sum or the mean of the column in each category. One can also provide a new name for the summary column by listing the method as "option AS name". Otherwise, the grouped table will use the original column name for the summary column name. Suppose we wanted to take the sum of ripped bags and name it "dropped" and take the mean of the hands column.
 
 ```{r, eval=TRUE}
+# We might want two events to be summarized, the 'rip' and 'hands' columns.
+# The first we can take the sum of, and name the summary 'dropped'
+# The second we can just take a mean of
+# This creates the event list, once again with list names
+# matching columns in the data.
 event <- list(rip = "count AS dropped", hands = "mean")
 ```
 
 The final step is to run the function. The function returns two items, the grouped data and a summary of the category intervals. The category intervals should be checked to verify that the intervals match what were expected.
 
 ```{r, eval=TRUE}
+# We take our table, and apply the categorizations and event summaries
+# The result has two values: 'df' and 'bounds'
+# df is the final grouped table, with the categories and summaries
+# bounds is a description of the category levels applied
 Event_Count_Gen(table, categ, event)
 ```
 
@@ -84,10 +104,15 @@ Calendar time data is listed in day, month, and year columns which are combined 
 #### Calendar Time Scale
 
 ```{r, eval=TRUE}
+# We can start by making some fake data
+# a and b are arbitrary factors
+# c might be the event status we are interested in
 a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
 b <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
 c <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
 
+# Next we define columns for the calendar dates of each interval
+# In this case we are defineing day, month, and year
 d <- c(1, 1, 2, 2, 1, 1, 2, 2, 3, 3, 3, 4, 4, 2, 1, 1, 2)
 e <- c(1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1)
 f <- c(
@@ -100,12 +125,19 @@ i <- c(
   1901, 1902, 1903, 1904, 1905, 1906, 1907, 1903, 1904,
   1903, 1904, 1910, 1903, 1904, 1903, 1904, 1910
 )
+
+# Finally we have our table that we want to group.
 table <- data.table::data.table(
   a = a, b = b, c = c,
   d = d, e = e, f = f,
   g = g, h = h, i = i
 )
 
+# Our person-years are described by calendar dates
+# We have entry and exit lists, each with the columns that
+# correspond to the day/month/year.
+# We also include a unit, to say we want our final person-years
+# in terms of years, instead of days or months.
 pyr <- list(
   entry = list(year = "f", month = "e", day = "d"),
   exit = list(year = "i", month = "h", day = "g"),
@@ -118,6 +150,7 @@ The second major difference is the possible use of time categories. For a calend
 Time categories are unique in that each row can correspond to multiple time categories, so the duration of each row in each time category is kept to distinguish which rows are only partially in each time interval. If a time category is not provided, then the full duration of each row is used for person-year calculations. Multiple categories can be used for a calendar time scale, however it should be noted that multiple calendar date based categories could be combined into a single list of categories.
 
 ```{r, eval=TRUE}
+# The non-time categories are defined as previously shown.
 categ <- list(
   a = "-1/3/5]7",
   b = list(
@@ -126,7 +159,14 @@ categ <- list(
   )
 )
 
-time_scale <- list(`time AS time_bin` = list(
+# The time categories follow a similar structure.
+# We have a list with names that correspond to columns,
+# and entries that give category limits.
+# Our calendar categories are defined between each of these dates,
+# upper bound exclusive.
+
+# Time categories make a new column for the category, which should not be in the data.
+time_scale <- list(`time_bin` = list(
   day = c(1, 1, 1),
   month = c(1, 1, 1),
   year = c(1899, 1903, 1910)
@@ -136,31 +176,33 @@ time_scale <- list(`time AS time_bin` = list(
 The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function, with the exception of allowing for means to be weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. By default, the number of events in each grouping is recorded in the final table. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval. Person-time tables also return the total intervals "at risk" in each category. Observations that are split into multiple time categories will contribute to the number at risk.
 
 ```{r, eval=TRUE}
+# Summaries follow the person-count table notation for events.
+# We apply some summarization to an existing column.
+# The name should be the column, and we can use 'AS'
+# to rename the summary as needed.
 summary <- list(b = "weighted_mean AS b_weighted")
+
+# Events in a person-time table are assumed to occur at the end
+# of the interval.
+# Events are automatically added to the summary list as a sum.
 events <- list("c AS cases")
 ```
 
 Finally, the function is run. Similar to the person-count table function, the function returns the grouped table and list of category boundaries.
 
 ```{r, eval=TRUE}
-pyr <- list(
-  entry = list(year = "f", month = "e", day = "d"),
-  exit = list(year = "i", month = "h", day = "g"),
-  unit = "years"
-)
-print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
-pyr <- list(
-  entry = list(year = "f", month = "e", day = "d"),
-  exit = list(year = "i", month = "h", day = "g"),
-  unit = "months"
-)
-print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
+# We run the analysis just like the event_count data
+# Here we are also setting fcount to true, to return the first at risk in each group
+# We get the same returned value, the table and summary of category boundaries
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, fcount = T))
+
+# We can also change the units in our person-years
 pyr <- list(
   entry = list(year = "f", month = "e", day = "d"),
   exit = list(year = "i", month = "h", day = "g"),
   unit = "days"
 )
-print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, fcount = T))
 ```
 
 #### User Defined Time Scale
@@ -168,10 +210,12 @@ print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
 As previously mentioned, the time scale can also be durations with arbitrary units. This is particularly important if the study is using follow-up time and there is no need to translate to calendar points. The differences start with the person-year list. In this case the entry and exit items are just columns, the duration at entry and exit of the observation.
 
 ```{r, eval=TRUE}
+# Repeating the same non-time categories and event statuses
 a <- c(0, 1, 2, 3, 4, 5, 6, 2, 2, 3, 4, 2, 1, 5, 6, 4, 2)
 b <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
 c <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
 
+# Instead of calendar dates, we may have entry and exit durations
 d <- c(1, 1, 2, 2, 10, 10, 15, 15, 20, 20, 30, 30, 40, 40, 50, 50, 60)
 e <- c(11, 11, 22, 22, 30, 30, 45, 45, 50, 50, 60, 60, 70, 70, 80, 80, 90)
 
@@ -180,16 +224,25 @@ table <- data.table::data.table(
   d = d, e = e
 )
 
+# When we have durations instead of calendar dates, our person-year
+# list should only have a single entry, instead of lists of columns.
 pyr <- list(entry = "d", exit = "e")
 ```
 
 Next, we define the time categories. The only accepted time category for a user defined scale is similar to the age-based calendar scale categories. It is assumed to be provided as a single string or a list with upper and lower limits. While we can technically provide multiple categories, they can always be condensed into a single category similar to the calendar categories.
 
 ```{r, eval=TRUE}
+# Once again, our non-time categories are defined the same
 categ <- list(
   "a" = "-1/-1/3/5]7",
   "b AS b_bin" = list(lower = c(-1, -1, 3, 6), upper = c(-1, 3, 6, "]10"))
 )
+
+# Here we are defining the duration categories to use.
+# This will create two columns, 'time' and 'time_bin'.
+# 'time' is the average duration between the entry and exit durations.
+# 'time_bin' is the category value.
+# We can define a representative duration to find the average duration in each group.
 time_scale <- list("time AS time_bin" = "0 / 10 / 50 / 100")
 ```
 
@@ -198,6 +251,9 @@ Finally, there are functionally no differences between the summaries and events 
 ```{r, eval=TRUE}
 summary <- list("c" = "count AS cases", "a" = "mean", "b" = "weighted_mean")
 events <- list("c")
+
+# Everything else runs the same, and gives similar outputs.
+# Except now the time category boundaries are not based on dates.
 print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
 ```
 

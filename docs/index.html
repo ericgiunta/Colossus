@@ -84,23 +84,20 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">parallel</span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ericgiunta.github.io/Colossus/">Colossus</a></span><span class="op">)</span></span>
 <span><span class="co">## basic example code reproduced from the starting-description vignette</span></span>
-<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3742</span><span class="op">)</span></span>
 <span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
-<span>  <span class="st">"UserID"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">112</span>, <span class="fl">114</span>, <span class="fl">213</span>, <span class="fl">214</span>, <span class="fl">115</span>, <span class="fl">116</span>, <span class="fl">117</span><span class="op">)</span>,</span>
-<span>  <span class="st">"Starting_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">18</span>, <span class="fl">20</span>, <span class="fl">18</span>, <span class="fl">19</span>, <span class="fl">21</span>, <span class="fl">20</span>, <span class="fl">18</span><span class="op">)</span>,</span>
-<span>  <span class="st">"Ending_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">30</span>, <span class="fl">45</span>, <span class="fl">57</span>, <span class="fl">47</span>, <span class="fl">36</span>, <span class="fl">60</span>, <span class="fl">55</span><span class="op">)</span>,</span>
-<span>  <span class="st">"Cancer_Status"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span>,</span>
-<span>  <span class="st">"a"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>  <span class="st">"b"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1.1</span>, <span class="fl">2.1</span>, <span class="fl">2</span>, <span class="fl">0.1</span>, <span class="fl">1</span>, <span class="fl">0.2</span><span class="op">)</span>,</span>
-<span>  <span class="st">"c"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">10</span>, <span class="fl">11</span>, <span class="fl">12</span>, <span class="fl">9</span>, <span class="fl">11</span><span class="op">)</span>,</span>
-<span>  <span class="st">"d"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span>  <span class="st">"UserID"</span> <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span>,</span>
+<span>  <span class="st">"Starting_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">15</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">25</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"Ending_Age"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">21</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">26</span>, <span class="fl">25</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">31</span>, <span class="fl">25</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  <span class="st">"a"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">3</span>, <span class="fl">0.35</span><span class="op">)</span>,</span>
+<span>  <span class="st">"b"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fl">5</span>, <span class="fl">0.25</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">df</span><span class="op">$</span><span class="va">Cancer_Status</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">a</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/Binomial.html" class="external-link">rbinom</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="va">x</span> <span class="op">/</span> <span class="fl">4</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">numeric</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">Starting_Age</span>, <span class="va">Ending_Age</span>, <span class="va">Cancer_Status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">b</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">multiplicative</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"lr"</span> <span class="op">=</span> <span class="fl">0.75</span>, <span class="st">"maxiter"</span> <span class="op">=</span> <span class="fl">100</span>, <span class="st">"halfmax"</span> <span class="op">=</span> <span class="fl">5</span>, <span class="st">"epsilon"</span> <span class="op">=</span> <span class="fl">1e-9</span>,</span>
@@ -112,32 +109,27 @@
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co">#&gt; Final Results</span></span>
-<span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0             44.2       1.14e+08</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.33e+04</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1             84.4       6.81e+01</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2            101.1       2.18e+03</span></span>
-<span><span class="co">#&gt;    95% Confidence Interval 2-tail p-value</span></span>
-<span><span class="co">#&gt;                     &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:  (-2.24e+08 - 2.24e+08)          1.000</span></span>
-<span><span class="co">#&gt; 2:        (-26000 - 26200)          0.995</span></span>
-<span><span class="co">#&gt; 3:             (-49 - 218)          0.215</span></span>
-<span><span class="co">#&gt; 4:          (-4180 - 4380)          0.963</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:         a  loglin            0.901         0.2560        (0.399 - 1.4029)</span></span>
+<span><span class="co">#&gt; 2:         b    plin           -0.155         0.0976       (-0.347 - 0.0358)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:       0.000432</span></span>
+<span><span class="co">#&gt; 2:       0.111185</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
 <span><span class="co">#&gt; Entry Age Column was: 'Starting_Age', Survival Age Column was: 'Ending_Age', Outcome Column was: 'Cancer_Status'</span></span>
-<span><span class="co">#&gt; Multiplicative Model Used: T0*T1*T2*...</span></span>
-<span><span class="co">#&gt; Risk Groups Used: 2</span></span>
+<span><span class="co">#&gt; Risk Groups Used: 4</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
-<span><span class="co">#&gt; -2*Log-Likelihood: 1.331,  AIC: 9.331</span></span>
-<span><span class="co">#&gt; Iterations run: 100</span></span>
-<span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 9.863e-05</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 182.74,  AIC: 186.74</span></span>
+<span><span class="co">#&gt; Iterations run: 5</span></span>
+<span><span class="co">#&gt; maximum step size: 1.133e-03, maximum first derivative: 5.375e-03</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.500e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.287 seconds</span></span>
+<span><span class="co">#&gt; Records Used: 100, Records Removed: 0</span></span>
+<span><span class="co">#&gt; Run finished in 0.224 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -205,7 +197,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

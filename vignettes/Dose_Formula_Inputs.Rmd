@@ -18,6 +18,9 @@ knitr::opts_chunk$set(
 Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
+if (system.file(package = "ggplot2") != "") {
+  library(ggplot2)
+}
 ```
 
 ## Dose Response Formula
@@ -30,8 +33,8 @@ $$
     S_{NL}=\sum_i \left(\alpha_i \times \exp \left(x_i \cdot \beta_i \right) \right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
     F_{LT} = \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
     F_{STP} = \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
-    F_{LQ} = \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} = \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i - \exp{\left(\nu_i + \mu \cdot x \right)} &\text{else} \end{cases}\\
+    F_{LQ} = \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
+    F_{LEXP} = \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i + \exp{\left(\nu_i + \mu_i \cdot x \right)} & \left(\beta_i * \mu_i > 0 \right) \\ \lambda_i - \exp{\left(\nu_i + \mu_i \cdot x \right)} &\text{else} \end{cases}\\
     T_j=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$
@@ -44,11 +47,97 @@ $$
 \begin{aligned}
     \lambda_{LQ} = \beta_{LQ}/ \left(2\alpha_{LQ} \right)\\
     \nu_{LQ} = \left(\beta_{LQ}*\alpha_{LQ} \right)/2\\
-    \nu_{LEXP} = \ln \left(\beta_{LEXP} \right)-\ln \left(\mu_{LEXP} \right)+\mu_{LEXP}*\alpha_{LEXP}\\
-    \lambda_{LEXP} = \beta_{LEXP}*\alpha_{LEXP}+\exp \left(\nu_{LEXP}-\mu_{LEXP}*\alpha_{LEXP} \right)
+    \nu_{LEXP} = \ln \left(\left|\beta_{LEXP} / \mu_{LEXP} \right | \right) - \mu_{LEXP}*\alpha_{LEXP}\\
+    \lambda_{LEXP}(\beta_{LEXP} \cdot \mu_{LEXP} < 0) = \beta_{LEXP}*\alpha_{LEXP}+\exp \left(\nu_{LEXP}+\mu_{LEXP}*\alpha_{LEXP} \right) \\ 
+    \lambda_{LEXP}(\beta_{LEXP} \cdot \mu_{LEXP} > 0) = \beta_{LEXP}*\alpha_{LEXP} - \exp \left(\nu_{LEXP}+\mu_{LEXP}*\alpha_{LEXP} \right)
 \end{aligned}
 $$
 </p>
+
+The linear-quadratic and linear-exponential functions include special utility functions, to calculate the full sets of parameter given only the provided values. First is the [Linked_Dose_Formula()](../reference/Linked_Dose_Formula.html) function, which returns a complete vector of parameter values. This function could be used to graph the expected dose response curve.
+
+```{r, eval=TRUE}
+# Suppose we have a linear-quadratic model, with an initial slope of 0.2 and a threshold of 5
+para_0 <- c(0.2, 5)
+# We might also have a linear-quadratic model with the same slope and threshold, but also an exponential slope of 0.1
+para_1 <- c(0.2, 5, 0.1)
+
+paras <- list(cov_0 = para_0, cov_1 = para_1)
+
+# We pass a list of subterm formula options, either 'quad' or 'exp' to choose which subterm option corresponds
+# The names of the tform and para lists should match.
+tforms <- list(cov_0 = "quad", cov_1 = "exp")
+
+res <- Linked_Dose_Formula(tforms, paras)
+res_quad <- round(res$cov_0, 3)
+res_exp <- round(res$cov_1, 3)
+
+print("Linear-Quadratic Model")
+print(paste0("Threshold:", res_quad[1]))
+print(paste0("linear slope:", res_quad[2]))
+print(paste0("quadratic slope:", res_quad[3]))
+print(paste0("piecewise intercept:", res_quad[4]))
+
+print("Linear-Exponential Model")
+print(paste0("Threshold:", res_exp[1]))
+print(paste0("linear slope:", res_exp[2]))
+print(paste0("piece-wise intercept:", res_exp[3]))
+print(paste0("exponential slope:", res_exp[4]))
+print(paste0("exponential intercept:", res_exp[5]))
+
+x <- (0:50) / 50 * 15
+y0 <- ifelse(x < res_quad[1], res_quad[2] * x, res_quad[3] * x^2 + res_quad[4])
+y1 <- ifelse(x < res_exp[1], res_exp[2] * x, res_exp[3] + exp(res_exp[4] * x + res_exp[5]))
+y <- c(y0, y1)
+c <- c(rep("LQ", length(x)), rep("LEXP", length(x)))
+df <- data.table("x" = x, "y" = y, "method" = c)
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
+    ggplot2::geom_line(linewidth = 1.2) +
+    labs(x = "Dose", y = "Response")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
+g
+```
+
+The linear-exponential subterm is somewhat unique in that a negative exponential slope ($\mu$) produces a dose response asymptote. There is also a utility function for finding the input parameters of a linear-exponential curve that approaches some desired maximum magnitude. In this case, we can use the [Linked_Lin_Exp_Para()](../reference/Linked_Lin_Exp_Para.html) function. This function uses the desired intercept, linear slope, and maximum value to return the correct exponential slope. This can be used to help define starting values, without having to manually solve for the piece-wise exponential parameter.
+
+```{r, eval=TRUE}
+# Suppose we used the same slope and intercept, our asymptote can be any value greater than 5*0.2 or 1
+# Suppose we want the asymptote to be 3
+threshold <- 5
+slope <- 0.2
+
+res <- Linked_Lin_Exp_Para(threshold, slope, 3)
+print(paste0("Exponential slope: ", round(res, 3)))
+
+x <- c()
+y <- c()
+c <- c()
+i <- 0
+for (slope in c(-0.2, 0.2)) {
+  for (max in c(2, 4)) {
+    i <- i + 1
+    res <- Linked_Lin_Exp_Para(threshold, slope, sign(slope) * max)
+    res <- Linked_Dose_Formula(list(temp = "exp"), list(temp = c(slope, threshold, res)))$temp
+    xt <- 0:50
+    yt <- ifelse(xt < res[1], res[2] * xt, res[3] - sign(slope) * exp(res[4] * xt + res[5]))
+    x <- c(x, xt)
+    y <- c(y, yt)
+    c <- c(c, rep(i, length(xt)))
+  }
+}
+df <- data.table("x" = x, "y" = y, "model" = c)
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$model, color = .data$model)) +
+    ggplot2::geom_line(linewidth = 1.2) +
+    labs(x = "Dose", y = "Response")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
+g
+```
 
 ## Using The Different subterms
 

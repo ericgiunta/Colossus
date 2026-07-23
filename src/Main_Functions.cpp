@@ -381,7 +381,6 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
             iteration++;
             //
             beta_a = beta_c;  //
-            beta_best = beta_c;  //
             neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
@@ -391,6 +390,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                 } else {
                     Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
                 }
+                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             } else if (model_bool["basic"]) {
                 if (model_bool["constraint"]) {
                     Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
@@ -423,6 +423,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                 Ll_improve = Ll[ind0] - Ll_improve;
             } else {
                 halves = 0;
+                beta_best = beta_c;  //
                 while ((Ll[ind0] <= Ll_iter_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                     if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                         break;
@@ -483,6 +484,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         //  -----------------------------------------------
         //  Performing Full Calculation to get full second derivative matrix
         //  -----------------------------------------------
+        if (model_bool["gradient"]) {  // gradient may overstep at the end, and be worse than the best found
+            for (int ij = 0; ij < totalnum; ij++) {  // reset to best found
+                beta_0[ij] = beta_best[ij];
+            }
+            // update to risk at best found
+            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+        }
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
@@ -576,16 +584,16 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         iteration++;
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
-                if (model_bool["constraint"]) {
-                    Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
-                } else {
-                    Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
-                }
+            if (model_bool["constraint"]) {
+                Calc_Change_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant);
+            } else {
+                Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
+            }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         } else if (model_bool["basic"]) {
             if (model_bool["constraint"]) {
                 Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
@@ -618,6 +626,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
             Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             Ll_improve = Ll[ind0] - Ll_improve;
         } else {
+            beta_best = beta_c;  //
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -680,6 +689,11 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
             iter_stop = 1;
         }
 //        Ll_improve = Ll[ind0] - Ll_improve;
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
+        }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
@@ -1060,7 +1074,6 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
             iteration++;
             //
             beta_a = beta_c;  //
-            beta_best = beta_c;  //
             neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
@@ -1091,6 +1104,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_iter_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                 Ll_improve = Ll[ind0] - Ll_improve;
             } else {
+                beta_best = beta_c;  //
                 halves = 0;
                 while ((Ll[ind0] <= Ll_iter_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                     if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -1154,6 +1168,13 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
             if (model_bool["single"]) {
                 iter_stop = 1;
             }
+        }
+        if (model_bool["gradient"]) {  // gradient may overstep at the end, and be worse than the best found
+            for (int ij = 0; ij < totalnum; ij++) {  // reset to best found
+                beta_0[ij] = beta_best[ij];
+            }
+            // update to risk at best found
+            Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         }
         //  -----------------------------------------------
         //  Performing Full Calculation to get full second derivative matrix
@@ -1250,7 +1271,6 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         Ll_improve = Ll[ind0];
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         neg_limit = FALSE;
         //
         //  calculates the initial change in parameter
@@ -1284,6 +1304,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
             Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
             Ll_improve = Ll[ind0] - Ll_improve;
         } else {
+            beta_best = beta_c;  //
             halves = 0;
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -1353,6 +1374,11 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
         convgd = TRUE;
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
+        }
     }
     //  -----------------------------------------------
     //  Performing Full Calculation to get full second derivative matrix
@@ -1655,7 +1681,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(LldOdds.begin(), LldOdds.end(), 0.0);
-            if (model_bool["gradient"]) {
+            if (!model_bool["gradient"]) {
                 fill(Lldd.begin(), Lldd.end(), 0.0);
                 fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
                 fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
@@ -1731,26 +1757,23 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
             iteration++;
             //
             beta_a = beta_c;  //
-            beta_best = beta_c;  //
             strata_p = strata_c;  //
             strata_a = strata_c;  //
-            strata_best = strata_c;  //
             neg_limit = FALSE;
             if (model_bool["constraint"]) {
                 if (model_bool["gradient"]) {
                     Calc_Change_Background_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
                 } else {
                     Calc_Change_Background_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
-                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 }
             } else {
                 if (model_bool["gradient"]) {
                     Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
                 } else {
                     Calc_Change_Background(nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
-                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 }
             }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
                 Ll_iter_best = Ll[ind0];
             }
@@ -1809,6 +1832,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
                 Ll_improve = Ll[ind0] - Ll_improve;
             } else {
                 halves = 0;
+                beta_best = beta_c;  //
+                strata_best = strata_c;  //
                 while ((Ll[ind0] <= Ll_iter_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                     if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                         break;
@@ -1944,7 +1969,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
             fill(LldOdds.begin(), LldOdds.end(), 0.0);
-            if (model_bool["gradient"]) {
+            if (!model_bool["gradient"]) {
                 fill(Lldd.begin(), Lldd.end(), 0.0);
                 fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
                 fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
@@ -2052,26 +2077,23 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         Print_LL_Background(reqrdnum, totalnum, group_num, reqrdcond, strata_odds, LldOdds, LlddOdds, LlddOddsBeta, verbose, model_bool);
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         strata_p = strata_c;  //
         strata_a = strata_c;  //
-        strata_best = strata_c;  //
         neg_limit = FALSE;
         if (model_bool["constraint"]) {
             if (model_bool["gradient"]) {
                 Calc_Change_Background_Gradient_Cons(Lin_Sys, Lin_Res, nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Ll, Lld, m_g_store, v_beta_store, beta_0, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
             } else {
                 Calc_Change_Background_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, dint, dslp, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
-                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             }
         } else {
             if (model_bool["gradient"]) {
                 Calc_Change_Background_Gradient(nthreads, model_bool, totalnum, group_num, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant, strata_cond, LldOdds, dstrata);
             } else {
                 Calc_Change_Background(nthreads, totalnum, group_num, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant, strata_cond, LldOdds, LlddOdds, LlddOddsBeta, dstrata);
-                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             }
         }
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
             Ll_iter_best = Ll[ind0];
         }
@@ -2129,6 +2151,8 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
             }
             Ll_improve = Ll[ind0] - Ll_improve;
         } else {
+            beta_best = beta_c;  //
+            strata_best = strata_c;  //
             halves = 0;
             while ((Ll[ind0] <= Ll_iter_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -2268,7 +2292,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
         fill(LldOdds.begin(), LldOdds.end(), 0.0);
-        if (model_bool["gradient"]) {
+        if (!model_bool["gradient"]) {
             fill(Lldd.begin(), Lldd.end(), 0.0);
             fill(LlddOdds.begin(), LlddOdds.end(), 0.0);
             fill(LlddOddsBeta.begin(), LlddOddsBeta.end(), 0.0);
@@ -2543,7 +2567,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            if (model_bool["gradient"]) {
+            if (!model_bool["gradient"]) {
                 fill(Lldd.begin(), Lldd.end(), 0.0);
             }
         }
@@ -2621,7 +2645,6 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
             Ll_improve = Ll[ind0];
             //
             beta_a = beta_c;  //
-            beta_best = beta_c;  //
             neg_limit = FALSE;
             //
             //  calculates the initial change in parameter
@@ -2676,6 +2699,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
                 Ll_improve = Ll[ind0] - Ll_improve;
                 //
             } else {
+                beta_best = beta_c;  //
                 halves = 0;
                 while ((Ll[ind0] <= Ll_iter_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                     if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -2766,13 +2790,20 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
                 iter_stop = 1;
             }
         }
+        if (model_bool["gradient"]) {
+            for (int ij = 0; ij < totalnum; ij++) {
+                beta_0[ij] = beta_best[ij];
+            }
+            Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+            LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
+        }
         //  -----------------------------------------------
         //  Performing Full Calculation to get full second derivative matrix
         //  -----------------------------------------------
         fill(Ll.begin(), Ll.end(), 0.0);
         if (!model_bool["single"]) {
             fill(Lld.begin(), Lld.end(), 0.0);
-            if (model_bool["gradient"]) {
+            if (!model_bool["gradient"]) {
                 fill(Lldd.begin(), Lldd.end(), 0.0);
             }
         }
@@ -2796,7 +2827,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     fill(Ll.begin(), Ll.end(), 0.0);
     if (!model_bool["single"]) {
         fill(Lld.begin(), Lld.end(), 0.0);
-        if (model_bool["gradient"]) {
+        if (!model_bool["gradient"]) {
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
@@ -2862,7 +2893,6 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         Ll_improve = Ll[ind0];
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         neg_limit = FALSE;
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
@@ -2921,6 +2951,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
             //
         } else {
             halves = 0;
+            beta_best = beta_c;  //
             while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                     break;
@@ -3012,6 +3043,11 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         }
         if (model_bool["single"]) {
             iter_stop = 1;
+        }
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
         }
     }
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough

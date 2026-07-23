@@ -745,35 +745,52 @@ Check_Iters <- function(control, a_n) {
 #' full_paras <- Linked_Dose_Formula(tforms, paras)
 Linked_Dose_Formula <- function(tforms, paras) {
   full_paras <- list()
+  if (length(names(tforms)) != length(names(paras))) {
+    stop("Error: The subterm values and para values did not have equal length.")
+  }
+  if (is.null(names(tforms)) && is.null(names(paras))) {
+    names(tforms) <- seq_len(length(tforms))
+    names(paras) <- seq_len(length(paras))
+  } else {
+    if (!all(names(tforms) == names(paras))) {
+      stop("Error: There were missing entries in one list.")
+    }
+  }
   for (nm in names(tforms)) {
+    tforms[nm] <- tolower(tforms[nm])
     if (tforms[nm] == "quad") {
+      # expects the initial slope and threshold to be passed
       plist <- unlist(paras[nm], use.names = FALSE)
+      if (length(plist) != 2) {
+        stop("Error: Linear-quadratic option requires two parameters: initial slope and threshold.")
+      }
       a0 <- plist[1]
       y <- plist[2]
-      if (a0 < 0) {
-        stop("Error: a0 argument was negative")
-      }
       if (is.numeric(a0)) {
         # fine
       } else {
-        stop("Error: a0 argument was not a number")
+        stop("Error: Initial slope argument was not a number")
+      }
+      if (a0 < 0) {
+        stop("Error: Initial slope argument was negative")
       }
       if (is.numeric(y)) {
         # fine
       } else {
         stop("Error: threshold argument was not a number") # nocov
       }
-      a1 <- a0 / 2 / y
-      b1 <- a0 * y / 2
+      a1 <- a0 / 2 / y # quadratic slope
+      b1 <- a0 * y / 2 # quadratic intercept
       full_paras[[nm]] <- c(y, a0, a1, b1)
     } else if (tforms[nm] == "exp") {
+      # expects the linear slope, threshold, and exponential slope
       plist <- unlist(paras[nm], use.names = FALSE)
+      if (length(plist) != 3) {
+        stop("Error: Linear-exponential option requires three parameters: initial linear slope, threshold, and exponential slope.")
+      }
       a0 <- plist[1]
       y <- plist[2]
       b1 <- plist[3]
-      if (a0 < 0) {
-        stop("Error: a0 argument was negative")
-      }
       if (is.numeric(a0)) {
         # fine
       } else {
@@ -789,9 +806,15 @@ Linked_Dose_Formula <- function(tforms, paras) {
       } else {
         stop("Error: exponential argument was not a number") # nocov
       }
-      c1 <- log(a0) - log(b1) + b1 * y
-      a1 <- a0 * y + exp(c1 - b1 * y)
+      c1 <- log(abs(a0 / b1)) - b1 * y # exponential intercept
+      if (a0 * b1 < 0) {
+        a1 <- a0 * y + exp(c1 + b1 * y) # linear intercept
+      } else {
+        a1 <- a0 * y - exp(c1 + b1 * y) # linear intercept
+      }
       full_paras[[nm]] <- c(y, a0, a1, b1, c1)
+    } else {
+      stop(paste0("Error: Tform value of `", tforms[nm], "` was not `quad` or `exp`."))
     }
   }
   full_paras
@@ -813,32 +836,16 @@ Linked_Dose_Formula <- function(tforms, paras) {
 #' a1_goal <- 15
 #' full_paras <- Linked_Lin_Exp_Para(y, a0, a1_goal)
 Linked_Lin_Exp_Para <- function(y, a0, a1_goal) {
-  b1 <- 10
-  lr <- 1.0
   if (a0 < 0) {
-    stop("Error: a0 argument was negative")
-  }
-  if (a1_goal > y * a0) {
-    # fine
+    if (a1_goal > y * a0) {
+      stop("Error: goal is too high")
+    }
   } else {
-    stop("Error: goal is too low")
-  }
-  iter_i <- 0
-  while (iter_i < 100) {
-    iter_i <- iter_i + 1
-    c1 <- log(a0 / b1) + b1 * y
-    a1 <- a0 * y + exp(c1 - b1 * y)
-    a_dif <- a1 - a1_goal
-    if (abs(a_dif) < 1e-3) {
-      break
+    if (a1_goal < y * a0) {
+      stop("Error: goal is too low")
     }
-    da1 <- -1 / b1 * exp(c1 - b1 * y)
-    db1 <- (a1_goal - a1) / da1
-    if (-1 * db1 > b1) {
-      db1 <- -0.9 * b1
-    }
-    b1 <- b1 + lr * db1
   }
+  b1 <- a0 / (a0 * y - a1_goal)
   b1
 }
 

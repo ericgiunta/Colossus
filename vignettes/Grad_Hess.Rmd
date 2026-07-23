@@ -35,7 +35,7 @@ $$
 $$
 </p>
 
-The alternative is a Gradient descent approach. In this algorithm, the first derivatives are calculated and used to determine the vector with the highest change in score. This establishes a direction for the change in parameters, which is multiplied by the learning rate ($\eta$). Similar to the Newton-Raphson algorithm, the magnitude is limited by a maximum allowable parameter change ($\beta_{max}$). The Gradient algorithm avoids the time-intensive second-derivative calculations but takes less informed steps. So each iteration runs faster, but more iterations may be required.
+The alternative is a Gradient descent approach. In this algorithm, the first derivatives are calculated and used to determine the vector with the highest change in score. This establishes a direction for the change in parameters, which is multiplied by the learning rate ($\eta$). Similar to the Newton-Raphson algorithm, the magnitude is limited by a maximum allowable parameter change ($\beta_{max}$). The Gradient algorithm avoids the time-intensive second-derivative calculations but takes less informed steps. So each iteration runs faster, but more iterations may be required. In both cases, the best parameter set is recorded and returned.
 
 <p class="text-center" style="background-color: aliceblue">
 $$

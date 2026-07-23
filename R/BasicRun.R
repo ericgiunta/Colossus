@@ -2064,11 +2064,8 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   ncores = 1, lr = 0.75, maxiter = 1,
-#'   halfmax = 2, epsilon = 1e-6,
-#'   deriv_epsilon = 1e-6, step_max = 1.0,
-#'   thres_step_max = 100.0,
-#'   verbose = 0, ties = "breslow", double_step = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
 #' res <- CoxRunMulti(formula, df,
@@ -2328,11 +2325,8 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 #' realization_index <- c("rand")
 #' control <- list(
-#'   ncores = 1, lr = 0.75, maxiter = 1,
-#'   halfmax = 2, epsilon = 1e-6,
-#'   deriv_epsilon = 1e-6, step_max = 1.0,
-#'   thres_step_max = 100.0,
-#'   verbose = 0, ties = "breslow", double_step = 1
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
 #' res <- PoisRunMulti(formula, df,

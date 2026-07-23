@@ -77,11 +77,8 @@ df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
 realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
 realization_index <- c("rand")
 control <- list(
-  ncores = 1, lr = 0.75, maxiter = 1,
-  halfmax = 2, epsilon = 1e-6,
-  deriv_epsilon = 1e-6, step_max = 1.0,
-  thres_step_max = 100.0,
-  verbose = 0, ties = "breslow", double_step = 1
+  ncores = 1, lr = 0.75, maxiters = c(1, 1),
+  halfmax = 1
 )
 formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
 res <- CoxRunMulti(formula, df,
