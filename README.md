@@ -50,7 +50,7 @@ This is a basic example which shows you how to solve a common problem:
 library(data.table)
 library(parallel)
 library(Colossus)
-## basic example code reproduced from the starting-description vignette
+## basic example code with dummy variables
 set.seed(3742)
 df <- data.table(
   "UserID" = 1:100,
@@ -59,19 +59,25 @@ df <- data.table(
   "a" = rbinom(100, 3, 0.35),
   "b" = rbinom(100, 5, 0.25)
 )
-
+## Our event status is dependent on factor 'a'
 df$Cancer_Status <- vapply(df$a, function(x) rbinom(1, 1, x / 4), numeric(1))
 
+## We are solving a Cox model
+## Intervals defined by starting and ending ages and binary event status
+## The hazard ratio is the product of an exponential dependent on a,
+## and a linear effect dependent on b
+## HR = e^(beta*a) * (1+alpha*b)
 model <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + plinear(b, 0) + multiplicative()
 
+## We give a starting parameter guess
 a_n <- c(0.1, 0.1)
 
+## List to control the number of iterations and maximum half-steps
 control <- list(
-  "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
-  "deriv_epsilon" = 1e-9, "step_max" = 1.0,
-  "verbose" = 2, "ties" = "breslow"
+  "maxiter" = 100, "halfmax" = 5
 )
 
+## Run the regression and print result table
 e <- CoxRun(model, df, a_n = a_n, control = control)
 print(e)
 #> |--------------------------------------------------------------------------------|
@@ -95,7 +101,7 @@ print(e)
 #> maximum step size: 1.133e-03, maximum first derivative: 5.375e-03
 #> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
-#> Records Used: 100, Records Removed: 0
-#> Run finished in 0.224 seconds
+#> All Records Used: 100
+#> Run finished in 0.236 seconds
 #> |--------------------------------------------------------------------------------|
 ```

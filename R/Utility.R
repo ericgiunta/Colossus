@@ -2412,7 +2412,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Warning: The regression ended after hitting a negative risk.")
           }
         }
-        message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
+        if (RemovedRecords > 0) {
+          message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
+        } else {
+          message("All Records Used: ", KeptRecords)
+        }
       } else {
         # get the model details
         KeptRecords <- out_list$UsedRecords
@@ -2667,7 +2671,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Warning: The last iteration encountered a negative risk.")
           }
         }
-        message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
+        if (RemovedRecords > 0) {
+          message("Records Used: ", KeptRecords, ", Records Removed: ", RemovedRecords)
+        } else {
+          message("All Records Used: ", KeptRecords)
+        }
       }
     }
   } else {

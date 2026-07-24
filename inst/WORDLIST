@@ -50,6 +50,7 @@ iden
 ident
 infty
 iteratively
+Kaplan
 Karnofsky
 LEXP
 LikelihoodBound
@@ -89,6 +90,10 @@ pearson
 pkgdown
 plin
 plinear
+plotMartingale
+plotRisk
+plotSchoenfeld
+plotSurvival
 pois
 poisres
 poisresbound
@@ -97,6 +102,7 @@ poisson
 pyr
 qchi
 Raphson
+RelativeRisk
 rmax
 rmean
 rmin

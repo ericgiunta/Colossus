@@ -23,7 +23,7 @@ library(parallel)
 
 ## General Purpose
 
-There are multiple reasons why individual level data may be grouped. It could be for visualizing the data. It can be very informative to break columns into categories and summarize the number of events or average column values in each category. It may also be to perform analysis on aggregates of the data, to reduce noise or remove identifying health information. Either way the process is similar, we want to take a table and apply categorizations and summarize events. `Colossus` offers two functions designed to create grouped tables, [Event_Count_Gen()](../reference/Event_Count_Gen.html) and [Event_Time_Gen()](../reference/Event_Time_Gen.html) which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
+There are multiple reasons why individual level data may be grouped, including visualization or performing analysis on aggregated data. Either way the process is similar, we want to take a table and apply categorizations and summarize events. `Colossus` offers two functions designed to create grouped tables, [Event_Count_Gen](../reference/Event_Count_Gen.html) and [Event_Time_Gen](../reference/Event_Time_Gen.html) which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
 
 ### Person-Count Tables
 
@@ -42,22 +42,55 @@ table <- data.table::data.table(
 )
 ```
 
-Suppose we want to split our dataset up by the number of each fruit, count the number of ripped bags in each category, and figure out the average number of hands used. We would start by defining how we want to split the categories. There are two general ways to define the intervals, with a single string or a list of upper and lower bounds.
+Suppose we want to split our dataset up by the number of each fruit, count the number of ripped bags in each category, and figure out the average number of hands used. We would start by defining how we want to split the categories. There are two general ways to define the intervals, with a single string or a list of upper and lower bounds. Another option is to split by levels of a factor, by setting the categorization to "factor".
 
-Let us start with the string representation. The string is expected to alternate number and delimiter, either "/" or "]", which split the upper and lower bounds for each interval. Every interval in this format includes the lower bound. The interval includes the upper bound if "]" is used, and does not otherwise. So the interval [2,5) is equivalent to "2 / 5" and the interval [5,8] is equivalent to "5 ] 8". This method uses each triplet sequentially, so the categories will cover every value that falls between the first and last number listed. The functions assume that the bounds are strictly non-decreasing, so the upper boundary is equal to the lower boundary or greater. When the upper and lower boundary are equal, the category is upper limit inclusive. In general, data are assigned to the first category they belong to, so points on an included upper boundary will be assigned to the lower category.
+Let us start with the string representation. The string is expected to alternate number and delimiter, either "/" or "]", which split the upper and lower bounds for each interval. Every interval in this format includes the lower bound. The interval includes the upper bound if "]" is used, and does not otherwise. So the interval [2,5) is equivalent to "2 / 5" and the interval [5,8] is equivalent to "5 ] 8". This method uses each triplet sequentially, so the categories will cover every value that falls between the first and last number listed. The functions assume that the bounds are strictly non-decreasing, so the upper boundary is equal to the lower boundary or greater. When the upper and lower boundary are equal, the category is upper limit inclusive. In general, data are assigned to the first category they belong to, so points on an included upper boundary will be assigned to the lower category. The string representation can name categories by including the name after the delimiter. For example, a category containing [3,5) named "middle" could be represented "3 / middle 5". Note that the name and boundary must be split by a space, and the name cannot include "/" or "]".
 
-The list notation is very similar. There are 2 values required in the list and 1 optional value. The list has to have vectors titled lower and upper, which are the lower and upper bounds for each interval. This method can include gaps. Similarly to the string version, the lower bound is always included and the upper bound is included if the upper bound entry includes "]". The list option allows the categories to be labeled instead of being automatically numbered. A third list titled name can be provided to label each category. The string representation can name categories by including the name after the delimiter. For example, a category containing [3,5) named "middle" could be represented "3 / middle 5". Note that the name and boundary must be split by a space, and the name cannot include "/" or "]".
+```{r, eval=TRUE}
+# Suppose we want the categories to change by two:
+categ <- "0/2/4/6/8"
+# This would form bins like:
+# [0,2), [2,4), etc.
+# An entry with a value of 2 would be assigned to the second bin
+
+# Suppose we wanted the first bin to be fully inclusive
+categ <- "0]2/4/6/8"
+# Now the first bin is: [0,2]
+# An entry with a value of 2 would be assigned to the first bin only
+
+# A named version might look like
+categ <- "0 / low 2 / middle 4 / high 6 / extreme 8"
+# This names the bins: low, middle, high, and extreme
+# The default is a string representation of the bin
+```
+
+The list notation is very similar. There are 2 values required in the list and 1 optional value. The list has to have vectors titled lower and upper, which are the lower and upper bounds for each interval. This method can include gaps. Similarly to the string version, the lower bound is always included and the upper bound is included if the upper bound entry includes "]". The list option allows the categories to be labeled instead of being automatically numbered. A third list titled name can be provided to label each category.
+
+```{r, eval=TRUE}
+# Suppose we want the categories to change by two:
+categ <- list(
+  upper = c(2, 4, 6, 8),
+  lower = c(0, 2, 4, 6)
+)
+# The version with an inclusive upper bound would be:
+categ <- list(
+  upper = c("2]", 4, 6, 8),
+  lower = c(0, 2, 4, 6)
+)
+
+# We can also name categories
+categ <- list(
+  upper = c(2, 4, 6, 8),
+  lower = c(0, 2, 4, 6),
+  name = c("low", "middle", "high", "extreme")
+)
+```
 
 Suppose we want to break the apple column into the intervals: [0, 3), [3, 5), [5,7] and break our oranges column into the intervals: [-1,3), [3,6), [6,10) with the labels: few, good, and excessive. That would look like the following code. This splits each category into 3 levels and in total 9 combinations.
 
 ```{r, eval=TRUE}
-# We can make our apple categories change at 0, 3, 5, 7
-# We can also make category 3 include the upper value
 apple_category <- "0/3/5]7"
 
-# We can also use a list of categories. The list should have entries
-# for the lower bounds, upper bounds, and optionally the names for
-# each category level
 orange_category <- list(
   lower = c(-1, 3, 6),
   upper = c(3, 6, 10),
@@ -112,7 +145,7 @@ b <- c(1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 3, 2, 2, 1)
 c <- c(0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 1)
 
 # Next we define columns for the calendar dates of each interval
-# In this case we are defineing day, month, and year
+# In this case we are defining day, month, and year
 d <- c(1, 1, 2, 2, 1, 1, 2, 2, 3, 3, 3, 4, 4, 2, 1, 1, 2)
 e <- c(1, 1, 1, 2, 2, 2, 2, 1, 1, 1, 1, 2, 2, 2, 2, 1, 1)
 f <- c(
@@ -132,7 +165,11 @@ table <- data.table::data.table(
   d = d, e = e, f = f,
   g = g, h = h, i = i
 )
+```
 
+In general, the person-year list should contain the columns used for the entry and/or exit dates as well as an options units value. Each entry or exit variable should be a list with columns corresponding to the calendar date columns. These columns should be named 'day', 'month', or 'year'. As already mentioned, missing entries will currently default to January 1st 1900.
+
+```{r, eval=TRUE}
 # Our person-years are described by calendar dates
 # We have entry and exit lists, each with the columns that
 # correspond to the day/month/year.
@@ -146,6 +183,28 @@ pyr <- list(
 ```
 
 The second major difference is the possible use of time categories. For a calendar time scale, time categories are either set by calendar date or by age. Calendar time scales are set by vectors of the day, month, and year of each interval splitting point. So intervals changing every 2 days could be expressed by "day=c(1,3,5,...)". Age time scales use a day/month/year as a reference for age, and then set the age categories using the same notation as non-time categories (either a single string or list of upper and lower bounds). Unlike the non-time categories, we can not name the categories and any attempt to do will be ignored and produce a warning. When age categories are used, a new column is created for the average `age` in each interval.
+
+```{r, eval=TRUE}
+# A calendar category assumes we have a list with days, months, and years
+# Yearly categories might look like:
+calendar_categ <- list(year = c(2000, 2001, 2002))
+# This will define categories going from (1/1/2000 - 12/31/2000), (1/1/2001 - 12/31/2001), etc.
+
+# Alternatively we might want to categorize by duration since a reference date
+# In this case our list has an additional value for categories, or upper/lower limits
+# For an age based calendar time category, our day/month/year are reference columns not vectors of dates
+# Suppose we wanted to categorize by above/below 50 years since entry
+age_categ <- list(year = "f", categories = "0 / 50 / 100")
+
+
+# We add this to our time categories by assigning it a name
+# We can use the standard "column AS new_name" notation, new_name defaults to column_category
+# How the name is used depends on the categorization
+# Both will use 'new_name' as the category name
+# Age based categories will use 'column' to define an average duration in the interval
+time_categ <- list("calendar" = calendar_categ, "age" = age_categ)
+# This will create three new columns in the data
+```
 
 Time categories are unique in that each row can correspond to multiple time categories, so the duration of each row in each time category is kept to distinguish which rows are only partially in each time interval. If a time category is not provided, then the full duration of each row is used for person-year calculations. Multiple categories can be used for a calendar time scale, however it should be noted that multiple calendar date based categories could be combined into a single list of categories.
 
@@ -173,15 +232,19 @@ time_scale <- list(`time_bin` = list(
 ))
 ```
 
-The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function, with the exception of allowing for means to be weighted by person-years. The event list for the person-time table function is used to determine which time categories the event columns are assigned to. By default, the number of events in each grouping is recorded in the final table. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval. Person-time tables also return the total intervals "at risk" in each category. Observations that are split into multiple time categories will contribute to the number at risk.
+The final difference is that person-time tables make a distinction between events and summaries. The summary list is nearly identical to the event list in the person-count function, with the exception of allowing for means to be weighted by person-years. Person-time tables also return the total intervals "at risk" in each category. Observations that are split into multiple time categories will contribute to the number at risk.
 
 ```{r, eval=TRUE}
 # Summaries follow the person-count table notation for events.
-# We apply some summarization to an existing column.
+# We apply some summary to an existing column.
 # The name should be the column, and we can use 'AS'
 # to rename the summary as needed.
 summary <- list(b = "weighted_mean AS b_weighted")
+```
 
+The event list for the person-time table function is a list of event status, which occur at the end of observation. Events are assigned to the category including the end of observation. By default, the number of events in each grouping is recorded in the final table. Based on the relative row intervals and category intervals, each row can be part of multiple time categories. However, the event is only assigned to the time category containing the endpoint of the row interval. The event list or vector should only contain the event columns, optionally renamed. Note that if an event column is renamed, 'event AS new_event', then both versions will be available for summaries but only the new_event version will correctly split events between categories.
+
+```{r, eval=TRUE}
 # Events in a person-time table are assumed to occur at the end
 # of the interval.
 # Events are automatically added to the summary list as a sum.
@@ -202,7 +265,7 @@ pyr <- list(
   exit = list(year = "i", month = "h", day = "g"),
   unit = "days"
 )
-print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, fcount = T))
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events))
 ```
 
 #### User Defined Time Scale
@@ -229,7 +292,7 @@ table <- data.table::data.table(
 pyr <- list(entry = "d", exit = "e")
 ```
 
-Next, we define the time categories. The only accepted time category for a user defined scale is similar to the age-based calendar scale categories. It is assumed to be provided as a single string or a list with upper and lower limits. While we can technically provide multiple categories, they can always be condensed into a single category similar to the calendar categories.
+Next, we define the time categories. The only accepted time category for a user defined scale is similar to the non-time categories. It is assumed to be provided as a single string or a list with upper and lower limits. While we can technically provide multiple categories, they can always be condensed into a single category, similar to the calendar categories.
 
 ```{r, eval=TRUE}
 # Once again, our non-time categories are defined the same
@@ -242,7 +305,7 @@ categ <- list(
 # This will create two columns, 'time' and 'time_bin'.
 # 'time' is the average duration between the entry and exit durations.
 # 'time_bin' is the category value.
-# We can define a representative duration to find the average duration in each group.
+# We can use 'time' to find the average duration in each group.
 time_scale <- list("time AS time_bin" = "0 / 10 / 50 / 100")
 ```
 
@@ -254,12 +317,12 @@ events <- list("c")
 
 # Everything else runs the same, and gives similar outputs.
 # Except now the time category boundaries are not based on dates.
-print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events, T))
+print(Event_Time_Gen(table, pyr, time_scale, categ, summary, events))
 ```
 
 ### Additional summary options
 
-There are multiple options for optional returned summaries available for both person-count and person-time tables. Person-time tables calculate the typical "at risk" summary variables for any row at risk, but they also can calculate "first at risk" and "last at risk" summary variables (named `F_AT_RISK` and `L_AT_RISK` respectively). These values can be summarized by setting their corresponding function parameters, `fcount` and `lcount` to true. Note that these are not calculated during run-time otherwise, so they can be used for taking weighted means only if they are returned. Notably, these summaries determine the first and last observed time category for each subject. This means that even if a subject is observed past the last time category, they are still considered "last at risk" during the final time category. Similarly for the first at risk measure. These summaries will always sum to the total subjects at risk at any point during the time categories. These summaries can also be extended to subject IDs, if there are multiple intervals for each subject. By passing a `studyid` parameter to the person-time function, the at risk summaries will summarize per ID, instead of per observed interval.
+There are multiple options for optional returned summaries available for person-time tables. Person-time tables calculate the typical "at risk" summary variables for any row at risk, but they also can calculate "first at risk" and "last at risk" summary variables (named `F_AT_RISK` and `L_AT_RISK` respectively). These values can be summarized by setting their corresponding function parameters, `fcount` and `lcount` to true. Note that these are not calculated during run-time otherwise, so they can be used for taking weighted means only if they are returned. Notably, these summaries determine the first and last observed time category for each subject. This means that even if a subject is observed past the last time category, they are still considered "last at risk" during the final time category. Similarly for the first at risk measure. These summaries will always sum to the total subjects at risk at any point during the time categories. These summaries can also be extended to subject IDs, if there are multiple intervals for each subject. By passing a `studyid` parameter to the person-time function, the at risk summaries will summarize per ID, instead of per observed interval.
 
 In addition to the summary and event methods listed in this vignette, there are 11 methods allowed by person-time tables and 7 methods allowed by person-count tables. As mentioned previously, methods can be written as "option AS name" to rename the output, but they can also be weighted by using "option BY covariate" (or both renamed and weighted by using both). Weighting can be applied to turn almost every non-weighted summary into a weighted version. Weighted summaries can be listed without a weighting column for person-time tables to default to weighting by person-years, however there is no default for person-event tables.
 

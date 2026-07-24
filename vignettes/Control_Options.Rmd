@@ -30,7 +30,7 @@ This is the "control" variable used by every regression function. This list focu
 | maxiter  | Maximum iterations run for a single initial position. Defaults to 20.  |
 | maxiters | Used for multiple starting positions. List the maximum number of iterations per starting point and the maximum number of iterations for the final guess. Assumes N values for N guesses and 1 value for the final solution. Defaults to c(1,maxiter), running 1 iteration per provided guess.
 | halfmax  | Maximum number of half-steps taken per iteration. Defaults to 5.  |
-| epsilon  | Maximum step size before convergence is assumed. Defaults to 1e-4. Regression exits if the predicted step sizes are all below this threshold.  |
+| epsilon  | Maximum step size before regression terminates. Defaults to 1e-4. Regression exits if the predicted step sizes are all below this threshold.  |
 | deriv_epsilon  | Largest maximum first derivative before convergence is assumed. Defaults to 1e-4. |
 | ll_epsilon  | Largest maximum change in log-likelihood before convergence is assumed. The threshold is only checked when an iteration finds a new optimum. Defaults to 1e-4. |
 | step_max  | Largest acceptable step size for non-intercept parameters. Defaults to 1.0. |

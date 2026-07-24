@@ -57,14 +57,19 @@ $$
 The linear-quadratic and linear-exponential functions include special utility functions, to calculate the full sets of parameter given only the provided values. First is the [Linked_Dose_Formula()](../reference/Linked_Dose_Formula.html) function, which returns a complete vector of parameter values. This function could be used to graph the expected dose response curve.
 
 ```{r, eval=TRUE}
-# Suppose we have a linear-quadratic model, with an initial slope of 0.2 and a threshold of 5
+# Suppose we have a linear-quadratic model
+# an initial slope of 0.2 and a threshold of 5
 para_0 <- c(0.2, 5)
-# We might also have a linear-quadratic model with the same slope and threshold, but also an exponential slope of 0.1
+# We might also have a linear-quadratic model
+# same slope and threshold
+# also an exponential slope of 0.1
 para_1 <- c(0.2, 5, 0.1)
 
 paras <- list(cov_0 = para_0, cov_1 = para_1)
 
-# We pass a list of subterm formula options, either 'quad' or 'exp' to choose which subterm option corresponds
+# We pass a list of subterm formula options,
+# either 'quad' or 'exp' to choose subterm options.
+
 # The names of the tform and para lists should match.
 tforms <- list(cov_0 = "quad", cov_1 = "exp")
 
@@ -90,9 +95,9 @@ y0 <- ifelse(x < res_quad[1], res_quad[2] * x, res_quad[3] * x^2 + res_quad[4])
 y1 <- ifelse(x < res_exp[1], res_exp[2] * x, res_exp[3] + exp(res_exp[4] * x + res_exp[5]))
 y <- c(y0, y1)
 c <- c(rep("LQ", length(x)), rep("LEXP", length(x)))
-df <- data.table("x" = x, "y" = y, "method" = c)
+df <- data.table("x" = x, "y" = y, "model" = c)
 if (system.file(package = "ggplot2") != "") {
-  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$model, color = .data$model)) +
     ggplot2::geom_line(linewidth = 1.2) +
     labs(x = "Dose", y = "Response")
 } else {
@@ -104,8 +109,9 @@ g
 The linear-exponential subterm is somewhat unique in that a negative exponential slope ($\mu$) produces a dose response asymptote. There is also a utility function for finding the input parameters of a linear-exponential curve that approaches some desired maximum magnitude. In this case, we can use the [Linked_Lin_Exp_Para()](../reference/Linked_Lin_Exp_Para.html) function. This function uses the desired intercept, linear slope, and maximum value to return the correct exponential slope. This can be used to help define starting values, without having to manually solve for the piece-wise exponential parameter.
 
 ```{r, eval=TRUE}
-# Suppose we used the same slope and intercept, our asymptote can be any value greater than 5*0.2 or 1
-# Suppose we want the asymptote to be 3
+# Suppose we used the same slope and intercept,
+# our asymptote can be any value greater than 5*0.2
+# Suppose we want the asymptote to be 5
 threshold <- 5
 slope <- 0.2
 
