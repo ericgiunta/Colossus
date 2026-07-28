@@ -1062,8 +1062,9 @@ List logist_multioutcome_Omnibus_transition(MatrixXd CountEvent, IntegerVector t
             _["log_bound"] = false,
             _["cox"] = false,
             _["logist"] = true,
-            _["odds"] = model_control["logit_odds"], //for LinkCovertRP
+            _["odds"] = model_control["logit_odds"],
             _["ident"] = model_control["logit_ident"],
+            _["probit"] = model_control["logit_probit"],
             _["loglink"] = model_control["logit_loglink"]);
     List optim_para = List::create(
             _["lr"] = Control["lr"],

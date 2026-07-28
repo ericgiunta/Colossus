@@ -2060,10 +2060,11 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-#' res <- CoxRunMulti(formula, df, control = control, 
-#'                    realization_columns = realization_columns,
-#'                    realization_index = realization_index
-#'                   )
+#' res <- CoxRunMulti(formula, df,
+#'   control = control,
+#'   realization_columns = realization_columns,
+#'   realization_index = realization_index
+#' )
 CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
@@ -2323,10 +2324,11 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
-#' res <- PoisRunMulti(formula, df, control = control, 
-#'                    realization_columns = realization_columns,
-#'                    realization_index = realization_index
-#'                   )
+#' res <- PoisRunMulti(formula, df,
+#'   control = control,
+#'   realization_columns = realization_columns,
+#'   realization_index = realization_index
+#' )
 PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
@@ -2549,11 +2551,11 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
 #'   event = c(0, 0, 1, 0, 1, 0, 0),
-#'   dose = c(0, 1, 1, 0, 1, 0, 1) 
+#'   dose = c(0, 1, 1, 0, 1, 0, 1)
 #' )
 #' set.seed(3742)
-#' df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3) 
-#' df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3) 
+#' df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3)
+#' df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
 #' df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
 #' realization_columns <- c("event0", "event1", "event2")
 #' control <- list(
@@ -2562,10 +2564,12 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 #'   deriv_epsilon = 1e-6, step_max = 1.0,
 #'   thres_step_max = 100.0,
 #'   verbose = 0, ties = "breslow", double_step = 1
-#' ) ##
-#' 
+#' )
 #' formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
-#' res <- LogisticRun(formula, df, control = control)
+#' res <- LogisticRunMulti(formula, df, 
+#'   realization_columns = realization_columns, 
+#'   control = control
+#' )
 LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = c("event0", "event1"), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "logitmodel")) {

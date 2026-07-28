@@ -2349,6 +2349,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
     NumericVector BIC_fin(event_cols.size());
     NumericVector dev_fin(event_cols.size());
     LogicalVector conv_fin(event_cols.size());
+    LogicalVector neg_limit_fin(event_cols.size());
     NumericMatrix std_fin(event_cols.size(), totalnum);
     CharacterVector status_fin(event_cols.size());
     IntegerVector dfc_0(dfc.length());
@@ -2392,7 +2393,6 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
         step_max = step_max0;
         thres_step_max = thres_step_max0;
         halves = 0;  //  number of half-steps taken
-        ind0 = fir;  //  used for validations
         iteration = 0;  //  iteration number
         Ll_abs_best = 10;
         //
@@ -2435,6 +2435,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
             LL_fin[guess] = R_NaN;
             AIC_fin[guess] = R_NaN;
             BIC_fin[guess] = R_NaN;
+            neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_NEGATIVE_RISK";
         }
         //
@@ -2448,10 +2449,9 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
         }
         while ((iteration < maxiter) && (iter_stop == 0)) {
             iteration++;
-            Ll_improve = Ll[0]; //CHANGED ind0 TO 0
+            Ll_improve = Ll[ind0];
             //
             beta_a = beta_c;  //
-            beta_best = beta_c;  //
             neg_limit = FALSE;
             //  calculates the initial change in parameter
             if (model_bool["gradient"]) {
@@ -2467,8 +2467,8 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
             }
             Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             //
-            if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[0])) { //ind0 --> 0
-                Ll_abs_best = Ll[0]; //ind0 --> 0
+            if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
+                Ll_abs_best = Ll[ind0];
                 beta_abs_best = beta_c;
             }
             //
@@ -2484,16 +2484,15 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
                 //
                 if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                     for (int ijk = 0; ijk < totalnum; ijk++) {
-                        dbeta[ijk] = dbeta[ijk] / 2.0; 
+                        dbeta[ijk] = dbeta[ijk] / 1.5;
                     }
                     halves+=0.5;
                     neg_limit = TRUE;
-                } else { 
+                } else {
                     halves++;
                     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                     //
-                    if (Ll[0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                        //ind0 --> 0
+                    if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
                         for (int ijk = 0; ijk < totalnum; ijk++) {
                             dbeta[ijk] = dbeta[ijk] * 0.5;
                         }
@@ -2506,12 +2505,12 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
                         beta_0[ijk] = beta_c[ijk];
                     }
                 }
-                Ll_improve = Ll[0] - Ll_improve; //ind0 --> 0
+                Ll_improve = Ll[ind0] - Ll_improve; 
                 //
             } else {
+                beta_best = beta_c;  //
                 halves = 0;
-                while ((Ll[0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvemet
-                    //ind0 --> 0
+                while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvemet
                     if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                         break;
                     }
@@ -2527,7 +2526,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
                     //
                     if ((P.minCoeff() <= 0) || (P.maxCoeff() >= 1) || (P.hasNaN()))  {
                         for (int ijk = 0; ijk < totalnum; ijk++) {
-                            dbeta[ijk] = dbeta[ijk] / 2.0;
+                            dbeta[ijk] = dbeta[ijk] / 1.5;
                         }
                         halves+=0.5;
                         neg_limit = TRUE;
@@ -2535,8 +2534,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
                         halves++;
                         Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
                         //
-                        if (Ll[0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
-                            //ind0 --> 0
+                        if (Ll[ind0] <= Ll_abs_best) {  //  if a better point wasn't found, takes a half-step
                             for (int ijk = 0; ijk < totalnum; ijk++) {
                                 dbeta[ijk] = dbeta[ijk] * 0.5;
                             }
@@ -2564,8 +2562,9 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
                     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
                     //  Calculates log-likelihood
                     Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant); 
+                    Ll_improve = Ll[ind0] - Ll_improve;
                 } else {
-                    Ll_improve = Ll[0] - Ll_improve; //ind0 --> 0
+                    Ll_improve = Ll[ind0] - Ll_improve;
                     if (abs(Ll_improve) < ll_epsilon) {   // ends if the score improvement is too low
                         iter_stop = 1;
                         convgd = TRUE;
@@ -2626,6 +2625,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
         AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
         BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
         dev_fin[guess] = dev;
+        neg_limit_fin[guess] = neg_limit;
         status_fin[guess] = "PASSED";
         //
         if (model_bool["single"]) {
@@ -2693,7 +2693,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
     if (model_bool["single"]) {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Parameter_Lists"] = para_list, _["Status"] = wrap(status_fin));
     } else {
-        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin));
+        res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["Ended on Negative Limit"] = neg_limit_fin);
     }
     return res_list;
 }

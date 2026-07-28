@@ -74,10 +74,9 @@ control <- list(
   deriv_epsilon = 1e-6, step_max = 1.0,
   thres_step_max = 100.0,
   verbose = 0, ties = "breslow", double_step = 1
-) ##
-
+)
 formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
-res <- LogisticRun(formula, df, control = control)
+res <- LogisticRunMulti(formula, df, realization_columns = realization_columns, control = control)
 }
 \seealso{
 Other Logistic Wrapper Functions:

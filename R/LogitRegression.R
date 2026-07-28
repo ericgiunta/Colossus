@@ -138,8 +138,8 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
 
 #' Performs Logistic regression using the omnibus function with multiple event realizations
 #'
-#' \code{RunLogisticRegression_Omnibus_Multioutcome} uses user provided data, time/event 
-#'       columns, vectors specifying the model, and options to control the convergence and 
+#' \code{RunLogisticRegression_Omnibus_Multioutcome} uses user provided data, time/event
+#'       columns, vectors specifying the model, and options to control the convergence and
 #'       starting position.
 #'       Returns optimized parameters, log-likelihood, and standard deviation for each realization.
 #'
@@ -179,14 +179,14 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
   if (!is.numeric(df[[trial0]])) {
     stop("Error: Trial column was not numeric: ", trial0)
   }
-  for (i in seq(1,length(realization_columns))){
-    if (!is.numeric(df[, realization_columns[i], with = FALSE])) {
+  for (i in seq(1, length(realization_columns))) {
+    if (!is.numeric(df[[realization_columns[i]]])) {
       stop("Error: event column was not numeric: ", realization_columns[i])
     }
-    if (min(df[, realization_columns[i], with = FALSE]) < 0){
+    if (min(df[[realization_columns[i]]]) < 0) {
       stop("Error: negative events in atleast one row of column ", realization_columns[i])
     }
-    if (sum(df[, realization_columns[i], with = FALSE]) == 0){
+    if (sum(df[[realization_columns[i]]]) == 0) {
       stop("Error: no events in column ", realization_columns[i])
     }
   }
@@ -205,7 +205,7 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
     stop("Error: Atleast one realization column provided was not in the data.table")
   }
   dfc <- match(names, all_names)
-  event_cols <- match(realization_columns, event_names) 
+  event_cols <- match(realization_columns, event_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   event_all <- as.matrix(df[, event_names, with = FALSE])
@@ -215,7 +215,7 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
     as.matrix(df[, ce, with = FALSE]),
     term_n, tform, a_n,
     event_cols, dfc, x_all, event_all,
-    0, modelform, control, 
+    0, modelform, control,
     keep_constant, term_tot,
     model_control, cons_mat, cons_vec
   )
@@ -227,7 +227,7 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
         warning("Warning: Atleast one realization failed.")
       }
     }
-  } 
+  }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
