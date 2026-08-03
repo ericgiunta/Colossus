@@ -26,6 +26,7 @@ iteratively optimizing end-points of intervals.
 }
 \seealso{
 Other Logistic Wrapper Functions:
-\code{\link[=LogisticRun]{LogisticRun()}}
+\code{\link[=LogisticRun]{LogisticRun()}},
+\code{\link[=LogisticRunMulti]{LogisticRunMulti()}}
 }
 \concept{Logistic Wrapper Functions}

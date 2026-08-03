@@ -2060,10 +2060,11 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + multiplicative()
-#' res <- CoxRunMulti(formula, df, control = control, 
-#'                    realization_columns = realization_columns,
-#'                    realization_index = realization_index
-#'                   )
+#' res <- CoxRunMulti(formula, df,
+#'   control = control,
+#'   realization_columns = realization_columns,
+#'   realization_index = realization_index
+#' )
 CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
@@ -2323,10 +2324,11 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #'   verbose = 0, ties = "breslow", double_step = 1
 #' )
 #' formula <- Pois(t1, lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
-#' res <- PoisRunMulti(formula, df, control = control, 
-#'                    realization_columns = realization_columns,
-#'                    realization_index = realization_index
-#'                   )
+#' res <- PoisRunMulti(formula, df,
+#'   control = control,
+#'   realization_columns = realization_columns,
+#'   realization_index = realization_index
+#' )
 PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
@@ -2529,6 +2531,220 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
     poisres <- new_poisresmcml(res)
   }
   poisres
+}
+
+#' Fully runs a logistic regression model with multiple event realizations, returning the model and results
+#'
+#' \code{LogisticRunMulti} uses a formula, data.table, and list of controls to prepare and
+#' run a Colossus logistic regression function
+#'
+#' @param ... can include the named entries for the control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Logistic Wrapper Functions
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   t0 = c(18, 20, 18, 19, 21, 20, 18),
+#'   t1 = c(30, 45, 57, 47, 36, 60, 55),
+#'   event = c(0, 0, 1, 0, 1, 0, 0),
+#'   dose = c(0, 1, 1, 0, 1, 0, 1)
+#' )
+#' set.seed(3742)
+#' df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3)
+#' df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
+#' df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
+#' realization_columns <- c("event0", "event1", "event2")
+#' control <- list(
+#'   ncores = 1, lr = 0.75, maxiter = 1,
+#'   halfmax = 2, epsilon = 1e-6,
+#'   deriv_epsilon = 1e-6, step_max = 1.0,
+#'   thres_step_max = 100.0,
+#'   verbose = 0, ties = "breslow", double_step = 1
+#' )
+#' formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
+#' res <- LogisticRunMulti(formula, df, 
+#'   realization_columns = realization_columns, 
+#'   control = control
+#' )
+LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = c("event0", "event1"), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+  func_t_start <- Sys.time()
+  if (is(model, "logitmodel")) {
+    # using already prepped formula and data
+    logitmodel <- copy(model)
+    calls <- logitmodel$expres_calls
+    df <- ColossusExpressionCall(calls, df)
+    #
+  } else if (is(model, "formula")) {
+    # using a formula class
+    res <- get_form(model, df)
+    logitmodel <- res$model
+    df <- res$data
+  } else {
+    stop(gettextf(
+      "Error: Incorrect type used for formula, '%s', must be formula or logitmodel class",
+      class(model)
+    ))
+  }
+  # ------------------------------------------------------------------------------ #
+  # we want to let the user add in control arguments to their call
+  # code copied from survival/R/coxph.R github and modified for our purpose
+  extraArgs <- list(...) # gather additional arguments
+  controlargs <- names(formals(ColossusControl)) # names used in control function
+  if (length(extraArgs)) {
+    names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+    names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
+    if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+      warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
+      extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+    }
+    indx <- pmatch(names(extraArgs), controlargs, nomatch = 0L) # check for any mismatched names
+    if (any(indx == 0L)) {
+      stop(gettextf(
+        "Error: Argument '%s' not matched",
+        names(extraArgs)[indx == 0L]
+      ), domain = NA)
+    }
+  }
+  if (missing(control)) {
+    if (length(extraArgs)) {
+      names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
+      names(extraArgs) <- match.arg(names(extraArgs), controlargs, several.ok = TRUE) # match against expected values
+      if (anyDuplicated(names(extraArgs))) { # check if there are repeated elements
+        warning("Warning: atleast one extra argument listed multiple times: ", toString(unique(names(extraArgs[duplicated(names(extraArgs))]))))
+        extraArgs <- extraArgs[!duplicated(names(extraArgs))] # filter down
+      }
+    }
+    control <- do.call(ColossusControl, extraArgs)
+  } else if (is.list(control)) {
+    names(control) <- tolower(names(control)) # set the names to lowercase
+    names(control) <- lapply(names(control), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
+    if (anyDuplicated(names(control))) { # check if there are repeated elements
+      warning("Warning: atleast one control argument listed multiple times: ", toString(unique(names(control[duplicated(names(control))]))))
+      control <- control[!duplicated(names(control))] # filter down
+    }
+    if (length(extraArgs)) {
+      control <- c(control[!(names(control) %in% names(extraArgs))], extraArgs)
+    }
+    control_args <- intersect(names(control), names(formals(ColossusControl)))
+    control <- do.call(ColossusControl, control[control_args])
+  } else {
+    stop("Error: control argument must be a list")
+  }
+  # ------------------------------------------------------------------------------ #
+  if (!missing(a_n)) {
+    logitmodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    logitmodel$keep_constant <- keep_constant
+  }
+  #
+  if ("CONST" %in% c(logitmodel$names, logitmodel$trials)) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (logitmodel$null) {
+    stop("Error: Multiple realization analysis cannot be used with a null model.")
+  }
+  # Checks that the current logitmodel is valid
+  validate_logitsurv(logitmodel, df)
+  logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  # ------------------------------------------------------------------------------ #
+  # Pull out the actual model vectors and values
+  trial0 <- logitmodel$trials
+  event0 <- logitmodel$event
+  names <- logitmodel$names
+  term_n <- logitmodel$term_n
+  tform <- logitmodel$tform
+  keep_constant <- logitmodel$keep_constant
+  a_n <- logitmodel$a_n
+  modelform <- logitmodel$modelform
+  strat_col <- logitmodel$strata
+  # logistic regression functionitself will check if the columns are numeric
+  # ------------------------------------------------------------------------------ #
+  # We want to create the previously used model_control list, based on the input
+  model_control <- list()
+  if (length(unique(term_n)) == 1) {
+    modelform <- "M"
+  } else if (modelform == "GMIX") {
+    model_control[["gmix_term"]] <- logitmodel$gmix_term
+    model_control[["gmix_theta"]] <- logitmodel$gmix_theta
+  }
+  if (missing(link)) {
+    model_control["logit_odds"] <- TRUE
+  } else {
+    # "logit_odds", "logit_ident", "logit_loglink"
+    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+    link <- tolower(link)
+    link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+    if (link %in% acceptable) {
+      if (link %in% c("logit_odds", "odds", "odd")) {
+        model_control["logit_odds"] <- TRUE
+      } else if (link %in% c("logit_ident", "ident", "id")) {
+        model_control["logit_ident"] <- TRUE
+      } else if (link %in% c("logit_loglink", "loglink", "log")) {
+        model_control["logit_loglink"] <- TRUE
+      } else if (link %in% c("logit_probit", "probit")) {
+        model_control["logit_probit"] <- TRUE
+      } else {
+        stop(gettextf(
+          "Error: Argument '%s' not matched to set link options",
+          link
+        ), domain = NA)
+      }
+    } else {
+      stop(gettextf(
+        "Error: Argument '%s' not matched to allowable link options",
+        link
+      ), domain = NA)
+    }
+  }
+  if (ncol(cons_mat) > 1) {
+    model_control["constraint"] <- TRUE
+  }
+  if (!missing(gradient_control)) {
+    model_control["gradient"] <- TRUE
+    for (nm in names(gradient_control)) {
+      model_control[nm] <- gradient_control[nm]
+    }
+  }
+  model_control["single"] <- single
+  model_control["observed_info"] <- observed_info
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info",
+    "logit_odds", "logit_ident", "logit_loglink", "logit_probit"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  model_control <- Def_model_control(model_control)
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  # ------------------------------------------------------------------------------ #
+  res <- RunLogisticRegression_Omnibus_Multioutcome(df, trial0 = trial0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, control = control, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
+  res$model <- logitmodel
+  res$modelcontrol <- model_control
+  res$control <- control
+  res$realizations <- length(realization_columns)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  func_t_end <- Sys.time()
+  res$RunTime <- func_t_end - func_t_start
+  # ------------------------------------------------------------------------------ #
+  logitres <- new_logitresfma(res)
+  logitres
 }
 
 #' Generic likelihood boundary calculation function
