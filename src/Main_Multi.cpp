@@ -2437,11 +2437,11 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
             BIC_fin[guess] = R_NaN;
             neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_NEGATIVE_RISK";
-        //
-        //  -------------------------------------------------------------------------------------------
-        //
-        //  Calculates log-likelihood
         } else {
+            //
+            //  -------------------------------------------------------------------------------------------
+            //
+            //  Calculates log-likelihood
             Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
             //
             for (int i = 0; i < beta_0.size(); i++) {
@@ -2628,9 +2628,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
             neg_limit_fin[guess] = neg_limit;
             status_fin[guess] = "PASSED";
             //
-            if (model_bool["single"]) {
-                //no standard error calculation
-            } else {
+            if (!model_bool["single"]) {
                 MatrixXd cov;
                 NumericVector stdev(totalnum); 
                 if (model_bool["observed_info"]) {
@@ -2690,11 +2688,12 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
         }
     }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
-    List res_list; //  returns a list of results
+    List res_list;
     if (model_bool["single"]) {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Parameter_Lists"] = para_list, _["Status"] = wrap(status_fin));
     } else {
         res_list = List::create(_["LogLik"] = wrap(LL_fin), _["Deviation"] = wrap(dev_fin), _["AIC"] = wrap(AIC_fin), _["BIC"] = wrap(BIC_fin), _["Parameters"] = wrap(beta_fin), _["Standard_Error"] = wrap(std_fin), _["Parameter_Lists"] = para_list, _["Convergance"] = wrap(conv_fin), _["Status"] = wrap(status_fin), _["Ended on Negative Limit"] = neg_limit_fin);
     }
+    //  returns a list of results
     return res_list;
 }
