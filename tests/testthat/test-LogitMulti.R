@@ -42,6 +42,61 @@ test_that("Logistic multioutcome", {
   expect_equal(val[2], ll_comp_2, tolerance = 1e-4)
   expect_equal(val[3], ll_comp_3, tolerance = 1e-4)
 })
+test_that("Logistic multioutcome extra checks", {
+  fname <- "ll_comp_0.csv"
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, select = 1:3, verbose = FALSE, fill = TRUE)
+  set.seed(3742)
+  df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3)
+  df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
+  df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
+  realization_columns <- c("event0", "event1", "event2")
+  #
+  a_n <- c(0, 0)
+  keep_constant <- c(0, 0)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  model <- logit(event0) ~ loglinear(CONST, dose, 0)
+  res <- get_form(model, df)
+  #
+  expect_no_error(LogisticRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control, link = "odds", observed_info = TRUE))
+  expect_no_error(LogisticRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control, link = "ident", observed_info = TRUE))
+  expect_no_error(LogisticRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control, link = "loglink", observed_info = TRUE))
+  expect_no_error(LogisticRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control, link = "probit", observed_info = TRUE))
+  #
+  expect_no_error(LogisticRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = c(control, constraint = TRUE)))
+  expect_no_error(LogisticRunMulti(res$model, df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = c(control, constraint = TRUE, gradient = TRUE)))
+  #
+  expect_error(LogisticRunMulti(logit(event0) ~ linear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control, link = "ident"))
+})
+test_that("Logistic multioutcome failures", {
+  fname <- "ll_comp_0.csv"
+  col_types <- c("double", "double", "double", "integer", "integer")
+  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, select = 1:3, verbose = FALSE, fill = TRUE)
+  set.seed(3742)
+  df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3)
+  df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
+  df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
+  realization_columns <- "event0"
+  #
+  a_n <- c(0, 0)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  #
+  keep_constant <- c(1, 1)
+  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
+  keep_constant <- c(0, 0)
+  #
+  expect_error(LogisticRunMulti(logit(event0) ~ null(), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
+  #
+  df$event0[1] <- -1
+  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
+  df$event0 <- rep(0, times = nrow(df))
+  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
+  #
+  realization_columns <- "event3"
+  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
+  df$event3 <- rep("NAN", times = nrow(df))
+  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
+})
 test_that("Logistic multioutcome repeated column", {
   fname <- "ll_comp_0.csv"
   col_types <- c("double", "double", "double", "integer", "integer")
@@ -51,8 +106,8 @@ test_that("Logistic multioutcome repeated column", {
   df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
   df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
   #
-  keep_constant <- c(1, 0)
   a_n <- c(-0.1, -0.2)
+  keep_constant <- c(1, 0)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   #
   # with gradient control
@@ -78,8 +133,8 @@ test_that("Logistic multioutcome swapped columns", {
   df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
   df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
   #
-  keep_constant <- c(1, 0)
   a_n <- c(0, 0)
+  keep_constant <- c(1, 0)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   #
   realization_columns <- c("event0", "event1")
@@ -87,34 +142,6 @@ test_that("Logistic multioutcome swapped columns", {
   realization_columns <- c("event1", "event0")
   e1 <- LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control, gradient_control = list())
   expect_equal(e0$LogLik, e1$LogLik, tolerance = 1e-4) ## -693.1472
-})
-test_that("Logistic multioutcome failures", {
-  fname <- "ll_comp_0.csv"
-  col_types <- c("double", "double", "double", "integer", "integer")
-  df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, select = 1:3, verbose = FALSE, fill = TRUE)
-  set.seed(3742)
-  df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3)
-  df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
-  df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
-  realization_columns <- c("event0", "event1", "event2")
-  #
-  a_n <- c(0, 0)
-  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 10, "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  #
-  keep_constant <- c(1, 1)
-  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = c("event0", "event1", "event2"), control = control))
-  keep_constant <- c(0, 0)
-  #
-  expect_error(LogisticRunMulti(logit(event0) ~ null(), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
-  expect_error(LogisticRunMulti(logit(event3) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
-  #
-  realization_columns <- "event0"
-  df$event0[1] <- -1
-  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
-  df$event0 <- rep(0, times = nrow(df))
-  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
-  df$event0 <- rep("NAN", times = nrow(df))
-  expect_error(LogisticRunMulti(logit(event0) ~ loglinear(CONST, dose, 0), df, a_n = a_n, keep_constant = keep_constant, realization_columns = realization_columns, control = control))
 })
 test_that("Logistic multioutcome model, single check", {
   fname <- "ll_comp_0.csv"
