@@ -135,7 +135,6 @@ Colossus.</p>
 <span><span class="va">df</span><span class="op">$</span><span class="va">UserID</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">status</span> <span class="op">-</span> <span class="fl">1</span></span>
-<span><span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">sex</span> <span class="op">-</span> <span class="fl">1</span></span>
 <span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01701289</span>, <span class="op">-</span><span class="fl">0.51256478</span><span class="op">)</span></span>
@@ -143,6 +142,10 @@ Colossus.</p>
 <span>  <span class="va">df</span>,</span>
 <span>  control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>In general the <a href="../reference/plot.coxres.html">plot
+function</a> can be used to call the various different types of plots
+using a list of plotting options. In this vignette we will be calling
+the specific functions for each application.</p>
 </div>
 <div class="section level2">
 <h2 id="survival-function-approximation">Survival Function Approximation<a class="anchor" aria-label="anchor" href="#survival-function-approximation"></a>
@@ -183,15 +186,26 @@ time.</p>
     S(t) = \exp{(-\Lambda(t))}
 \end{aligned}
 </annotation></semantics></math></p>
+<p>We can calculate the instantaneous hazard, cumulative hazard, and
+baseline surviving fraction using the <a href="../reference/plotSurvival.coxres.html">plotSurvival</a> function.
+We can get the Kaplan-Meier estimates using the KM option.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  fname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>, studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="fl">2</span>, surv_curv <span class="op">=</span> <span class="cn">TRUE</span>, martingale <span class="op">=</span> <span class="cn">FALSE</span>, strat_haz <span class="op">=</span> <span class="cn">FALSE</span>, km <span class="op">=</span> <span class="cn">FALSE</span></span>
+<code class="sourceCode R"><span><span class="co"># We can start by obtaining the approximated survival curve data</span></span>
+<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fl">2</span>, surv_curv <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># We apply it to a regression solution</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotSurvival.html">plotSurvival</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># The results include both the standard and log results:</span></span>
+<span><span class="co"># hazard, cumulative hazard, and survival curves</span></span>
+<span></span>
 <span><span class="va">norm_surv</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">"standard"</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># The time is named 't'</span></span>
+<span><span class="co"># The instantaneous hazard is 'h'</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">norm_surv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">h</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -202,7 +216,9 @@ time.</p>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="co"># The cumulative hazard is 'ch'</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">norm_surv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">ch</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Cumulative Hazard"</span><span class="op">)</span></span>
@@ -212,7 +228,9 @@ time.</p>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="co"># The surviving fraction is 'surv'</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">norm_surv</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">surv</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Surviving Fraction"</span><span class="op">)</span></span>
@@ -222,14 +240,18 @@ time.</p>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-3.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  fname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>, studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
-<span>  verbose <span class="op">=</span> <span class="fl">2</span>, surv_curv <span class="op">=</span> <span class="cn">FALSE</span>, martingale <span class="op">=</span> <span class="cn">FALSE</span>, strat_haz <span class="op">=</span> <span class="cn">FALSE</span>, km <span class="op">=</span> <span class="cn">TRUE</span></span>
+<code class="sourceCode R"><span></span>
+<span><span class="co"># We might also want to find the kaplan-meier estimate</span></span>
+<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fl">2</span>, km <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotSurvival.html">plotSurvival</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co"># Multiple results can be returned at once.</span></span>
+<span><span class="co"># In this case, the result is the "kaplan-meier" value.</span></span>
 <span><span class="va">km</span> <span class="op">&lt;-</span> <span class="va">e</span><span class="op">[[</span><span class="st">"kaplin-meier"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="co"># The survival curve is the 'n_t' value</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">km</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t_t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">n_t</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span>, alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -239,6 +261,23 @@ time.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-4.png" class="r-plt" alt="" width="672"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">t_total</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">norm_surv</span><span class="op">$</span><span class="va">t</span>, <span class="va">km</span><span class="op">$</span><span class="va">t_t</span><span class="op">)</span></span>
+<span><span class="va">surv_total</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">norm_surv</span><span class="op">$</span><span class="va">surv</span>, <span class="va">km</span><span class="op">$</span><span class="va">n_t</span><span class="op">)</span></span>
+<span><span class="va">method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"adjusted"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">norm_surv</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"km"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">km</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">comp_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t <span class="op">=</span> <span class="va">t_total</span>, y <span class="op">=</span> <span class="va">surv_total</span>, method <span class="op">=</span> <span class="va">method</span><span class="op">)</span></span>
+<span><span class="co"># Plot them combined</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comp_plot</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">t</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y</span>, group <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">method</span>, color <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span>, linewidth <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Survival"</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"ggplot2 wasn't detected. Please install to see the plot"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">g</span></span></code></pre></div>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-3-5.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="cox-proportional-hazards-model-assumptions">Cox Proportional Hazards model assumptions<a class="anchor" aria-label="anchor" href="#cox-proportional-hazards-model-assumptions"></a>
@@ -266,14 +305,15 @@ standard deviation.</p>
     s(t,x) = \frac{\sum_{i \in events} x_i}{d[t]} - \frac{\sum_i^n x_i*r_i}{\sum_i^n r_i}
 \end{aligned}
 </annotation></semantics></math></p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<p>We can plot schoenfeld residuals using the <a href="../reference/plotSchoenfeld.coxres.html">plotSchoenfeld</a>
+function.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  fname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>,</span>
 <span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>, verbose <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotSchoenfeld.html">plotSchoenfeld</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co"># results are produced for every covariate</span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">res_age</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -287,7 +327,7 @@ standard deviation.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">res_age</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y_scale</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -300,7 +340,7 @@ standard deviation.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-2.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">res_sex</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"sex"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
@@ -316,7 +356,7 @@ standard deviation.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-4-3.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">res_sex</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">time</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y_scale</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
@@ -347,14 +387,16 @@ or under-predicting dependent on time.</p>
     m_j = \delta_j - \int_{t_0}^{t_1} \lambda(t) * r_j dt
 \end{aligned}
 </annotation></semantics></math></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  fname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>,</span>
-<span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>, verbose <span class="op">=</span> <span class="fl">2</span>, surv_curv <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  martingale <span class="op">=</span> <span class="cn">TRUE</span>, strat_haz <span class="op">=</span> <span class="cn">FALSE</span>, km <span class="op">=</span> <span class="cn">FALSE</span>, cov_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
+<p>We can plot martingale residuals using the <a href="../reference/plotMartingale.coxres.html">plotMartingale</a>
+function.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># We want to plot results by our two covariates</span></span>
+<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>, verbose <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  martingale <span class="op">=</span> <span class="cn">TRUE</span>, cov_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotMartingale.html">plotMartingale</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
-<span></span>
+<span><span class="co"># We will have results for each covariate selected and the survival age.</span></span>
 <span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
@@ -369,7 +411,7 @@ or under-predicting dependent on time.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_sex</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"sex"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
@@ -384,7 +426,7 @@ or under-predicting dependent on time.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-5-2.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res_surv</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"survival_time"</span><span class="op">]</span><span class="op">]</span></span>
 <span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
@@ -410,10 +452,11 @@ covariate is zero. Results for specific covariates can be requested by
 passing an optional argument, otherwise every covariate used in the risk
 model is included. Risk at Wald confidence interval boundaries can also
 be calculated by including a ‘boundary’ option set to a z-score. In this
-example, 95 percent confidence intervals are included and plotted.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+example, 95 percent confidence intervals are included and plotted. We
+can plot the risk curves using the <a href="../reference/plotRisk.coxres.html">plotRisk</a> function.</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  fname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"run"</span>, sep <span class="op">=</span> <span class="st">""</span><span class="op">)</span>, studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
+<span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="fl">2</span>, cov_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"sex"</span><span class="op">)</span>, boundary <span class="op">=</span> <span class="fl">1.96</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotRisk.html">plotRisk</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
@@ -430,7 +473,7 @@ example, 95 percent confidence intervals are included and plotted.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span></span>
 <span><span class="va">res_sex</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"sex"</span><span class="op">]</span><span class="op">]</span></span>
@@ -445,6 +488,91 @@ example, 95 percent confidence intervals are included and plotted.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">g</span></span></code></pre></div>
 <p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-6-2.png" class="r-plt" alt="" width="672"></p>
+<p>There is a similar option for returning predicted hazard ratio for a
+set of input data points, or a reference point, called the <a href="../reference/RelativeRisk.coxres.html">RelativeRisk</a> function.
+This can be used similarly to the <a href="../reference/plotRisk.coxres.html">plotRisk</a> function by
+manually defining the points to calculate risk at. This has one
+significant benefit, it can account for interactions. If a model
+transforms a column, then it has multiple covariates dependent on a
+single input column. The <a href="../reference/plotRisk.coxres.html">plotRisk</a> function will only
+calculate the change in risk based on the final calculated covariates
+independently, while the <a href="../reference/RelativeRisk.coxres.html">RelativeRisk</a> function
+will properly account for how each value depends on each other.</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>ncores <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.01701289</span>, <span class="fl">0.0001</span>, <span class="op">-</span><span class="fl">0.51256478</span><span class="op">)</span></span>
+<span><span class="va">coxres</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">age</span> <span class="op">*</span> <span class="va">age</span>, <span class="va">sex</span>, <span class="fl">0</span><span class="op">)</span>,</span>
+<span>  <span class="va">df</span>,</span>
+<span>  control <span class="op">=</span> <span class="va">control</span>, a_n <span class="op">=</span> <span class="va">a_n</span>, norm <span class="op">=</span> <span class="st">"max"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">coxres</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:       age  loglin           0.0170       0.112006    (-0.20252 - 0.23654)</span></span>
+<span><span class="co">#&gt; 2:   age:age  loglin           0.0001       0.000901    (-0.00167 - 0.00187)</span></span>
+<span><span class="co">#&gt; 3:       sex  loglin          -0.5126       0.167841    (-0.84153 - -0.1836)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:        0.87927</span></span>
+<span><span class="co">#&gt; 2:        0.91160</span></span>
+<span><span class="co">#&gt; 3:        0.00226</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; Survival Age Column was: 'time', Outcome Column was: 'status'</span></span>
+<span><span class="co">#&gt; Risk Groups Used: 139</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 1487.827,  AIC: 1493.827</span></span>
+<span><span class="co">#&gt; Iterations run: 3</span></span>
+<span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 2.551e+00</span></span>
+<span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
+<span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
+<span><span class="co">#&gt; All Records Used: 228</span></span>
+<span><span class="co">#&gt; Run finished in 0.034 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span><span class="co"># There is a effect of age^2</span></span>
+<span></span>
+<span><span class="co"># We can start by using plotRisk to calculate the effect of age</span></span>
+<span></span>
+<span><span class="va">plot_options</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  studyid <span class="op">=</span> <span class="st">"UserID"</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="fl">2</span>, cov_cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"age:age"</span><span class="op">)</span>, boundary <span class="op">=</span> <span class="fl">1.96</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">res_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotRisk.html">plotRisk</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df</span>, <span class="va">plot_options</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning in plot.coxres(x = x, df = df, plot_options = plot_options): Warning:</span></span>
+<span><span class="co">#&gt; Columns were created during model defintion. Risk plots will only depend on</span></span>
+<span><span class="co">#&gt; individual columns, not interactions</span></span>
+<span></span>
+<span><span class="va">res_age</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age"</span><span class="op">]</span><span class="op">]</span></span>
+<span><span class="va">res_age2</span> <span class="op">&lt;-</span> <span class="va">res_all</span><span class="op">[[</span><span class="st">"age:age"</span><span class="op">]</span><span class="op">]</span></span>
+<span></span>
+<span><span class="co"># We can also use a fake dataset and RelativeRisk</span></span>
+<span><span class="va">df_off</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
+<span>  status <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>,</span>
+<span>  age <span class="op">=</span> <span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span> <span class="op">/</span> <span class="fl">100</span> <span class="op">*</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">res_comb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RelativeRisk.html">RelativeRisk</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df_off</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">x_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">$</span><span class="va">x</span>, <span class="va">res_age2</span><span class="op">$</span><span class="va">x</span>, <span class="va">df_off</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
+<span><span class="va">y_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">$</span><span class="va">y</span>, <span class="va">res_age2</span><span class="op">$</span><span class="va">y</span>, <span class="va">res_comb</span><span class="op">$</span><span class="va">Risk</span><span class="op">)</span></span>
+<span><span class="va">method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Linear"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Quadratic"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_age2</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Combined"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_off</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">comp_plot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x_all</span>, y <span class="op">=</span> <span class="va">y_all</span>, method <span class="op">=</span> <span class="va">method</span><span class="op">)</span></span>
+<span><span class="co"># Plot them combined</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span>package <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">!=</span> <span class="st">""</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">comp_plot</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">x</span>, y <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">y</span>, group <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">method</span>, color <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span>, linewidth <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span> <span class="op">+</span></span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"age"</span>, y <span class="op">=</span> <span class="st">"Relative Risk"</span><span class="op">)</span></span>
+<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="va">g</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"ggplot2 wasn't detected. Please install to see the plot"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">g</span></span></code></pre></div>
+<p><img src="Plotting_And_Analysis_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -93,14 +93,14 @@
 <div class="section level2">
 <h2 id="general-purpose">General Purpose<a class="anchor" aria-label="anchor" href="#general-purpose"></a>
 </h2>
-<p>Before performing a regression on rate or hazard ratio, it is often
-important to look at a summary of the data. It can be very informative
-to break columns into categories and summarize the number of events or
-average column values in each category. <code>Colossus</code> offers two
-functions designed to create summary tables, Event_Count_Gen and
-Event_Time_Gen which create person-count tables and person-time tables
-respectively. The following sections will cover generally how to use
-each function and what different needs are met.</p>
+<p>There are multiple reasons why individual level data may be grouped,
+including visualization or performing analysis on aggregated data.
+Either way the process is similar, we want to take a table and apply
+categorizations and summarize events. <code>Colossus</code> offers two
+functions designed to create grouped tables, <a href="../reference/Event_Count_Gen.html">Event_Count_Gen</a> and <a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a> which create
+person-count tables and person-time tables respectively. The following
+sections will cover generally how to use each function and what
+different needs are met.</p>
 <div class="section level3">
 <h3 id="person-count-tables">Person-Count Tables<a class="anchor" aria-label="anchor" href="#person-count-tables"></a>
 </h3>
@@ -125,7 +125,9 @@ ripped or not.</p>
 count the number of ripped bags in each category, and figure out the
 average number of hands used. We would start by defining how we want to
 split the categories. There are two general ways to define the
-intervals, with a single string or a list of upper and lower bounds.</p>
+intervals, with a single string or a list of upper and lower bounds.
+Another option is to split by levels of a factor, by setting the
+categorization to “factor”.</p>
 <p>Let us start with the string representation. The string is expected
 to alternate number and delimiter, either “/” or “]”, which split the
 upper and lower bounds for each interval. Every interval in this format
@@ -139,7 +141,27 @@ boundary is equal to the lower boundary or greater. When the upper and
 lower boundary are equal, the category is upper limit inclusive. In
 general, data are assigned to the first category they belong to, so
 points on an included upper boundary will be assigned to the lower
-category.</p>
+category. The string representation can name categories by including the
+name after the delimiter. For example, a category containing [3,5) named
+“middle” could be represented “3 / middle 5”. Note that the name and
+boundary must be split by a space, and the name cannot include “/” or
+”]“.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Suppose we want the categories to change by two:</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="st">"0/2/4/6/8"</span></span>
+<span><span class="co"># This would form bins like:</span></span>
+<span><span class="co"># [0,2), [2,4), etc.</span></span>
+<span><span class="co"># An entry with a value of 2 would be assigned to the second bin</span></span>
+<span></span>
+<span><span class="co"># Suppose we wanted the first bin to be fully inclusive</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="st">"0]2/4/6/8"</span></span>
+<span><span class="co"># Now the first bin is: [0,2]</span></span>
+<span><span class="co"># An entry with a value of 2 would be assigned to the first bin only</span></span>
+<span></span>
+<span><span class="co"># A named version might look like</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="st">"0 / low 2 / middle 4 / high 6 / extreme 8"</span></span>
+<span><span class="co"># This names the bins: low, middle, high, and extreme</span></span>
+<span><span class="co"># The default is a string representation of the bin</span></span></code></pre></div>
 <p>The list notation is very similar. There are 2 values required in the
 list and 1 optional value. The list has to have vectors titled lower and
 upper, which are the lower and upper bounds for each interval. This
@@ -147,27 +169,47 @@ method can include gaps. Similarly to the string version, the lower
 bound is always included and the upper bound is included if the upper
 bound entry includes “]”. The list option allows the categories to be
 labeled instead of being automatically numbered. A third list titled
-name can be provided to label each category. The string representation
-can name categories by including the name after the delimiter. For
-example, a category containing [3,5) named “middle” could be represented
-“3 / middle 5”. Note that the name and boundary must be split by a
-space, and the name cannot include “/” or ”]“.</p>
+name can be provided to label each category.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Suppose we want the categories to change by two:</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co"># The version with an inclusive upper bound would be:</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2]"</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># We can also name categories</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">8</span><span class="op">)</span>,</span>
+<span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span>,</span>
+<span>  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"middle"</span>, <span class="st">"high"</span>, <span class="st">"extreme"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>Suppose we want to break the apple column into the intervals: [0, 3),
 [3, 5), [5,7] and break our oranges column into the intervals: [-1,3),
 [3,6), [6,10) with the labels: few, good, and excessive. That would look
 like the following code. This splits each category into 3 levels and in
 total 9 combinations.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">apple_category</span> <span class="op">&lt;-</span> <span class="st">"0/3/5]7"</span></span>
+<span></span>
 <span><span class="va">orange_category</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>,</span>
 <span>  upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"few"</span>, <span class="st">"good"</span>, <span class="st">"excessive"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Finally we combine them into a list. The list names should be column</span></span>
+<span><span class="co"># names that the categories will be applied to.</span></span>
 <span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  apples <span class="op">=</span> <span class="va">apple_category</span>,</span>
 <span>  oranges <span class="op">=</span> <span class="va">orange_category</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="co"># We could also rename a category using `column AS new_name` in the list names.</span></span>
+<span><span class="co"># This is demonstrated later in the vignette.</span></span></code></pre></div>
 <p>Now we define what summary variables we want. Once again, we define a
 list. Every item in the list is named with the column it is applied to
 and contains a string specifying what summary method to use. There are
@@ -178,14 +220,23 @@ by listing the method as “option AS name”. Otherwise, the grouped table
 will use the original column name for the summary column name. Suppose
 we wanted to take the sum of ripped bags and name it “dropped” and take
 the mean of the hands column.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">event</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>rip <span class="op">=</span> <span class="st">"count AS dropped"</span>, hands <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># We might want two events to be summarized, the 'rip' and 'hands' columns.</span></span>
+<span><span class="co"># The first we can take the sum of, and name the summary 'dropped'</span></span>
+<span><span class="co"># The second we can just take a mean of</span></span>
+<span><span class="co"># This creates the event list, once again with list names</span></span>
+<span><span class="co"># matching columns in the data.</span></span>
+<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>rip <span class="op">=</span> <span class="st">"count AS dropped"</span>, hands <span class="op">=</span> <span class="st">"mean"</span><span class="op">)</span></span></code></pre></div>
 <p>The final step is to run the function. The function returns two
 items, the grouped data and a summary of the category intervals. The
 category intervals should be checked to verify that the intervals match
 what were expected.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/Event_Count_Gen.html">Event_Count_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">categ</span>, <span class="va">event</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># We take our table, and apply the categorizations and event summaries</span></span>
+<span><span class="co"># The result has two values: 'df' and 'bounds'</span></span>
+<span><span class="co"># df is the final grouped table, with the categories and summaries</span></span>
+<span><span class="co"># bounds is a description of the category levels applied</span></span>
+<span><span class="fu"><a href="../reference/Event_Count_Gen.html">Event_Count_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">categ</span>, <span class="va">event</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
 <span><span class="co">#&gt;    apples_category oranges_category COUNT dropped hands</span></span>
 <span><span class="co">#&gt;             &lt;char&gt;           &lt;char&gt; &lt;int&gt;   &lt;num&gt; &lt;num&gt;</span></span>
@@ -230,11 +281,16 @@ years. For the following example, we will use a calendar time scale.</p>
 <div class="section level4">
 <h4 id="calendar-time-scale">Calendar Time Scale<a class="anchor" aria-label="anchor" href="#calendar-time-scale"></a>
 </h4>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># We can start by making some fake data</span></span>
+<span><span class="co"># a and b are arbitrary factors</span></span>
+<span><span class="co"># c might be the event status we are interested in</span></span>
+<span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Next we define columns for the calendar dates of each interval</span></span>
+<span><span class="co"># In this case we are defining day, month, and year</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -247,12 +303,25 @@ years. For the following example, we will use a calendar time scale.</p>
 <span>  <span class="fl">1901</span>, <span class="fl">1902</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1905</span>, <span class="fl">1906</span>, <span class="fl">1907</span>, <span class="fl">1903</span>, <span class="fl">1904</span>,</span>
 <span>  <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1910</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1903</span>, <span class="fl">1904</span>, <span class="fl">1910</span></span>
 <span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Finally we have our table that we want to group.</span></span>
 <span><span class="va">table</span> <span class="op">&lt;-</span> <span class="fu">data.table</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span></span>
 <span>  a <span class="op">=</span> <span class="va">a</span>, b <span class="op">=</span> <span class="va">b</span>, c <span class="op">=</span> <span class="va">c</span>,</span>
 <span>  d <span class="op">=</span> <span class="va">d</span>, e <span class="op">=</span> <span class="va">e</span>, f <span class="op">=</span> <span class="va">f</span>,</span>
 <span>  g <span class="op">=</span> <span class="va">g</span>, h <span class="op">=</span> <span class="va">h</span>, i <span class="op">=</span> <span class="va">i</span></span>
-<span><span class="op">)</span></span>
-<span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>In general, the person-year list should contain the columns used for
+the entry and/or exit dates as well as an options units value. Each
+entry or exit variable should be a list with columns corresponding to
+the calendar date columns. These columns should be named ‘day’, ‘month’,
+or ‘year’. As already mentioned, missing entries will currently default
+to January 1st 1900.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Our person-years are described by calendar dates</span></span>
+<span><span class="co"># We have entry and exit lists, each with the columns that</span></span>
+<span><span class="co"># correspond to the day/month/year.</span></span>
+<span><span class="co"># We also include a unit, to say we want our final person-years</span></span>
+<span><span class="co"># in terms of years, instead of days or months.</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
@@ -269,6 +338,26 @@ or list of upper and lower bounds). Unlike the non-time categories, we
 can not name the categories and any attempt to do will be ignored and
 produce a warning. When age categories are used, a new column is created
 for the average <code>age</code> in each interval.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># A calendar category assumes we have a list with days, months, and years</span></span>
+<span><span class="co"># Yearly categories might look like:</span></span>
+<span><span class="va">calendar_categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2000</span>, <span class="fl">2001</span>, <span class="fl">2002</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co"># This will define categories going from (1/1/2000 - 12/31/2000), (1/1/2001 - 12/31/2001), etc.</span></span>
+<span></span>
+<span><span class="co"># Alternatively we might want to categorize by duration since a reference date</span></span>
+<span><span class="co"># In this case our list has an additional value for categories, or upper/lower limits</span></span>
+<span><span class="co"># For an age based calendar time category, our day/month/year are reference columns not vectors of dates</span></span>
+<span><span class="co"># Suppose we wanted to categorize by above/below 50 years since entry</span></span>
+<span><span class="va">age_categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, categories <span class="op">=</span> <span class="st">"0 / 50 / 100"</span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># We add this to our time categories by assigning it a name</span></span>
+<span><span class="co"># We can use the standard "column AS new_name" notation, new_name defaults to column_category</span></span>
+<span><span class="co"># How the name is used depends on the categorization</span></span>
+<span><span class="co"># Both will use 'new_name' as the category name</span></span>
+<span><span class="co"># Age based categories will use 'column' to define an average duration in the interval</span></span>
+<span><span class="va">time_categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"calendar"</span> <span class="op">=</span> <span class="va">calendar_categ</span>, <span class="st">"age"</span> <span class="op">=</span> <span class="va">age_categ</span><span class="op">)</span></span>
+<span><span class="co"># This will create three new columns in the data</span></span></code></pre></div>
 <p>Time categories are unique in that each row can correspond to
 multiple time categories, so the duration of each row in each time
 category is kept to distinguish which rows are only partially in each
@@ -277,8 +366,9 @@ duration of each row is used for person-year calculations. Multiple
 categories can be used for a calendar time scale, however it should be
 noted that multiple calendar date based categories could be combined
 into a single list of categories.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># The non-time categories are defined as previously shown.</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  a <span class="op">=</span> <span class="st">"-1/3/5]7"</span>,</span>
 <span>  b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">6</span>, <span class="fl">10</span><span class="op">)</span>,</span>
@@ -286,7 +376,14 @@ into a single list of categories.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">time_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`time AS time_bin` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span><span class="co"># The time categories follow a similar structure.</span></span>
+<span><span class="co"># We have a list with names that correspond to columns,</span></span>
+<span><span class="co"># and entries that give category limits.</span></span>
+<span><span class="co"># Our calendar categories are defined between each of these dates,</span></span>
+<span><span class="co"># upper bound exclusive.</span></span>
+<span></span>
+<span><span class="co"># Time categories make a new column for the category, which should not be in the data.</span></span>
+<span><span class="va">time_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>`time_bin` <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  day <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  month <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1899</span>, <span class="fl">1903</span>, <span class="fl">1910</span><span class="op">)</span></span>
@@ -294,48 +391,59 @@ into a single list of categories.</p>
 <p>The final difference is that person-time tables make a distinction
 between events and summaries. The summary list is nearly identical to
 the event list in the person-count function, with the exception of
-allowing for means to be weighted by person-years. The event list for
-the person-time table function is used to determine which time
-categories the event columns are assigned to. By default, the number of
+allowing for means to be weighted by person-years. Person-time tables
+also return the total intervals “at risk” in each category. Observations
+that are split into multiple time categories will contribute to the
+number at risk.</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Summaries follow the person-count table notation for events.</span></span>
+<span><span class="co"># We apply some summary to an existing column.</span></span>
+<span><span class="co"># The name should be the column, and we can use 'AS'</span></span>
+<span><span class="co"># to rename the summary as needed.</span></span>
+<span><span class="va">summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>b <span class="op">=</span> <span class="st">"weighted_mean AS b_weighted"</span><span class="op">)</span></span></code></pre></div>
+<p>The event list for the person-time table function is a list of event
+status, which occur at the end of observation. Events are assigned to
+the category including the end of observation. By default, the number of
 events in each grouping is recorded in the final table. Based on the
 relative row intervals and category intervals, each row can be part of
 multiple time categories. However, the event is only assigned to the
-time category containing the endpoint of the row interval. Person-time
-tables also return the total intervals “at risk” in each category.
-Observations that are split into multiple time categories will
-contribute to the number at risk.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>b <span class="op">=</span> <span class="st">"weighted_mean AS b_weighted"</span><span class="op">)</span></span>
+time category containing the endpoint of the row interval. The event
+list or vector should only contain the event columns, optionally
+renamed. Note that if an event column is renamed, ‘event AS new_event’,
+then both versions will be available for summaries but only the
+new_event version will correctly split events between categories.</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Events in a person-time table are assumed to occur at the end</span></span>
+<span><span class="co"># of the interval.</span></span>
+<span><span class="co"># Events are automatically added to the summary list as a sum.</span></span>
 <span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"c AS cases"</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, the function is run. Similar to the person-count table
 function, the function returns the grouped table and list of category
 boundaries.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
-<span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
-<span>  unit <span class="op">=</span> <span class="st">"years"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># We run the analysis just like the event_count data</span></span>
+<span><span class="co"># Here we are also setting fcount to true, to return the first at risk in each group</span></span>
+<span><span class="co"># We get the same returned value, the table and summary of category boundaries</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, fcount <span class="op">=</span> <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     time_bin a_category b_category AT_RISK        PYR F_AT_RISK cases</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt;      &lt;num&gt;     &lt;num&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:        1     -1 - 3       high       1  2.9952088         1     0</span></span>
-<span><span class="co">#&gt;  2:        1     -1 - 3        low       5 12.4791239         5     1</span></span>
-<span><span class="co">#&gt;  3:        1     -1 - 3     medium       2  5.9876797         2     0</span></span>
-<span><span class="co">#&gt;  4:        1      3 - 5        low       1  2.9979466         1     0</span></span>
-<span><span class="co">#&gt;  5:        1      3 - 5     medium       4 11.8083504         4     0</span></span>
-<span><span class="co">#&gt;  6:        1      5 - 7       high       2  5.8234086         2     0</span></span>
-<span><span class="co">#&gt;  7:        1      5 - 7        low       1  2.9130732         1     0</span></span>
-<span><span class="co">#&gt;  8:        1      5 - 7     medium       1  2.9103354         1     0</span></span>
-<span><span class="co">#&gt;  9:        2     -1 - 3       high       1  0.2600958         0     0</span></span>
-<span><span class="co">#&gt; 10:        2     -1 - 3        low       3 14.4312115         0     0</span></span>
-<span><span class="co">#&gt; 11:        2     -1 - 3     medium       2  1.5167693         0     1</span></span>
-<span><span class="co">#&gt; 12:        2      3 - 5        low       1  1.2566735         0     0</span></span>
-<span><span class="co">#&gt; 13:        2      3 - 5     medium       4  5.7056810         0     3</span></span>
-<span><span class="co">#&gt; 14:        2      5 - 7       high       2  7.6824093         0     2</span></span>
-<span><span class="co">#&gt; 15:        2      5 - 7        low       1  0.2546201         0     1</span></span>
-<span><span class="co">#&gt; 16:        2      5 - 7     medium       1  1.2566735         0     0</span></span>
+<span><span class="co">#&gt;     time_bin_category a_category b_category AT_RISK        PYR F_AT_RISK cases</span></span>
+<span><span class="co">#&gt;                &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt;      &lt;num&gt;     &lt;num&gt; &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:                 1     -1 - 3       high       1  2.9952088         1     0</span></span>
+<span><span class="co">#&gt;  2:                 1     -1 - 3        low       5 12.4791239         5     1</span></span>
+<span><span class="co">#&gt;  3:                 1     -1 - 3     medium       2  5.9876797         2     0</span></span>
+<span><span class="co">#&gt;  4:                 1      3 - 5        low       1  2.9979466         1     0</span></span>
+<span><span class="co">#&gt;  5:                 1      3 - 5     medium       4 11.8083504         4     0</span></span>
+<span><span class="co">#&gt;  6:                 1      5 - 7       high       2  5.8234086         2     0</span></span>
+<span><span class="co">#&gt;  7:                 1      5 - 7        low       1  2.9130732         1     0</span></span>
+<span><span class="co">#&gt;  8:                 1      5 - 7     medium       1  2.9103354         1     0</span></span>
+<span><span class="co">#&gt;  9:                 2     -1 - 3       high       1  0.2600958         0     0</span></span>
+<span><span class="co">#&gt; 10:                 2     -1 - 3        low       3 14.4312115         0     0</span></span>
+<span><span class="co">#&gt; 11:                 2     -1 - 3     medium       2  1.5167693         0     1</span></span>
+<span><span class="co">#&gt; 12:                 2      3 - 5        low       1  1.2566735         0     0</span></span>
+<span><span class="co">#&gt; 13:                 2      3 - 5     medium       4  5.7056810         0     3</span></span>
+<span><span class="co">#&gt; 14:                 2      5 - 7       high       2  7.6824093         0     2</span></span>
+<span><span class="co">#&gt; 15:                 2      5 - 7        low       1  0.2546201         0     1</span></span>
+<span><span class="co">#&gt; 16:                 2      5 - 7     medium       1  1.2566735         0     0</span></span>
 <span><span class="co">#&gt;     b_weighted</span></span>
 <span><span class="co">#&gt;          &lt;num&gt;</span></span>
 <span><span class="co">#&gt;  1:   6.000000</span></span>
@@ -356,7 +464,7 @@ boundaries.</p>
 <span><span class="co">#&gt; 16:   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
-<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; $bounds$time_bin_category</span></span>
 <span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
@@ -364,87 +472,36 @@ boundaries.</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$b_category</span></span>
 <span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
-<span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
-<span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
-<span>  unit <span class="op">=</span> <span class="st">"months"</span></span>
-<span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     time_bin a_category b_category AT_RISK        PYR F_AT_RISK cases</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt;      &lt;num&gt;     &lt;num&gt; &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:        1     -1 - 3       high       1  35.942505         1     0</span></span>
-<span><span class="co">#&gt;  2:        1     -1 - 3        low       5 149.749487         5     1</span></span>
-<span><span class="co">#&gt;  3:        1     -1 - 3     medium       2  71.852156         2     0</span></span>
-<span><span class="co">#&gt;  4:        1      3 - 5        low       1  35.975359         1     0</span></span>
-<span><span class="co">#&gt;  5:        1      3 - 5     medium       4 141.700205         4     0</span></span>
-<span><span class="co">#&gt;  6:        1      5 - 7       high       2  69.880903         2     0</span></span>
-<span><span class="co">#&gt;  7:        1      5 - 7        low       1  34.956879         1     0</span></span>
-<span><span class="co">#&gt;  8:        1      5 - 7     medium       1  34.924025         1     0</span></span>
-<span><span class="co">#&gt;  9:        2     -1 - 3       high       1   3.121150         0     0</span></span>
-<span><span class="co">#&gt; 10:        2     -1 - 3        low       3 173.174538         0     0</span></span>
-<span><span class="co">#&gt; 11:        2     -1 - 3     medium       2  18.201232         0     1</span></span>
-<span><span class="co">#&gt; 12:        2      3 - 5        low       1  15.080082         0     0</span></span>
-<span><span class="co">#&gt; 13:        2      3 - 5     medium       4  68.468172         0     3</span></span>
-<span><span class="co">#&gt; 14:        2      5 - 7       high       2  92.188912         0     2</span></span>
-<span><span class="co">#&gt; 15:        2      5 - 7        low       1   3.055441         0     1</span></span>
-<span><span class="co">#&gt; 16:        2      5 - 7     medium       1  15.080082         0     0</span></span>
-<span><span class="co">#&gt;     b_weighted</span></span>
-<span><span class="co">#&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:   6.000000</span></span>
-<span><span class="co">#&gt;  2:   1.413339</span></span>
-<span><span class="co">#&gt;  3:   3.999543</span></span>
-<span><span class="co">#&gt;  4:   2.000000</span></span>
-<span><span class="co">#&gt;  5:   3.993276</span></span>
-<span><span class="co">#&gt;  6:   6.499765</span></span>
-<span><span class="co">#&gt;  7:   2.000000</span></span>
-<span><span class="co">#&gt;  8:   3.000000</span></span>
-<span><span class="co">#&gt;  9:   6.000000</span></span>
-<span><span class="co">#&gt; 10:   1.485297</span></span>
-<span><span class="co">#&gt; 11:   4.664260</span></span>
-<span><span class="co">#&gt; 12:   2.000000</span></span>
-<span><span class="co">#&gt; 13:   4.175144</span></span>
-<span><span class="co">#&gt; 14:   6.554170</span></span>
-<span><span class="co">#&gt; 15:   2.000000</span></span>
-<span><span class="co">#&gt; 16:   3.000000</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bounds</span></span>
-<span><span class="co">#&gt; $bounds$time_bin</span></span>
-<span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bounds$a_category</span></span>
-<span><span class="co">#&gt; [1] " [-1, 3) [3, 5) [5, 7]"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $bounds$b_category</span></span>
-<span><span class="co">#&gt; [1] " [-1, 3) [3, 6) [6, 10)"</span></span>
+<span></span>
+<span><span class="co"># We can also change the units in our person-years</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  entry <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"f"</span>, month <span class="op">=</span> <span class="st">"e"</span>, day <span class="op">=</span> <span class="st">"d"</span><span class="op">)</span>,</span>
 <span>  exit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>year <span class="op">=</span> <span class="st">"i"</span>, month <span class="op">=</span> <span class="st">"h"</span>, day <span class="op">=</span> <span class="st">"g"</span><span class="op">)</span>,</span>
 <span>  unit <span class="op">=</span> <span class="st">"days"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     time_bin a_category b_category AT_RISK   PYR F_AT_RISK cases b_weighted</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt; &lt;num&gt;     &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:        1     -1 - 3       high       1  1094         1     0   6.000000</span></span>
-<span><span class="co">#&gt;  2:        1     -1 - 3        low       5  4558         5     1   1.413339</span></span>
-<span><span class="co">#&gt;  3:        1     -1 - 3     medium       2  2187         2     0   3.999543</span></span>
-<span><span class="co">#&gt;  4:        1      3 - 5        low       1  1095         1     0   2.000000</span></span>
-<span><span class="co">#&gt;  5:        1      3 - 5     medium       4  4313         4     0   3.993276</span></span>
-<span><span class="co">#&gt;  6:        1      5 - 7       high       2  2127         2     0   6.499765</span></span>
-<span><span class="co">#&gt;  7:        1      5 - 7        low       1  1064         1     0   2.000000</span></span>
-<span><span class="co">#&gt;  8:        1      5 - 7     medium       1  1063         1     0   3.000000</span></span>
-<span><span class="co">#&gt;  9:        2     -1 - 3       high       1    95         0     0   6.000000</span></span>
-<span><span class="co">#&gt; 10:        2     -1 - 3        low       3  5271         0     0   1.485297</span></span>
-<span><span class="co">#&gt; 11:        2     -1 - 3     medium       2   554         0     1   4.664260</span></span>
-<span><span class="co">#&gt; 12:        2      3 - 5        low       1   459         0     0   2.000000</span></span>
-<span><span class="co">#&gt; 13:        2      3 - 5     medium       4  2084         0     3   4.175144</span></span>
-<span><span class="co">#&gt; 14:        2      5 - 7       high       2  2806         0     2   6.554170</span></span>
-<span><span class="co">#&gt; 15:        2      5 - 7        low       1    93         0     1   2.000000</span></span>
-<span><span class="co">#&gt; 16:        2      5 - 7     medium       1   459         0     0   3.000000</span></span>
+<span><span class="co">#&gt;     time_bin_category a_category b_category AT_RISK   PYR cases b_weighted</span></span>
+<span><span class="co">#&gt;                &lt;char&gt;     &lt;char&gt;     &lt;char&gt;   &lt;int&gt; &lt;num&gt; &lt;num&gt;      &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:                 1     -1 - 3       high       1  1094     0   6.000000</span></span>
+<span><span class="co">#&gt;  2:                 1     -1 - 3        low       5  4558     1   1.413339</span></span>
+<span><span class="co">#&gt;  3:                 1     -1 - 3     medium       2  2187     0   3.999543</span></span>
+<span><span class="co">#&gt;  4:                 1      3 - 5        low       1  1095     0   2.000000</span></span>
+<span><span class="co">#&gt;  5:                 1      3 - 5     medium       4  4313     0   3.993276</span></span>
+<span><span class="co">#&gt;  6:                 1      5 - 7       high       2  2127     0   6.499765</span></span>
+<span><span class="co">#&gt;  7:                 1      5 - 7        low       1  1064     0   2.000000</span></span>
+<span><span class="co">#&gt;  8:                 1      5 - 7     medium       1  1063     0   3.000000</span></span>
+<span><span class="co">#&gt;  9:                 2     -1 - 3       high       1    95     0   6.000000</span></span>
+<span><span class="co">#&gt; 10:                 2     -1 - 3        low       3  5271     0   1.485297</span></span>
+<span><span class="co">#&gt; 11:                 2     -1 - 3     medium       2   554     1   4.664260</span></span>
+<span><span class="co">#&gt; 12:                 2      3 - 5        low       1   459     0   2.000000</span></span>
+<span><span class="co">#&gt; 13:                 2      3 - 5     medium       4  2084     3   4.175144</span></span>
+<span><span class="co">#&gt; 14:                 2      5 - 7       high       2  2806     2   6.554170</span></span>
+<span><span class="co">#&gt; 15:                 2      5 - 7        low       1    93     1   2.000000</span></span>
+<span><span class="co">#&gt; 16:                 2      5 - 7     medium       1   459     0   3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
-<span><span class="co">#&gt; $bounds$time_bin</span></span>
+<span><span class="co">#&gt; $bounds$time_bin_category</span></span>
 <span><span class="co">#&gt; [1] " [1899-01-01 to 1902-12-31] [1903-01-01 to 1910-01-01]"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds$a_category</span></span>
@@ -462,11 +519,13 @@ follow-up time and there is no need to translate to calendar points. The
 differences start with the person-year list. In this case the entry and
 exit items are just columns, the duration at entry and exit of the
 observation.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Repeating the same non-time categories and event statuses</span></span>
+<span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">4</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">5</span>, <span class="fl">6</span>, <span class="fl">7</span>, <span class="fl">6</span>, <span class="fl">5</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># Instead of calendar dates, we may have entry and exit durations</span></span>
 <span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">10</span>, <span class="fl">10</span>, <span class="fl">15</span>, <span class="fl">15</span>, <span class="fl">20</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">40</span>, <span class="fl">50</span>, <span class="fl">50</span>, <span class="fl">60</span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">11</span>, <span class="fl">11</span>, <span class="fl">22</span>, <span class="fl">22</span>, <span class="fl">30</span>, <span class="fl">30</span>, <span class="fl">45</span>, <span class="fl">45</span>, <span class="fl">50</span>, <span class="fl">50</span>, <span class="fl">60</span>, <span class="fl">60</span>, <span class="fl">70</span>, <span class="fl">70</span>, <span class="fl">80</span>, <span class="fl">80</span>, <span class="fl">90</span><span class="op">)</span></span>
 <span></span>
@@ -475,43 +534,55 @@ observation.</p>
 <span>  d <span class="op">=</span> <span class="va">d</span>, e <span class="op">=</span> <span class="va">e</span></span>
 <span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># When we have durations instead of calendar dates, our person-year</span></span>
+<span><span class="co"># list should only have a single entry, instead of lists of columns.</span></span>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>entry <span class="op">=</span> <span class="st">"d"</span>, exit <span class="op">=</span> <span class="st">"e"</span><span class="op">)</span></span></code></pre></div>
 <p>Next, we define the time categories. The only accepted time category
-for a user defined scale is similar to the age-based calendar scale
-categories. It is assumed to be provided as a single string or a list
-with upper and lower limits. While we can technically provide multiple
-categories, they can always be condensed into a single category similar
-to the calendar categories.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+for a user defined scale is similar to the non-time categories. It is
+assumed to be provided as a single string or a list with upper and lower
+limits. While we can technically provide multiple categories, they can
+always be condensed into a single category, similar to the calendar
+categories.</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Once again, our non-time categories are defined the same</span></span>
+<span><span class="va">categ</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"a"</span> <span class="op">=</span> <span class="st">"-1/-1/3/5]7"</span>,</span>
 <span>  <span class="st">"b AS b_bin"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span><span class="op">)</span>, upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">6</span>, <span class="st">"]10"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Here we are defining the duration categories to use.</span></span>
+<span><span class="co"># This will create two columns, 'time' and 'time_bin'.</span></span>
+<span><span class="co"># 'time' is the average duration between the entry and exit durations.</span></span>
+<span><span class="co"># 'time_bin' is the category value.</span></span>
+<span><span class="co"># We can use 'time' to find the average duration in each group.</span></span>
 <span><span class="va">time_scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"time AS time_bin"</span> <span class="op">=</span> <span class="st">"0 / 10 / 50 / 100"</span><span class="op">)</span></span></code></pre></div>
 <p>Finally, there are functionally no differences between the summaries
 and events available for person-time tables using calendar and user
 defined time scales.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"c"</span> <span class="op">=</span> <span class="st">"count AS cases"</span>, <span class="st">"a"</span> <span class="op">=</span> <span class="st">"mean"</span>, <span class="st">"b"</span> <span class="op">=</span> <span class="st">"weighted_mean"</span><span class="op">)</span></span>
 <span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"c"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span>, <span class="cn">T</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Everything else runs the same, and gives similar outputs.</span></span>
+<span><span class="co"># Except now the time category boundaries are not based on dates.</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/Event_Time_Gen.html">Event_Time_Gen</a></span><span class="op">(</span><span class="va">table</span>, <span class="va">pyr</span>, <span class="va">time_scale</span>, <span class="va">categ</span>, <span class="va">summary</span>, <span class="va">events</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $df</span></span>
-<span><span class="co">#&gt;     time_bin a_category  b_bin AT_RISK   PYR F_AT_RISK     c        a        b</span></span>
-<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt; &lt;char&gt;   &lt;int&gt; &lt;num&gt;     &lt;num&gt; &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:        1     -1 - 3      2       2    18         2     0 0.500000 1.500000</span></span>
-<span><span class="co">#&gt;  2:        1     -1 - 3      3       1     8         1     0 2.000000 3.000000</span></span>
-<span><span class="co">#&gt;  3:        1      3 - 5      3       2     8         2     0 3.500000 4.000000</span></span>
-<span><span class="co">#&gt;  4:        2     -1 - 3      2       4    32         2     1 1.000000 1.656250</span></span>
-<span><span class="co">#&gt;  5:        2     -1 - 3      3       2    42         1     0 2.000000 4.428571</span></span>
-<span><span class="co">#&gt;  6:        2     -1 - 3      4       1    30         1     0 2.000000 6.000000</span></span>
-<span><span class="co">#&gt;  7:        2      3 - 5      3       4    82         2     1 3.500000 4.000000</span></span>
-<span><span class="co">#&gt;  8:        2      5 - 7      3       1    10         1     0 5.000000 3.000000</span></span>
-<span><span class="co">#&gt;  9:        2      5 - 7      4       2    50         1     2 5.500000 6.600000</span></span>
-<span><span class="co">#&gt; 10:        3     -1 - 3      2       3    60         1     1 1.666667 1.166667</span></span>
-<span><span class="co">#&gt; 11:        3      3 - 5      2       1    30         0     0 4.000000 2.000000</span></span>
-<span><span class="co">#&gt; 12:        3      3 - 5      3       2    10         0     2 3.500000 3.000000</span></span>
-<span><span class="co">#&gt; 13:        3      5 - 7      2       1    30         0     1 6.000000 2.000000</span></span>
-<span><span class="co">#&gt; 14:        3      5 - 7      3       1    20         0     0 5.000000 3.000000</span></span>
+<span><span class="co">#&gt;     time_bin a_category  b_bin AT_RISK   PYR     c        a        b</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;     &lt;char&gt; &lt;char&gt;   &lt;int&gt; &lt;num&gt; &lt;num&gt;    &lt;num&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:        1     -1 - 3      2       2    18     0 0.500000 1.500000</span></span>
+<span><span class="co">#&gt;  2:        1     -1 - 3      3       1     8     0 2.000000 3.000000</span></span>
+<span><span class="co">#&gt;  3:        1      3 - 5      3       2     8     0 3.500000 4.000000</span></span>
+<span><span class="co">#&gt;  4:        2     -1 - 3      2       4    32     1 1.000000 1.656250</span></span>
+<span><span class="co">#&gt;  5:        2     -1 - 3      3       2    42     0 2.000000 4.428571</span></span>
+<span><span class="co">#&gt;  6:        2     -1 - 3      4       1    30     0 2.000000 6.000000</span></span>
+<span><span class="co">#&gt;  7:        2      3 - 5      3       4    82     1 3.500000 4.000000</span></span>
+<span><span class="co">#&gt;  8:        2      5 - 7      3       1    10     0 5.000000 3.000000</span></span>
+<span><span class="co">#&gt;  9:        2      5 - 7      4       2    50     2 5.500000 6.600000</span></span>
+<span><span class="co">#&gt; 10:        3     -1 - 3      2       3    60     1 1.666667 1.166667</span></span>
+<span><span class="co">#&gt; 11:        3      3 - 5      2       1    30     0 4.000000 2.000000</span></span>
+<span><span class="co">#&gt; 12:        3      3 - 5      3       2    10     2 3.500000 3.000000</span></span>
+<span><span class="co">#&gt; 13:        3      5 - 7      2       1    30     1 6.000000 2.000000</span></span>
+<span><span class="co">#&gt; 14:        3      5 - 7      3       1    20     0 5.000000 3.000000</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $bounds</span></span>
 <span><span class="co">#&gt; $bounds$time_bin</span></span>
@@ -528,24 +599,23 @@ defined time scales.</p>
 <h3 id="additional-summary-options">Additional summary options<a class="anchor" aria-label="anchor" href="#additional-summary-options"></a>
 </h3>
 <p>There are multiple options for optional returned summaries available
-for both person-count and person-time tables. Person-time tables
-calculate the typical “at risk” summary variables for any row at risk,
-but they also can calculate “first at risk” and “last at risk” summary
-variables (named <code>F_AT_RISK</code> and <code>L_AT_RISK</code>
-respectively). These values can be summarized by setting their
-corresponding function parameters, <code>fcount</code> and
-<code>lcount</code> to true. Note that these are not calculated during
-run-time otherwise, so they can be used for taking weighted means only
-if they are returned. Notably, these summaries determine the first and
-last observed time category for each subject. This means that even if a
-subject is observed past the last time category, they are still
-considered “last at risk” during the final time category. Similarly for
-the first at risk measure. These summaries will always sum to the total
-subjects at risk at any point during the time categories. These
-summaries can also be extended to subject IDs, if there are multiple
-intervals for each subject. By passing a <code>studyid</code> parameter
-to the person-time function, the at risk summaries will summarize per
-ID, instead of per observed interval.</p>
+for person-time tables. Person-time tables calculate the typical “at
+risk” summary variables for any row at risk, but they also can calculate
+“first at risk” and “last at risk” summary variables (named
+<code>F_AT_RISK</code> and <code>L_AT_RISK</code> respectively). These
+values can be summarized by setting their corresponding function
+parameters, <code>fcount</code> and <code>lcount</code> to true. Note
+that these are not calculated during run-time otherwise, so they can be
+used for taking weighted means only if they are returned. Notably, these
+summaries determine the first and last observed time category for each
+subject. This means that even if a subject is observed past the last
+time category, they are still considered “last at risk” during the final
+time category. Similarly for the first at risk measure. These summaries
+will always sum to the total subjects at risk at any point during the
+time categories. These summaries can also be extended to subject IDs, if
+there are multiple intervals for each subject. By passing a
+<code>studyid</code> parameter to the person-time function, the at risk
+summaries will summarize per ID, instead of per observed interval.</p>
 <p>In addition to the summary and event methods listed in this vignette,
 there are 11 methods allowed by person-time tables and 7 methods allowed
 by person-count tables. As mentioned previously, methods can be written

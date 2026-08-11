@@ -100,12 +100,12 @@ and then call the underlying functions.</p>
 initialized with the interval and event columns, and a list of columns.
 Because <code>Colossus</code> can handle much more complicated models,
 the definition has to be more complicated. Instead of a Surv object, the
-model is specified with ‘cox’, ‘poisson’, or ‘finegray’, each also
-including a strata option. The right side of the equation is listed
-similarly. Columns are added to subterm types (loglinear, linear,
-plinear, etc.). Each subterm has a list of columns and a term number.
-Finally, the method to combine terms is added as a separate item
-(multiplicative, additive, etc.).</p>
+model is specified with a model type (‘cox’, ‘poisson’, ‘finegray’,
+etc.), each also including a strata option. The right side of the
+equation is listed similarly. Columns are added to subterm types
+(loglinear, linear, plinear, etc.). Each subterm has a list of columns
+and a term number. Finally, the method to combine terms is added as a
+separate item (multiplicative, additive, etc.).</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">Surv(interval, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mtext mathvariant="normal">name + ... + factor(name)</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Survival(interval, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> subterm(name, factor(name), term_number) + ... + term_model()’</mtext></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -151,14 +151,17 @@ assumed to be in term 0 if a term number is not provided, and the model
 is assumed to be multiplicative excess. The factor option automatically
 removes the first level as a reference. Note that unused levels can be
 listed first to use all levels.</p>
-<p>The following expressions are equivalent.</p>
+<p>A formula can be converted to a vector representation by using the <a href="../reference/get_form.html">get_form</a> function. This
+transformation is applied automatically when formula are provided to
+regression functions however. The following expressions are
+equivalent.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">term_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">tform</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span>, <span class="st">"lin"</span><span class="op">)</span></span>
-<span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dose0"</span>, <span class="st">"dose1"</span>, <span class="st">"dose2"</span><span class="op">)</span></span>
-<span><span class="va">modelform</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
-<span><span class="va">tstart</span> <span class="op">&lt;-</span> <span class="st">"t0"</span></span>
-<span><span class="va">tend</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span>
+<code class="sourceCode R"><span><span class="va">term_number</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">subterm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span>, <span class="st">"lin"</span><span class="op">)</span></span>
+<span><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dose0"</span>, <span class="st">"dose1"</span>, <span class="st">"dose2"</span><span class="op">)</span></span>
+<span><span class="va">model_formula</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
+<span><span class="va">time_start</span> <span class="op">&lt;-</span> <span class="st">"t0"</span></span>
+<span><span class="va">time_end</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span>
 <span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"lung"</span></span>
 <span></span>
 <span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>

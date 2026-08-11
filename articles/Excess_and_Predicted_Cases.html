@@ -99,8 +99,8 @@ cases and how many cases are excess cases. These are calculated by
 splitting a poisson model into a background term and excess terms. In
 <code>Colossus</code>, the background term is assumed to be the first
 term, and every other term is assumed to be causing excess cases.
-<code>Colossus</code> has a function, <code><a href="../reference/EventAssignment.html">EventAssignment()</a></code>,
-which calculates the number of background/excess cases for both average
+<code>Colossus</code> has a function, <a href="../reference/EventAssignment.html">EventAssignment()</a>, which
+calculates the number of background/excess cases for both average
 predicted counts and true counts. Let us assume we have the following
 model for event rate:</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -161,18 +161,18 @@ cases.</p>
 <span><span class="va">BK</span> <span class="op">&lt;-</span> <span class="va">e0</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
 <span><span class="va">EX</span> <span class="op">&lt;-</span> <span class="va">e0</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span></span>
 <span><span class="va">Total</span> <span class="op">&lt;-</span> <span class="va">e0</span><span class="op">[</span>, <span class="fl">3</span><span class="op">]</span></span></code></pre></div>
-<p><code><a href="../reference/EventAssignment.html">EventAssignment()</a></code> can also be used to calculate the
-number of cases over the confidence interval of a model parameter. The
-excess and background cases are evaluated at the midpoint, as well as
-the risk model optimized with the model parameter held constant at the
-boundary values. This produces three lists of matrices, for the lower
-limit, midpoint, and upper limit. At each point the standard matrices
-for observed and predicted events are produced. This method can also be
-applied to the results of a likelihood-based boundary regression to
-evaluate the distribution of cases at the likelihood-based confidence
-interval. In this case the parameter number and significance level are
-taken from the likelihood boundary result, and do not need to be
-provided.</p>
+<p><a href="../reference/EventAssignment.html">EventAssignment()</a> can
+also be used to calculate the number of cases over the confidence
+interval of a model parameter. The excess and background cases are
+evaluated at the midpoint, as well as the risk model optimized with the
+model parameter held constant at the boundary values. This produces
+three lists of matrices, for the lower limit, midpoint, and upper limit.
+At each point the standard matrices for observed and predicted events
+are produced. This method can also be applied to the results of a
+likelihood-based boundary regression to evaluate the distribution of
+cases at the likelihood-based confidence interval. In this case the
+parameter number and significance level are taken from the likelihood
+boundary result, and do not need to be provided.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/EventAssignment.html">EventAssignment</a></span><span class="op">(</span><span class="va">poisres</span>, <span class="va">df</span>, check_num <span class="op">=</span> <span class="fl">2</span>, z <span class="op">=</span> <span class="fl">1.96</span><span class="op">)</span></span>
 <span></span>

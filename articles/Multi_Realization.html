@@ -130,13 +130,15 @@ are two distributed columns and five realizations. Similar to other
 regression options, <code>Colossus</code> always expects column names
 listed in the model to be in the table.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dose_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r0"</span>, <span class="st">"s0"</span><span class="op">)</span></span>
-<span><span class="co"># The two columns in the model to replace are the radiation/sleeping covariates</span></span>
+<code class="sourceCode R"><span><span class="co"># The two columns in the model to replace are the radiation/sleeping covariates</span></span>
+<span><span class="co"># The items in dose_index correspond to items in the model</span></span>
+<span><span class="va">dose_index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r0"</span>, <span class="st">"s0"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># columns to be used for realizations 0-4, rows for each column being replaced</span></span>
 <span><span class="va">dose_realizations</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"r0"</span>, <span class="st">"r1"</span>, <span class="st">"r2"</span>, <span class="st">"r3"</span>, <span class="st">"r4"</span>, <span class="st">"s0"</span>, <span class="st">"s1"</span>, <span class="st">"s2"</span>, <span class="st">"s3"</span>, <span class="st">"s4"</span><span class="op">)</span>,</span>
 <span>  nrow <span class="op">=</span> <span class="fl">2</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co"># columns to be used for realizations 0-4, rows for each column being replaced</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The first method is designed to perform the Frequentist Model
 Averaging method. It runs each regression and returns matrices for the
 final parameter estimates, standard deviations, and log-likelihoods/AIC
@@ -158,7 +160,11 @@ cases, this is enough to find a nearby feasible space to start at.</p>
 <span>  realization_columns <span class="op">=</span> <span class="va">realization_columns</span>,</span>
 <span>  realization_index <span class="op">=</span> <span class="va">realization_index</span>,</span>
 <span>  fma <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The result will return matrices/vectors for the results</span></span>
+<span><span class="co"># in each realization.</span></span>
+<span><span class="co"># The output can be printed for information.</span></span></code></pre></div>
 <p>The second method is designed to perform the Monte Carlo Maximum
 Likelihood method. It returns the standard regression output, only using
 the average log-likelihood. Once again, there is no requirement for the
@@ -171,7 +177,10 @@ risk from a series of similar models.</p>
 <span>  realization_columns <span class="op">=</span> <span class="va">realization_columns</span>,</span>
 <span>  realization_index <span class="op">=</span> <span class="va">realization_index</span>,</span>
 <span>  mcml <span class="op">=</span> <span class="cn">TRUE</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The result will return a standard regression output.</span></span>
+<span><span class="co"># The number of realizations will also be output.</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

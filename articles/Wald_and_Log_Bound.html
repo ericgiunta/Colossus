@@ -243,8 +243,8 @@ Both regressions converge with similar scores.</p>
 <span><span class="co">#&gt; maximum step size: 3.76854e-03, maximum first derivative: 3.34296e-03</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.28859e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Records Used: 64, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.02555 seconds</span></span>
+<span><span class="co">#&gt; All Records Used: 64</span></span>
+<span><span class="co">#&gt; Run finished in 0.02573 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>,</span>
@@ -273,18 +273,17 @@ Both regressions converge with similar scores.</p>
 <span><span class="co">#&gt; maximum step size: 3.96072e-02, maximum first derivative: 5.76358e-04</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.57097e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Records Used: 64, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.01409 seconds</span></span>
+<span><span class="co">#&gt; All Records Used: 64</span></span>
+<span><span class="co">#&gt; Run finished in 0.01433 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
 boundaries and for both parameters in each model.</p>
 <p>Let us start with the fully exponential model. The Wald boundary is
 estimated using the central estimates and standard deviations. The
-Likelihood boundary is solved using the <code><a href="../reference/LikelihoodBound.html">LikelihoodBound()</a></code>
-function applied to the result. The parameter number needs to be
-provided (indexed starting at one) and an alpha level needs to be
-provided.</p>
+Likelihood boundary is solved using the <a href="../reference/LikelihoodBound.html">LikelihoodBound()</a> function
+applied to the result. The parameter number needs to be provided
+(indexed starting at one) and an alpha level needs to be provided.</p>
 <p>Overall, the Wald and likelihood-based boundaries are not the same.
 The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560),
 and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242).
@@ -323,7 +322,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098972 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.7597</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00926 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00971 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -347,7 +346,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84123 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9872</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00897 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00955 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
@@ -385,7 +384,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95011</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00932 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.00991 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -410,7 +409,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8044</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.471 at a score of -106.16586 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00979 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01036 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">

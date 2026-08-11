@@ -92,54 +92,43 @@
 <div class="section level2">
 <h2 id="general-options">General Options<a class="anchor" aria-label="anchor" href="#general-options"></a>
 </h2>
-<p>Both Cox proportional hazards and Poisson model regressions have
-additional functions that can account for specific situations. There
-general situations are as follows:</p>
+<p>The regression options in <code>Colossus</code> generally have
+additional options that can account for specific situations. The general
+descriptions are as follows:</p>
 <table class="table">
 <colgroup>
-<col width="25%">
-<col width="27%">
-<col width="27%">
-<col width="20%">
+<col width="47%">
+<col width="52%">
 </colgroup>
 <thead><tr class="header">
 <th align="center">Option</th>
 <th align="center">Description</th>
-<th align="center">Cox PH</th>
-<th align="center">Poisson</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td align="center">Stratification</td>
 <td align="center">In Cox PH, the stratification is applied in the risks
-groups to compare only like rows. In Poisson model regression the
-stratification is an additional term in the model to account for the
-effects of stratified covariates</td>
-<td align="center">x</td>
-<td align="center">x</td>
+groups to compare rows at the same stratified baseline. In Poisson model
+regression the stratification is an additional term in the model to
+account for the effects of stratified covariates. Matched case-control
+is a specific application of stratified logistic regression.</td>
 </tr>
 <tr class="even">
 <td align="center">Simplified Model</td>
 <td align="center">For a multiplicative Log-Linear model,
 simplifications can be made to the code. These give a faster
 version.</td>
-<td align="center">x</td>
-<td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="center">Non-Derivative Calculation</td>
 <td align="center">If a single iteration is needed without derivatives,
 there is time and memory that can be saved</td>
-<td align="center">x</td>
-<td align="center">x</td>
 </tr>
 <tr class="even">
 <td align="center">Competing Risks</td>
 <td align="center">If there is a competing event, rows are weighted by
 an estimate of the censoring rate to approximate a dataset without the
 effect of a competing event</td>
-<td align="center">x</td>
-<td align="center"></td>
 </tr>
 <tr class="odd">
 <td align="center">Joint Analysis</td>
@@ -147,14 +136,76 @@ effect of a competing event</td>
 multiple outcomes, by creating multiple copies of rows with multiple
 events and using a factor variable to add covariates for specific
 outcomes</td>
+</tr>
+<tr class="even">
+<td align="center">Multiple Initial Parameter Sets</td>
+<td align="center">The user provides multiple guesses for each starting
+parameter, <code>Colossus</code> runs low iteration regressions at each
+guess, and then a full run at the best guess</td>
+</tr>
+<tr class="odd">
+<td align="center">Linear Constraints</td>
+<td align="center">Applies a linear system of equations to the model
+parameters, which is applied during optimization.</td>
+</tr>
+</tbody>
+</table>
+<p>The general availability is as follows:</p>
+<table class="table">
+<thead><tr class="header">
+<th align="center">Option</th>
+<th align="center">Cox PH</th>
+<th align="center">Poisson</th>
+<th align="center">Logistic</th>
+<th align="center">Matched Case-Control</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">Stratification</td>
+<td align="center">x</td>
+<td align="center">x</td>
 <td align="center"></td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
-<td align="center">Distributed Initial Parameter Sets</td>
-<td align="center">The user provides distribution for each starting
-parameter, <code>Colossus</code> runs low iteration regressions at
-random points, and then a full run at the best guess</td>
+<td align="center">Simplified Model</td>
+<td align="center">x</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="center">Non-Derivative Calculation</td>
+<td align="center">x</td>
+<td align="center">x</td>
+<td align="center">x</td>
+<td align="center">x</td>
+</tr>
+<tr class="even">
+<td align="center">Competing Risks</td>
+<td align="center">x</td>
+<td align="center"></td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="odd">
+<td align="center">Joint Analysis</td>
+<td align="center"></td>
+<td align="center">x</td>
+<td align="center"></td>
+<td align="center"></td>
+</tr>
+<tr class="even">
+<td align="center">Multiple Initial Parameter Sets</td>
+<td align="center">x</td>
+<td align="center">x</td>
+<td align="center">x</td>
+<td align="center">x</td>
+</tr>
+<tr class="odd">
+<td align="center">Linear Constraints</td>
+<td align="center">x</td>
+<td align="center">x</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
@@ -182,7 +233,7 @@ the following common equation for the Log-Likelihood:</p>
     Ll = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right)^{\delta_i}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>In which r denotes hazard ratios, the denominator is the sum of
+<p>In which ‘r’ denotes hazard ratios, the denominator is the sum of
 hazard ratios of intervals containing the event time, and each term is
 raised to the power of 1 if the interval has an event and 0 otherwise.
 Different tie methods modify the denominator based on how the order of
@@ -199,11 +250,13 @@ Multiple strata columns can be provided by including a vector of
 columns.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="st">"s0"</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox_Strata</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">s0</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox_Strata</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="va">s0</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">Strat_Cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s0"</span>, <span class="st">"s1"</span>, <span class="st">"s2"</span><span class="op">)</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox_Strata</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">s0</span>, <span class="va">s1</span>, <span class="va">s2</span><span class="op">)</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox_Strata</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">s0</span>, <span class="va">s1</span>, <span class="va">s2</span><span class="op">)</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -249,6 +302,13 @@ themselves.</p>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="fu">Poisson_Strata</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span>, <span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="logistic-and-matched-case-control-regression">Logistic and Matched Case-Control Regression<a class="anchor" aria-label="anchor" href="#logistic-and-matched-case-control-regression"></a>
+</h3>
+<p>See the <a href="Matched_Case_Control.html">Matched Case-Control
+vignette</a> for more details about how stratified logistic regression
+is performed.</p>
 </div>
 </div>
 <div class="section level2">
@@ -312,7 +372,8 @@ risk. If we assume that no time-dependent covariates are being used,
 then all that remains is to weigh the contribution of these competing
 events. In general, a weighting column is provided before regression,
 the values can be solved from a survival curve or by using the
-“finegray” function of the <code>survival</code> package.</p>
+“finegray” function of the <a href="https://CRAN.R-project.org/package=survival" class="external-link">survival
+package</a>.</p>
 <p>In code, the call is similar to the standard function. The process
 for finding a weighting is included below. In this example, we assume
 the event column, lung, to contain a 0 for no events, 1 for the primary
@@ -454,72 +515,17 @@ used.</p>
 <p>The function returns a list containing the combined table and model
 object.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/get_form_joint.html">get_form_joint</a></span><span class="op">(</span><span class="va">formula_list</span>, <span class="va">df</span>, nthreads <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; $model</span></span>
-<span><span class="co">#&gt; $person_year</span></span>
-<span><span class="co">#&gt; [1] "pyr"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $event</span></span>
-<span><span class="co">#&gt; [1] "events"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $strata</span></span>
-<span><span class="co">#&gt; [1] "NONE"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $null</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $term_n</span></span>
-<span><span class="co">#&gt; [1] 0 0 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $tform</span></span>
-<span><span class="co">#&gt; [1] "plin"   "loglin" "loglin"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $names</span></span>
-<span><span class="co">#&gt; [1] "t0"     "fac_e0" "fac_e1"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $a_n</span></span>
-<span><span class="co">#&gt; [1] 0.1 0.1 0.1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $keep_constant</span></span>
-<span><span class="co">#&gt; [1] 0 0 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $modelform</span></span>
-<span><span class="co">#&gt; [1] "ME"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gmix_term</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $gmix_theta</span></span>
-<span><span class="co">#&gt; [1] 0</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $expres_calls</span></span>
-<span><span class="co">#&gt; list()</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; attr(,"class")</span></span>
-<span><span class="co">#&gt; [1] "poismodel"</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $data</span></span>
-<span><span class="co">#&gt;        t0    t1 events    e0    e1   fac   pyr fac_e0 fac_e1</span></span>
-<span><span class="co">#&gt;     &lt;num&gt; &lt;num&gt;  &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;  &lt;num&gt;  &lt;num&gt;</span></span>
-<span><span class="co">#&gt;  1:     0     1      0     1     0     0     1      0      0</span></span>
-<span><span class="co">#&gt;  2:     0     1      1     1     0     1     1      1      0</span></span>
-<span><span class="co">#&gt;  3:     0     1      2     1     0     1     1      1      0</span></span>
-<span><span class="co">#&gt;  4:     1     2      2     1     0     1     1      1      0</span></span>
-<span><span class="co">#&gt;  5:     1     2      1     1     0     0     1      0      0</span></span>
-<span><span class="co">#&gt;  6:     1     2      0     1     0     0     1      0      0</span></span>
-<span><span class="co">#&gt;  7:     0     1      1     0     1     0     1      0      0</span></span>
-<span><span class="co">#&gt;  8:     0     1      1     0     1     1     1      0      1</span></span>
-<span><span class="co">#&gt;  9:     0     1      0     0     1     1     1      0      1</span></span>
-<span><span class="co">#&gt; 10:     1     2      0     0     1     1     1      0      1</span></span>
-<span><span class="co">#&gt; 11:     1     2      1     0     1     0     1      0      0</span></span>
-<span><span class="co">#&gt; 12:     1     2      1     0     1     0     1      0      0</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_form_joint.html">get_form_joint</a></span><span class="op">(</span><span class="va">formula_list</span>, <span class="va">df</span>, nthreads <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">model</span></span>
+<span><span class="va">df_combined</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">df</span></span>
+<span><span class="va">df_combined</span></span>
+<span><span class="co">#&gt; NULL</span></span></code></pre></div>
 <p>These results could be used as input for any of the available
 regression functions. <code>Colossus</code> also includes a wrapper
 function to directly call the Poisson model regression function.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  ncores <span class="op">=</span> <span class="fl">1</span>, lr <span class="op">=</span> <span class="fl">0.75</span>, maxiter <span class="op">=</span> <span class="fl">10</span>, halfmax <span class="op">=</span> <span class="fl">5</span>, epsilon <span class="op">=</span> <span class="fl">1e-6</span>,</span>
-<span>  deriv_epsilon <span class="op">=</span> <span class="fl">1e-6</span>, verbose <span class="op">=</span> <span class="fl">2</span></span>
+<span>  ncores <span class="op">=</span> <span class="fl">1</span>, maxiter <span class="op">=</span> <span class="fl">10</span>, halfmax <span class="op">=</span> <span class="fl">5</span>, verbose <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRunJoint.html">PoisRunJoint</a></span><span class="op">(</span><span class="va">formula_list</span>, <span class="va">df</span>, control <span class="op">=</span> <span class="va">control</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
@@ -546,10 +552,260 @@ function to directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; maximum step size: 6.546e-03, maximum first derivative: 2.215e-03</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.589e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
-<span><span class="co">#&gt; Records Used: 12, Records Removed: 0</span></span>
-<span><span class="co">#&gt; Run finished in 0.018 seconds</span></span>
+<span><span class="co">#&gt; All Records Used: 12</span></span>
+<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="linear-constraints">Linear Constraints<a class="anchor" aria-label="anchor" href="#linear-constraints"></a>
+</h2>
+<p>Applying linear constraints adds an additional goal to the
+optimization, to solve for the parameters that both optimize the
+likelihood as well as solve the linear system of equations. The system
+of equations could be used to force parameter values to be off by
+constant values or have constant ratios. The initial parameter set need
+not satisfy the system of equations. One important detail is that linear
+constraints can be used with both the default Newton-Raphson
+optimization algorithm as well as the available gradient descent
+algorithms by applying a penalty.</p>
+<div class="section level3">
+<h3 id="general-input">General Input<a class="anchor" aria-label="anchor" href="#general-input"></a>
+</h3>
+<p>Linear constraints are added by passing both a matrix with constraint
+equations
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>)
+and a vector of constraint values
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>).
+In Colossus, the constraint matrix is passed to the
+<code>cons_mat</code> parameter and the constraint values are passed to
+the <code>cons_vec</code> parameter. The constraint values can be
+omitted and defaulted to zero.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mo>∀</mo><mi>j</mi><mo>:</mo><munder><mo>∑</mo><mi>i</mi></munder><mo stretchy="false" form="prefix">(</mo><msub><mi>M</mi><mrow><mi>j</mi><mo>,</mo><mi>i</mi></mrow></msub><mo>⋅</mo><msub><mi>β</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mi>j</mi></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    \forall j: \sum_i ( M_{j,i} \cdot \beta_i) = b_j 
+\end{aligned}
+</annotation></semantics></math></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t0 <span class="op">=</span> <span class="va">a</span>, t1 <span class="op">=</span> <span class="va">b</span>, e <span class="op">=</span> <span class="va">c</span>, fac0 <span class="op">=</span> <span class="va">d</span>, fac1 <span class="op">=</span> <span class="va">e</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">fac0</span>, <span class="va">fac1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># suppose we want the factors to be a value of 0.5 apart</span></span>
+<span><span class="co"># 1*fac0 + -1*fac1 = 0.5</span></span>
+<span><span class="va">cons_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">cons_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, cons_mat <span class="op">=</span> <span class="va">cons_mat</span>, cons_vec <span class="op">=</span> <span class="va">cons_vec</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      fac0  loglin            -2.77           6.67          (-15.8 - 10.3)</span></span>
+<span><span class="co">#&gt; 2:      fac1  loglin            -3.24           6.62          (-16.2 - 9.74)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:          0.678</span></span>
+<span><span class="co">#&gt; 2:          0.625</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; Entry Age Column was: 't0', Survival Age Column was: 't1', Outcome Column was: 'e'</span></span>
+<span><span class="co">#&gt; Risk Groups Used: 2</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 3.892,  AIC: 7.892</span></span>
+<span><span class="co">#&gt; Iterations run: 3</span></span>
+<span><span class="co">#&gt; maximum step size: 8.208e-01, maximum first derivative: 3.881e-01</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.348e-06</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; All Records Used: 6</span></span>
+<span><span class="co">#&gt; Run finished in 0.063 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span></span>
+<span><span class="co"># instead we could make the values opposite</span></span>
+<span><span class="co"># 1*fac0 + 1*fac1 = 0.0</span></span>
+<span><span class="va">cons_mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">cons_vec</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.0</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, cons_mat <span class="op">=</span> <span class="va">cons_mat</span>, cons_vec <span class="op">=</span> <span class="va">cons_vec</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      fac0  loglin           -0.207           2.22          (-4.56 - 4.14)</span></span>
+<span><span class="co">#&gt; 2:      fac1  loglin            0.207           2.33          (-4.36 - 4.77)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:          0.926</span></span>
+<span><span class="co">#&gt; 2:          0.929</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; Entry Age Column was: 't0', Survival Age Column was: 't1', Outcome Column was: 'e'</span></span>
+<span><span class="co">#&gt; Risk Groups Used: 2</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 4.325,  AIC: 8.325</span></span>
+<span><span class="co">#&gt; Iterations run: 3</span></span>
+<span><span class="co">#&gt; maximum step size: 2.297e-03, maximum first derivative: 1.649e-01</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.499e-05</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; All Records Used: 6</span></span>
+<span><span class="co">#&gt; Run finished in 0.015 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="application-to-gradient-descent">Application to gradient descent<a class="anchor" aria-label="anchor" href="#application-to-gradient-descent"></a>
+</h3>
+<p>Linear constraints can be directly combined with the optimization
+equations used in a Newton-Raphson algorithm, but they can still be used
+with a gradient descent algorithm. For more details on the differences,
+reference the <a href="Grad_Hess.html">vignette on the differences
+between optimization algorithms</a>. The linear constraints are added to
+the optimization using a penalty approach, regardless of the gradient
+descent option used.</p>
+<p>To begin, a penalty weight is set by the user through the
+<code>penalty_weight</code> parameter
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>)
+of the <code>gradient_control</code> list. This penalty is applied to an
+updated score
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><msup><mi>L</mi><mo>*</mo></msup></mrow><annotation encoding="application/x-tex">LL^{*}</annotation></semantics></math>)
+which accounts for both the log-likelihood as well as the constraint
+accuracy
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">\Delta b</annotation></semantics></math>).
+The updated score is optimized by a parameter set that solves the linear
+constraints and optimizes the log-likelihood.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>L</mi><msup><mi>L</mi><mo>*</mo></msup><mo>=</mo><mi>L</mi><mi>L</mi><mo>+</mo><mi>λ</mi><munder><mo>∑</mo><mi>j</mi></munder><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>M</mi><mrow><mo>,</mo><mi>j</mi></mrow></msub><mo>×</mo><mi>β</mi><mo>−</mo><msub><mi>b</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mrow><mi>∂</mi><mi>L</mi><msup><mi>L</mi><mo>*</mo></msup></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>k</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>∂</mi><mi>L</mi><mi>L</mi></mrow><mrow><mi>∂</mi><msub><mi>β</mi><mi>k</mi></msub></mrow></mfrac><mo>+</mo><mn>2</mn><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Δ</mi><mi>b</mi><mo>⋅</mo><msub><mi>M</mi><mrow><mi>i</mi><mo>,</mo></mrow></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    LL^{*} = LL + \lambda \sum_j \left ( M_{,j} \times \beta - b_j \right )^2 \\
+    \frac{\partial LL^{*}}{\partial \beta_k} = \frac{\partial LL}{\partial \beta_k} + 2 \lambda (\Delta b \cdot M_{i,})
+\end{aligned}
+</annotation></semantics></math></p>
+<p>Unlike the Newton-Raphson approach, this is not guaranteed to produce
+a result that solves for the linear constraints. One issue is the
+difference between the optimization criteria and the stopping criteria.
+If the constraint and log-likelihood portions of the score derivative
+cancel out, then the predicted step size may be near zero. This can lead
+to regressions being “stuck”. One way to avoid this issue is to slowly
+weight the penalty, so that the constraint portion will eventually
+out-weight the log-likelihood portion. As the iterations increase
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>),
+this weight is slowly increased to force the algorithm to solve for the
+linear constraints.</p>
+<p class="text-center" style="background-color: aliceblue">
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msup><mi>λ</mi><mo>*</mo></msup><mo>=</mo><mi>λ</mi><mo>×</mo><msup><mn>1.1</mn><mi>i</mi></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{aligned}
+    \lambda^{*} = \lambda \times 1.1^i
+\end{aligned}
+</annotation></semantics></math></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="multiple-initial-parameter-sets">Multiple Initial Parameter Sets<a class="anchor" aria-label="anchor" href="#multiple-initial-parameter-sets"></a>
+</h2>
+<p>Every basic regression option in Colossus allows the input of no
+initial parameter guess, a single guess, or multiple guesses. The basic
+process is that Colossus will run regressions starting at each guess,
+record the final point and score, and then compare to determine the best
+result. Colossus then restarts the regression at the best point, and
+then returns the final result. This has two useful properties: multiple
+regressions can be performed at different points without repeating
+processing steps and the convergence values can be reset between the
+guesses and best guess regressions.</p>
+<p>The first is an issue of time. Before a regression is run there are
+checks made to transform the data and model into the formats used for
+regression. By using multiple guesses, taking advantage of the data
+being constant, we can skip the time that would usually be required over
+multiple independent regressions. The second is an issue of how step
+sizes are controlled over a regression. As the regression converges, the
+maximum step size is decreased to reduce overstepping. This can lead to
+a regression getting caught in a local extrema. The step size is reset
+between regressions, so the best guess regression can possibly step
+outside of local extrema.</p>
+<p>Two changes are made to the standard function call to use multiple
+initial parameter sets. The first is that the <code>a_n</code> parameter
+should be a list of multiple vectors, one for each guess. The second is
+that the maximum iterations can be set for each guess. The number of
+iterations are controlled by the <code>maxiters</code> parameter, which
+is a vector with iterations for each guess and best guess regressions.
+The default is running each guess for 1 iteration and the best guess for
+<code>maxiter</code> iterations (defaulted to 20). If you want to run
+the guesses with more iterations, you can either manually fill out
+<code>maxiters</code> for each guess or set <code>maxiters</code> to a
+vector with two entries for the guesses iterations and best guess
+iterations.</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">b</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/data.table/man/data.table.html" class="external-link">data.table</a></span><span class="op">(</span>t0 <span class="op">=</span> <span class="va">a</span>, t1 <span class="op">=</span> <span class="va">b</span>, e <span class="op">=</span> <span class="va">c</span>, fac0 <span class="op">=</span> <span class="va">d</span>, fac1 <span class="op">=</span> <span class="va">e</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">model</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">fac0</span>, <span class="va">fac1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># suppose we have several parameter sets we think could be the best</span></span>
+<span><span class="co"># we can put each parameter set into a list</span></span>
+<span><span class="va">a_ns</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="op">-</span><span class="fl">0.1</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># The default</span></span>
+<span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="co"># Running each guess for 5 iterations</span></span>
+<span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">20</span><span class="op">)</span></span>
+<span><span class="va">maxiters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">20</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">df</span>, a_n <span class="op">=</span> <span class="va">a_ns</span>, maxiters <span class="op">=</span> <span class="va">maxiters</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span><span class="co">#&gt; Final Results</span></span>
+<span><span class="co">#&gt;    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval</span></span>
+<span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;            &lt;num&gt;          &lt;num&gt;                  &lt;char&gt;</span></span>
+<span><span class="co">#&gt; 1:      fac0  loglin            -8.21           79.2            (-163 - 147)</span></span>
+<span><span class="co">#&gt; 2:      fac1  loglin            -7.86           79.2            (-163 - 147)</span></span>
+<span><span class="co">#&gt;    2-tail p-value</span></span>
+<span><span class="co">#&gt;             &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1:          0.917</span></span>
+<span><span class="co">#&gt; 2:          0.921</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Cox Model Used</span></span>
+<span><span class="co">#&gt; Entry Age Column was: 't0', Survival Age Column was: 't1', Outcome Column was: 'e'</span></span>
+<span><span class="co">#&gt; Risk Groups Used: 2</span></span>
+<span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
+<span><span class="co">#&gt; -2*Log-Likelihood: 3.526,  AIC: 7.526</span></span>
+<span><span class="co">#&gt; Iterations run: 5</span></span>
+<span><span class="co">#&gt; maximum step size: 7.503e-01, maximum first derivative: 9.380e-05</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.784e-04</span></span>
+<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; All Records Used: 6</span></span>
+<span><span class="co">#&gt; Run finished in 0.015 seconds</span></span>
+<span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
+<span></span>
+<span><span class="co"># We can also print out the intermediate results</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">$</span><span class="va">Guess_Results</span><span class="op">)</span></span>
+<span><span class="co">#&gt; $LogLik</span></span>
+<span><span class="co">#&gt; [1] -1.770675 -1.769945 -1.769577 -1.770509</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $AIC</span></span>
+<span><span class="co">#&gt; [1] 7.541350 7.539889 7.539154 7.541018</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $BIC</span></span>
+<span><span class="co">#&gt; [1] 7.124869 7.123408 7.122673 7.124537</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $Parameters</span></span>
+<span><span class="co">#&gt;           [,1]      [,2]</span></span>
+<span><span class="co">#&gt; [1,] -4.298096 -3.952823</span></span>
+<span><span class="co">#&gt; [2,] -4.395503 -4.049275</span></span>
+<span><span class="co">#&gt; [3,] -4.448003 -4.102073</span></span>
+<span><span class="co">#&gt; [4,] -4.319146 -3.974500</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
