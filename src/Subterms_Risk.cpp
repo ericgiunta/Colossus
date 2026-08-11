@@ -151,17 +151,17 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
         } else if (as<string>(tform[ij]) == "lin_quad_int") {
         } else if (as<string>(tform[ij]) == "lin_exp_slope") {
             int df0_int = dfc[ij+1] - 1;
-            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
+            T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);  // difference between the value and threshold
             double c1 = 0.0;
             double a1 = 0.0;
-            if (beta_0[ij] < 0) {
-                c1 = log(- 1*beta_0[ij]/beta_0[ij+2]) + beta_0[ij + 1] * beta_0[ij+2];
-                a1 = - 1*beta_0[ij] * beta_0[ij + 1] + exp(c1 - beta_0[ij+2] * beta_0[ij + 1]);
-                T0.col(ij+2) = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
-            } else {
-                c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij + 1] * beta_0[ij+2];
-                a1 = beta_0[ij] * beta_0[ij + 1] + exp(c1 - beta_0[ij+2] * beta_0[ij + 1]);
-                T0.col(ij+2) = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            //
+            c1 = log(abs(beta_0[ij]/beta_0[ij+2])) - beta_0[ij + 1] * beta_0[ij+2];  // exponential intercept value
+            if (beta_0[ij] * beta_0[ij+2] < 0) {  // for a negative linear slope
+                a1 = beta_0[ij] * beta_0[ij + 1] + exp(c1 + beta_0[ij+2] * beta_0[ij + 1]);  // The piecewise intercept
+                T0.col(ij+2) = (a1 - (c1 + (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();  // value for above the threshold
+            } else {  // for a positive linear slope
+                a1 = beta_0[ij] * beta_0[ij + 1] - exp(c1 + beta_0[ij+2] * beta_0[ij + 1]);
+                T0.col(ij+2) = (a1 + (c1 + (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             }
             //
             T0.col(ij + 1) = (df0.col(df0_c).array() * beta_0[ij]);
@@ -375,206 +375,223 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 }
                 double c1 = 0.0;
                 double a1 = 0.0;
-                //
-                ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
-                if (beta_0[ij] < 0) {
-                    c1 = log((- 1*beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                }
                 ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
-                if (beta_0[ij] < 0) {
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                ArrayXd temp1;
+                double beta_00 = beta_0[ij];
+                double beta_01 = beta_0[ij + 1];
+                double beta_02 = beta_0[ij + 2];
+                //
+                ArrayXd temp = (df0.col(df0_int).array() - beta_01);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                } else {
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
                 //
                 T0.col(ij) = (temp.array() < 0).select(temp0, temp1);
                 //
-                if (beta_0[ij] + dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] + dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij] + dslp) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_00 = beta_0[ij] + dslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] + dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij] + dslp) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_00 = beta_0[ij];
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                if (beta_0[ij] - dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij] - dslp) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_00 = beta_0[ij] + dslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij] - dslp) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_00 = beta_0[ij];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Td0.col(jk)  = (T0.col(ij + 1).array() - T0.col(ij+2).array()) / 2/dslp;
                 Tdd0.col((jk+0)*(jk + 1)/2+jk+0) = (T0.col(ij + 1).array() - 2*T0.col(ij).array() + T0.col(ij+2).array()) / pow(dslp, 2);
                 //
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]-eeslp);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_02 = beta_0[ij + 2] - eeslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]-eeslp);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]+eeslp);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_02 = beta_0[ij + 2] + eeslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]+eeslp);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Td0.col(jk+2) = (T0.col(ij+2).array() - T0.col(ij + 1).array()) / 2/eeslp;
                 Tdd0.col((jk+2)*(jk+3)/2+jk+2) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij + 1).array()) / pow(eeslp, 2);
                 //
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]-dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_01 = beta_0[ij + 1] + dint;
+                temp = (df0.col(df0_int).array() - beta_01);
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]-dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_01 = beta_0[ij + 1];
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_01 = beta_0[ij + 1] - dint;
+                temp = (df0.col(df0_int).array() - beta_01);
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_01 = beta_0[ij + 1];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Td0.col(jk + 1) = (T0.col(ij+2).array() - T0.col(ij + 1).array()) / 2/dint;
                 Tdd0.col((jk + 1)*(jk+2)/2+jk + 1) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij + 1).array()) / pow(dint, 2);
                 //
-                if (beta_0[ij] + dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] + dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij] + dslp) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_00 = beta_0[ij] + dslp;
+                beta_01 = beta_0[ij + 1] + dint;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] + dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij] + dslp) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_00 = beta_0[ij];
+                beta_01 = beta_0[ij + 1];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
+                beta_00 = beta_0[ij] - dslp;
+                beta_01 = beta_0[ij + 1] - dint;
+                temp = (df0.col(df0_int).array() - beta_01);
                 //
-                if (beta_0[ij] - dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij] - dslp) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]-dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij] - dslp) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]-dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_00 = beta_0[ij];
+                beta_01 = beta_0[ij + 1];
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 Tdd0.col((jk + 1)*(jk+2)/2+jk+0) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij + 1).array()) / (pow(dint, 2)+pow(dslp, 2));
                 //
-                if (beta_0[ij] - dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] - dslp)/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]-eeslp);
-                    a1 = - 1*(beta_0[ij] - dslp) * (beta_0[ij + 1]-dslp) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                temp = (df0.col(df0_int).array() - beta_01);
+                //
+                beta_00 = beta_0[ij] - dslp;
+                beta_02 = beta_0[ij + 2] - eeslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] - dslp)/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]-eeslp);
-                    a1 = (beta_0[ij] - dslp) * (beta_0[ij + 1]-dslp) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_00 = beta_0[ij];
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                if (beta_0[ij] + dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] + dslp)/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]+eeslp);
-                    a1 = - 1*(beta_0[ij] + dslp) * (beta_0[ij + 1]+eeslp) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_00 = beta_0[ij] + dslp;
+                beta_02 = beta_0[ij + 2] + eeslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] + dslp)/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]+eeslp);
-                    a1 = (beta_0[ij] + dslp) * (beta_0[ij + 1]+eeslp) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] + dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_00 = beta_0[ij];
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Tdd0.col((jk+2)*(jk+3)/2+jk+0) = (T0.col(ij+2).array()-2*T0.col(ij).array()+T0.col(ij + 1).array()) / (pow(dslp, 2)+pow(eeslp, 2));
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                 //
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]-eeslp);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij + 1]-dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_01 = beta_0[ij + 1] - dint;
+                beta_02 = beta_0[ij + 2] - eeslp;
+                temp = (df0.col(df0_int).array() - beta_01);
+                //
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2]-eeslp)) + (beta_0[ij + 1]-dint) * (beta_0[ij+2]-eeslp);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]-dint) + exp(c1 - (beta_0[ij+2]-eeslp) * (beta_0[ij + 1]-dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]-eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_01 = beta_0[ij + 1];
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij + 1) = (temp.array() < 0).select(temp0, temp1);
                 //
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]+eeslp);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_01 = beta_0[ij + 1] + dint;
+                beta_02 = beta_0[ij + 2] + eeslp;
+                temp = (df0.col(df0_int).array() - beta_01);
+                //
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]+eeslp);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_01 = beta_0[ij + 1];
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
@@ -728,14 +745,13 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
             T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]);
             double c1 = 0.0;
             double a1 = 0.0;
-            if (beta_0[ij] < 0) {
-                c1 = log(- 1*beta_0[ij]/beta_0[ij+2]) + beta_0[ij + 1] * beta_0[ij+2];
-                a1 = - 1*beta_0[ij] * beta_0[ij + 1] + exp(c1 - beta_0[ij+2] * beta_0[ij + 1]);
-                T0.col(ij+2) = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
-            } else {
-                c1 = log(beta_0[ij]/beta_0[ij+2]) + beta_0[ij + 1] * beta_0[ij+2];
-                a1 = beta_0[ij] * beta_0[ij + 1] + exp(c1 - beta_0[ij+2] * beta_0[ij + 1]);
-                T0.col(ij+2) = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+            c1 = log(abs(beta_0[ij]/beta_0[ij+2])) - beta_0[ij + 1] * beta_0[ij+2];  // exponential intercept value
+            if (beta_0[ij] * beta_0[ij+2] < 0) {  // for a negative linear slope
+                a1 = beta_0[ij] * beta_0[ij + 1] + exp(c1 + beta_0[ij+2] * beta_0[ij + 1]);  // The piecewise intercept
+                T0.col(ij+2) = (a1 - (c1 + (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();  // value for above the threshold
+            } else {  // for a positive linear slope
+                a1 = beta_0[ij] * beta_0[ij + 1] - exp(c1 + beta_0[ij+2] * beta_0[ij + 1]);
+                T0.col(ij+2) = (a1 + (c1 + (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
             }
             //
             T0.col(ij + 1) = (df0.col(df0_c).array() * beta_0[ij]);
@@ -926,64 +942,117 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 }
                 double c1 = 0.0;
                 double a1 = 0.0;
-                //
-                ArrayXd temp = (df0.col(df0_int).array() - beta_0[ij + 1]);
-                if (beta_0[ij] < 0) {
-                    c1 = log((- 1*beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
+                double beta_00 = beta_0[ij];
+                double beta_01 = beta_0[ij + 1];
+                double beta_02 = beta_0[ij + 2];
+                ArrayXd temp1;
+                ArrayXd temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
-                ArrayXd temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                ArrayXd temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
                 //
-                if (beta_0[ij] - dslp < 0) {
-                    c1 = log(- 1*(beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij] - dslp) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                ArrayXd temp = (df0.col(df0_int).array() - beta_01);
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij] - dslp)/(beta_0[ij+2])) + (beta_0[ij + 1]) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij] - dslp) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij] - dslp));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                //
+                beta_00 = beta_0[ij] + dslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                } else {
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                }
+                beta_00 = beta_0[ij];
+                //
+                T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+                //
+                beta_00 = beta_0[ij] - dslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                } else {
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                }
+                beta_00 = beta_0[ij];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
                 Td0.col(jk)  = (T0.col(ij + 1).array() - T0.col(ij+2).array()) / 2/dslp;
                 //
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]+eeslp);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_02 = beta_0[ij + 2] + eeslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2]+eeslp)) + (beta_0[ij + 1]) * (beta_0[ij+2]+eeslp);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]) + exp(c1 - (beta_0[ij+2]+eeslp) * (beta_0[ij + 1]));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]+eeslp) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_02 = beta_0[ij + 2];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //
+                beta_02 = beta_0[ij + 2] - eeslp;
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                } else {
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                }
+                beta_02 = beta_0[ij + 2];
+                //
+                T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+                //
                 Td0.col(jk+2) = (T0.col(ij+2).array() - T0.col(ij + 1).array()) / 2/eeslp;
                 //
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
-                //
-                temp = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
-                if (beta_0[ij] < 0) {
-                    c1 = log(- 1*(beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
-                    a1 = - 1*(beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = - 1*(a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                beta_01 = beta_0[ij + 1] - dint;
+                temp = (df0.col(df0_int).array() - beta_01);
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 } else {
-                    c1 = log((beta_0[ij])/(beta_0[ij+2])) + (beta_0[ij + 1]+dint) * (beta_0[ij+2]);
-                    a1 = (beta_0[ij]) * (beta_0[ij + 1]+dint) + exp(c1 - (beta_0[ij+2]) * (beta_0[ij + 1]+dint));
-                    temp0 = (df0.col(df0_c).array() * (beta_0[ij]));
-                    temp1 = (a1 - (c1 - (beta_0[ij+2]) * df0.col(df0_c).array()).array().exp().array()).array();
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
                 }
+                beta_01 = beta_0[ij + 1];
+                T0.col(ij+1) = (temp.array() < 0).select(temp0, temp1);
+                //
+                beta_01 = beta_0[ij + 1] + dint;
+                temp = (df0.col(df0_int).array() - beta_01);
+                temp0 = (df0.col(df0_c).array() * beta_00);
+                c1 = log(abs(beta_00/beta_02)) - beta_01 * beta_02;  // exponential intercept value
+                if (beta_00 * beta_02 < 0) {
+                    a1 = beta_00 * beta_01 + exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 - (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                } else {
+                    a1 = beta_00 * beta_01 - exp(c1 + beta_02 * beta_01);
+                    temp1 = (a1 + (c1 + (beta_02) * df0.col(df0_c).array()).array().exp().array()).array();
+                }
+                beta_01 = beta_0[ij + 1];
                 //
                 T0.col(ij+2) = (temp.array() < 0).select(temp0, temp1);
                 //

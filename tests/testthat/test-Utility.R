@@ -438,10 +438,10 @@ test_that("linked quad no error", {
   paras <- list("first" = c(0.1, 10))
   expect_no_error(Linked_Dose_Formula(tforms, paras))
 })
-test_that("linked exp negative slope error", {
+test_that("linked exp negative slope non-error", {
   tforms <- list("first" = "exp")
   paras <- list("first" = c(-0.1, 10, 5))
-  expect_error(Linked_Dose_Formula(tforms, paras))
+  expect_no_error(Linked_Dose_Formula(tforms, paras))
 })
 test_that("linked exp string slope error", {
   tforms <- list("first" = "exp")

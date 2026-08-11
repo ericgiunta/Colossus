@@ -11,7 +11,7 @@
 #'
 NULL
 
-#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation, with partial outputs.
 #'
 #' \code{Calculate_Sides_PO} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
@@ -21,7 +21,7 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+#' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with competing risks
 #'
 #' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 #' @inheritParams CPP_template
@@ -63,7 +63,7 @@ NULL
 
 #' Utility function to calculate Cox Log-Likelihood and derivatives with outcome probability
 #'
-#' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+#' \code{Calc_LogLik_PO} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: Log-likelihood vectors/matrix
@@ -299,7 +299,7 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calculation function.
+#' Primary Cox PH likelihood bounds calculation function. Uses Van-Moolgavkar algorithm.
 #'
 #' \code{LogLik_Cox_PH_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -310,7 +310,7 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calculation function.
+#' Primary Cox PH likelihood bounds calculation function. Uses Van-Moolgavkar algorithm after checking initial step at multiple points.
 #'
 #' \code{LogLik_Cox_PH_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -321,7 +321,7 @@ NULL
 #'
 NULL
 
-#' Primary Poisson likelihood bounds calculation function.
+#' Primary Poisson likelihood bounds calculation function. Uses Van-Moolgavkar algorithm.
 #'
 #' \code{LogLik_Poisson_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -332,7 +332,7 @@ NULL
 #'
 NULL
 
-#' Primary Poisson likelihood bounds calculation function.
+#' Primary Poisson likelihood bounds calculation function. Uses Van-Moolgavkar algorithm after checking initial step at multiple points.
 #'
 #' \code{LogLik_Poisson_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -343,7 +343,7 @@ NULL
 #'
 NULL
 
-#' Primary Logistic likelihood bounds calculation function.
+#' Primary Logistic likelihood bounds calculation function. Uses Van-Moolgavkar algorithm.
 #'
 #' \code{LogLik_Logist_Omnibus_Log_Bound} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -354,7 +354,7 @@ NULL
 #'
 NULL
 
-#' Primary Logistic likelihood bounds calculation function.
+#' Primary Logistic likelihood bounds calculation function. Uses Van-Moolgavkar algorithm after checking initial step at multiple points.
 #'
 #' \code{LogLik_Logist_Omnibus_Log_Bound_Search} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -365,7 +365,7 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calculation function.
+#' Primary Cox PH likelihood bounds calculation function. Uses the bisection method to check optimum score at window boundaries, slowly decreasing window width.
 #'
 #' \code{LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -376,7 +376,7 @@ NULL
 #'
 NULL
 
-#' Primary Cox PH likelihood bounds calculation function.
+#' Primary Cox PH likelihood bounds calculation function. Uses the bisection method to check optimum score at window boundaries, slowly decreasing window width.
 #'
 #' \code{LogLik_Poisson_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -387,7 +387,7 @@ NULL
 #'
 NULL
 
-#' Primary Logistic likelihood bounds calcualtion function.
+#' Primary Logistic likelihood bounds calculation function. Uses the bisection method to check optimum score at window boundaries, slowly decreasing window width.
 #'
 #' \code{LogLik_Logist_Omnibus_Log_Bound_CurveSearch} Performs the calls to calculation functions and log-likeihood profile bounds
 #'
@@ -420,9 +420,9 @@ NULL
 #'
 NULL
 
-#' Primary Matched Case-Control starting point
+#' Primary Matched Case-Control regression
 #'
-#' \code{LogLik_CaseCon_Omnibus} Primary Matched Case-Control starting point
+#' \code{LogLik_CaseCon_Omnibus} Primary Matched Case-Control regression
 #'
 #' @inheritParams CPP_template
 #'
@@ -529,10 +529,10 @@ NULL
 
 #' Utility function to perform calculation of Repeated Calculations and Log-Likelihood for Cox Omnibus
 #'
-#' \code{Cox_Side_LL_Calc} Called to perform repeated term and risk calculations
+#' \code{Cox_Side_LL_Calc} Called to perform repeated risk group calculations
 #' @inheritParams CPP_template
 #'
-#' @return Updates matrices in place: risk storage matrices
+#' @return Updates matrices in place: log-likelihood and intermediate values
 #' @noRd
 #'
 NULL
@@ -569,7 +569,7 @@ NULL
 
 #' Utility function to perform calculation of Log-Likelihood and Deviance for Poisson Omnibus
 #'
-#' \code{Pois_Dev_LL_Calc} Called to perform repeated term and risk calculations
+#' \code{Pois_Dev_LL_Calc} Called to perform repeated devience and log-likelihood calculations
 #' @inheritParams CPP_template
 #' @param dev_temp temporary storage for deviation calculation
 #' @param dev model deviation
@@ -599,7 +599,7 @@ NULL
 #'
 NULL
 
-#' Run a complete regression for a cox model
+#' Run a complete regression for a cox model, used for multi-input and bisection calculations
 #'
 #' \code{Cox_Full_Run} Called to perform one full regression
 #' @inheritParams CPP_template
@@ -609,7 +609,7 @@ NULL
 #'
 NULL
 
-#' Run a complete regression for a logistic model
+#' Run a complete regression for a logistic model, used for multi-input and bisection calculations
 #'
 #' \code{Logist_Full_Run} Called to perform one full regression
 #' @inheritParams CPP_template
@@ -619,7 +619,7 @@ NULL
 #'
 NULL
 
-#' Run a complete regression for a poisson model
+#' Run a complete regression for a poisson model, used for multi-input and bisection calculations
 #'
 #' \code{Pois_Full_Run} Called to perform one full regression
 #' @inheritParams CPP_template
@@ -629,9 +629,9 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate Information Matrix, from Epicure manual
+#' Utility function to calculate Information Matrix for a cox model
 #'
-#' \code{Expected_Inform_Matrix_Cox} Called to update information matrix
+#' \code{Expected_Inform_Matrix_Cox} Called to update information matrix for a cox model
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: information matrix
@@ -639,9 +639,9 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate Information Matrix with strata, from Epicure manual
+#' Utility function to calculate Information Matrix with strata for a cox model
 #'
-#' \code{Expected_Inform_Matrix_Cox_Strata} Called to update information matrix with strata
+#' \code{Expected_Inform_Matrix_Cox_Strata} Called to update information matrix with strata for cox model
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: information matrix
@@ -649,9 +649,9 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate Information Matrix with competing risks, adapted from Epicure manual
+#' Utility function to calculate Information Matrix with competing risks for a fine-gray model
 #'
-#' \code{Expected_Inform_Matrix_Cox_CR} Called to update information matrix with competing risks
+#' \code{Expected_Inform_Matrix_Cox_CR} Called to update information matrix with competing risks for a fine-gray model
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: information matrix
@@ -659,9 +659,9 @@ NULL
 #'
 NULL
 
-#' Utility function to calculate Information Matrix with strata and competing risks, adapted from from Epicure manual
+#' Utility function to calculate Information Matrix with strata and competing risks for a fine-gray model
 #'
-#' \code{Expected_Inform_Matrix_Cox_Strata_CR} Called to update information matrix with strata and competing risks
+#' \code{Expected_Inform_Matrix_Cox_Strata_CR} Called to update information matrix with strata and competing risks for a fine-gray model
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: information matrix
@@ -674,7 +674,7 @@ NULL
 #' \code{Expected_Inform_Matrix_Poisson} Called to update information matrix
 #' @inheritParams CPP_template
 #'
-#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @return Updates matrices in place: information matrix
 #' @noRd
 #'
 NULL
@@ -684,7 +684,7 @@ NULL
 #' \code{Expected_Inform_Matrix_Poisson_Strata} Called to update information matrix
 #' @inheritParams CPP_template
 #'
-#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @return Updates matrices in place: information matrix
 #' @noRd
 #'
 NULL
@@ -694,7 +694,7 @@ NULL
 #' \code{Expected_Inform_Matrix_Logist} Called to update information matrix
 #' @inheritParams CPP_template
 #'
-#' @return Updates matrices in place: Log-likelihood vectors/matrix
+#' @return Updates matrices in place: information matrix
 #' @noRd
 #'
 NULL
@@ -722,7 +722,7 @@ NULL
 #'
 #' \code{Expected_Inform_Matrix_CaseCon} Called to update the expected information matrix
 #'
-#' @return Updates matrices in place: risk storage matrices
+#' @return Updates matrices in place: information matrix
 #' @noRd
 #'
 NULL
@@ -755,7 +755,7 @@ NULL
 #'
 #' @inheritParams CPP_template
 #'
-#' @return List of results: scaled schoenfeld residuals
+#' @return List of results: scaled and unscaled schoenfeld residuals
 #' @noRd
 #'
 NULL
@@ -766,7 +766,7 @@ NULL
 #'
 #' @inheritParams CPP_template
 #'
-#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return List of final results dependent on plot type used
 #' @noRd
 #'
 NULL
@@ -782,13 +782,13 @@ NULL
 #'
 NULL
 
-#' Primary plotting function.
+#' Calculates residuals for a poisson model
 #'
-#' \code{Poisson_Residuals} Performs the calls to calculation functions
+#' \code{Poisson_Residuals} Performs the calls to calculation functions and returns the residuals
 #'
 #' @inheritParams CPP_template
 #'
-#' @return List of final results: Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return List of final results, risk and residuals
 #' @noRd
 #'
 NULL
@@ -798,7 +798,7 @@ NULL
 #' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Cox_PH output
 #' @noRd
 #'
 cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
@@ -810,7 +810,7 @@ cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelf
 #' \code{pois_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Cox_PH output
 #' @noRd
 #'
 pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
@@ -841,72 +841,72 @@ Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, df0, fir, der_iden,
     .Call(`_Colossus_Plot_Omnibus_transition`, term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control)
 }
 
-#' Interface between R code and the Cox PH omnibus bounds regression function
+#' Interface between R code and the Cox PH omnibus bounds regression function using combined likelihood optimization function
 #'
 #' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Cox_PH_Omnibus_Log_Bound or LogLik_Cox_PH_Omnibus_Log_Bound_Search output
 #' @noRd
 #'
 cox_ph_Omnibus_Bounds_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_cox_ph_Omnibus_Bounds_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
-#' Interface between R code and the Cox PH omnibus bounds regression function
+#' Interface between R code and the Cox PH omnibus bounds curve search regression function, using a bisection approach
 #'
 #' \code{cox_ph_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch output
 #' @noRd
 #'
 cox_ph_Omnibus_CurveSearch_transition <- function(term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_cox_ph_Omnibus_CurveSearch_transition`, term_n, tform, a_n, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
-#' Interface between R code and the Logistic omnibus bounds regression function
+#' Interface between R code and the Logistic omnibus bounds regression function using combined likelihood optimization function
 #'
-#' \code{cox_ph_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
+#' \code{logist_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Logist_Omnibus_Log_Bound or LogLik_Logist_Omnibus_Log_Bound_Search output
 #' @noRd
 #'
 logist_Omnibus_Bounds_transition <- function(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_logist_Omnibus_Bounds_transition`, CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
-#' Interface between R code and the logistic omnibus bounds regression function
+#' Interface between R code and the logistic omnibus bounds regression function using a bisection approach
 #'
-#' \code{cox_ph_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
+#' \code{logist_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Logist_Omnibus_Log_Bound_CurveSearch output
 #' @noRd
 #'
 logist_Omnibus_CurveSearch_transition <- function(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_logist_Omnibus_CurveSearch_transition`, CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
-#' Interface between R code and the poisson omnibus bounds regression function
+#' Interface between R code and the poisson omnibus bounds regression function with bisection approach
 #'
 #' \code{pois_Omnibus_CurveSearch_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Poisson_Omnibus_Log_Bound_CurveSearch output
 #' @noRd
 #'
 pois_Omnibus_CurveSearch_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_pois_Omnibus_CurveSearch_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
-#' Interface between R code and the poisson omnibus bounds regression function
+#' Interface between R code and the poisson omnibus bounds regression function with combined likelihood optimization function
 #'
 #' \code{pois_Omnibus_Bounds_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Poisson_Omnibus_Log_Bound or LogLik_Poisson_Omnibus_Log_Bound_Search output
 #' @noRd
 #'
 pois_Omnibus_Bounds_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
@@ -930,7 +930,7 @@ pois_Residual_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, mo
 #' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Cox_PH_Multidose_Omnibus_Serial or LogLik_Cox_PH_Multidose_Omnibus_Integrated output
 #' @noRd
 #'
 cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
@@ -942,7 +942,7 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #' \code{pois_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Pois output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Pois_Multidose_Omnibus_Serial or LogLik_Pois_Multidose_Omnibus_Integrated output
 #' @noRd
 #'
 pois_multidose_Omnibus_transition <- function(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
@@ -954,7 +954,7 @@ pois_multidose_Omnibus_transition <- function(PyrC, term_n, tform, a_n, dose_col
 #' \code{caco_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_CaseCon_Omnibus output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_CaseCon_Omnibus output
 #' @noRd
 #'
 caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res) {
@@ -966,7 +966,7 @@ caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelfor
 #' \code{logist_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
 #' @inheritParams CPP_template
 #'
-#' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
+#' @return LogLik_Logist_Omnibus output
 #' @noRd
 #'
 logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
@@ -1002,7 +1002,7 @@ Write_Time_Dep <- function(df0_Times, df0_dep, df0_const, df0_event, dt, filenam
 #' \code{OMP_Check} Called directly from R, checks the omp flag and returns true if omp is enabled
 #'
 #' @return boolean: True for OMP allowed
-#'
+#' @family Output and Information Functions
 OMP_Check <- function() {
     .Call(`_Colossus_OMP_Check`)
 }
@@ -1024,12 +1024,12 @@ NULL
 #' @param Lstar likelihood goal
 #' @param L0 current likelihood
 #'
-#' @return Updates matrices in place: risk storage matrices
+#' @return Updates matrices in place: step vectors
 #' @noRd
 #'
 NULL
 
-#' Utility function to calculate the change to make each iteration
+#' Utility function to calculate the change to make each iteration, when the log bound step has an issue
 #'
 #' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 #' @inheritParams CPP_template
@@ -1062,6 +1062,16 @@ NULL
 #' Utility function to calculate the change to make each iteration with gradient step and background terms
 #'
 #' \code{Calc_Change_Background_Gradient} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration with gradient step and background terms with constraint
+#'
+#' \code{Calc_Change_Background_Gradient_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies gradient normalization and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix
@@ -1112,6 +1122,16 @@ NULL
 #' Utility function to calculate the change to make each iteration, applies to background terms as well
 #'
 #' \code{Calc_Change_Background} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
+#' @inheritParams CPP_template
+#'
+#' @return Updates matrices in place: parameter change matrix
+#' @noRd
+#'
+NULL
+
+#' Utility function to calculate the change to make each iteration with constraints, applies to background terms as well
+#'
+#' \code{Calc_Change_Background_Cons} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 #' @inheritParams CPP_template
 #'
 #' @return Updates matrices in place: parameter change matrix

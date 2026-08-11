@@ -67,7 +67,7 @@ $$
     F_{LT} &= \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
     F_{STP} &= \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
     F_{LQ} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i - \exp{\left(\nu_i + \mu \cdot x \right)} &\text{else} \end{cases}\\
+    F_{LEXP} &= \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i + \exp{\left(\nu_i + \mu_i \cdot x \right)} & \left(\beta_i * \mu_i > 0 \right) \\ \lambda_i - \exp{\left(\nu_i + \mu_i \cdot x \right)} &\text{else} \end{cases}\\
     T_j&=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
 \end{aligned}
 $$
@@ -265,7 +265,7 @@ The following are output in the regression output lists:
 
 In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a `Colossus` run.
 
-There are additional variants of these functions which are described in greater detail in the other vignettes.
+There are additional variants of these functions which are described in greater detail in the other vignettes, like the [matched case-control regression](Matched_Case_Control.html), [logistic regression](Logistic.html), and [alternative run options](Alt_Run_Opt.html) vignettes.
 
 
 

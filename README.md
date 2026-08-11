@@ -37,9 +37,10 @@ longer tests. Currently, OpenMP support is not configured for linux
 compiling with clang.
 
 Note: From versions 1.3.1 to 1.4.1 the expected inputs changed.
-Regressions are now run with `CoxRun()` and `PoisRun()` and formula
-inputs. Please see the `vignette("Equation_Expression")` vignette for
-more details.
+Regressions are now run with [CoxRun()](reference/CoxRun.html) and
+[PoisRun()](reference/PoisRun.html) and formula inputs. Please see the
+[Unified Equation Representation
+vignette](articles/Equation_Expression.html) for more details.
 
 ## Example
 
@@ -49,60 +50,58 @@ This is a basic example which shows you how to solve a common problem:
 library(data.table)
 library(parallel)
 library(Colossus)
-## basic example code reproduced from the starting-description vignette
-
+## basic example code with dummy variables
+set.seed(3742)
 df <- data.table(
-  "UserID" = c(112, 114, 213, 214, 115, 116, 117),
-  "Starting_Age" = c(18, 20, 18, 19, 21, 20, 18),
-  "Ending_Age" = c(30, 45, 57, 47, 36, 60, 55),
-  "Cancer_Status" = c(0, 0, 1, 0, 1, 0, 0),
-  "a" = c(0, 1, 1, 0, 1, 0, 1),
-  "b" = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  "c" = c(10, 11, 10, 11, 12, 9, 11),
-  "d" = c(0, 0, 0, 1, 1, 1, 1)
+  "UserID" = 1:100,
+  "Starting_Age" = c(rep(10, 25), rep(15, 25), rep(20, 25), rep(25, 25)),
+  "Ending_Age" = c(rep(16, 25), rep(21, 25), rep(26, 25), rep(31, 25)),
+  "a" = rbinom(100, 3, 0.35),
+  "b" = rbinom(100, 5, 0.25)
 )
+## Our event status is dependent on factor 'a'
+df$Cancer_Status <- vapply(df$a, function(x) rbinom(1, 1, x / 4), numeric(1))
 
-model <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
+## We are solving a Cox model
+## Intervals defined by starting and ending ages and binary event status
+## The hazard ratio is the product of an exponential dependent on a,
+## and a linear effect dependent on b
+## HR = e^(beta*a) * (1+alpha*b)
+model <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) + plinear(b, 0) + multiplicative()
 
-a_n <- c(0.1, 0.1, 0.1, 0.1)
+## We give a starting parameter guess
+a_n <- c(0.1, 0.1)
 
-keep_constant <- c(0, 0, 0, 0)
-
+## List to control the number of iterations and maximum half-steps
 control <- list(
-  "lr" = 0.75, "maxiter" = 100, "halfmax" = 5, "epsilon" = 1e-9,
-  "deriv_epsilon" = 1e-9, "step_max" = 1.0,
-  "verbose" = 2, "ties" = "breslow"
+  "maxiter" = 100, "halfmax" = 5
 )
 
+## Run the regression and print result table
 e <- CoxRun(model, df, a_n = a_n, control = control)
 print(e)
 #> |--------------------------------------------------------------------------------|
 #> Final Results
-#>    Covariate Subterm Term Number Central Estimate Standard Error
-#>       <char>  <char>       <int>            <num>          <num>
-#> 1:         a  loglin           0             44.2       1.14e+08
-#> 2:         b     lin           1             84.4       1.33e+04
-#> 3:         c     lin           1             84.4       6.81e+01
-#> 4:         d    plin           2            101.1       2.18e+03
-#>    95% Confidence Interval 2-tail p-value
-#>                     <char>          <num>
-#> 1:  (-2.24e+08 - 2.24e+08)          1.000
-#> 2:        (-26000 - 26200)          0.995
-#> 3:             (-49 - 218)          0.215
-#> 4:          (-4180 - 4380)          0.963
+#>    Covariate Subterm Central Estimate Standard Error 95% Confidence Interval
+#>       <char>  <char>            <num>          <num>                  <char>
+#> 1:         a  loglin            0.901         0.2560        (0.399 - 1.4029)
+#> 2:         b    plin           -0.155         0.0976       (-0.347 - 0.0358)
+#>    2-tail p-value
+#>             <num>
+#> 1:       0.000432
+#> 2:       0.111185
 #> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> 
 #> Cox Model Used
 #> Entry Age Column was: 'Starting_Age', Survival Age Column was: 'Ending_Age', Outcome Column was: 'Cancer_Status'
-#> Multiplicative Model Used: T0*T1*T2*...
-#> Risk Groups Used: 2
+#> Risk Groups Used: 4
 #> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
-#> -2*Log-Likelihood: 1.331,  AIC: 9.331
-#> Iterations run: 100
-#> maximum step size: 1.000e+00, maximum first derivative: 9.863e-05
-#> Last iteration improved the log-likelihood by: 9.960e-05
+#> -2*Log-Likelihood: 182.74,  AIC: 186.74
+#> Iterations run: 5
+#> maximum step size: 1.133e-03, maximum first derivative: 5.375e-03
+#> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
-#> Records Used: 6, Records Removed: 1
-#> Run finished in 0.324 seconds
+#> All Records Used: 100
+#> Run finished in 0.236 seconds
 #> |--------------------------------------------------------------------------------|
 ```

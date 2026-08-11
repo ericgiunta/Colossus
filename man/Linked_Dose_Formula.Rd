@@ -23,3 +23,8 @@ tforms <- list(cov_0 = "quad", cov_1 = "exp")
 paras <- list(cov_0 = c(1, 3.45), cov_1 = c(1.2, 4.5, 0.1))
 full_paras <- Linked_Dose_Formula(tforms, paras)
 }
+\seealso{
+Other Piece-wise Assistance Functions:
+\code{\link[=Linked_Lin_Exp_Para]{Linked_Lin_Exp_Para()}}
+}
+\concept{Piece-wise Assistance Functions}

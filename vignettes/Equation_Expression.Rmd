@@ -25,7 +25,7 @@ The underlying functions in `Colossus` specify a survival model using a series o
 ## Equation Expression
 
 
-Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because `Colossus` can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with 'cox', 'poisson', or 'finegray', each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear, etc.). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive, etc.).
+Generally, a survival model is defined by using a Surv object, initialized with the interval and event columns, and a list of columns. Because `Colossus` can handle much more complicated models, the definition has to be more complicated. Instead of a Surv object, the model is specified with a model type ('cox', 'poisson', 'finegray', etc.), each also including a strata option. The right side of the equation is listed similarly. Columns are added to subterm types (loglinear, linear, plinear, etc.). Each subterm has a list of columns and a term number. Finally, the method to combine terms is added as a separate item (multiplicative, additive, etc.).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -63,15 +63,15 @@ $$
 
 The right hand side adds elements to subterms. Each subterm should have the included columns, and optionally the term number. Subterms are assumed to be in term 0 if a term number is not provided, and the model is assumed to be multiplicative excess. The factor option automatically removes the first level as a reference. Note that unused levels can be listed first to use all levels.
 
-The following expressions are equivalent.
+A formula can be converted to a vector representation by using the [get_form](../reference/get_form.html) function. This transformation is applied automatically when formula are provided to regression functions however. The following expressions are equivalent.
 
 ```{r}
-term_n <- c(0, 0, 1)
-tform <- c("loglin", "loglin", "lin")
-names <- c("dose0", "dose1", "dose2")
-modelform <- "M"
-tstart <- "t0"
-tend <- "t1"
+term_number <- c(0, 0, 1)
+subterm <- c("loglin", "loglin", "lin")
+covariates <- c("dose0", "dose1", "dose2")
+model_formula <- "M"
+time_start <- "t0"
+time_end <- "t1"
 event <- "lung"
 
 Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) +

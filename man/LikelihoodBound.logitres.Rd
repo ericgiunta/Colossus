@@ -11,9 +11,9 @@
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{curve_control}{a list of control options for the likelihood boundary regression. See the \code{vignette("Control_Options")} vignette for details.}
+\item{curve_control}{a list of control options for the likelihood boundary regression. See the \href{../articles/Control_Options.html}{control options vignette} for details.}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{...}{can include the named entries for the curve_control list parameter}
 }
@@ -29,4 +29,4 @@ Other Logistic Wrapper Functions:
 \code{\link[=LogisticRun]{LogisticRun()}},
 \code{\link[=LogisticRunMulti]{LogisticRunMulti()}}
 }
-\concept{Logistic Wrapper Functions}
+\concept{Likelihood Boundaries}

@@ -2,6 +2,7 @@ ACI
 adadelta
 adam
 al
+asymptote
 Beocat
 breslow
 breslow's
@@ -19,6 +20,7 @@ ColossusCoxStrataSurv
 coxph
 coxres
 coxresbound
+CoxRun
 cr
 csv
 datatable
@@ -31,6 +33,7 @@ dlimits
 DMC
 efron
 et
+EventAssignment
 extrema
 expres
 fg
@@ -47,8 +50,10 @@ iden
 ident
 infty
 iteratively
+Kaplan
 Karnofsky
 LEXP
+LikelihoodBound
 lin
 lintr
 linux
@@ -85,13 +90,19 @@ pearson
 pkgdown
 plin
 plinear
+plotMartingale
+plotRisk
+plotSchoenfeld
+plotSurvival
 pois
 poisres
 poisresbound
+PoisRun
 poisson
 pyr
 qchi
 Raphson
+RelativeRisk
 rmax
 rmean
 rmin

@@ -28,9 +28,9 @@ PoisRun(
 
 \item{keep_constant}{binary values to denote which parameters to change}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
 
@@ -74,11 +74,7 @@ res <- PoisRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
 }
 \seealso{
 Other Poisson Wrapper Functions:
-\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
-\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
-\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
 \code{\link[=PoisRunJoint]{PoisRunJoint()}},
-\code{\link[=PoisRunMulti]{PoisRunMulti()}},
-\code{\link[=Residual.poisres]{Residual.poisres()}}
+\code{\link[=PoisRunMulti]{PoisRunMulti()}}
 }
 \concept{Poisson Wrapper Functions}

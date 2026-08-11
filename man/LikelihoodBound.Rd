@@ -11,9 +11,9 @@ LikelihoodBound(x, df, curve_control = list(), control = list(), ...)
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{curve_control}{a list of control options for the likelihood boundary regression. See the \code{vignette("Control_Options")} vignette for details.}
+\item{curve_control}{a list of control options for the likelihood boundary regression. See the \href{../articles/Control_Options.html}{control options vignette} for details.}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{...}{extended for other necessary parameters}
 }
@@ -22,3 +22,10 @@ LikelihoodBound(x, df, curve_control = list(), control = list(), ...)
 by the coxres, poisres, and logitres objects to calculate likelihood based
 confidence intervals.
 }
+\seealso{
+Other Likelihood Boundaries:
+\code{\link[=LikelihoodBound.coxres]{LikelihoodBound.coxres()}},
+\code{\link[=LikelihoodBound.logitres]{LikelihoodBound.logitres()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}}
+}
+\concept{Likelihood Boundaries}

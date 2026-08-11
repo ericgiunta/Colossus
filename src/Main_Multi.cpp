@@ -332,7 +332,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
                 //
                 neg_limit = FALSE;
                 beta_a = beta_c;  //
-                beta_best = beta_c;  //
                 Ll_improve = Ll[0];
                 //  calculates the initial change in parameter
                 if (model_bool["gradient"]) {
@@ -341,6 +340,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
                     } else {
                         Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
                     }
+                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 } else if (model_bool["basic"]) {
                     if (model_bool["constraint"]) {
                         Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
@@ -372,6 +372,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
                     Ll_improve = Ll[ind0] - Ll_improve;
                 } else {
                     halves = 0;
+                    beta_best = beta_c;  //
                     while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                         if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
                             break;
@@ -432,6 +433,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
             if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
                 iter_stop = 1;
                 convgd = TRUE;
+            }
+            if (model_bool["gradient"]) {
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_best[ij];
+                }
             }
             conv_fin[guess] = convgd;
             //  -----------------------------------------------
@@ -802,7 +808,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
         Ll_improve = Ll[ind0];
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         neg_limit = FALSE;
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
@@ -811,6 +816,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
             } else {
                 Calc_Change_Gradient(nthreads, model_bool, totalnum, optim_para, iteration, step_max, Lld, m_g_store, v_beta_store, dbeta, KeepConstant);
             }
+            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         } else if (model_bool["basic"]) {
             if (model_bool["constraint"]) {
                 Calc_Change_Basic_Cons(Lin_Sys, Lin_Res, beta_0, nthreads, totalnum, lr, step_max, Ll, Lld, Lldd, dbeta, KeepConstant);
@@ -909,6 +915,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
             }
         //  check if any have issues
         } else {
+            beta_best = beta_c;  //
             halves = 0;
             while ((Ll_Total[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -1038,6 +1045,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
         convgd = TRUE;
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
+        }
     }
     model_bool["gradient"] = false;
     fill(Ll_Total.begin(), Ll_Total.end(), 0.0);
@@ -1415,7 +1427,6 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
                 //
                 neg_limit = FALSE;
                 beta_a = beta_c;  //
-                beta_best = beta_c;  //
                 Ll_improve = Ll[0];
                 //  calculates the initial change in parameter
                 if (model_bool["gradient"]) {
@@ -1430,8 +1441,8 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
                     } else {
                         Calc_Change(nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
                     }
-                    Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 }
+                Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
                 //
                 if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
                     Ll_abs_best = Ll[ind0];
@@ -1448,6 +1459,7 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
                     Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
                     Ll_improve = Ll[ind0] - Ll_improve;
                 } else {
+                    beta_best = beta_c;  //
                     halves = 0;
                     while ((Ll[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                         if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -1509,6 +1521,11 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
                 iter_stop = 1;
                 convgd = TRUE;
+            }
+            if (model_bool["gradient"]) {
+                for (int ij = 0; ij < totalnum; ij++) {
+                    beta_0[ij] = beta_best[ij];
+                }
             }
             conv_fin[guess] = convgd;
             //  -----------------------------------------------
@@ -1856,7 +1873,6 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         neg_limit = FALSE;
         //
         beta_a = beta_c;  //
-        beta_best = beta_c;  //
         //  calculates the initial change in parameter
         if (model_bool["gradient"]) {
             if (model_bool["constraint"]) {
@@ -1870,8 +1886,8 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
             } else {
                 Calc_Change(nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant);
             }
-            Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         }
+        Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
         //
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll_Total[ind0])) {
             Ll_abs_best = Ll_Total[ind0];
@@ -1957,6 +1973,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
             }
                 //  check if any have issues
         } else {
+            beta_best = beta_c;  //
             halves = 0;
             while ((Ll_Total[ind0] <= Ll_abs_best) && (halves < halfmax)) {  //  repeats until half-steps maxed or an improvement
                 if (step_max*pow(0.5, halves) < epsilon) {  //  ends if the step is low enough
@@ -2089,6 +2106,11 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     if (Lld_worst < deriv_epsilon) {  //  ends if the derivatives are low enough
         iter_stop = 1;
         convgd = TRUE;
+    }
+    if (model_bool["gradient"]) {
+        for (int ij = 0; ij < totalnum; ij++) {
+            beta_0[ij] = beta_best[ij];
+        }
     }
     dev_total = 0.0;
     model_bool["gradient"] = false;

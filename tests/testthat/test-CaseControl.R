@@ -207,7 +207,7 @@ test_that("threshold nonfail, gradient", {
     #
     i_index <- 1
     #
-    devs <- c(2365.2638, 861.7430, 895.6137, 662.8983, 619.5911, 645.7867, 662.8983, 619.5911, 645.7867)
+    devs <- c(888.9789, 861.743, 877.0798, 662.8983, 619.5911, 645.7867, 662.8983, 619.5911, 645.7867)
     free_strat <- c(113, 113, 113, 0, 0, 0, 0, 0, 0)
     i_index <- 1
     extra_bool <- "gradient"
@@ -225,7 +225,7 @@ test_that("threshold nonfail, gradient", {
         i_index <- i_index + 1
       }
     }
-    devs <- c(3112.6391, 1139.7693, 1603.9994, 961.6711, 918.3317, 928.9564, 961.6711, 918.3317, 928.9564)
+    devs <- c(1168.961, 1139.769, 1160.886, 961.6711, 918.3317, 928.9564, 961.6711, 918.3317, 928.9564)
     free_strat <- c(96, 96, 96, 0, 0, 0, 0, 0, 0)
     i_index <- 1
     time_bool <- TRUE
@@ -242,7 +242,7 @@ test_that("threshold nonfail, gradient", {
         i_index <- i_index + 1
       }
     }
-    devs <- c(68.68225, 60.01931, 63.52628, 57.36262, 52.81594, 53.76418, 99.15252, 49.86315, 50.35396)
+    devs <- c(64.98522, 60.01931, 63.52628, 57.36262, 52.81594, 53.76418, 54.33459, 49.86315, 50.35396)
     free_strat <- c(4, 4, 4, 1, 1, 1, 0, 0, 0)
     i_index <- 1
     time_bool <- FALSE
@@ -259,7 +259,7 @@ test_that("threshold nonfail, gradient", {
         i_index <- i_index + 1
       }
     }
-    devs <- c(69.95769, 62.18752, 63.28939, 113.10995, 69.95769, 62.18752, 63.28939, 113.10995, 69.95769, 62.18752, 63.28939, 113.10995)
+    devs <- c(66.98221, 62.18752, 63.28939, 66.98221, 66.98221, 62.18752, 63.28939, 66.98221, 66.98221, 62.18752, 63.28939, 66.98221)
     free_strat <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
     i_index <- 1
     time_bool <- FALSE
@@ -347,6 +347,52 @@ test_that("information matrix calculations", {
       expect_equal(ee$Standard_Error[1], model3_sde[i_index], tolerance = 1e-4)
       expect_equal(ee$Standard_Error[2], model3_sde[i_index + 1], tolerance = 1e-4)
       i_index <- i_index + 2
+    }
+  }
+})
+
+test_that("constraint non-fail, gradient and hessian", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran |> setDT()
+    df <- copy(veteran)
+
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+
+    df$karno50 <- df$karno - 50
+    a_n <- c(0.1, 0.1)
+    cons_mat0 <- matrix(c(1, 1), nrow = 1)
+
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
+    #
+    i_index <- 1
+    #
+    vals <- c(-0.03625298, 0.0, -0.02365657, 0.0, -0.03565239, -0.0737104, -0.0005894936, -0.009756468, -0.03565239, -0.0737104, -0.0005894936, -0.009756468)
+    i_index <- 1
+    extra_bool <- "gradient"
+    time_bool <- TRUE
+    strat_bool <- TRUE
+    model <- CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt)
+    for (thres in c(0, 40, 100)) {
+      e <- CaseControlRun(model, df, control = control, conditional_threshold = thres, a_n = a_n, cons_mat = cons_mat0, cons_vec = 0.0)
+      expect_equal(sum(e$beta_0), 0.0, tolerance = 1e-4)
+      expect_equal(e$beta_0[1], vals[i_index], tolerance = 1e-4)
+      i_index <- i_index + 1
+      for (method in c("momentum", "adadelta", "adam")) {
+        gradient_control <- list()
+        gradient_control[[method]] <- TRUE
+        e <- CaseControlRun(model, df, gradient_control = gradient_control, control = control, conditional_threshold = thres, a_n = a_n, cons_mat = cons_mat0, cons_vec = 0.0)
+        expect_equal(sum(e$beta_0), 0.0, tolerance = 1e-4)
+        expect_equal(e$beta_0[1], vals[i_index], tolerance = 1e-4)
+        i_index <- i_index + 1
+      }
     }
   }
 })

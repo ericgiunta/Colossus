@@ -20,7 +20,7 @@
 
 \item{assign_control}{control list for bounds calculated}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{a_n}{list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.}
 
@@ -34,12 +34,8 @@ returns a list of the final results
 and options to calculate background and excess events for a solved Poisson regression
 }
 \seealso{
-Other Poisson Wrapper Functions:
-\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
-\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}},
-\code{\link[=PoisRun]{PoisRun()}},
-\code{\link[=PoisRunJoint]{PoisRunJoint()}},
-\code{\link[=PoisRunMulti]{PoisRunMulti()}},
-\code{\link[=Residual.poisres]{Residual.poisres()}}
+Other Poisson Event Assignment:
+\code{\link[=EventAssignment]{EventAssignment()}},
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}}
 }
-\concept{Poisson Wrapper Functions}
+\concept{Poisson Event Assignment}
