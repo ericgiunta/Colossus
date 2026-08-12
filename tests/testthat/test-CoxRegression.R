@@ -108,11 +108,49 @@ test_that("Coxph dose list", {
   fname <- "dose.csv"
   col_types <- c("double", "double", "double", "integer")
   df <- fread(fname, nThread = min(c(detectCores(), 2)), data.table = TRUE, header = TRUE, colClasses = col_types, verbose = FALSE, fill = TRUE)
-  keep_constant <- c(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-  a_n <- c(1.0, -0.09, -0.09, 1.0, -0.05, 1.1, 2.8, 0.1, 1.4, 0.3, 1.0, 1.1)
-  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
-  e <- CoxRun(Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_dose(dose, 0) + quad(dose, 0) + step_dose(dose, 0) + lin_quad_dose(dose, 0) + lin_exp_dose(dose, 0) + multiplicative(), df, a_n = a_n, keep_constant = keep_constant, control = control)
-  expect_equal(e$beta_0, c(1.00000000, -0.08847281, -0.08964054, 0.99127726, -0.05340732, 1.11856122, 2.94196408, 0.10717616, 1.57348544, 0.30075901, 1.07630995, 1.09886187), tolerance = 1e-2)
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = -1, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+
+  keep_constant <- c(1, 0)
+  a_n <- c(1.0000000, -0.9129807)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -39.81284, tolerance = 1e-3)
+
+  keep_constant <- c(1, 1, 0, 0)
+  a_n <- c(1.0000000, 0.0000000, -0.1140312, 0.1603329)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_dose(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -39.89562, tolerance = 1e-3)
+
+  keep_constant <- c(1, 1, 0)
+  a_n <- c(1.00000000, 0.00000000, -0.01253526)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + quad(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -39.91688, tolerance = 1e-3)
+
+  keep_constant <- c(1, 1, 0, 0)
+  a_n <- c(1.0000000, 0.0000000, -0.9298816, 0.4213270)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + step_dose(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -38.7953, tolerance = 1e-3) # failed
+
+  keep_constant <- c(1, 1, 0, 0)
+  a_n <- c(1.0000000, 0.0000000, -0.1119986, 8.9285388)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_quad_dose(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -39.89562, tolerance = 1e-3)
+
+  keep_constant <- c(1, 1, 0, 0, 0)
+  a_n <- c(1.00000000, 0.00000000, 0.09979867, 0.48073547, -0.65550657)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_exp_dose(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -39.94778, tolerance = 1e-3) # failed
+
+  keep_constant <- c(1, 1, 0, 0, 0)
+  a_n <- c(1.00000000, 0.00000000, 0.04749635, 0.49084860, 0.25015356)
+  cox_model <- Cox(t0, t1, lung) ~ loglin_dose(dose, 0) + lin_exp_dose(dose, 0) + multiplicative()
+  e <- CoxRun(cox_model, df, a_n = a_n, keep_constant = keep_constant, control = control)
+  expect_equal(e$LogLik, -39.95809, tolerance = 1e-3) # failed
 })
 #
 test_that("Coxph fixed intercept", {

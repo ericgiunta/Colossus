@@ -17,3 +17,9 @@ EventAssignment(x, df, ...)
 \code{EventAssignment} Generic background/excess event calculation function for
 standard poisson regressions and likelihood based confidence interval results.
 }
+\seealso{
+Other Poisson Event Assignment:
+\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
+\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}}
+}
+\concept{Poisson Event Assignment}

@@ -53,7 +53,6 @@ if (system.file(package = "survival") != "") {
 df$UserID <- seq_len(nrow(df))
 
 df$status <- df$status - 1
-df$sex <- df$sex - 1
 
 control <- list(ncores = 1)
 a_n <- c(0.01701289, -0.51256478)
@@ -62,6 +61,8 @@ coxres <- CoxRun(Cox(time, status) ~ loglinear(age, sex, 0),
   control = control, a_n = a_n
 )
 ```
+
+In general the [plot function](../reference/plot.coxres.html) can be used to call the various different types of plots using a list of plotting options. In this vignette we will be calling the specific functions for each application.
 
 ## Survival Function Approximation
 
@@ -97,15 +98,25 @@ $$
 $$
 </p>
 
+We can calculate the instantaneous hazard, cumulative hazard, and baseline surviving fraction using the [plotSurvival](../reference/plotSurvival.coxres.html) function. We can get the Kaplan-Meier estimates using the KM option.
+
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
+# We can start by obtaining the approximated survival curve data
 plot_options <- list(
-  fname = paste(tempfile(), "run", sep = ""), studyid = "UserID",
-  verbose = 2, surv_curv = TRUE, martingale = FALSE, strat_haz = FALSE, km = FALSE
+  studyid = "UserID",
+  verbose = 2, surv_curv = TRUE
 )
 
+# We apply it to a regression solution
 e <- plotSurvival(coxres, df, plot_options)
 
+# The results include both the standard and log results:
+# hazard, cumulative hazard, and survival curves
+
 norm_surv <- e[["standard"]]
+
+# The time is named 't'
+# The instantaneous hazard is 'h'
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(norm_surv, aes(x = .data$t, y = .data$h)) +
     geom_point(color = "black") +
@@ -114,6 +125,8 @@ if (system.file(package = "ggplot2") != "") {
   g <- message("ggplot2 wasn't detected. Please install to see the plot")
 }
 g
+
+# The cumulative hazard is 'ch'
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(norm_surv, aes(x = .data$t, y = .data$ch)) +
     geom_line(color = "black", alpha = 1) +
@@ -122,6 +135,8 @@ if (system.file(package = "ggplot2") != "") {
   g <- message("ggplot2 wasn't detected. Please install to see the plot")
 }
 g
+
+# The surviving fraction is 'surv'
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(norm_surv, aes(x = .data$t, y = .data$surv)) +
     geom_line(color = "black", alpha = 1) +
@@ -130,18 +145,37 @@ if (system.file(package = "ggplot2") != "") {
   g <- message("ggplot2 wasn't detected. Please install to see the plot")
 }
 g
+
+# We might also want to find the kaplan-meier estimate
 plot_options <- list(
-  fname = paste(tempfile(), "run", sep = ""), studyid = "UserID",
-  verbose = 2, surv_curv = FALSE, martingale = FALSE, strat_haz = FALSE, km = TRUE
+  studyid = "UserID",
+  verbose = 2, km = TRUE
 )
 
 e <- plotSurvival(coxres, df, plot_options)
-
+# Multiple results can be returned at once.
+# In this case, the result is the "kaplan-meier" value.
 km <- e[["kaplin-meier"]]
+# The survival curve is the 'n_t' value
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(km, aes(x = .data$t_t, y = .data$n_t)) +
     geom_line(color = "black", alpha = 1) +
     labs(x = "age", y = "KM Survival")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
+g
+
+t_total <- c(norm_surv$t, km$t_t)
+surv_total <- c(norm_surv$surv, km$n_t)
+method <- c(rep("adjusted", nrow(norm_surv)), rep("km", nrow(km)))
+
+comp_plot <- data.table(t = t_total, y = surv_total, method = method)
+# Plot them combined
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(comp_plot, ggplot2::aes(x = .data$t, y = .data$y, group = .data$method, color = .data$method)) +
+    geom_line(alpha = 1, linewidth = 1.2) +
+    labs(x = "age", y = "Survival")
 } else {
   g <- message("ggplot2 wasn't detected. Please install to see the plot")
 }
@@ -164,14 +198,15 @@ $$
 $$
 </p>
 
+We can plot schoenfeld residuals using the [plotSchoenfeld](../reference/plotSchoenfeld.coxres.html) function.
+
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
-  fname = paste(tempfile(), "run", sep = ""),
   studyid = "UserID", verbose = 2
 )
 
 res_all <- plotSchoenfeld(coxres, df, plot_options)
-
+# results are produced for every covariate
 res_age <- res_all[["age"]]
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot(res_age, aes(x = .data$time, y = .data$y)) +
@@ -234,14 +269,16 @@ $$
 $$
 </p>
 
+We can plot martingale residuals using the [plotMartingale](../reference/plotMartingale.coxres.html) function.
+
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
+# We want to plot results by our two covariates
 plot_options <- list(
-  fname = paste(tempfile(), "run", sep = ""),
-  studyid = "UserID", verbose = 2, surv_curv = FALSE,
-  martingale = TRUE, strat_haz = FALSE, km = FALSE, cov_cols = c("age", "sex")
+  studyid = "UserID", verbose = 2,
+  martingale = TRUE, cov_cols = c("age", "sex")
 )
 res_all <- plotMartingale(coxres, df, plot_options)
-
+# We will have results for each covariate selected and the survival age.
 res_age <- res_all[["age"]]
 
 if (system.file(package = "ggplot2") != "") {
@@ -285,11 +322,11 @@ g
 
 ## General Evaluation of Risk
 
-`Colossus` also offers scripts that plot the relative risk by covariate value for each covariate in the model, assuming every other covariate is zero. Results for specific covariates can be requested by passing an optional argument, otherwise every covariate used in the risk model is included. Risk at Wald confidence interval boundaries can also be calculated by including a 'boundary' option set to a z-score. In this example, 95 percent confidence intervals are included and plotted.
+`Colossus` also offers scripts that plot the relative risk by covariate value for each covariate in the model, assuming every other covariate is zero. Results for specific covariates can be requested by passing an optional argument, otherwise every covariate used in the risk model is included. Risk at Wald confidence interval boundaries can also be calculated by including a 'boundary' option set to a z-score. In this example, 95 percent confidence intervals are included and plotted. We can plot the risk curves using the [plotRisk](../reference/plotRisk.coxres.html) function.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
-  fname = paste(tempfile(), "run", sep = ""), studyid = "UserID",
+  studyid = "UserID",
   verbose = 2, cov_cols = c("age", "sex"), boundary = 1.96
 )
 res_all <- plotRisk(coxres, df, plot_options)
@@ -314,6 +351,55 @@ if (system.file(package = "ggplot2") != "") {
     geom_errorbar(aes(ymin = .data$`y:lower`, ymax = .data$`y:upper`), color = "black") +
     geom_point(color = "black") +
     labs(x = "Sex", y = "Relative Risk")
+} else {
+  g <- message("ggplot2 wasn't detected. Please install to see the plot")
+}
+g
+```
+
+There is a similar option for returning predicted hazard ratio for a set of input data points, or a reference point, called the [RelativeRisk](../reference/RelativeRisk.coxres.html) function. This can be used similarly to the [plotRisk](../reference/plotRisk.coxres.html) function by manually defining the points to calculate risk at. This has one significant benefit, it can account for interactions. If a model transforms a column, then it has multiple covariates dependent on a single input column. The [plotRisk](../reference/plotRisk.coxres.html) function will only calculate the change in risk based on the final calculated covariates independently, while the [RelativeRisk](../reference/RelativeRisk.coxres.html) function will properly account for how each value depends on each other.
+
+```{r, eval=TRUE, fig.width=7,fig.height=4}
+control <- list(ncores = 1)
+a_n <- c(0.01701289, 0.0001, -0.51256478)
+coxres <- CoxRun(Cox(time, status) ~ loglinear(age * age, sex, 0),
+  df,
+  control = control, a_n = a_n, norm = "max"
+)
+print(coxres)
+# There is a effect of age^2
+
+# We can start by using plotRisk to calculate the effect of age
+
+plot_options <- list(
+  studyid = "UserID",
+  verbose = 2, cov_cols = c("age", "age:age"), boundary = 1.96
+)
+res_all <- plotRisk(coxres, df, plot_options)
+
+res_age <- res_all[["age"]]
+res_age2 <- res_all[["age:age"]]
+
+# We can also use a fake dataset and RelativeRisk
+df_off <- df <- data.table(
+  status = rep(0, 100),
+  sex = rep(0, 100),
+  time = rep(0, 100),
+  age = (1:100) / 100 * (max(df$age) - min(df$age)) + min(df$age)
+)
+
+res_comb <- RelativeRisk(coxres, df_off)
+
+x_all <- c(res_age$x, res_age2$x, df_off$age)
+y_all <- c(res_age$y, res_age2$y, res_comb$Risk)
+method <- c(rep("Linear", nrow(res_age)), rep("Quadratic", nrow(res_age2)), rep("Combined", nrow(df_off)))
+
+comp_plot <- data.table(x = x_all, y = y_all, method = method)
+# Plot them combined
+if (system.file(package = "ggplot2") != "") {
+  g <- ggplot(comp_plot, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
+    geom_line(alpha = 1, linewidth = 1.2) +
+    labs(x = "age", y = "Relative Risk")
 } else {
   g <- message("ggplot2 wasn't detected. Please install to see the plot")
 }

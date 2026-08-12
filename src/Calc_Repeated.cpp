@@ -126,7 +126,7 @@ void Calculate_Sides(List& model_bool, const IntegerMatrix& RiskFail, const vect
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation, with partial outputs.
 //'
 //' \code{Calculate_Sides_PO} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
@@ -206,7 +206,7 @@ void Calculate_Sides_PO(List& model_bool, const IntegerMatrix& RiskFail, const v
     return;
 }
 
-//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
+//' Utility function to calculate repeated values used in Cox Log-Likelihood calculation with competing risks
 //'
 //' \code{Calculate_Sides_CR} Called to update repeated sum calculations, Uses list of event rows and risk matrices, Performs calculation of sums of risk in each group
 //' @inheritParams CPP_template
@@ -691,7 +691,7 @@ void Calc_LogLik(List& model_bool, const int& nthreads, const IntegerMatrix& Ris
 
 //' Utility function to calculate Cox Log-Likelihood and derivatives with outcome probability
 //'
-//' \code{Calc_LogLik} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
+//' \code{Calc_LogLik_PO} Called to update log-likelihoods, Uses list of event rows, risk matrices, and repeated sums, Sums the log-likelihood contribution from each event time
 //' @inheritParams CPP_template
 //'
 //' @return Updates matrices in place: Log-likelihood vectors/matrix

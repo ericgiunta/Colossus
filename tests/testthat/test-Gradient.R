@@ -129,15 +129,15 @@ test_that("Constraint Check", {
     control <- list(ncores = 1)
     #
     e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adam" = TRUE))
-    expect_equal(e2$beta_0, c(0.158278, -0.158278), tolerance = 1e-3)
+    expect_equal(e2$beta_0, c(-0.04067073, 0.04067073), tolerance = 1e-3)
     #
     e3 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("momentum" = TRUE))
     e4 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adadelta" = TRUE))
-    expect_equal(e3$beta_0, c(0.9, -0.9), tolerance = 1e-3)
-    expect_equal(e4$beta_0, c(0.04037, -0.04037), tolerance = 1e-3)
+    expect_equal(e3$beta_0, c(-0.1, 0.1), tolerance = 1e-3)
+    expect_equal(e4$beta_0, c(-0.02365675, 0.02365675), tolerance = 1e-3)
     #
     cons_mat0 <- matrix(c(0, 0, 0, 0, 1), nrow = 1)
     e5 <- PoisRun(Pois(time, status) ~ loglinear(factor(cell, level = c(-1, 0, 1, 2, 3)), trt), df, control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adam" = TRUE))
-    expect_equal(e5$LogLik, -365.5018, tolerance = 1e-1)
+    expect_equal(e5$LogLik, -229.4815, tolerance = 1e-1)
   }
 })

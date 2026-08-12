@@ -114,7 +114,7 @@ void Intercept_Bound(const int& nthreads, const int& totalnum, const VectorXd& b
 //' @param Lstar likelihood goal
 //' @param L0 current likelihood
 //'
-//' @return Updates matrices in place: risk storage matrices
+//' @return Updates matrices in place: step vectors
 //' @noRd
 //'
 void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_vec, const double& Lstar, const double& qchi, const double& L0, const int& para_number, const int& nthreads, const int& totalnum, const int& reqrdnum, IntegerVector KeepConstant, const int& term_tot, const int& step, vector<double>& dbeta, const VectorXd& beta_0, bool upper, bool& trouble, int verbose, double mult) {
@@ -247,7 +247,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
     return;
 }
 
-//' Utility function to calculate the change to make each iteration
+//' Utility function to calculate the change to make each iteration, when the log bound step has an issue
 //'
 //' \code{Calc_Change_trouble} Called to update the parameter changes, Uses log-likelihoods and control parameters, Applies newton steps and change limitations
 //' @inheritParams CPP_template

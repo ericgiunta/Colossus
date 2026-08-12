@@ -11,9 +11,9 @@
 
 \item{df}{a data.table containing the columns of interest}
 
-\item{curve_control}{a list of control options for the likelihood boundary regression. See the \code{vignette("Control_Options")} vignette for details.}
+\item{curve_control}{a list of control options for the likelihood boundary regression. See the \href{../articles/Control_Options.html}{control options vignette} for details.}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{...}{can include the named entries for the curve_control list parameter}
 }
@@ -25,12 +25,9 @@ returns a list of the final results
 iteratively optimizing end-points of intervals.
 }
 \seealso{
-Other Poisson Wrapper Functions:
-\code{\link[=EventAssignment.poisres]{EventAssignment.poisres()}},
-\code{\link[=EventAssignment.poisresbound]{EventAssignment.poisresbound()}},
-\code{\link[=PoisRun]{PoisRun()}},
-\code{\link[=PoisRunJoint]{PoisRunJoint()}},
-\code{\link[=PoisRunMulti]{PoisRunMulti()}},
-\code{\link[=Residual.poisres]{Residual.poisres()}}
+Other Likelihood Boundaries:
+\code{\link[=LikelihoodBound]{LikelihoodBound()}},
+\code{\link[=LikelihoodBound.coxres]{LikelihoodBound.coxres()}},
+\code{\link[=LikelihoodBound.logitres]{LikelihoodBound.logitres()}}
 }
-\concept{Poisson Wrapper Functions}
+\concept{Likelihood Boundaries}

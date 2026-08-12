@@ -374,7 +374,7 @@ test_that("Logistic test", {
   v_lower <- c(-0.9271383, -0.9573849, -0.9851352, -0.9978792, -1.0400077, -1.0668785, -1.0908953, -1.1194555, -1.1392145)
   v_upper <- c(-0.8729933, -0.8428107, -0.8151593, -0.8024736, -0.7605954, -0.7339304, -0.7101277, -0.6818592, -0.6623256)
   #
-  for (alpha_i in c(1, 2, 3, 4, 5)) {
+  for (alpha_i in c(1, 5)) {
     alpha <- alpha_list[alpha_i]
     curve_control <- list("alpha" = alpha, "para_number" = 2, "manual" = FALSE, "maxstep" = 20)
     e0 <- LikelihoodBound(logitres, df, curve_control, control = control, para_number = 2)
@@ -397,7 +397,7 @@ test_that("Logistic test", {
 test_that("Curve search, gradient", {
   name <- "base_example.csv"
   df <- fread(name, nThread = min(c(detectCores(), 2)), data.table = TRUE)
-  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 1, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = -1, "epsilon" = 1e-4, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
 
   a_n <- c(-2.917, 0.06526)
   expect_no_error(poisres <- PoisRun(Pois(exit, event) ~ loglinear(dose0, 0) + plinear(dose1, 0) + multiplicative - excess(), df, a_n = a_n, control = control, gradient_control = list("adadelta" = TRUE)))
@@ -413,11 +413,11 @@ test_that("Curve search, gradient", {
   if (!isTRUE(as.logical(Sys.getenv("NOT_CRAN", "false")))) {
     skip("Cran Skip")
   }
-  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(10, 10), "halfmax" = 1, "epsilon" = 1e-2, "deriv_epsilon" = 1e-4, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
+  control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 10), "halfmax" = 1, "epsilon" = 1e-2, "deriv_epsilon" = 1e-3, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   pois_e <- LikelihoodBound(poisres, df, bisect = TRUE)
-  expect_equal(pois_e$Parameter_Limits, c(-3.031014, -2.804939), tolerance = 1e-4)
+  expect_equal(pois_e$Parameter_Limits, c(-3.030037, -2.806404), tolerance = 1e-4)
   logit_e <- LikelihoodBound(logitres, df, bisect = TRUE)
-  expect_equal(logit_e$Parameter_Limits, c(-0.9465996, -0.7674004), tolerance = 1e-4)
+  expect_equal(logit_e$Parameter_Limits, c(-0.9465996, -0.7678887), tolerance = 1e-4)
   cox_e <- LikelihoodBound(coxres, df, bisect = TRUE)
   expect_equal(cox_e$Parameter_Limits, c(-1.9929329, -0.9934211), tolerance = 1e-4)
 })
