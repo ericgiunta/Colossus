@@ -175,23 +175,27 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
   #
   control <- Def_Control(control)
   model_control <- Def_model_control(model_control)
+  if (min(keep_constant) > 0) {
+    stop("Error: Atleast one parameter must be free")
+  }
+  event_names <- unique(as.vector(realization_columns))
+  if (!all(event_names %in% names(df))) {
+    stop("Error: Atleast one realization column provided was not in the data.table")
+  }
   df <- df[get(trial0) > 0, ]
   if (!is.numeric(df[[trial0]])) {
     stop("Error: Trial column was not numeric: ", trial0)
   }
   for (i in seq(1, length(realization_columns))) {
     if (!is.numeric(df[[realization_columns[i]]])) {
-      stop("Error: event column was not numeric: ", realization_columns[i])
+      stop("Error: Event column was not numeric: ", realization_columns[i])
     }
     if (min(df[[realization_columns[i]]]) < 0) {
-      stop("Error: negative events in atleast one row of column ", realization_columns[i])
+      stop("Error: Negative events in atleast one row of column ", realization_columns[i])
     }
     if (sum(df[[realization_columns[i]]]) == 0) {
-      stop("Error: no events in column ", realization_columns[i])
+      stop("Error: No events in column ", realization_columns[i])
     }
-  }
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
   }
   df0 <- data.table::data.table(a = c(0, 0))
   val <- list(cols = c("a"))
@@ -200,10 +204,6 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
-  event_names <- unique(as.vector(realization_columns))
-  if (!all(event_names %in% names(df))) {
-    stop("Error: Atleast one realization column provided was not in the data.table")
-  }
   dfc <- match(names, all_names)
   event_cols <- match(realization_columns, event_names)
   term_tot <- max(term_n) + 1
