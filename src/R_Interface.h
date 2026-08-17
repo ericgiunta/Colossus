@@ -26,7 +26,7 @@ List cox_ph_Omnibus_transition(IntegerVector& term_n, const StringVector& tform,
 
 List pois_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, Ref<MatrixXd> df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
-List Plot_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, Ref<MatrixXd> df0, int fir, int der_iden, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control);
+List Plot_Cox_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, Ref<MatrixXd> df0, int fir, int der_iden, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control);
 
 List Assigned_Event_Poisson_transition(MatrixXd& PyrC, NumericVector Strata_vals, MatrixXd dfs, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, Ref<MatrixXd> df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
 

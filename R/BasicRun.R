@@ -1416,6 +1416,207 @@ RelativeRisk.default <- function(x, df, ...) {
   x
 }
 
+#' Calculates hazard ratios for a reference vector and model
+#'
+#' \code{RelativeRisk.formula} uses a formula and data, to evaluate
+#' relative risk in the data using the risk model from the result
+#'
+#' @param x formula object, which could be fed to a regression
+#' @param ... extended to match any future parameters needed
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Predicted Risk and Rate
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
+#' )
+#' control <- list(
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
+#' )
+#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' res_risk <- RelativeRisk(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5))
+RelativeRisk.formula <- function(x, df, a_n = c(), ...) {
+  res <- get_form(x, df)
+  if (is(res$model, "coxmodel")) {
+    # using already prepped formula and data
+    if (!missing(a_n)) {
+      e <- RelativeRisk(res$model, df, a_n = a_n)
+    } else {
+      e <- RelativeRisk(res$model, df)
+    }
+    #
+  } else {
+    stop(
+      "Error: Incorrect type used for formula, must be a Colossus formula type"
+    )
+  }
+  e
+}
+
+#' Calculates hazard ratios for a reference vector and model
+#'
+#' \code{RelativeRisk.coxmodel} uses a cox model object and data, to evaluate
+#' relative risk in the data using the risk model from the result
+#'
+#' @param x cox model object, which could be fed to a regression
+#' @param ... extended to match any future parameters needed
+#' @inheritParams R_template
+#'
+#' @return returns a class fully describing the model and the regression results
+#' @export
+#' @family Predicted Risk and Rate
+#' @examples
+#' library(data.table)
+#' df <- data.table::data.table(
+#'   UserID = c(112, 114, 213, 214, 115, 116, 117),
+#'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
+#'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
+#'   Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
+#'   a = c(0, 1, 1, 0, 1, 0, 1),
+#'   b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
+#'   c = c(10, 11, 10, 11, 12, 9, 11),
+#'   d = c(0, 0, 0, 1, 1, 1, 1),
+#'   e = c(0, 0, 1, 0, 0, 0, 1)
+#' )
+#' control <- list(
+#'   ncores = 1, lr = 0.75, maxiters = c(1, 1),
+#'   halfmax = 1
+#' )
+#' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
+#'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
+#' model <- get_form(formula, df)$model
+#' res_risk <- RelativeRisk(model, df, a_n = c(1.1, -0.1, 0.2, 0.5))
+RelativeRisk.coxmodel <- function(x, df, a_n = c(), ...) {
+  coxmodel <- copy(x)
+  #
+  time1 <- coxmodel$start_age
+  time2 <- coxmodel$end_age
+  event0 <- coxmodel$event
+  names <- coxmodel$names
+  term_n <- coxmodel$term_n
+  tform <- coxmodel$tform
+  keep_constant <- coxmodel$keep_constant
+  modelform <- coxmodel$modelform
+  strat_col <- coxmodel$strata
+  #
+  calls <- coxmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  all_name <- c(unique(names), time1, time2, event0)
+  for (name in all_name) {
+    if (!(name %in% names(df))) {
+      df[[name]] <- 0.0
+    }
+  }
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
+    # one of the columns has a :intercept flag
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+  }
+  ce <- c(time1, time2, event0)
+  val <- Check_Trunc(df, ce)
+  # nocov start
+  if (any(val$ce != ce)) {
+    df <- val$df
+    ce <- val$ce
+    time1 <- ce[1]
+    time2 <- ce[1]
+  }
+  # nocov end
+  #
+  if (missing(a_n)) {
+    a_n <- coxmodel$a_n
+  }
+  control <- ColossusControl()
+  #
+  validate_coxsurv(coxmodel, df)
+  if (!coxmodel$null) {
+    coxmodel <- validate_formula(coxmodel, df, control$verbose)
+  }
+  #
+  model_control <- list()
+  if (coxmodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+  } else {
+    # check for basic and linear_err
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+      if (all(unique(tform) == c("loglin"))) {
+        model_control[["basic"]] <- TRUE
+      } else if (identical(sort(unique(tform)), c("loglin", "plin")) && sum(tform == "plin") == 1) {
+        model_control[["linear_err"]] <- TRUE
+      }
+    } else if (modelform == "GMIX") {
+      model_control[["gmix_term"]] <- coxmodel$gmix_term
+      model_control[["gmix_theta"]] <- coxmodel$gmix_theta
+    }
+  }
+  if (all(coxmodel$strata != "NONE")) {
+    model_control[["strata"]] <- TRUE
+    #
+    df$`_strata_col` <- format(df[, strat_col[1], with = FALSE]) # defining a strata column
+    for (i in seq_len(length(strat_col) - 1)) {
+      df$`_strata_col` <- paste(df$`_strata_col`, format(df[, strat_col[i + 1], with = FALSE]), sep = "_") # interacting with any other strata columns
+    }
+    df$`_strata_col` <- factor(df$`_strata_col`) # converting to a factor
+  }
+  if (coxmodel$weight != "NONE") {
+    model_control[["cr"]] <- TRUE
+  }
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  model_control <- Def_model_control(model_control)
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  # ------------------------------------------------------------------------------ #
+  res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
+}
+
 #' Calculates hazard ratios for a reference vector
 #'
 #' \code{coxres.RelativeRisk} uses a cox result object and data, to evaluate
@@ -1482,7 +1683,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -1935,7 +2136,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -2818,7 +3019,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3027,7 +3228,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3208,7 +3409,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3412,7 +3613,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3609,7 +3810,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3815,7 +4016,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in grep(":intercept", names, fixed = TRUE, value)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)

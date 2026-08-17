@@ -22,7 +22,9 @@ library(data.table)
 
 ## Available Methods
 
-There are many instances in which a user may want to use data that is known up to a distribution, in these cases it may not be sufficient to use a single realization. `Colossus` provides two ways to use multiple realizations. The first runs multiple regressions in a row, each with a different realization. The second optimizes the average Log-Likelihood over the realizations. These methods were designed to assist in circumstances in which combinations of shared and unshared errors are present, and a two-dimensional Monte Carlo method is used to generate realizations for at least one covariate column. Note that this method does not apply to uncertainties in the event/cases or interval/duration columns. These methods also are not currently available for stratification columns.
+There are many instances in which a user may want to use data that is known up to a distribution, in these cases it may not be sufficient to use a single realization. `Colossus` provides two ways to use multiple realizations. The first runs multiple regressions in a row, each with a different realization. The second optimizes the average Log-Likelihood over the realizations. These methods were designed to assist in circumstances in which combinations of shared and unshared errors are present, and a Monte Carlo method is used to generate realizations for at least one column. Functions are available for both exposures and outcomes, but not both. The following sections will discuss how the exposure functions are used. The outcome uncertainty functions follow the same logic.
+
+## Exposure Uncertainty
 
 ### Specifics of Use
 
@@ -83,4 +85,31 @@ e_mcml <- CoxRunMulti(model, df,
 
 # The result will return a standard regression output.
 # The number of realizations will also be output.
+```
+
+Both options are currently available for both Cox and Poisson regressions.
+
+## Outcome Uncertainty
+
+The same basic theory applies to uncertainty in the outcome, except that there is only one column with realizations. An equivalent of the Frequentist Model Averaging approach has been implemented for logistic regression, to facilitate studies of outcome misclassification.
+
+```{r, eval=FALSE}
+model <- Logit(trial, e0) ~ loglinear(a, r, s)
+
+a_n <- c(0.1, 0.1, 0.1)
+
+# The only column in the model to replace is the number of events
+event_realizations <- matrix(
+  c("e0", "e1", "e2", "e3", "e4"),
+  nrow = 1
+)
+
+e_fma <- LogisticRunMulti(model, df,
+  a_n = a_n,
+  realization_columns = realization_columns
+)
+
+# The result will return matrices/vectors for the results
+# in each realization.
+# The output can be printed for information.
 ```

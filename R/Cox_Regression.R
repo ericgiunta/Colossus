@@ -309,7 +309,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   model_control$risk_subset <- TRUE
-  e <- Plot_Omnibus_transition(
+  e <- Plot_Cox_Omnibus_transition(
     term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control, matrix(c(0)),
     c(1), keep_constant, term_tot, c(0),
@@ -607,7 +607,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         message("Note: nonStratified survival curve calculation") # nocov
       }
       model_control$surv <- TRUE
-      e <- Plot_Omnibus_transition(
+      e <- Plot_Cox_Omnibus_transition(
         term_n, tform, a_n, dfc, x_all, 0, 0,
         modelform, control,
         as.matrix(df[, ce, with = FALSE]), tu,

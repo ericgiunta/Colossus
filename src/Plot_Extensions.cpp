@@ -313,16 +313,16 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
 }
 
 
-//' Primary plotting function.
+//' Primary Cox plotting function.
 //'
-//' \code{Plot_Omnibus} Performs the calls to calculation functions
+//' \code{Plot_Omnibus_Cox} Performs the calls to calculation functions used in Cox options
 //'
 //' @inheritParams CPP_template
 //'
 //' @return List of final results dependent on plot type used
 //' @noRd
 //'
-List Plot_Omnibus(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, int fir, int der_iden, const string& modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, int fir, int der_iden, const string& modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //

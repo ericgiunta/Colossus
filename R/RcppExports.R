@@ -760,9 +760,9 @@ NULL
 #'
 NULL
 
-#' Primary plotting function.
+#' Primary Cox plotting function.
 #'
-#' \code{Plot_Omnibus} Performs the calls to calculation functions
+#' \code{Plot_Omnibus_Cox} Performs the calls to calculation functions used in Cox options
 #'
 #' @inheritParams CPP_template
 #'
@@ -831,14 +831,14 @@ Assigned_Event_Poisson_transition <- function(PyrC, Strata_vals, dfs, term_n, tf
 
 #' Interface between R code and the plotting omnibus function
 #'
-#' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
+#' \code{Plot_Cox_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
 #' @inheritParams CPP_template
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control) {
-    .Call(`_Colossus_Plot_Omnibus_transition`, term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control)
+Plot_Cox_Omnibus_transition <- function(term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control) {
+    .Call(`_Colossus_Plot_Cox_Omnibus_transition`, term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control)
 }
 
 #' Interface between R code and the Cox PH omnibus bounds regression function using combined likelihood optimization function

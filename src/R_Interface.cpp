@@ -218,14 +218,14 @@ List Assigned_Event_Poisson_transition(MatrixXd& PyrC, NumericVector Strata_vals
 
 //' Interface between R code and the plotting omnibus function
 //'
-//' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
+//' \code{Plot_Cox_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
 //' @inheritParams CPP_template
 //'
 //' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List Plot_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, int der_iden, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control) {
+List Plot_Cox_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd df0, int fir, int der_iden, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control) {
     int verbose = Control["verbose"];
     //
     double step_max = Control["step_max"];
@@ -290,9 +290,9 @@ List Plot_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, N
         for (vector<float>::size_type ij = 0; ij < vv.size(); ij++) {
             df1(ij, ijk_risk) = vv[ij];  //  fills the column with varying values
         }
-        res = Plot_Omnibus(term_n, tform, beta_0, df1, dfc, fir, der_iden, modelform, step_max, thres_step_max, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
+        res = Plot_Omnibus_Cox(term_n, tform, beta_0, df1, dfc, fir, der_iden, modelform, step_max, thres_step_max, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
     } else {
-        res = Plot_Omnibus(term_n, tform, beta_0, df0, dfc, fir, der_iden, modelform, step_max, thres_step_max, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
+        res = Plot_Omnibus_Cox(term_n, tform, beta_0, df0, dfc, fir, der_iden, modelform, step_max, thres_step_max, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
     }
     //----------------------------------------------------------------------------------------------------------------//
     return res;
