@@ -77,7 +77,6 @@ res <- LogisticRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
 }
 \seealso{
 Other Logistic Wrapper Functions:
-\code{\link[=LikelihoodBound.logitres]{LikelihoodBound.logitres()}},
 \code{\link[=LogisticRunMulti]{LogisticRunMulti()}}
 }
 \concept{Logistic Wrapper Functions}

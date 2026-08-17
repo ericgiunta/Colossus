@@ -403,21 +403,21 @@ BEGIN_RCPP
 END_RCPP
 }
 // logist_multioutcome_Omnibus_transition
-List logist_multioutcome_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector event_cols, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+List logist_multioutcome_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& event_cols, IntegerVector& dfc, MatrixXd& df0, MatrixXd& df1, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 RcppExport SEXP _Colossus_logist_multioutcome_Omnibus_transition(SEXP CountEventSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP event_colsSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP df1SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< MatrixXd >::type CountEvent(CountEventSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type term_n(term_nSEXP);
-    Rcpp::traits::input_parameter< StringVector >::type tform(tformSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type a_n(a_nSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type event_cols(event_colsSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type dfc(dfcSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type df1(df1SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type CountEvent(CountEventSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type event_cols(event_colsSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type df1(df1SEXP);
     Rcpp::traits::input_parameter< int >::type fir(firSEXP);
-    Rcpp::traits::input_parameter< string >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< const string& >::type modelform(modelformSEXP);
     Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
     Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
     Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);

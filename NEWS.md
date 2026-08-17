@@ -223,5 +223,5 @@
 # Colossus 1.6
 
 * Updated person-count and person-time table functions
-* Person-time table functions can support both calendar (date or elapsed time categories) or user time scales (durations)
+* Person-time table functions can support both calendar (date or elapsed time categories) or user time scales (duration)
 

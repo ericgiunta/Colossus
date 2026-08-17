@@ -52,6 +52,8 @@ List caco_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, N
 
 List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, Ref<MatrixXd> df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
+List logist_multioutcome_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& event_cols, IntegerVector& dfc, MatrixXd& df0, MatrixXd& df1, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
+
 void Write_Time_Dep(const MatrixXd dfs_Times, const MatrixXd dfs_dep, const MatrixXd dfs_const, const NumericVector df0_event, double dt, string filename, StringVector tform_tdep, NumericVector tu, bool iscox, int nthreads);
 
 bool OMP_Check();

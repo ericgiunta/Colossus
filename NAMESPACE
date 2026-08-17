@@ -66,56 +66,70 @@ export(plotSchoenfeld)
 export(plotSurvival)
 importFrom(Rcpp,evalCpp)
 importFrom(callr,rcmd)
-importFrom(data.table,":=")
-importFrom(data.table,.SD)
-importFrom(data.table,as.data.table)
-importFrom(data.table,copy)
-importFrom(data.table,data.table)
-importFrom(data.table,fcase)
-importFrom(data.table,fread)
-importFrom(data.table,set)
-importFrom(data.table,setDT)
-importFrom(data.table,setDTthreads)
-importFrom(data.table,setkeyv)
-importFrom(data.table,setnames)
-importFrom(dplyr,across)
-importFrom(dplyr,all_of)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,case_when)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n)
-importFrom(dplyr,n_distinct)
-importFrom(dplyr,replace_when)
-importFrom(dplyr,slice)
-importFrom(dplyr,summarize)
-importFrom(lubridate,as.duration)
-importFrom(lubridate,day)
-importFrom(lubridate,days)
-importFrom(lubridate,ddays)
-importFrom(lubridate,interval)
-importFrom(lubridate,is.Date)
-importFrom(lubridate,make_date)
-importFrom(lubridate,month)
-importFrom(lubridate,year)
-importFrom(lubridate,years)
+importFrom(data.table,
+  ":=",
+  .SD,
+  as.data.table,
+  copy,
+  data.table,
+  fcase,
+  fread,
+  set,
+  setDT,
+  setDTthreads,
+  setkeyv,
+  setnames
+)
+importFrom(dplyr,
+  across,
+  all_of,
+  bind_rows,
+  case_when,
+  filter,
+  group_by,
+  mutate,
+  n,
+  n_distinct,
+  replace_when,
+  slice,
+  summarize
+)
+importFrom(lubridate,
+  as.duration,
+  day,
+  days,
+  ddays,
+  interval,
+  is.Date,
+  make_date,
+  month,
+  year,
+  years
+)
 importFrom(methods,is)
 importFrom(parallel,detectCores)
 importFrom(pracma,rref)
 importFrom(processx,run)
 importFrom(rlang,.data)
-importFrom(stats,approxfun)
-importFrom(stats,pchisq)
-importFrom(stats,pnorm)
-importFrom(stats,qchisq)
-importFrom(stats,runif)
-importFrom(stats,time)
-importFrom(stats,weighted.mean)
-importFrom(stringr,str_count)
-importFrom(stringr,str_match)
-importFrom(tibble,as_tibble)
-importFrom(tibble,tibble)
-importFrom(utils,combn)
-importFrom(utils,head)
+importFrom(stats,
+  approxfun,
+  pchisq,
+  pnorm,
+  qchisq,
+  runif,
+  time,
+  weighted.mean
+)
+importFrom(stringr,
+  str_count,
+  str_match
+)
+importFrom(tibble,
+  as_tibble,
+  tibble
+)
+importFrom(utils,
+  combn,
+  head
+)
 useDynLib(Colossus, .registration = TRUE)

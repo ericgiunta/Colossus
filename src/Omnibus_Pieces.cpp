@@ -152,7 +152,7 @@ void Cox_Refresh_R_SIDES(const int& reqrdnum, const int& ntime, MatrixXd& Rls1, 
 //' @noRd
 //'
 void Cox_Term_Risk_Calc(const string& modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const IntegerVector& dfc, int term_tot, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, VectorXd beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, int verbose, List& model_bool, const double gmix_theta, const IntegerVector& gmix_term) {
-    int reqrdnum = totalnum - sum(KeepConstant);
+//    int reqrdnum = totalnum - sum(KeepConstant);
     if (model_bool["basic"]) {
         //  Calculates the subterm and term values
         Make_subterms_Basic(totalnum, dfc, T0, beta_0, df0, nthreads);
@@ -454,7 +454,7 @@ void Pois_Term_Risk_Calc(const string& modelform, const StringVector& tform, con
         //  Removes infinite values
         RdR = (RdR.array().isFinite()).select(RdR, 0);
         RddR = (RddR.array().isFinite()).select(RddR, 0);
-        int reqrdnum = totalnum - sum(KeepConstant);
+//        int reqrdnum = totalnum - sum(KeepConstant);
     //     if (verbose >= 4) {
     //        //
     //        Rcout << "C++ Note: Values checked ";

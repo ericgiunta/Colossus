@@ -31,9 +31,9 @@ LogisticRunMulti(
 
 \item{realization_columns}{used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{link}{Used in logistic regression, the linking function relating the input model and event probability. Current options are "odds", "ident", and "loglink" for the odds ratio, identity, and complimentary loglink options.}
 
@@ -61,11 +61,11 @@ df <- data.table::data.table(
   t0 = c(18, 20, 18, 19, 21, 20, 18),
   t1 = c(30, 45, 57, 47, 36, 60, 55),
   event = c(0, 0, 1, 0, 1, 0, 0),
-  dose = c(0, 1, 1, 0, 1, 0, 1) 
+  dose = c(0, 1, 1, 0, 1, 0, 1)
 )
 set.seed(3742)
-df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3) 
-df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3) 
+df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3)
+df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
 df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
 realization_columns <- c("event0", "event1", "event2")
 control <- list(
@@ -76,11 +76,13 @@ control <- list(
   verbose = 0, ties = "breslow", double_step = 1
 )
 formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
-res <- LogisticRunMulti(formula, df, realization_columns = realization_columns, control = control)
+res <- LogisticRunMulti(formula, df, 
+  realization_columns = realization_columns, 
+  control = control
+)
 }
 \seealso{
 Other Logistic Wrapper Functions:
-\code{\link[=LikelihoodBound.logitres]{LikelihoodBound.logitres()}},
 \code{\link[=LogisticRun]{LogisticRun()}}
 }
 \concept{Logistic Wrapper Functions}

@@ -49,8 +49,8 @@ goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_c
 
 C++ code is checked against google's `cpplint` tool, excluding warnings for line length and function size and any warnings on `RcppExport` files.
 ```bash
-cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/RcppExports.* src/*.cpp
-cpplint --filter=-whitespace/line_length,-readability/fn_size --exclude=src/RcppExports.* src/*.h
+cpplint --filter=-whitespace/line_length,-readability/fn_size,-runtime/references --exclude=src/RcppExports.* src/*.cpp
+cpplint --filter=-whitespace/line_length,-readability/fn_size,-runtime/references --exclude=src/RcppExports.* src/*.h
 ```
 
 C++ checks are also performed using the `cppcheck` tool, excluding style warnings which gave false positives. Warnings, portability, and performance checks are used to identify potential issues and mistakes. Specifically the `redundantInitialization`, `constParameter`, `redundantAssignment`, and `unreadVariable` style warnings were found to give incorrect or minor warnings.

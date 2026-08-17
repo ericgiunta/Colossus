@@ -1482,7 +1482,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -1935,7 +1935,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -2818,7 +2818,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3027,7 +3027,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3208,7 +3208,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   }
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3412,7 +3412,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3609,7 +3609,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)
@@ -3815,7 +3815,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
     # nocov start
-    for (name in grepv(":intercept", names, fixed = TRUE)) {
+    for (name in grep(":intercept", names, fixed = TRUE, value)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
         new_col <- substr(name, 1, nchar(name) - 10)

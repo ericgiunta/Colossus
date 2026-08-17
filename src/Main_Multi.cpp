@@ -2230,7 +2230,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
 //' @return List of final results: Log-likelihood of optimum, AIC, BIC, standard error, parameter list, and convergence for each realization
 //' @noRd
 //'
-List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerVector event_cols, IntegerVector dfc, int fir, string modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
+List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, IntegerVector term_n, StringVector tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const Ref<const MatrixXd>& df1, IntegerVector event_cols, IntegerVector dfc, int fir, const string& modelform, List optim_para, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, const Ref<const MatrixXd>& Lin_Sys, const Ref<const VectorXd>& Lin_Res) {
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //
@@ -2312,9 +2312,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
     nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
     nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
     TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
-    if (model_bool["single"]) {
-        //no derivatives
-    } else {
+    if (!model_bool["single"]) {
         Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
         Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
         //

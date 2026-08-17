@@ -1038,7 +1038,7 @@ List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, cons
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List logist_multioutcome_Omnibus_transition(MatrixXd CountEvent, IntegerVector term_n, StringVector tform, NumericVector a_n, IntegerVector event_cols, IntegerVector dfc, MatrixXd df0, MatrixXd df1, int fir, string modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List logist_multioutcome_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& event_cols, IntegerVector& dfc, MatrixXd& df0, MatrixXd& df1, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     //
     int verbose = Control["verbose"];
     //
