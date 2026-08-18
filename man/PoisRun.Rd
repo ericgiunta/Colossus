@@ -75,6 +75,7 @@ res <- PoisRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
 \seealso{
 Other Poisson Wrapper Functions:
 \code{\link[=PoisRunJoint]{PoisRunJoint()}},
-\code{\link[=PoisRunMulti]{PoisRunMulti()}}
+\code{\link[=PoisRunMulti]{PoisRunMulti()}},
+\code{\link[=PoisRunMultiOut]{PoisRunMultiOut()}}
 }
 \concept{Poisson Wrapper Functions}

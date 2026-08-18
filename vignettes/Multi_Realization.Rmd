@@ -104,7 +104,7 @@ event_realizations <- matrix(
   nrow = 1
 )
 
-e_fma <- LogisticRunMulti(model, df,
+e_fma <- LogisticRunMultiOut(model, df,
   a_n = a_n,
   realization_columns = realization_columns
 )

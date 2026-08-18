@@ -2193,11 +2193,26 @@ print.poisresmcml <- function(x, ...) {
   general_print(x, ...)
 }
 
+#' Prints a logistic MCML regression output clearly
+#'
+#' \code{print.logitresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
+#'
+#' @param x result object from a regression, class logitresmcml
+#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#'
+#' @return return nothing, prints the results to console
+#' @noRd
+#' @export
+#' @family Output and Information Functions
+print.logitresmcml <- function(x, ...) {
+  general_print(x, ...)
+}
+
 #' Prints a cox FMA regression output clearly
 #'
 #' \code{print.coxresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxresmcml
+#' @param x result object from a regression, class coxresfma
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -2212,7 +2227,7 @@ print.coxresfma <- function(x, ...) {
 #'
 #' \code{print.poisresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class poisresmcml
+#' @param x result object from a regression, class poisresfma
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
 #' @return return nothing, prints the results to console
@@ -2650,6 +2665,44 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          realizations <- out_list$realizations
+          message("Exposure Realizations Used: ", realizations)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+        } else if (is(out_list, "logitresmcml")) {
+          # logistic model
+          message("\nLogisitic Model Used")
+          trial_col <- out_list$model$trials
+          evt_col <- out_list$model$event
+          message("Trials Column: '", trial_col, "'")
+          message("Event Column: '", evt_col, "'")
+          odds <- out_list$modelcontrol$logit_odds
+          link <- "Unknown"
+          if (odds) {
+            link <- "Odds Ratio"
+          } else {
+            ident <- out_list$modelcontrol$logit_ident
+            if (ident) {
+              link <- "Identity"
+            } else {
+              loglink <- out_list$modelcontrol$logit_loglink
+              if (loglink) {
+                link <- "Complementary Log"
+              } else {
+                probit <- out_list$modelcontrol$logit_probit
+                if (probit) {
+                  link <- "Probability Unit (probit)"
+                }
+              }
+            }
+          }
+          message(link, " Linking Function Used")
+          if ((!null_model) && (min(term_n) != max(term_n))) {
+            message(form_type)
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
         } else {
@@ -2823,44 +2876,54 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
       message("Strata split into ", strata_level, " distinct levels", sep = "")
     }
     realizations <- out_list$realizations
-    message("Exposure Realizations Used: ", realizations)
+    realization_mode <- out_list$realization_mode
+    if (realization_mode == "outcome") {
+      message("Outcome Realizations Used: ", realizations)
+    } else {
+      message("Exposure Realizations Used: ", realizations)
+    }
     message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
   } else if (is(out_list, "logitresfma")) {
     # logistic output model
     message("\nLogistic Model Used")
     trial_col <- out_list$model$trials
-      evt_col <- out_list$model$event
-      message("Trials Column: '", trial_col, "'")
-      message("Event Column: '", evt_col, "'")
-      odds <- out_list$modelcontrol$logit_odds
-      link <- "Unknown"
-      if (odds) {
-        link <- "Odds Ratio"
+    evt_col <- out_list$model$event
+    message("Trials Column: '", trial_col, "'")
+    message("Event Column: '", evt_col, "'")
+    odds <- out_list$modelcontrol$logit_odds
+    link <- "Unknown"
+    if (odds) {
+      link <- "Odds Ratio"
+    } else {
+      ident <- out_list$modelcontrol$logit_ident
+      if (ident) {
+        link <- "Identity"
       } else {
-        ident <- out_list$modelcontrol$logit_ident
-        if (ident) {
-          link <- "Identity"
+        loglink <- out_list$modelcontrol$logit_loglink
+        if (loglink) {
+          link <- "Complementary Log"
         } else {
-          loglink <- out_list$modelcontrol$logit_loglink
-          if (loglink) {
-            link <- "Complementary Log"
-          } else {
-            probit <- out_list$modelcontrol$logit_probit
-            if (probit) {
-              link <- "Probability Unit (probit)"
-            }
+          probit <- out_list$modelcontrol$logit_probit
+          if (probit) {
+            link <- "Probability Unit (probit)"
           }
         }
       }
-      message(link, " Linking Function Used")
-      if ((!null_model) && (min(term_n) != max(term_n))) {
-        message(form_type)
-      }
-      if (all(strata != "NONE")) {
-        message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
-      }
+    }
+    message(link, " Linking Function Used")
+    if (min(term_n) != max(term_n)) {
+      message(form_type)
+    }
+    if (all(strata != "NONE")) {
+      message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+    }
     realizations <- out_list$realizations
-    message("Outcome Realizations Used: ", realizations)
+    realization_mode <- out_list$realization_mode
+    if (realization_mode == "outcome") {
+      message("Outcome Realizations Used: ", realizations)
+    } else {
+      message("Exposure Realizations Used: ", realizations)
+    }
     message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
   } else {
     stop("\nUnknown Model Used")

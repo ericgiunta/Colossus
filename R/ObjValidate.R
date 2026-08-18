@@ -129,6 +129,14 @@ new_logitresfma <- function(x = list()) {
   )
 }
 
+new_logitresmcml <- function(x = list()) {
+  stopifnot(is.list(x))
+  structure(
+    x,
+    class = "logitresmcml"
+  )
+}
+
 
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
