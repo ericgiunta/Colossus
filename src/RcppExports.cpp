@@ -293,6 +293,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// logist_Residual_transition
+List logist_Residual_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd& df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
+RcppExport SEXP _Colossus_logist_Residual_transition(SEXP CountEventSEXP, SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP model_controlSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< MatrixXd& >::type CountEvent(CountEventSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type term_n(term_nSEXP);
+    Rcpp::traits::input_parameter< const StringVector& >::type tform(tformSEXP);
+    Rcpp::traits::input_parameter< NumericVector& >::type a_n(a_nSEXP);
+    Rcpp::traits::input_parameter< IntegerVector& >::type dfc(dfcSEXP);
+    Rcpp::traits::input_parameter< MatrixXd& >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< int >::type fir(firSEXP);
+    Rcpp::traits::input_parameter< const string& >::type modelform(modelformSEXP);
+    Rcpp::traits::input_parameter< List >::type Control(ControlSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type KeepConstant(KeepConstantSEXP);
+    Rcpp::traits::input_parameter< int >::type term_tot(term_totSEXP);
+    Rcpp::traits::input_parameter< List >::type model_control(model_controlSEXP);
+    rcpp_result_gen = Rcpp::wrap(logist_Residual_transition(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cox_ph_multidose_Omnibus_transition
 List cox_ph_multidose_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, MatrixXd df0, MatrixXd df1, int fir, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 RcppExport SEXP _Colossus_cox_ph_multidose_Omnibus_transition(SEXP term_nSEXP, SEXP tformSEXP, SEXP a_nSEXP, SEXP dose_colsSEXP, SEXP dose_indexSEXP, SEXP dfcSEXP, SEXP df0SEXP, SEXP df1SEXP, SEXP firSEXP, SEXP modelformSEXP, SEXP ControlSEXP, SEXP df_mSEXP, SEXP tuSEXP, SEXP KeepConstantSEXP, SEXP term_totSEXP, SEXP Strata_valsSEXP, SEXP cens_weightSEXP, SEXP model_controlSEXP, SEXP Lin_SysSEXP, SEXP Lin_ResSEXP) {
@@ -525,6 +547,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_Colossus_pois_Omnibus_CurveSearch_transition", (DL_FUNC) &_Colossus_pois_Omnibus_CurveSearch_transition, 16},
     {"_Colossus_pois_Omnibus_Bounds_transition", (DL_FUNC) &_Colossus_pois_Omnibus_Bounds_transition, 16},
     {"_Colossus_pois_Residual_transition", (DL_FUNC) &_Colossus_pois_Residual_transition, 14},
+    {"_Colossus_logist_Residual_transition", (DL_FUNC) &_Colossus_logist_Residual_transition, 12},
     {"_Colossus_cox_ph_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_cox_ph_multidose_Omnibus_transition, 20},
     {"_Colossus_pois_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_pois_multidose_Omnibus_transition, 19},
     {"_Colossus_logist_multidose_Omnibus_transition", (DL_FUNC) &_Colossus_logist_multidose_Omnibus_transition, 17},

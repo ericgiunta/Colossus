@@ -202,7 +202,7 @@ test_that("Checking formula works with result modification", {
     expect_equal(sum(f$Risk), 548.6874, tolerance = 1e-2)
     expect_no_error(e <- PoisRun(Pois(t1, lung) ~ loglinear(CONST, bs(x = b)), df, control = list("ncores" = 1)))
     f <- Residual(e, df)
-    expect_equal(f$Residual_Sum, 0.497, tolerance = 1e-2)
+    expect_equal(sum(f$Risk), 0.497, tolerance = 1e-2)
     #
     model <- Cox(t0, t1, lung) ~ loglinear(bs(a), b)
     expect_no_error(e <- CoxRun(model, df, control = list("ncores" = 1)))

@@ -1460,7 +1460,7 @@ RelativeRisk.formula <- function(x, df, a_n = c(), ...) {
     #
   } else {
     stop(
-      "Error: Incorrect type used for formula, must be a Colossus formula type"
+      "Error: Incorrect type used for formula, must be a Cox formula"
     )
   }
   e
@@ -4449,14 +4449,14 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
 
 #' Generic Residual calculation function
 #'
-#' \code{Residual} Generic residual calculation function for Poisson
+#' \code{Residual} Generic residual calculation function for regression
 #' results. Note that the Cox residuals are calculated using the various
 #' plotting based functions.
 #' @param x result object from a regression, class coxres or poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
-#' @family Poisson Residuals
+#' @family Residuals
 Residual <- function(x, df, ...) {
   UseMethod("Residual", x)
 }
@@ -4473,6 +4473,160 @@ Residual.default <- function(x, df, ...) {
   x
 }
 
+#' Warning for residual called on cox result
+#'
+#' \code{Residual.coxres} Generic Residual calculation function, applied to a coxres
+#' @param x result object from a regression, class coxres
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
+#' @noRd
+#' @export
+Residual.coxres <- function(x, df, ...) {
+  warning("Warning: Residual function is not for a Cox result, use the associated plotting functions to find Schoenfeld or Martingale residuals.")
+  x
+}
+
+#' Warning for residual called on cox model
+#'
+#' \code{Residual.coxmodel} Generic Residual calculation function, applied to a coxres
+#' @param x result object from a model, class coxmodel
+#' @param ... extended for other necessary parameters
+#' @inheritParams R_template
+#' @noRd
+#' @export
+Residual.coxmodel <- function(x, df, ...) {
+  warning("Warning: Residual function is not for a Cox model, use the associated plotting functions to find Schoenfeld or Martingale residuals.")
+  x
+}
+
+#' Calculates the Residuals for a poisson formula
+#'
+#' \code{Residual.poismodel} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate residuals for a solved Poisson regression
+#'
+#' @param x result object from a poisson model, class poismodel
+#' @param pearson boolean to calculate pearson residuals
+#' @param deviance boolean to calculate deviance residuals
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Residuals
+Residual.poismodel <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
+  poismodel <- copy(x)
+  pyr0 <- poismodel$person_year
+  event0 <- poismodel$event
+  names <- poismodel$names
+  term_n <- poismodel$term_n
+  tform <- poismodel$tform
+  keep_constant <- poismodel$keep_constant
+  modelform <- poismodel$modelform
+  strat_col <- poismodel$strata
+  #
+  calls <- poismodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
+    # one of the columns has a :intercept flag
+    # nocov start
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+    # nocov end
+  }
+  if (!missing(a_n)) {
+    poismodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (!missing(keep_constant)) { # assigns the paramter constant values if given
+    poismodel$keep_constant <- keep_constant
+  }
+  #
+  if ("CONST" %in% poismodel$names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  control <- ColossusControl()
+  # Checks that the current coxmodel is valid
+  validate_poissurv(poismodel, df)
+  if (!poismodel$null) {
+    poismodel <- validate_formula(poismodel, df, control$verbose)
+  }
+  a_n <- poismodel$a_n
+  #
+  model_control <- list()
+  if (poismodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+    if (all(poismodel$strata != "NONE")) {
+      model_control["strata"] <- TRUE
+      a_n <- c(0.0)
+      keep_constant <- c(1)
+    } else {
+      event_total <- sum(df[, event0, with = FALSE])
+      time_total <- sum(df[, pyr0, with = FALSE])
+      avg_rate <- event_total / time_total
+      a_n <- c(log(avg_rate))
+    }
+  } else {
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+    } else if (modelform == "GMIX") {
+      model_control[["gmix_term"]] <- poismodel$gmix_term
+      model_control[["gmix_theta"]] <- poismodel$gmix_theta
+    }
+    if (all(poismodel$strata != "NONE")) {
+      model_control["strata"] <- TRUE
+    }
+  }
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  model_control <- Def_model_control(model_control)
+  #
+  #  if ((pearson == deviance) && (pearson)) {
+  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
+  #  }
+  model_control$pearson <- pearson
+  model_control$deviance <- deviance
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  # ------------------------------------------------------------------------------ #
+  res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
+}
+
 #' Calculates the Residuals for a completed poisson model
 #'
 #' \code{Residual.poisres} uses user provided data, person-year/event columns, vectors specifying the model,
@@ -4486,7 +4640,7 @@ Residual.default <- function(x, df, ...) {
 #'
 #' @return returns a list of the final results
 #' @export
-#' @family Poisson Residuals
+#' @family Residuals
 Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
   poismodel <- x$model
   pyr0 <- poismodel$person_year
@@ -4534,9 +4688,9 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   #
   model_control <- object$modelcontrol
   #
-  if ((pearson == deviance) && (pearson)) {
-    stop("Error: Both pearson and deviance cannot be used at once, select only one")
-  }
+  #  if ((pearson == deviance) && (pearson)) {
+  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
+  #  }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
   # ------------------------------------------------------------------------------ #
@@ -4545,6 +4699,221 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
+}
+
+#' Calculates the Residuals for a logistic model
+#'
+#' \code{Residual.logitmodel} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate residuals for a solved Poisson regression
+#'
+#' @param x result model for a regression, class logitmodel
+#' @param pearson boolean to calculate pearson residuals
+#' @param deviance boolean to calculate deviance residuals
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Residuals
+Residual.logitmodel <- function(x, df, control = list(), a_n = c(), link = "odds", pearson = FALSE, deviance = FALSE, ...) {
+  logitmodel <- copy(x)
+  trial0 <- logitmodel$trials
+  event0 <- logitmodel$event
+  names <- logitmodel$names
+  term_n <- logitmodel$term_n
+  tform <- logitmodel$tform
+  keep_constant <- logitmodel$keep_constant
+  modelform <- logitmodel$modelform
+  #
+  calls <- logitmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (!missing(a_n)) {
+    logitmodel$a_n <- a_n # assigns the starting parameter values if given
+  }
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
+    # one of the columns has a :intercept flag
+    # nocov start
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+    # nocov end
+  }
+  control <- ColossusControl()
+  # Checks that the current coxmodel is valid
+  validate_logitsurv(logitmodel, df)
+  if (!logitmodel$null) {
+    logitmodel <- validate_formula(logitmodel, df, control$verbose)
+  }
+  a_n <- logitmodel$a_n
+  #
+  model_control <- list()
+  if (logitmodel$null) {
+    model_control["null"] <- TRUE
+    #
+    names <- c("CONST")
+    term_n <- c(0)
+    tform <- c("loglin")
+    keep_constant <- c(0)
+    a_n <- c(0)
+    model_control["logit_odds"] <- TRUE
+    #
+    event_total <- sum(df[, event0, with = FALSE])
+    trial_total <- sum(df[, trial0, with = FALSE])
+    avg_rate <- event_total / trial_total
+    a_n <- c(-log(1 - avg_rate))
+  } else {
+    if (length(unique(term_n)) == 1) {
+      modelform <- "M"
+    } else if (modelform == "GMIX") {
+      model_control[["gmix_term"]] <- logitmodel$gmix_term
+      model_control[["gmix_theta"]] <- logitmodel$gmix_theta
+    }
+    if (missing(link)) {
+      model_control["logit_odds"] <- TRUE
+    } else {
+      # "logit_odds", "logit_ident", "logit_loglink"
+      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+      link <- tolower(link)
+      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+      if (link %in% acceptable) {
+        if (link %in% c("logit_odds", "odds", "odd")) {
+          model_control["logit_odds"] <- TRUE
+        } else if (link %in% c("logit_ident", "ident", "id")) {
+          model_control["logit_ident"] <- TRUE
+        } else if (link %in% c("logit_loglink", "loglink", "log")) {
+          model_control["logit_loglink"] <- TRUE
+        } else if (link %in% c("logit_probit", "probit")) {
+          model_control["logit_probit"] <- TRUE
+        } else {
+          stop(gettextf(
+            "Error: Argument '%s' not matched to set link options",
+            link
+          ), domain = NA)
+        }
+      } else {
+        stop(gettextf(
+          "Error: Argument '%s' not matched to allowable link options",
+          link
+        ), domain = NA)
+      }
+    }
+  }
+  control_def_names <- c(
+    "single", "basic", "null", "cr", "linear_err",
+    "gradient", "constraint", "strata", "observed_info"
+  )
+  for (nm in control_def_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
+  model_control <- Def_model_control(model_control)
+  #  if ((pearson == deviance) && (pearson)) {
+  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
+  #  }
+  model_control$pearson <- pearson
+  model_control$deviance <- deviance
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  # ------------------------------------------------------------------------------ #
+  res <- RunLogisticRegression_Residual(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control)
+  # ------------------------------------------------------------------------------ #
+  # Revert data.table core change
+  thread_1 <- setDTthreads(thread_0) # revert the old number
+  # ------------------------------------------------------------------------------ #
+  res
+}
+
+#' Calculates the Residuals for a completed logistic model
+#'
+#' \code{Residual.logitres} uses user provided data, person-year/event columns, vectors specifying the model,
+#' and options to calculate residuals for a solved Poisson regression
+#'
+#' @param x result object from a regression, class logitres
+#' @param pearson boolean to calculate pearson residuals
+#' @param deviance boolean to calculate deviance residuals
+#' @param ... can include the named entries for the assign_control list parameter
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @export
+#' @family Residuals
+Residual.logitres <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
+  logitmodel <- x$model
+  trial0 <- logitmodel$trials
+  event0 <- logitmodel$event
+  names <- logitmodel$names
+  term_n <- logitmodel$term_n
+  tform <- logitmodel$tform
+  keep_constant <- logitmodel$keep_constant
+  modelform <- logitmodel$modelform
+  #
+  calls <- logitmodel$expres_calls
+  df <- ColossusExpressionCall(calls, df)
+  #
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  if (any(grepl(":intercept", names, fixed = TRUE))) {
+    # one of the columns has a :intercept flag
+    # nocov start
+    for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
+      if (!(name %in% names(df))) {
+        # this isn't a preexisting column
+        new_col <- substr(name, 1, nchar(name) - 10)
+        df[, name] <- df[, new_col, with = FALSE]
+      }
+    }
+    # nocov end
+  }
+  object <- validate_logitres(x, df)
+  #
+  if (missing(a_n)) {
+    a_n <- object$beta_0
+  }
+  if (missing(control)) {
+    control <- object$control
+  }
+  #
+  control_args <- intersect(names(control), names(formals(ColossusControl)))
+  control <- do.call(ColossusControl, control[control_args])
+  #
+  model_control <- object$modelcontrol
+  #
+  #  if ((pearson == deviance) && (pearson)) {
+  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
+  #  }
+  model_control$pearson <- pearson
+  model_control$deviance <- deviance
+  # ------------------------------------------------------------------------------ #
+  # Make data.table use the set number of threads too
+  thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  # ------------------------------------------------------------------------------ #
+  res <- RunLogisticRegression_Residual(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control)
   # ------------------------------------------------------------------------------ #
   # Revert data.table core change
   thread_1 <- setDTthreads(thread_0) # revert the old number

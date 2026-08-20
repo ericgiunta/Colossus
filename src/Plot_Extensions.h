@@ -35,4 +35,6 @@ List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<Ve
 
 List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool);
 
+List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool);
+
 #endif  //  SRC_PLOT_EXTENSIONS_H_

@@ -357,3 +357,88 @@ RunLogisticRegression_Omnibus_Multidose <- function(df, trial0 = "CONST", event0
   e$RejectedRecords <- initial_size - run_size
   e
 }
+
+#' Calculates logistic residuals
+#'
+#' \code{RunLogisticRegression_Residual} uses user provided data, time/event columns,
+#'  vectors specifying the model, and options. Calculates residuals or sum of residuals
+#'
+#' @inheritParams R_template
+#'
+#' @return returns a list of the final results
+#' @noRd
+#' @family Poisson Wrapper Functions
+#' @importFrom rlang .data
+RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
+  # nocov start
+  if (class(df)[[1]] != "data.table") {
+    tryCatch(
+      {
+        setDT(df)
+      },
+      error = function(error_message) {
+        df <- data.table(df)
+      }
+    )
+  }
+  # nocov end
+  cons_mat <- as.matrix(c(0))
+  cons_vec <- c(0)
+  control <- Def_Control(control)
+  if (typeof(a_n) != "list") {
+    a_n <- list(a_n)
+  }
+  if (min(df[, trial0, with = FALSE]) < 0) {
+    stop("Error: negative trials in atleast one row")
+  }
+  if (min(df[, event0, with = FALSE]) < 0) {
+    stop("Error: negative events in atleast one row")
+  }
+  model_control <- Def_model_control(model_control)
+  if (min(keep_constant) > 0) {
+    stop("Error: Atleast one parameter must be free")
+  }
+  if (sum(df[, event0, with = FALSE]) == 0) {
+    stop("Error: no events")
+  }
+  if (sum(df[, trial0, with = FALSE]) == 0) {
+    stop("Error: no duration")
+  }
+
+  if ("CONST" %in% names) {
+    if ("CONST" %in% names(df)) {
+      # fine
+    } else {
+      df$CONST <- 1
+    }
+  }
+  all_names <- unique(names)
+  df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+  #
+  #  df$og_order <- seq_len(nrow(df))
+  #  data.table::setkeyv(df, val_cols)
+  #  print(df)
+  #
+  dfc <- match(names, all_names)
+  term_tot <- max(term_n) + 1
+  x_all <- as.matrix(df[, all_names, with = FALSE])
+  ce <- c(event0, trial0)
+  e <- logist_Residual_transition(
+    as.matrix(df[, ce, with = FALSE]),
+    term_n, tform, a_n[[1]],
+    dfc, x_all, 0, modelform,
+    control, keep_constant,
+    term_tot,
+    model_control
+  )
+  #  extra_names <- names(e)
+  #  df_risk <- data.table("index" = df$og_order)
+  #  for (ex_name in extra_names) {
+  #    df_risk[[ex_name]] <- e[[ex_name]]
+  #  }
+  #  data.table::setkeyv(df_risk, "index")
+  #  for (ex_name in extra_names) {
+  #    e[[ex_name]] <- df_risk[[ex_name]]
+  #  }
+  e
+}

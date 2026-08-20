@@ -61,10 +61,10 @@ df <- data.table::data.table(
   dose = c(0, 1, 1, 0, 1, 0, 1)
 )
 set.seed(3742)
-df$rand <- c(1,floor(runif(nrow(df)-1, min = 0, max = 1)))
-df$lung0 <- c(1,floor(runif(nrow(df)-1, min = 0, max = 1)))
-df$lung1 <- c(1,floor(runif(nrow(df)-1, min = 0, max = 1)))
-df$lung2 <- c(1,floor(runif(nrow(df)-1, min = 0, max = 1)))
+df$rand <- c(1, floor(runif(nrow(df) - 1, min = 0, max = 1)))
+df$lung0 <- c(1, floor(runif(nrow(df) - 1, min = 0, max = 1)))
+df$lung1 <- c(1, floor(runif(nrow(df) - 1, min = 0, max = 1)))
+df$lung2 <- c(1, floor(runif(nrow(df) - 1, min = 0, max = 1)))
 realization_columns <- c("lung", "lung1", "lung2")
 control <- list(
   ncores = 1, lr = 0.75, maxiters = c(1, 1),

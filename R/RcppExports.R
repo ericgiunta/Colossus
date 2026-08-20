@@ -826,6 +826,17 @@ NULL
 #'
 NULL
 
+#' Calculates residuals for a logistic model
+#'
+#' \code{Logistic_Residuals} Performs the calls to calculation functions and returns the residuals
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results, risk and residuals
+#' @noRd
+#'
+NULL
+
 #' Interface between R code and the Cox PH omnibus regression function
 #'
 #' \code{cox_ph_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
@@ -956,6 +967,18 @@ pois_Omnibus_Bounds_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, f
 #'
 pois_Residual_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control) {
     .Call(`_Colossus_pois_Residual_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control)
+}
+
+#' Interface between R code and the logistic residual calculation function
+#'
+#' \code{logist_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
+#' @inheritParams CPP_template
+#'
+#' @return Logistic_Residuals output : list of residuals and sum
+#' @noRd
+#'
+logist_Residual_transition <- function(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control) {
+    .Call(`_Colossus_logist_Residual_transition`, CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control)
 }
 
 #' Interface between R code and the Cox PH omnibus regression function

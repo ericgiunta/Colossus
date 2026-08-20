@@ -14,6 +14,8 @@
 <url><loc>https://ericgiunta.github.io/Colossus/articles/Matched_Case_Control.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/articles/Multi_Realization.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/articles/Plotting_And_Analysis.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/articles/PoisResidual.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/articles/Residual.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/articles/SMR_Analysis.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/articles/Script_Comparison_Epicure.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/articles/Starting-Description.html</loc></url>
@@ -98,6 +100,7 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LogLik_Pois_Omnibus.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LogisticRun.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/LogisticRunMulti.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/LogisticRunMultiOut.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Make_Groups.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Make_Groups_CR.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Make_Groups_STRATA.html</loc></url>
@@ -118,6 +121,7 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/PoisRun.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/PoisRunJoint.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/PoisRunMulti.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/PoisRunMultiOut.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Pois_Dev_LL_Calc.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Pois_Term_Risk_Calc.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Poisson_LogLik.html</loc></url>
@@ -128,6 +132,9 @@
 <url><loc>https://ericgiunta.github.io/Colossus/reference/RelativeRisk.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Replace_Missing.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.logitmodel.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.logitres.html</loc></url>
+<url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.poismodel.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/Residual.poisres.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/RunCoxNull.html</loc></url>
 <url><loc>https://ericgiunta.github.io/Colossus/reference/RunCoxPlots.html</loc></url>

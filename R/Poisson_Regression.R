@@ -269,7 +269,9 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
   }
-  df <- df[get(pyr0) > 0, ]
+  if (min(df[, pyr0, with = FALSE]) < 0) {
+    stop("Error: negative duration in atleast one row")
+  }
   if (min(df[, event0, with = FALSE]) < 0) {
     stop("Error: negative events in atleast one row")
   }
@@ -279,6 +281,9 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   }
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")
+  }
+  if (sum(df[, pyr0, with = FALSE]) == 0) {
+    stop("Error: no duration")
   }
   if ("CONST" %in% names) {
     if ("CONST" %in% names(df)) {
@@ -308,6 +313,11 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
+  #
+  df$og_order <- seq_len(nrow(df))
+  data.table::setkeyv(df, val_cols)
+  #  print(df)
+  #
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
@@ -322,6 +332,15 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ]),
     model_control
   )
+  extra_names <- names(e)
+  df_risk <- data.table("index" = df$og_order)
+  for (ex_name in extra_names) {
+    df_risk[[ex_name]] <- e[[ex_name]]
+  }
+  data.table::setkeyv(df_risk, "index")
+  for (ex_name in extra_names) {
+    e[[ex_name]] <- df_risk[[ex_name]]
+  }
   e
 }
 

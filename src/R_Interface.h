@@ -44,6 +44,9 @@ List pois_Omnibus_CurveSearch_transition(MatrixXd& PyrC, IntegerVector& term_n, 
 
 List pois_Residual_transition(MatrixXd& PyrC, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, Ref<MatrixXd> df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control);
 
+
+List logist_Residual_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd& df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control);
+
 List cox_ph_multidose_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, Ref<MatrixXd> df0, MatrixXd df1, int fir, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);
 
 List pois_multidose_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerMatrix dose_cols, IntegerVector dose_index, IntegerVector& dfc, MatrixXd df0, MatrixXd df1, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res);

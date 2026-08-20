@@ -763,6 +763,56 @@ List pois_Residual_transition(MatrixXd& PyrC, IntegerVector& term_n, const Strin
     return res;
 }
 
+//' Interface between R code and the logistic residual calculation function
+//'
+//' \code{logist_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
+//' @inheritParams CPP_template
+//'
+//' @return Logistic_Residuals output : list of residuals and sum
+//' @noRd
+//'
+//  [[Rcpp::export]]
+List logist_Residual_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericVector& a_n, IntegerVector& dfc, MatrixXd& df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control) {
+    //
+    Map<VectorXd> beta_0(as<Map<VectorXd> >(a_n));
+    //
+    int verbose = Control["verbose"];
+    //
+    double step_max = Control["step_max"];
+    double thres_step_max = Control["thres_step_max"];
+    int nthreads = Control["ncores"];
+    //
+    double gmix_theta = model_control["gmix_theta"];
+    IntegerVector gmix_term = model_control["gmix_term"];
+    //
+    //
+    bool Pearson_bool = model_control["pearson"];
+    bool Deviance_bool = model_control["deviance"];
+    //
+    List model_bool = List::create(
+            _["strata"] = model_control["strata"],
+            _["basic"] = false,
+            _["linear_err"] = false,
+            _["null"] = false,
+            _["cr"] = false,
+            _["single"] = true,
+            _["gradient"] = false,
+            _["outcome_prob"] = false,
+            _["constraint"] = false,
+            _["log_bound"] = false,
+            _["cox"] = true,
+            _["logist"] = true,
+            _["odds"] = model_control["logit_odds"],
+            _["ident"] = model_control["logit_ident"],
+            _["probit"] = model_control["logit_probit"],
+            _["loglink"] = model_control["logit_loglink"]);
+    //  Performs regression
+    //----------------------------------------------------------------------------------------------------------------//
+    List res = Logistic_Residuals(CountEvent, term_n, tform, beta_0, df0, dfc, fir, modelform, step_max, thres_step_max, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Pearson_bool, Deviance_bool);
+    //----------------------------------------------------------------------------------------------------------------//
+    return res;
+}
+
 //' Interface between R code and the Cox PH omnibus regression function
 //'
 //' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
