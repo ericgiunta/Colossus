@@ -180,6 +180,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 v[j] = Lld_vec[j];
             }
         }
+        //
         //  At this point, we have the standard newton-raphson equation defined
         deriv_max = abs(v[0]);
         for (int ij = 0; ij < reqrdnum; ij++) {
@@ -197,6 +198,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 }
             }
         } else {
+//            Rcout << "Invertable" << endl;
             G = G.inverse().matrix();
             v = G.matrix() * v.matrix();
             VectorXd g1 = G.col(para_number);
@@ -206,6 +208,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             double cs0 = v.matrix().transpose() * D0 * v.matrix();
             //
             if (pow(bs1, 2)-4*as2*cs0 >= 0) {
+//                Rcout << "Real solution" << endl;
                 double s0 = pow(bs1, 2)-4*as2*cs0;
                 double s1 = (-bs1 - pow(s0, 0.5))/(2*as2);
                 s0 = (-bs1 + pow(s0, 0.5))/(2*as2);
@@ -213,6 +216,8 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 double s00 = (v + s0*g1).matrix().transpose() * D0 * (v + s0*g1).matrix();
                 double s11 = (v + s1*g1).matrix().transpose() * D0 * (v + s1*g1).matrix();
                 //
+//                Rcout << s0 << " " << s1 << endl;
+//                Rcout << s00 << " " << s11 << endl;
                 if (abs(s00) < abs(s11)) {
                     //  s1 is further away
                     for (int ij = 0; ij < totalnum; ij++) {

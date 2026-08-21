@@ -2288,6 +2288,8 @@ Interpret_Output <- function(out_list, digits = 3) {
         message("Proportional Hazards Model")
       } else if (is(out_list, "poisresbound")) {
         message("Poisson Model")
+      } else if (is(out_list, "logitresbound")) {
+        message("Logistic Model")
       }
       if (all(strata != "NONE")) {
         message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
@@ -2299,7 +2301,11 @@ Interpret_Output <- function(out_list, digits = 3) {
         if (conv[1]) {
           message(paste("Lower limit converged to at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
         } else {
-          message(paste("Lower limit reached ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          if (limits[1] == beta_0) {
+            message(paste("Lower limit stayed at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), ", consider increasing `search_mult` or `step_max` to increase the first step", sep = ""))
+          } else {
+            message(paste("Lower limit reached ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          }
         }
       }
       message(paste("Central estimate was ", format(beta_0, digits = digits), sep = ""))
@@ -2309,7 +2315,11 @@ Interpret_Output <- function(out_list, digits = 3) {
         if (conv[2]) {
           message(paste("Upper limit converged to at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
         } else {
-          message(paste("Upper limit reached ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          if (limits[2] == beta_0) {
+            message(paste("Upper limit stayed at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), ", consider increasing `search_mult` or `step_max` to increase the first step", sep = ""))
+          } else {
+            message(paste("Upper limit reached ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+          }
         }
       }
     } else {
