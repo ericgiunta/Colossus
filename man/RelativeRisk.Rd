@@ -20,6 +20,8 @@ for either the last parameter or a custom point.
 }
 \seealso{
 Other Predicted Risk and Rate:
-\code{\link[=RelativeRisk.coxres]{RelativeRisk.coxres()}}
+\code{\link[=RelativeRisk.coxmodel]{RelativeRisk.coxmodel()}},
+\code{\link[=RelativeRisk.coxres]{RelativeRisk.coxres()}},
+\code{\link[=RelativeRisk.formula]{RelativeRisk.formula()}}
 }
 \concept{Predicted Risk and Rate}

@@ -313,16 +313,16 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
 }
 
 
-//' Primary plotting function.
+//' Primary Cox plotting function.
 //'
-//' \code{Plot_Omnibus} Performs the calls to calculation functions
+//' \code{Plot_Omnibus_Cox} Performs the calls to calculation functions used in Cox options
 //'
 //' @inheritParams CPP_template
 //'
 //' @return List of final results dependent on plot type used
 //' @noRd
 //'
-List Plot_Omnibus(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, int fir, int der_iden, const string& modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
+List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, int fir, int der_iden, const string& modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
     //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
@@ -491,6 +491,7 @@ List Plot_Omnibus(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd
 List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, const string& modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     //
     int totalnum = term_n.size();
+    const int mat_row = df0.rows();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
@@ -583,6 +584,7 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     //  ------------------------------------------------------------------------- //  initialize
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
+    const int mat_row = df0.rows();
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     //
@@ -619,39 +621,166 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     RddR = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     VectorXd s_weights;
     vector<vector<int>> RiskPairs_Strata_Pois(Strata_vals.size());
-    if (model_bool["strata"]) {
-        Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
-        s_weights = VectorXd::Zero(df0.rows());
-        #ifdef _OPENMP
-        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-        #endif
-        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
-            double E_sum = 0;
-            double R_sum = 0;
-            //
-            vector<int> InGroup = RiskPairs_Strata_Pois[s_ij];
-            //  now has the grouping pairs
-            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
-                //
-                E_sum += PyrC.block(InGroup[i] - 1, 1, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
-                R_sum += (PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
-            }
-            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
-                s_weights.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1) = VectorXd::Constant(InGroup[i + 1]-InGroup[i] + 1, E_sum / R_sum);
-            }
-        }
-    }
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
     //
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+//    Rcout << "About to start strata" << endl;
     if (model_bool["strata"]) {
+        Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
+        s_weights = VectorXd::Zero(df0.rows());
+//        Rcout << "In strata" << endl;
+//        #ifdef _OPENMP
+//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
+//        #endif
+        for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
+            double E_sum = 0;
+            double R_sum = 0;
+            //
+            vector<int> InGroup = RiskPairs_Strata_Pois[s_ij];
+//            Rcout << s_ij << " " << InGroup.size() << endl;
+            //  now has the grouping pairs
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                //
+                E_sum += PyrC.block(InGroup[i] - 1, 1, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
+                R_sum += (PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
+//                Rcout << PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum() << " " << R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum() << endl;
+            }
+            for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
+                s_weights.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1) = VectorXd::Constant(InGroup[i + 1]-InGroup[i] + 1, E_sum / R_sum);
+            }
+        }
         R = R.array() * s_weights.array();
     }
-    List res_list;
+    // Now we calculate residuals
+    MatrixXd p_residual = MatrixXd::Zero(df0.rows(), 1);
+    MatrixXd d_residual = MatrixXd::Zero(df0.rows(), 1);
+    MatrixXd expect_event = R.col(0).array() * PyrC.col(0).array();
+    MatrixXd r_residual = PyrC.col(1).array() - expect_event.col(0).array();
+    if (Pearson_bool) {
+        // (y-R)^2 / R
+        p_residual = (PyrC.col(1).array() - expect_event.col(0).array() ).pow(2).array() * expect_event.col(0).array().pow(-1).array();
+        p_residual = (PyrC.col(1).array().abs() + expect_event.col(0).array().abs() > 0).select(p_residual, 0).array();
+    }
+    if (Deviance_bool) {
+        // 2* (y log(y/R) - (y - R))
+        d_residual = PyrC.col(1).array() * (PyrC.col(1).array() * expect_event.array().pow(-1).array()).log().array();
+        d_residual = (d_residual.array().isFinite()).select(d_residual, 0).array();
+        d_residual = d_residual.array() - (PyrC.col(1).array() - expect_event.col(0).array()).array();
+        d_residual = 2*d_residual.array();
+    }
+    List res_list = List::create(_["Risk"] = wrap(R.col(0)), _["Raw_Residual"] = wrap(r_residual.col(0)));
     //
-    res_list = List::create(_["Risk"] = wrap(R.col(0)), _["Residual_Sum"] = wrap(R.col(0).sum()));  //  returns list of covariate values and risk
+    if (Pearson_bool) {
+        res_list.push_back(wrap(p_residual.col(0)), "Pearson_Residual");
+    }
+    if (Deviance_bool) {
+        res_list.push_back(wrap(d_residual.col(0)), "Deviance_Residual");
+    }
+    return res_list;
+}
+
+//' Calculates residuals for a logistic model
+//'
+//' \code{Logistic_Residuals} Performs the calls to calculation functions and returns the residuals
+//'
+//' @inheritParams CPP_template
+//'
+//' @return List of final results, risk and residuals
+//' @noRd
+//'
+List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
+    //
+//    List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
+    //  Time durations are measured from this point on in microseconds
+    //
+    //  df0: covariate data
+    //  ntime: number of event times for Cox PH
+    //  totalnum: number of terms used
+    //
+    //  ------------------------------------------------------------------------- //  initialize
+    int totalnum = term_n.size();
+    int reqrdnum = totalnum - sum(KeepConstant);
+    const int mat_row = df0.rows();
+    //  cout.precision: controls the number of significant digits printed
+    //  nthreads: number of threads used for parallel operations
+    //
+    Rcout.precision(10);  //  forces higher precision numbers printed to terminal
+    //  Lld_worst: stores the highest magnitude log-likelihood derivative
+    //  ---------------------------------------------
+    //  To Start, needs to seperate the derivative terms
+    //  ---------------------------------------------
+    //
+    //  ------------------------------------------------------------------------- //  initialize
+    //  ---------------------------------------------
+    //  To Start, needs to seperate the derivative terms
+    //  ---------------------------------------------
+    //
+    MatrixXd T0 = MatrixXd::Zero(mat_row, totalnum);  //  preallocates matrix for Term column
+    MatrixXd Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
+    MatrixXd R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
+    MatrixXd P = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Probabilities
+    MatrixXd Pnot = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for 1-P
+    //
+    MatrixXd Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of the total dose term values
+    MatrixXd nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of the total non-dose term values
+    MatrixXd nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of Linear subterm values
+    MatrixXd nonDose_PLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Loglinear subterm values
+    MatrixXd nonDose_LOGLIN = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of Product linear subterm values
+    MatrixXd TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
+    MatrixXd Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
+    MatrixXd Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
+    //
+    MatrixXd Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
+    MatrixXd Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
+    MatrixXd Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
+    MatrixXd Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
+    //
+    MatrixXd RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
+    MatrixXd RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
+    MatrixXd PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
+    MatrixXd PddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability to second derivative ratios
+    MatrixXd PnotdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for 1-probability to derivative ratios
+    MatrixXd PnotddP = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for 1-probability to second derivative ratios
+    //  ------------------------------------------------------------------------- //  initialize
+    //  ---------------------------------------------
+    //  To Start, needs to seperate the derivative terms
+    //  ---------------------------------------------
+    //
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
+//    List res_list = List::create(_["STATUS"] = "PASS");
+    // Now we calculate residuals
+    MatrixXd p_residual = MatrixXd::Zero(df0.rows(), 1);
+    MatrixXd d_residual = MatrixXd::Zero(df0.rows(), 1);
+    MatrixXd expect_event = P.col(0).array() * CountEvent.col(1).array();
+    MatrixXd r_residual = CountEvent.col(0).array() - expect_event.col(0).array();
+    if (Pearson_bool) {
+        // (y-n*p) / (n*p*(1-p))^0.5
+        p_residual = r_residual.col(0).array() * (expect_event.col(0).array() * Pnot.col(0).array()).pow(-0.5).array();
+        p_residual = (CountEvent.col(0).array().abs() + expect_event.col(0).array().abs() > 0).select(p_residual, 0).array();
+    }
+    if (Deviance_bool) {
+        // sqrt( 2*[ y log(y/np) + (n-y) log(n-y / n-np)] )
+        MatrixXd dev_left = CountEvent.col(0).array() * (CountEvent.col(0).array() * expect_event.col(0).array().pow(-1).array()).log().array();
+        MatrixXd dev_right = (CountEvent.col(1).array() - CountEvent.col(0).array()).array() * ((CountEvent.col(1).array() - CountEvent.col(0).array()).array() * (CountEvent.col(1).array() - expect_event.col(0).array()).array().pow(-1).array()).log().array();
+        // Now correct for no events or all events
+        dev_left = (CountEvent.col(0).array() > 0).select(dev_left, 0).array();
+        dev_right = (CountEvent.col(1).array() - CountEvent.col(0).array() > 0).select(dev_right, 0).array();
+        //
+        d_residual = (2*(dev_left.col(0).array() + dev_right.col(0).array()).array()).array().pow(0.5).array();
+        // correct for sign
+        d_residual = (r_residual.col(0).array() > 0).select(d_residual, -1*d_residual.array()).array();
+    }
+    List res_list = List::create(_["Probability"] = wrap(P.col(0)), _["Raw_Residual"] = wrap(r_residual.col(0)));
+    //
+    if (Pearson_bool) {
+        res_list.push_back(wrap(p_residual.col(0)), "Pearson_Residual");
+    }
+    if (Deviance_bool) {
+        res_list.push_back(wrap(d_residual.col(0)), "Deviance_Residual");
+    }
     return res_list;
 }

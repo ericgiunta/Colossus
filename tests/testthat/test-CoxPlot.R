@@ -215,7 +215,9 @@ test_that("Coxph risk no error, with interactions", {
   a_n <- c(-0.1, 0.1, 0.1, 0.2)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = -1, "halfmax" = 5, "epsilon" = 1e-9, "deriv_epsilon" = 1e-9, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   plot_options <- list("fname" = paste0(tempfile(), "run"), "studyid" = "a", "verbose" = 0)
-  e <- CoxRun(Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e)), df, control = control, a_n = a_n, norm = "max")
+  formula <- Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e))
+  model <- get_form(formula, df)$model
+  e <- CoxRun(model, df, control = control, a_n = a_n, norm = "max")
   if (system.file(package = "ggplot2") != "") {
     df_test <- data.table(
       a = c(0, 0, 0, 0, 0, 0, 0, 0),
@@ -225,6 +227,14 @@ test_that("Coxph risk no error, with interactions", {
       e = c(0, 0, 0, 0, 0, 0, 0, 0)
     )
     expect_no_error(ep <- RelativeRisk(e, df_test))
+    expect_equal(ep$Risk, 1 + df_test$d * -0.1 + df_test$d * df_test$d * 0.1, tolerance = 1e-3)
+    #
+    expect_no_error(ep <- RelativeRisk(model, df_test, a_n = a_n))
+    expect_equal(ep$Risk, 1 + df_test$d * -0.1 + df_test$d * df_test$d * 0.1, tolerance = 1e-3)
+    #
+    formula <- Cox(a, b, c) ~ plinear(d * d, 0)
+    a_n <- c(-0.1, 0.1)
+    expect_no_error(ep <- RelativeRisk(formula, df_test, a_n = a_n))
     expect_equal(ep$Risk, 1 + df_test$d * -0.1 + df_test$d * df_test$d * 0.1, tolerance = 1e-3)
   }
 })

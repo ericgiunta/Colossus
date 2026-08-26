@@ -19,3 +19,4 @@
 ^.lintr
 ^LICENSE\.md$
 ^fuzz_testing$
+^.vscode$

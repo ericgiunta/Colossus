@@ -2,19 +2,22 @@
 % Please edit documentation in R/BasicRun.R
 \name{LogisticRunMulti}
 \alias{LogisticRunMulti}
-\title{Fully runs a logistic regression model with multiple event realizations, returning the model and results}
+\title{Fully runs a logistic regression model with multiple column realizations, returning the model and results}
 \usage{
 LogisticRunMulti(
   model,
   df,
   a_n = list(c(0)),
   keep_constant = c(0),
-  realization_columns = c("event0", "event1"),
+  realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2),
+  realization_index = c("temp0", "temp1"),
   control = list(),
   gradient_control = list(),
   link = "odds",
   single = FALSE,
   observed_info = FALSE,
+  fma = TRUE,
+  mcml = FALSE,
   cons_mat = as.matrix(c(0)),
   cons_vec = c(0),
   ...
@@ -31,15 +34,21 @@ LogisticRunMulti(
 
 \item{realization_columns}{used for multi-realization regressions. Matrix of column names with rows for each column with realizations, columns for each realization}
 
-\item{control}{list of parameters controlling the convergence, see the \code{vignette("Control_Options")} vignette for details}
+\item{realization_index}{used for multi-realization regressions. Vector of column names, one for each column with realizations. Each name should be used in the "names" variable in the equation definition}
 
-\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \code{vignette("Control_Options")} vignette for details}
+\item{control}{list of parameters controlling the convergence, see the \href{../articles/Control_Options.html}{control options vignette} for details}
+
+\item{gradient_control}{a list of control options for the gradient descent algorithm. If any value is given, a gradient descent algorithm is used instead of Newton-Raphson. See the \href{../articles/Control_Options.html}{control options vignette} for details}
 
 \item{link}{Used in logistic regression, the linking function relating the input model and event probability. Current options are "odds", "ident", and "loglink" for the odds ratio, identity, and complimentary loglink options.}
 
 \item{single}{a boolean to denote that only the log-likelihood should be calculated and returned, no derivatives or iterations}
 
 \item{observed_info}{a boolean to denote that the observed information matrix should be used to calculate the standard error for parameters, not the expected information matrix}
+
+\item{fma}{a boolean to denote that the Frequentist Model Averaging method should be used}
+
+\item{mcml}{a boolean to denote that the Monte Carlo Maximum Likelihood method should be used}
 
 \item{cons_mat}{Matrix containing coefficients for a system of linear constraints, formatted as matrix}
 
@@ -52,7 +61,7 @@ returns a class fully describing the model and the regression results
 }
 \description{
 \code{LogisticRunMulti} uses a formula, data.table, and list of controls to prepare and
-run a Colossus logistic regression function
+run a Colossus poisson regression function
 }
 \examples{
 library(data.table)
@@ -60,27 +69,30 @@ df <- data.table::data.table(
   UserID = c(112, 114, 213, 214, 115, 116, 117),
   t0 = c(18, 20, 18, 19, 21, 20, 18),
   t1 = c(30, 45, 57, 47, 36, 60, 55),
-  event = c(0, 0, 1, 0, 1, 0, 0),
-  dose = c(0, 1, 1, 0, 1, 0, 1) 
+  lung = c(0, 0, 1, 0, 1, 0, 0),
+  dose = c(0, 1, 1, 0, 1, 0, 1)
 )
 set.seed(3742)
-df$event0 <- rbinom(nrow(df), size = 1, prob = 0.3) 
-df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3) 
-df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
-realization_columns <- c("event0", "event1", "event2")
+df$rand <- floor(runif(nrow(df), min = 0, max = 5))
+df$rand0 <- floor(runif(nrow(df), min = 0, max = 5))
+df$rand1 <- floor(runif(nrow(df), min = 0, max = 5))
+df$rand2 <- floor(runif(nrow(df), min = 0, max = 5))
+realization_columns <- matrix(c("rand0", "rand1", "rand2"), nrow = 1)
+realization_index <- c("rand")
 control <- list(
-  ncores = 1, lr = 0.75, maxiter = 1,
-  halfmax = 2, epsilon = 1e-6,
-  deriv_epsilon = 1e-6, step_max = 1.0,
-  thres_step_max = 100.0,
-  verbose = 0, ties = "breslow", double_step = 1
+  ncores = 1, lr = 0.75, maxiters = c(1, 1),
+  halfmax = 1
 )
-formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
-res <- LogisticRunMulti(formula, df, realization_columns = realization_columns, control = control)
+formula <- logit(lung) ~ loglinear(CONST, dose, rand, 0) + multiplicative()
+res <- LogisticRunMulti(formula, df,
+  control = control,
+  realization_columns = realization_columns,
+  realization_index = realization_index
+)
 }
 \seealso{
 Other Logistic Wrapper Functions:
-\code{\link[=LikelihoodBound.logitres]{LikelihoodBound.logitres()}},
-\code{\link[=LogisticRun]{LogisticRun()}}
+\code{\link[=LogisticRun]{LogisticRun()}},
+\code{\link[=LogisticRunMultiOut]{LogisticRunMultiOut()}}
 }
 \concept{Logistic Wrapper Functions}

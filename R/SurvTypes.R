@@ -420,7 +420,7 @@ get_form_surv <- function(surv_obj, df) {
       surv_para_list[[item_name]] <- item_value
     }
   }
-  full_acceptable <- c("cox", "coxph", "cx", "cox_strata", "coxph_strata", "finegray", "fine_gray", "fg", "finegray_strata", "fine_gray_strata", "fg_strata", "poisson", "pois", "poisson_strata", "pois_strata", "casecon", "casecontrol", "case_control", "casecon_time", "casecontrol_time", "case_control_time", "casecon_strata", "casecontrol_strata", "case_control_strata", "casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata", "logit", "logistic")
+  full_acceptable <- c("cox", "coxph", "cx", "cox_strata", "coxph_strata", "coxstrata", "coxphstrata", "finegray", "fine_gray", "fg", "finegray_strata", "fine_gray_strata", "fg_strata", "finegraystrata", "fgstrata", "poisson", "pois", "poisson_strata", "pois_strata", "poissonstrata", "poisstrata", "casecon", "casecontrol", "case_control", "casecon_time", "casecontrol_time", "case_control_time", "casecon_strata", "casecontrol_strata", "case_control_strata", "casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata", "logit", "logistic")
   surv_type <- match.arg(surv_type, full_acceptable)
   ## Try to fix any issues with the survival parameter names
   if (!is.null(names(surv_para_list))) {
@@ -433,7 +433,7 @@ get_form_surv <- function(surv_obj, df) {
     tstart <- res$tstart
     tend <- res$tend
     event <- res$event
-  } else if (surv_type %in% c("cox_strata", "coxph_strata")) {
+  } else if (surv_type %in% c("cox_strata", "coxph_strata", "coxstrata", "coxphstrata")) {
     res <- do.call(ColossusCoxStrataSurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
@@ -445,7 +445,7 @@ get_form_surv <- function(surv_obj, df) {
     tend <- res$tend
     event <- res$event
     weight <- res$weight
-  } else if (surv_type %in% c("finegray_strata", "fine_gray_strata", "fg_strata")) {
+  } else if (surv_type %in% c("finegray_strata", "fine_gray_strata", "fg_strata", "finegraystrata", "fgstrata")) {
     res <- do.call(ColossusFineGrayStrataSurv, surv_para_list)
     tstart <- res$tstart
     tend <- res$tend
@@ -459,7 +459,7 @@ get_form_surv <- function(surv_obj, df) {
     if (any(res$strata != "NULL")) {
       stop("Error: Too many columns passed to non-stratified Poisson model")
     }
-  } else if (surv_type %in% c("poisson_strata", "pois_strata")) {
+  } else if (surv_type %in% c("poisson_strata", "pois_strata", "poissonstrata", "poisstrata")) {
     res <- do.call(ColossusPoisSurv, surv_para_list)
     pyr <- res$pyr
     event <- res$event
@@ -631,10 +631,15 @@ get_form_risk <- function(model_obj, df) {
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
-            xtemp <- do.call(factor, factor_arg_list)
+            if (is.null(levels(df[[factor_col]]))) {
+                xtemp <- do.call(factor, factor_arg_list)
+            } else {
+                xtemp <- df[[factor_col]]
+            }
             if (!("levels" %in% names(repeat_list))) { # using the levels will recreate the same factoring
               repeat_list[["levels"]] <- levels(xtemp)
             }
+#            print(levels(xtemp))
             df[[factor_col]] <- xtemp
             val <- factorize(df, factor_col)
             df <- val$df
@@ -1181,7 +1186,11 @@ ColossusExpressionCall <- function(calls, df) {
         names(factor_arg_list)[[1]] <- "x"
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
-      xtemp <- do.call(factor, factor_arg_list)
+      if (is.null(levels(df[[factor_col]]))) {
+            xtemp <- do.call(factor, factor_arg_list)
+        } else {
+            xtemp <- df[[factor_col]]
+        }
       df[[factor_col]] <- xtemp
       val <- factorize(df, factor_col)
       df <- val$df

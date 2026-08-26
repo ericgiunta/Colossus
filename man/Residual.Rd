@@ -14,12 +14,15 @@ Residual(x, df, ...)
 \item{...}{extended for other necessary parameters}
 }
 \description{
-\code{Residual} Generic residual calculation function for Poisson
+\code{Residual} Generic residual calculation function for regression
 results. Note that the Cox residuals are calculated using the various
 plotting based functions.
 }
 \seealso{
-Other Poisson Residuals:
+Other Residuals:
+\code{\link[=Residual.logitmodel]{Residual.logitmodel()}},
+\code{\link[=Residual.logitres]{Residual.logitres()}},
+\code{\link[=Residual.poismodel]{Residual.poismodel()}},
 \code{\link[=Residual.poisres]{Residual.poisres()}}
 }
-\concept{Poisson Residuals}
+\concept{Residuals}

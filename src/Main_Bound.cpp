@@ -226,6 +226,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
     }
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     NumericVector Lld_vecc(reqrdnum);
@@ -314,7 +315,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] <= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -340,6 +341,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
             break;
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -378,6 +380,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
     //
     //  -------------------------------------------------------------------------------------------
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -436,7 +439,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] >= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -462,6 +465,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound(IntegerVector& term_n, const StringVector& 
             break;
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -661,6 +665,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
     }
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     NumericVector Lld_vecc(reqrdnum);
@@ -797,6 +802,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             Ll[0] = 404;  //  note to consider this point too far
         } else {
             Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+            Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
             for (int i = 0; i < beta_0.size(); i++) {
                 beta_c[i] = beta_0[i];
             }
@@ -875,6 +881,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
@@ -959,6 +966,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
     //  -------------------------------------------------------------------------------------------
     //  Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1023,7 +1031,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] <= (beta_peak[para_number] - beta_a[ij])/lr) {
                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -1049,6 +1057,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             break;
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1087,6 +1096,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     upper = false;
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1169,6 +1179,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             Ll[0] = 404;  //  note to consider this point too far
         } else {
             Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+            Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
             for (int i = 0; i < beta_0.size(); i++) {
                 beta_c[i] = beta_0[i];
             }
@@ -1243,6 +1254,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
@@ -1317,6 +1329,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     //  Calculates the side sum terms used
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1375,7 +1388,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] >= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -1401,6 +1414,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_Search(IntegerVector& term_n, const StringV
             break;
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1579,6 +1593,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     NumericVector Lld_vecc(reqrdnum);
     #ifdef _OPENMP
@@ -1621,6 +1636,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
         Rcout << "C++ Note: STARTING Upper Bound" << endl;
         //
     }
+//    Rcout << "Upper" << endl;
     upper = true;
     int step = -1;
     bool iter_continue = true;
@@ -1662,21 +1678,24 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             }
         }
         //
+//        Rcout << "Change: ";
         max_change = abs(dbeta[0]);
         for (int ij = 0; ij < totalnum; ij++) {
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] <= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
             if (abs(dbeta[ij]) > max_change) {
                 max_change = abs(dbeta[ij]);
             }
+//            Rcout << " " << dbeta[ij];
             beta_0[ij] = beta_a[ij] + lr*dbeta[ij];
             beta_c[ij] = beta_0[ij];
         }
+//        Rcout << " " << endl;
         //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
@@ -1694,6 +1713,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             break;
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -1721,6 +1741,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             limit_converged[1] = TRUE;
         }
     }
+//    Rcout << "Upper done" << endl;
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     if (verbose >= 4) {
         //
@@ -1736,6 +1757,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     //
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -1794,7 +1816,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] >= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -1820,6 +1842,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             break;
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2009,6 +2032,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     NumericVector Lldd_vec(reqrdnum * reqrdnum);
     NumericVector Lld_vecc(reqrdnum);
@@ -2133,6 +2157,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             Ll[0] = 404;  //  note to consider this point too far
         } else {
             Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+            Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
             for (int i = 0; i < beta_0.size(); i++) {
                 beta_c[i] = beta_0[i];
             }
@@ -2207,6 +2232,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
@@ -2279,6 +2305,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     //  Calculates the subterm and term values
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2338,7 +2365,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             if (ij == para_number) {
                //  prevent the parameter estimate from crossing the optimum
                //  issue is beta_0[para_number] <= beta_best[para_number]
-               if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
+               if (dbeta[ij] <= (beta_peak[para_number] - beta_a[ij])/lr) {
                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                }
             }
@@ -2364,6 +2391,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             break;
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2403,6 +2431,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     }
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     upper = false;
     #ifdef _OPENMP
@@ -2483,6 +2512,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             Ll[0] = 404;  //  note to consider this point too far
         } else {
             Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+            Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
             for (int i = 0; i < beta_0.size(); i++) {
                 beta_c[i] = beta_0[i];
             }
@@ -2556,6 +2586,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             }
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
@@ -2627,6 +2658,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
     //  Calculates the subterm and term values
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2683,7 +2715,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] >= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -2709,6 +2741,7 @@ List LogLik_Poisson_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& PyrC, Nu
             break;
         }
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+        Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -3014,7 +3047,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] <= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -3161,7 +3194,7 @@ List LogLik_Logist_Omnibus_Log_Bound(const Ref<const MatrixXd>& CountEvent, Inte
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] >= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -3780,7 +3813,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] < (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] <= (beta_peak[para_number] - beta_a[ij])/lr) {
                    dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -4139,7 +4172,7 @@ List LogLik_Logist_Omnibus_Log_Bound_Search(const Ref<const MatrixXd>& CountEven
             if (ij == para_number) {
                 //  prevent the parameter estimate from crossing the optimum
                 //  issue is beta_0[para_number] <= beta_best[para_number]
-                if (dbeta[ij] > (beta_peak[para_number] - beta_a[ij])/lr) {
+                if (dbeta[ij] >= (beta_peak[para_number] - beta_a[ij])/lr) {
                     dbeta[ij] = (beta_peak[para_number] - beta_a[ij])/lr/2;
                 }
             }
@@ -4369,6 +4402,7 @@ List LogLik_Cox_PH_Omnibus_Log_Bound_CurveSearch(IntegerVector& term_n, const St
     }
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
     //
     double Lstar = Ll[0]-qchi;
     double Lpeak = Ll[0];

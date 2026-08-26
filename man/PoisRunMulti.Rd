@@ -90,6 +90,7 @@ res <- PoisRunMulti(formula, df,
 \seealso{
 Other Poisson Wrapper Functions:
 \code{\link[=PoisRun]{PoisRun()}},
-\code{\link[=PoisRunJoint]{PoisRunJoint()}}
+\code{\link[=PoisRunJoint]{PoisRunJoint()}},
+\code{\link[=PoisRunMultiOut]{PoisRunMultiOut()}}
 }
 \concept{Poisson Wrapper Functions}

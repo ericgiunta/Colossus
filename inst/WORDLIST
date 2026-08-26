@@ -57,6 +57,7 @@ LikelihoodBound
 lin
 lintr
 linux
+logitmodel
 logitres
 logitresbound
 LogLik
@@ -95,6 +96,7 @@ plotRisk
 plotSchoenfeld
 plotSurvival
 pois
+poismodel
 poisres
 poisresbound
 PoisRun

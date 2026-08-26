@@ -1,0 +1,158 @@
+---
+title: "Poisson and Logistic Residuals"
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Poisson and Logistic Residuals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
+library(Colossus)
+library(data.table)
+if (system.file(package = "survival") != "") {
+  library(survival)
+}
+library(dplyr)
+```
+
+## Rate and Probability Residuals
+
+After running a regression, someone's first question might be the accuracy of the results. This vignette will discuss the three general residual options, their equations for each regression type, and how the residual function can be called.
+
+## Calculating Residuals for Poisson Models
+
+Each residual ($r$) is written in terms of the events ($y$), duration ($p$), and predicted per duration rate ($\lambda$) for each row ($i$). Similar to the relative risk functions, the residual functions were designed to be used with either a training or testing data set. This means that they do not filter the input data, so the residuals are also valid for data that would typically be filtered during a regression. One example would be strata without events or rows without events or duration, which would all be filtered for forcing the predicted event rate to zero.
+
+The first option is the raw residual. This is equal to the difference between the observed and predicted numbers of events. This is the simplest residual, and can be used to visualize simple trends within bins.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    r_i = y_i - \lambda_i \cdot p_i
+\end{aligned}
+$$
+</p>
+
+The second option is the deviance residual. This is equal to the contribution of each row to the deviance. Similar to the standard deviance calculation, the logarithm product is set to zero for rows with no events.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    r_i = 2 \left (y_i \cdot \log \left ( \frac{y_i}{\lambda_i \cdot p_i} \right ) - \left (y_i - \lambda_i \cdot p_i \right ) \right) \\
+    r_i(y_i = 0) = 0 - 2\left (y_i - \lambda_i \cdot p_i \right)
+\end{aligned}
+$$
+</p>
+
+The third option is the pearson residual. In the case that both the observed and predicted events are zero, the residual is also set to zero.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    r_i = \left (y_i - \lambda_i \cdot p_i \right )^2 /  \left (\lambda_i \cdot p_i \right) \\
+    r_i(y_i = 0, \lambda_i\cdot p_i = 0) = 0
+\end{aligned}
+$$
+</p>
+
+## Calculating Residuals for Logistic Regressions
+
+Very similar residual options are available for logistic regressions and models. In this case, the residuals ($r$) are written in terms of the observed events ($y$), number of trials ($n$), and predicted probability ($p$). Once again, the first residual is the raw residual and the difference between the observed and predicted events.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    r_i = y_i - p_i \cdot n_i
+\end{aligned}
+$$
+</p>
+
+The second option is the deviance residual, which calculates the contribution of each row to the deviance. Similar to the deviance residual for poisson models, when the number of events are equal to zero or the number of trials the corresponding logarithm products are set to zero.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    r_i = \frac{\left| y_i - p_i \cdot n_i \right|}{y_i - p_i \cdot n_i} \sqrt{2 \left[ y_i \log \left ( \frac{y_i}{p_i \cdot n_i} \right ) + \left ( n_i - y_i \right) \log \left ( \frac{n_i - y_i}{n_i - n_i \cdot p_i} \right) \right]}\\
+    r_i(y_i = 0) = -\sqrt{2 \left[  n_i \log \left ( \frac{1}{1 - p_i} \right) \right]} \\
+    r_i(y_i = n_i) = \sqrt{2 \left[ y_i \log \left ( \frac{1}{p_i} \right ) \right]}
+\end{aligned}
+$$
+</p>
+
+The final option is the pearson residual. Once again, if both the observed and predicted events are zero, the residual is also set to zero.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    r_i = \frac{y_i - p_i \cdot n_i} {\sqrt{ n_i \cdot p_i \cdot \left(1 - p_i \right) }} \\
+    r_i(y_i = 0, p_i \cdot n_i = 0) = 0
+\end{aligned}
+$$
+</p>
+
+
+## Running the functions
+
+Residuals for poisson and logistic models and regressions can be calculated using the [Residual()](../reference/Residual.html) function. Note that this is currently only used for poisson and logistic models, Cox residuals can be calculated using the [plotSchoenfeld()](../reference/plotSchoenfeld.html) and [plotMartingale()](../reference/plotMartingale.html) functions. This function can be applied to the results of a regression, or a model object with a parameter guess.
+
+```{r, eval=TRUE}
+if (system.file(package = "survival") != "") {
+  data(reliability, package = "survival")
+  capacitor |> setDT()
+  df <- copy(capacitor)
+} else {
+  voltage <- c(200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350, 200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350, 200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350, 200, 200, 200, 200, 250, 250, 250, 250, 300, 300, 300, 300, 350, 350, 350, 350)
+  temperature <- c(170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 170, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180, 180)
+  time <- c(439, 904, 1092, 1105, 572, 690, 904, 1090, 315, 315, 439, 628, 258, 258, 347, 588, 959, 1065, 1065, 1087, 216, 315, 455, 473, 241, 315, 332, 380, 241, 241, 435, 455, 1105, 1105, 1105, 1105, 1090, 1090, 1090, 1090, 628, 628, 628, 628, 588, 588, 588, 588, 1087, 1087, 1087, 1087, 473, 473, 473, 473, 380, 380, 380, 380, 455, 455, 455, 455)
+  status <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+  df <- data.table(
+    voltage = voltage,
+    temperature = temperature,
+    time = time,
+    status = status
+  )
+}
+
+df$voltage <- (df$voltage - 200) / 150
+df$temperature <- (df$temperature - 170) / 10
+df$time <- (df$time - 216) / (1105 - 216)
+
+control <- list(ncores = 1, maxiter = 100, verbose = 2)
+
+a_n <- c(-2, 0.01, 0.01)
+
+poismodel <- get_form(Pois(time, status) ~ loglinear(CONST, temperature, voltage), df)$model
+
+poisres <- PoisRun(poismodel, df,
+  a_n = a_n, control = control
+)
+
+print(poisres)
+```
+
+There are three options for running the residual function, which are controlled using `pearson` and `deviance` boolean input parameters. In any case the rate per duration and raw residuals are calculated and returned, and each parameter can be set to true to calculate the corresponding residual.
+
+```{r, eval=TRUE}
+res_p <- Residual(poisres, df, pearson = TRUE, deviance = TRUE)
+print(res_p$Risk[1:5])
+print(res_p$Raw_Residual[1:5])
+print(res_p$Pearson_Residual[1:5])
+print(res_p$Deviance_Residual[1:5])
+
+a_n <- poisres$beta_0
+res_d <- Residual(poismodel, df, a_n = a_n, pearson = TRUE, deviance = TRUE)
+print(res_p$Risk[1:5])
+print(res_p$Raw_Residual[1:5])
+print(res_p$Pearson_Residual[1:5])
+print(res_p$Deviance_Residual[1:5])
+```

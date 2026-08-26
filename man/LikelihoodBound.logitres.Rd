@@ -25,8 +25,9 @@ returns a list of the final results
 iteratively optimizing end-points of intervals.
 }
 \seealso{
-Other Logistic Wrapper Functions:
-\code{\link[=LogisticRun]{LogisticRun()}},
-\code{\link[=LogisticRunMulti]{LogisticRunMulti()}}
+Other Likelihood Boundaries:
+\code{\link[=LikelihoodBound]{LikelihoodBound()}},
+\code{\link[=LikelihoodBound.coxres]{LikelihoodBound.coxres()}},
+\code{\link[=LikelihoodBound.poisres]{LikelihoodBound.poisres()}}
 }
 \concept{Likelihood Boundaries}

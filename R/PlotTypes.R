@@ -211,7 +211,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
     der_iden <- match(dnames[fir_KM], names) - 1
     model_control$risk <- TRUE
     model_control$unique_values <- length(uniq)
-    e <- Plot_Omnibus_transition(
+    e <- Plot_Cox_Omnibus_transition(
       term_n, tform, a_n, dfc, x_all, 0,
       der_iden, modelform,
       control,
@@ -239,7 +239,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
       # Start with lower
       a_n <- copy(b) - boundary * copy(er)
       #
-      e <- Plot_Omnibus_transition(
+      e <- Plot_Cox_Omnibus_transition(
         term_n, tform, a_n, dfc, x_all, 0,
         der_iden, modelform,
         control,
@@ -254,7 +254,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
       # Now we do upper
       a_n <- copy(b) + boundary * copy(er)
       #
-      e <- Plot_Omnibus_transition(
+      e <- Plot_Cox_Omnibus_transition(
         term_n, tform, a_n, dfc, x_all, 0,
         der_iden, modelform,
         control,
@@ -337,7 +337,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   }
   model_control$surv <- TRUE
   model_control$strata <- TRUE
-  e <- Plot_Omnibus_transition(
+  e <- Plot_Cox_Omnibus_transition(
     term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control,
     as.matrix(df[, ce, with = FALSE]),
@@ -451,7 +451,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
   control <- Def_Control(control)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   model_control$schoenfeld <- TRUE
-  res_list <- Plot_Omnibus_transition(
+  res_list <- Plot_Cox_Omnibus_transition(
     term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control,
     as.matrix(df[, ce, with = FALSE]),

@@ -486,6 +486,39 @@ NULL
 #'
 NULL
 
+#' Primary logistic regression with multiple dose columns in serial
+#'
+#' \code{LogLik_Logist_Multidose_Omnibus_Serial} Performs the calls to calculation functions, Structures the logistic regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, AIC, BIC, standard error, parameter list, and convergence for each realization
+#' @noRd
+#'
+NULL
+
+#' Primary logistic regression with multiple dose columns integrated
+#'
+#' \code{LogLik_Logist_Multidose_Omnibus_Integrated} Performs the calls to calculation functions, Structures the logistic regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, AIC, BIC, standard error, parameter list, and convergence averaged over each realization
+#' @noRd
+#'
+NULL
+
+#' Primary Poisson regression with multiple distributed event columns and optional combinations of stratification.
+#'
+#' \code{LogLik_Pois_Multioutcome_Omnibus_Serial} Performs the calls to calculation functions, Structures the Poisson regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results: Log-likelihood of optimum, standard error, and convergence for each realization
+#' @noRd
+#'
+NULL
+
 #' Primary logistic regression with multiple event columns
 #'
 #' \code{LogLik_Logist_Multioutcome_Omnibus_Serial} Performs the calls to calculation functions, Structures the logistic regression, With verbose option prints out time stamps and intermediate sums of terms and derivatives
@@ -760,9 +793,9 @@ NULL
 #'
 NULL
 
-#' Primary plotting function.
+#' Primary Cox plotting function.
 #'
-#' \code{Plot_Omnibus} Performs the calls to calculation functions
+#' \code{Plot_Omnibus_Cox} Performs the calls to calculation functions used in Cox options
 #'
 #' @inheritParams CPP_template
 #'
@@ -785,6 +818,17 @@ NULL
 #' Calculates residuals for a poisson model
 #'
 #' \code{Poisson_Residuals} Performs the calls to calculation functions and returns the residuals
+#'
+#' @inheritParams CPP_template
+#'
+#' @return List of final results, risk and residuals
+#' @noRd
+#'
+NULL
+
+#' Calculates residuals for a logistic model
+#'
+#' \code{Logistic_Residuals} Performs the calls to calculation functions and returns the residuals
 #'
 #' @inheritParams CPP_template
 #'
@@ -831,14 +875,14 @@ Assigned_Event_Poisson_transition <- function(PyrC, Strata_vals, dfs, term_n, tf
 
 #' Interface between R code and the plotting omnibus function
 #'
-#' \code{Plot_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
+#' \code{Plot_Cox_Omnibus_transition} Called directly from R, Defines the control variables and calls the plotting functions
 #' @inheritParams CPP_template
 #'
 #' @return LogLik_Cox_PH output : Log-likelihood of optimum, first derivative of log-likelihood, second derivative matrix, parameter list, standard deviation estimate, AIC, model information
 #' @noRd
 #'
-Plot_Omnibus_transition <- function(term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control) {
-    .Call(`_Colossus_Plot_Omnibus_transition`, term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control)
+Plot_Cox_Omnibus_transition <- function(term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control) {
+    .Call(`_Colossus_Plot_Cox_Omnibus_transition`, term_n, tform, a_n, dfc, df0, fir, der_iden, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control)
 }
 
 #' Interface between R code and the Cox PH omnibus bounds regression function using combined likelihood optimization function
@@ -925,6 +969,18 @@ pois_Residual_transition <- function(PyrC, term_n, tform, a_n, dfc, df0, fir, mo
     .Call(`_Colossus_pois_Residual_transition`, PyrC, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control)
 }
 
+#' Interface between R code and the logistic residual calculation function
+#'
+#' \code{logist_Residual_transition} Called directly from R, Defines the control variables and calls the calculation function
+#' @inheritParams CPP_template
+#'
+#' @return Logistic_Residuals output : list of residuals and sum
+#' @noRd
+#'
+logist_Residual_transition <- function(CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control) {
+    .Call(`_Colossus_logist_Residual_transition`, CountEvent, term_n, tform, a_n, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control)
+}
+
 #' Interface between R code and the Cox PH omnibus regression function
 #'
 #' \code{cox_ph_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
@@ -947,6 +1003,18 @@ cox_ph_multidose_Omnibus_transition <- function(term_n, tform, a_n, dose_cols, d
 #'
 pois_multidose_Omnibus_transition <- function(PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_pois_multidose_Omnibus_transition`, PyrC, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
+}
+
+#' Interface between R code and the poisson multidose omnibus regression function
+#'
+#' \code{pois_multidose_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return LogLik_Pois_Multidose_Omnibus_Serial or LogLik_Pois_Multidose_Omnibus_Integrated output
+#' @noRd
+#'
+logist_multidose_Omnibus_transition <- function(CountEvent, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_logist_multidose_Omnibus_transition`, CountEvent, term_n, tform, a_n, dose_cols, dose_index, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the matched case-control omnibus regression function
@@ -983,6 +1051,18 @@ logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0,
 #'
 logist_multioutcome_Omnibus_transition <- function(CountEvent, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
     .Call(`_Colossus_logist_multioutcome_Omnibus_transition`, CountEvent, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
+}
+
+#' Interface between R code and the poisson multioutcome omnibus regression function
+#'
+#' \code{pois_multioutcome_Omnibus_transition} Called directly from R, Defines the control variables and calls the regression function
+#' @inheritParams CPP_template
+#'
+#' @return Poisson multioutcome output
+#' @noRd
+#'
+pois_multioutcome_Omnibus_transition <- function(PyrC, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_multioutcome_Omnibus_transition`, PyrC, term_n, tform, a_n, event_cols, dfc, df0, df1, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Generates csv file with time-dependent columns
