@@ -631,10 +631,15 @@ get_form_risk <- function(model_obj, df) {
             if (!(factor_col %in% names(df))) {
               stop("Error: Column: ", factor_col, " not in data")
             }
-            xtemp <- do.call(factor, factor_arg_list)
+            if (is.null(levels(df[[factor_col]]))) {
+                xtemp <- do.call(factor, factor_arg_list)
+            } else {
+                xtemp <- df[[factor_col]]
+            }
             if (!("levels" %in% names(repeat_list))) { # using the levels will recreate the same factoring
               repeat_list[["levels"]] <- levels(xtemp)
             }
+#            print(levels(xtemp))
             df[[factor_col]] <- xtemp
             val <- factorize(df, factor_col)
             df <- val$df
@@ -1181,7 +1186,11 @@ ColossusExpressionCall <- function(calls, df) {
         names(factor_arg_list)[[1]] <- "x"
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
-      xtemp <- do.call(factor, factor_arg_list)
+      if (is.null(levels(df[[factor_col]]))) {
+            xtemp <- do.call(factor, factor_arg_list)
+        } else {
+            xtemp <- df[[factor_col]]
+        }
       df[[factor_col]] <- xtemp
       val <- factorize(df, factor_col)
       df <- val$df

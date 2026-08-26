@@ -225,3 +225,8 @@
 * Updated person-count and person-time table functions
 * Person-time table functions can support both calendar (date or elapsed time categories) or user time scales (duration)
 
+# Colossus 1.6.1
+
+* Functions added for multiple-outcome realizations, further details in vignette.
+* Residual functions improved for Poisson and Logistic regressions, with vignette describing options.
+

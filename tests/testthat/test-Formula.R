@@ -184,6 +184,9 @@ test_that("Basic factor application to formula with formula column", {
   model <- Cox(a, b, c) ~ loglinear(d)
   expect_no_error(e <- CoxRun(model, df, ncores = 1))
   expect_no_error(f <- RelativeRisk(e, df))
+  model <- Cox(a, b, c) ~ loglinear(factor(d))
+  expect_no_error(e <- CoxRun(model, df, ncores = 1))
+  expect_no_error(f <- RelativeRisk(e, df))
 })
 
 test_that("Checking formula works with result modification", {
