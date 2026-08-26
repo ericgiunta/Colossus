@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,6 +44,7 @@
     <li><a class="dropdown-item" href="../articles/Matched_Case_Control.html">Matched Case-Control Logistic Regression</a></li>
     <li><a class="dropdown-item" href="../articles/Multi_Realization.html">Multiple Realization Methods</a></li>
     <li><a class="dropdown-item" href="../articles/Plotting_And_Analysis.html">Functions for Plotting and Analysis</a></li>
+    <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
@@ -245,7 +246,10 @@ that the cell type has no effect above the baseline.</p>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Trials Column: 'CONST'</span></span>
+<span><span class="co">#&gt; Event Column: 'status'</span></span>
 <span><span class="co">#&gt; Odds Ratio Linking Function Used</span></span>
+<span><span class="co">#&gt; Exposure Realizations Used:</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 7</span></span>
@@ -253,7 +257,7 @@ that the cell type has no effect above the baseline.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 8.753e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 137</span></span>
-<span><span class="co">#&gt; Run finished in 0.033 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>In this analysis, we were using the default of the odds ratio. The
 linking function can be changed by using the “link” option. The
@@ -286,7 +290,10 @@ models.</p>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Trials Column: 'CONST'</span></span>
+<span><span class="co">#&gt; Event Column: 'status'</span></span>
 <span><span class="co">#&gt; Odds Ratio Linking Function Used</span></span>
+<span><span class="co">#&gt; Exposure Realizations Used:</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 7</span></span>
@@ -294,7 +301,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 6.929e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 137</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
@@ -317,7 +324,10 @@ models.</p>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Trials Column: 'CONST'</span></span>
+<span><span class="co">#&gt; Event Column: 'status'</span></span>
 <span><span class="co">#&gt; Identity Linking Function Used</span></span>
+<span><span class="co">#&gt; Exposure Realizations Used:</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 7</span></span>
@@ -325,7 +335,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.173e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 137</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span>, <span class="fl">0.1</span><span class="op">)</span></span>
@@ -348,7 +358,10 @@ models.</p>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Trials Column: 'CONST'</span></span>
+<span><span class="co">#&gt; Event Column: 'status'</span></span>
 <span><span class="co">#&gt; Complementary Log Linking Function Used</span></span>
+<span><span class="co">#&gt; Exposure Realizations Used:</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 9</span></span>
@@ -356,7 +369,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 8.184e-06</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 137</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">1</span><span class="op">)</span></span>
@@ -379,7 +392,10 @@ models.</p>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Logisitic Model Used</span></span>
+<span><span class="co">#&gt; Trials Column: 'CONST'</span></span>
+<span><span class="co">#&gt; Event Column: 'status'</span></span>
 <span><span class="co">#&gt; Probability Unit (probit) Linking Function Used</span></span>
+<span><span class="co">#&gt; Exposure Realizations Used:</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 64.429,  Deviance: 64.429,  AIC: 72.429,  BIC: 84.109</span></span>
 <span><span class="co">#&gt; Iterations run: 6</span></span>
@@ -387,7 +403,7 @@ models.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.895e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 137</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.012 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
