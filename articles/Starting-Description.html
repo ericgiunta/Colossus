@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Colossus Description • Colossus</title>
+<title>Colossus Starting Description • Colossus</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Colossus Description">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Colossus Starting Description">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -72,7 +72,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Colossus Description</h1>
+      <h1>Colossus Starting Description</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/ericgiunta/Colossus/blob/main/vignettes/Starting-Description.Rmd" class="external-link"><code>vignettes/Starting-Description.Rmd</code></a></small>
@@ -101,10 +101,12 @@
 <p>At its full potential, <code>Colossus</code> can analyze a vast
 number of possible risk/rate models. Specifically, <code>Colossus</code>
 is designed to allow for a combination of linear and non-linear models
-to estimate Cox proportional hazard ratios, Poisson model rates, and
-Fine-Gray Competing risk ratios. The simplest of which is an exponential
-model. The simplest model generally used for hazard ratios in survival
-analysis is the exponential of a linear function of covariates.</p>
+to estimate Cox proportional hazard ratios, Poisson model rates,
+Fine-Gray Competing risk ratios, logistic model probabilities, and
+matched case-control relative rates. The simplest of which is an
+exponential model. The simplest model generally used for hazard ratios
+in survival analysis is the exponential of a linear function of
+covariates.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>R</mi><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>,</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mover><mi>β</mi><mo accent="true">→</mo></mover><mo>⋅</mo><mover><mi>x</mi><mo accent="true">→</mo></mover><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -117,7 +119,8 @@ vignette, the value calculated to quantify the risk of an event will be
 denoted as the risk, R, however the exact meaning differs. In Cox
 proportional hazard modeling, the risk calculated is a hazard ratio. In
 Poisson modeling the risk calculated is an estimated number of events
-per person-year. The risk
+per person-year. For a logistic regression, the risk is transformed by a
+linking function to calculate a probability. The risk
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>)
 has a set formula dependent on terms
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>).
@@ -127,7 +130,7 @@ Each subterm is a function of a covariates
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>)
 and parameters
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>,</mo><mi>β</mi></mrow><annotation encoding="application/x-tex">\alpha,\beta</annotation></semantics></math>).</p>
-<p>There are currently five types of risk models available. The risk can
+<p>There are currently six types of risk models available. The risk can
 be expressed as an additive model
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>A</mi></msub><annotation encoding="application/x-tex">R_A</annotation></semantics></math>),
 product additive model
@@ -297,33 +300,35 @@ a distinction between the first and remaining terms.
 <span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">outcome</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">a</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">linear</span><span class="op">(</span><span class="va">b</span>, <span class="va">c</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">plinear</span><span class="op">(</span><span class="va">d</span>, <span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ME</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>Interior colossus functions convert between the vectors and formula
-representations. <em>names</em> denotes the column names used,
-<em>term_n</em> denotes the term numbers, <em>tform</em> denotes the
-subterm formula, <em>modelform</em> denotes the term formula, and
+<p>Interior <code>Colossus</code> functions convert between the vectors
+and formula representations. <em>names</em> denotes the column names
+used, <em>term_n</em> denotes the term numbers, <em>tform</em> denotes
+the subterm formula, <em>modelform</em> denotes the term formula, and
 <em>a_n</em> denotes the initial guesses for the parameter values. All
-of which are assumed to be in the same order. A function is called
-before regression that reorders the inputs in order of terms, subterm
-types, etc.</p>
+of which are assumed to be in the same order. When a model is built, the
+returned object uses these labels to denote different parts of the
+model. A function is called before regression that reorders the inputs
+in order of terms, subterm types, etc.</p>
 </div>
 <div class="section level2">
 <h2 id="survival-time-and-event-data">Survival Time and Event Data<a class="anchor" aria-label="anchor" href="#survival-time-and-event-data"></a>
 </h2>
 <p><code>Colossus</code> performs survival analysis via either a Cox
-Proportional Hazards or a Poisson model regression. In both cases, the
-user specifies which columns contain time duration and events of
-interest. For the Poisson model regression, these would be which column
+Proportional Hazards, Poisson, logistic, or matched case control model
+regression. In any case, the user specifies which columns contain
+information about the events, such as time duration, event status, or
+strata. For the Poisson model regression, these would be which column
 contains the person-years and number of events for each row of data. For
 the Cox Proportional Hazards regression, the user identifies which
 columns provide starting and ending times, and what column gives the
-event status. The event status is assumed to be a binary covariate which
-is 1 for intervals containing an event. <code>Colossus</code> supports
-left-censored data, right-censored data, and interval-censored data. The
-data is interval censored by default, so left and right censoring are
-handled by defining interval endpoints outside the minimum or maximum
-event times. For Poisson model regression the user only provides columns
-for the person-years per row and number of events. Poisson model
-regression supports any non-negative number of events.</p>
+event status. A logistic model specifies the trials and observed events.
+A matched case control regression species which columns define time
+intervals, strata, or both. The event status is assumed to be a binary
+covariate which is 1 for intervals containing an event.
+<code>Colossus</code> supports left-censored data, right-censored data,
+and interval-censored data. The data is interval censored by default, so
+left and right censoring are handled by defining interval endpoints
+outside the minimum or maximum event times.</p>
 <p>On the user side, the names of columns containing the time and events
 need to be given. Let us assume we have a dataframe organized as
 follows:</p>
@@ -459,7 +464,9 @@ input data is used and returned. This can be split into two general
 categories. The first category is convergence parameters. These cover
 the number of iterations used, limits on parameter changes, and stopping
 criteria. The second category is parameters used for debugging and
-additional information.</p>
+additional information. More information on control parameters can be
+found in the <a href="Control_Options.html">control options
+vignette</a>.</p>
 <p>The common convergence parameters are as follows:</p>
 <table class="table">
 <colgroup>
@@ -492,23 +499,18 @@ iteration</td>
 change is below this, the regression exits</td>
 </tr>
 <tr class="odd">
-<td align="center">dbeta_max</td>
-<td align="center">learning rate applied to limit on the steps taken.
-Applied to solution to zero Log-Likelihood</td>
-</tr>
-<tr class="even">
 <td align="center">ll_epsilon</td>
 <td align="center">Minimum change in Log-Likelihood above convergence.
 If a new optimum point is found and the difference is within the
 threshold, the regression exits</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">step_max</td>
 <td align="center">Largest starting step size. Code reduces it every
 time halfmax is hit without finding an improvement. When step_max is
 below epsilon, the code exits</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">verbose</td>
 <td align="center">integer valued 0-4 controlling what information is
 printed to the terminal. Each level includes the lower levels. 0:
@@ -519,7 +521,7 @@ user might not have intended, notes provide information on regression
 progress, and debug prints out C++ progress and intermediate results.
 The default level is 2 and True/False is converted to 3/0.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">ncores</td>
 <td align="center">Number of physical cores assigned, cannot be greater
 than the number of cores available</td>
@@ -537,8 +539,7 @@ parameters.</p>
 <code class="sourceCode R"><span><span class="va">keep_constant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  ncores <span class="op">=</span> <span class="fl">1</span>, lr <span class="op">=</span> <span class="fl">0.75</span>, maxiter <span class="op">=</span> <span class="fl">100</span>, halfmax <span class="op">=</span> <span class="fl">5</span>, epsilon <span class="op">=</span> <span class="fl">1e-3</span>,</span>
-<span>  dbeta_max <span class="op">=</span> <span class="fl">0.5</span>, ll_epsilon <span class="op">=</span> <span class="fl">1e-4</span>, step_max <span class="op">=</span> <span class="fl">1.0</span>,</span>
+<span>  ncores <span class="op">=</span> <span class="fl">1</span>, maxiter <span class="op">=</span> <span class="fl">100</span>, halfmax <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="fl">2</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>In this example, no parameters are held constant and 100 iterations
@@ -551,13 +552,13 @@ used if not declared.</p>
 <h2 id="running-the-regression-and-output">Running the Regression and Output<a class="anchor" aria-label="anchor" href="#running-the-regression-and-output"></a>
 </h2>
 <p>Finally, the user calls the regression function they need. The names
-used throughout this vignette are the defaults assumed. Both the Cox PH
-regression and Poisson model regression are called directly and return a
-list of results. <code>Colossus</code> contains a suite of additional
-checks it runs on the inputs before starting any calculations, which are
-designed to output explicit details on any issues. Printing error
-details may require the verbose option to be TRUE. In code, the
-functions are called as follows:</p>
+used throughout this vignette are the defaults assumed. The model
+regression are called directly and return a list of results.
+<code>Colossus</code> contains a suite of additional checks it runs on
+the inputs before starting any calculations, which are designed to
+output explicit details on any issues. Printing error details may
+require the verbose option to be increased. In code, the functions are
+called as follows:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># assuming the table of covariates is stored in a data.table "df"</span></span>
 <span></span>
@@ -593,7 +594,7 @@ functions are called as follows:</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.021 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.028 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -622,12 +623,12 @@ functions are called as follows:</p>
 <span><span class="co">#&gt; Multiplicative Model Used: T0*T1*T2*...</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 11.992,  Deviance: 7.992,  AIC: 15.992,  BIC: 19.776</span></span>
-<span><span class="co">#&gt; Iterations run: 5</span></span>
-<span><span class="co">#&gt; maximum step size: 9.766e-04, maximum first derivative: 4.346e+02</span></span>
+<span><span class="co">#&gt; Iterations run: 6</span></span>
+<span><span class="co">#&gt; maximum step size: 6.104e-05, maximum first derivative: 4.346e+02</span></span>
 <span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
 <span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
 <span><span class="co">#&gt; All Records Used: 7</span></span>
-<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.018 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">

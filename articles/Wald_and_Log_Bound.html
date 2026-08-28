@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -109,10 +109,9 @@
 <h2 id="available-methods">Available Methods<a class="anchor" aria-label="anchor" href="#available-methods"></a>
 </h2>
 <p><code>Colossus</code> supports two methods of calculating a
-confidence interval for model parameters for Cox proportional hazards
-models. The Wald method and a likelihood-based boundary method. This
-vignette will be focused on the differences and what issues may
-arise.</p>
+confidence interval for model parameters. The Wald method and a
+likelihood-based boundary method. This vignette will be focused on the
+differences for a Cox regression and what issues may arise.</p>
 <div class="section level3">
 <h3 id="wald-method">Wald Method<a class="anchor" aria-label="anchor" href="#wald-method"></a>
 </h3>
@@ -245,7 +244,7 @@ Both regressions converge with similar scores.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.28859e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 64</span></span>
-<span><span class="co">#&gt; Run finished in 0.01898 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02588 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">e2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time</span>, <span class="va">status</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">temperature</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span> <span class="fu">plinear</span><span class="op">(</span><span class="va">voltage</span>, <span class="fl">0</span><span class="op">)</span>,</span>
@@ -275,7 +274,7 @@ Both regressions converge with similar scores.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.57097e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 64</span></span>
-<span><span class="co">#&gt; Run finished in 0.01132 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01592 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, suppose we were interested in the confidence intervals. Suppose
 we want 95% confidence intervals for both the Wald and likelihood-based
@@ -287,7 +286,7 @@ applied to the result. The parameter number needs to be provided
 (indexed starting at one) and an alpha level needs to be provided.</p>
 <p>Overall, the Wald and likelihood-based boundaries are not the same.
 The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560),
-and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242).
+and the boundaries for voltage are (0.799, 3.175) and (0.841, 3.242).
 The two boundaries are off by less than 0.1.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">names</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"temperature"</span>, <span class="st">"voltage"</span><span class="op">)</span></span>
@@ -323,7 +322,7 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at -0.0098972 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 0.7597</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.5599 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00848 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01052 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">curve_control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -347,12 +346,12 @@ The two boundaries are off by less than 0.1.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.84123 at a score of -107.30968 with of goal of -107.30969</span></span>
 <span><span class="co">#&gt; Central estimate was 1.9872</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 3.242 at a score of -107.30968 with of goal of -107.30969</span></span>
-<span><span class="co">#&gt; Run finished in 0.00753 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01011 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>Next, we analyze a model with a linear effect. We would expect the
 predictions to be further off. The boundaries for temperature are
-(0.105, 1.796) and (0.129, 1.840), and the boundaries for voltage are
-(-3.32, 20.95) and (1.97, 34.472). The estimates for the temperature and
+(0.105, 1.795) and (0.129, 1.840), and the boundaries for voltage are
+(-3.32, 20.92) and (1.97, 34.471). The estimates for the temperature and
 voltage boundaries are much further off.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ci_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
@@ -385,7 +384,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 0.12897 at a score of -106.16586 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 0.95011</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 1.8401 at a score of -106.16587 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00768 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01085 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="va">a_n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.138152</span>, <span class="fl">1.988403</span><span class="op">)</span></span>
@@ -410,7 +409,7 @@ voltage boundaries are much further off.</p>
 <span><span class="co">#&gt; Lower limit converged to at 1.9709 at a score of -106.16585 with of goal of -106.16587</span></span>
 <span><span class="co">#&gt; Central estimate was 8.8044</span></span>
 <span><span class="co">#&gt; Upper limit converged to at 34.471 at a score of -106.16586 with of goal of -106.16587</span></span>
-<span><span class="co">#&gt; Run finished in 0.00803 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.01132 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -590,6 +589,13 @@ observed information matrix formula.</p>
     I(\mu, \nu)_i = d_i * \left[ \sum_{l \in R_i} \frac{c_{li}^{\mu} c_{li}^{\nu} r_{li}}{E_i} - \frac{F_i^{\mu} F_i^{\nu}}{E_i^2} \right]
 \end{aligned}
 </annotation></semantics></math></p>
+<p>The same basic theory was applied to each regression type to
+calculate the expected information matrix. By default, this version is
+used to calculate the covariance matrix. However, the covariance matrix
+can also be calculated from the observed information matrix or the
+second derivative matrix directly. This version can be calculated using
+the <code>observed_info</code> model option with any regression
+call.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

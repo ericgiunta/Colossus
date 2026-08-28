@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -117,13 +117,13 @@ separate item (multiplicative, additive, etc.).</p>
 <p>Based on the number of entries, the format of the time interval is
 assumed. Cox models use an entry time, an exit time, and an event
 status. These can be either named ‘start’, ‘tend’, and ‘event’ or
-included in order. If none are named, a left truncated interval is
-assumed. A stratified cox model includes the named entry ‘strata’ or the
-right-most entry is assumed to be the stratification column. A Fine-Gray
-model adds a weighting column to the standard Cox interval
-representation, assumed to be an entry named ‘weight’ or the right-most
-entry. In total, the assumed order is: entry time, exit time, event
-status, strata column, and weighting column.</p>
+included in order. If one unnamed time entry is used, a left truncated
+interval is assumed. A stratified cox model includes the named entry
+‘strata’ or the right-most entry is assumed to be the stratification
+column. A Fine-Gray model adds a weighting column to the standard Cox
+interval representation, assumed to be an entry named ‘weight’ or the
+right-most entry. In total, the assumed order is: entry time, exit time,
+event status, strata column, and weighting column.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Cox(tstart, tend, event) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’Cox_Strata(tstart, tend, event, strata) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’FineGray(tstart, tend, event, weight) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mrow><mtext mathvariant="normal">’FineGray_Strata(tstart, tend, event, strata, weight) </mtext><mspace width="0.333em"></mspace></mrow><mo>∼</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ...’</mtext></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -157,14 +157,9 @@ transformation is applied automatically when formula are provided to
 regression functions however. The following expressions are
 equivalent.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">term_number</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">subterm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"loglin"</span>, <span class="st">"loglin"</span>, <span class="st">"lin"</span><span class="op">)</span></span>
-<span><span class="va">covariates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dose0"</span>, <span class="st">"dose1"</span>, <span class="st">"dose2"</span><span class="op">)</span></span>
-<span><span class="va">model_formula</span> <span class="op">&lt;-</span> <span class="st">"M"</span></span>
-<span><span class="va">time_start</span> <span class="op">&lt;-</span> <span class="st">"t0"</span></span>
-<span><span class="va">time_end</span> <span class="op">&lt;-</span> <span class="st">"t1"</span></span>
-<span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"lung"</span></span>
-<span></span>
+<code class="sourceCode R"><span><span class="co"># Each model has entry and exit columns, t0 and t1</span></span>
+<span><span class="co"># Events are in a column called lung</span></span>
+<span><span class="co"># The hazard ratio has both an exponential and linear dependence</span></span>
 <span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span>, <span class="fl">0</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">linear</span><span class="op">(</span><span class="va">dose2</span>, <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu">ME</span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">Model_Eq</span> <span class="op">&lt;-</span> <span class="fu">Cox</span><span class="op">(</span><span class="va">t0</span>, <span class="va">t1</span>, <span class="va">lung</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose0</span>, <span class="va">dose1</span><span class="op">)</span> <span class="op">+</span></span>

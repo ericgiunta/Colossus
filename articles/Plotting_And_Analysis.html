@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -153,10 +153,11 @@ the specific functions for each application.</p>
 </h2>
 <p>After fitting a Cox proportional hazards model, one may be interested
 in what the baseline survival rate is. One method of doing so is by
-weighting the number of events at each event time by the total risk. In
-the absence of excess risk, the hazard at any point in time is equal to
-the event rate and the hazard ratio of every row is equal to one, so
-this assumption holds for the case with negligible excess risk.</p>
+weighting the number of events at each event time by the total hazard
+ratio. In the absence of excess risk, the hazard at any point in time is
+equal to the event rate and the hazard ratio of every row is equal to
+one, so this assumption holds for the case with negligible excess
+risk.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow><mrow><mi>n</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>t</mi><mo stretchy="false" form="postfix">]</mo></mrow><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -380,7 +381,7 @@ for each subject. The residual is bound in the open interval
 Negative residuals correspond with subjects that survive despite high
 cumulative hazard and residuals near unity correspond with subjects that
 experienced an event despite low cumulative hazard. The distribution of
-residuals with event time can indicate if the model is over-predicting
+residuals with covariates can indicate if the model is over-predicting
 or under-predicting dependent on time.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>m</mi><mi>j</mi></msub><mo>=</mo><msub><mi>δ</mi><mi>j</mi></msub><mo>−</mo><msubsup><mo>∫</mo><msub><mi>t</mi><mn>0</mn></msub><msub><mi>t</mi><mn>1</mn></msub></msubsup><mi>λ</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo><mo>*</mo><msub><mi>r</mi><mi>j</mi></msub><mi>d</mi><mi>t</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">
@@ -531,7 +532,7 @@ will properly account for how each value depends on each other.</p>
 <span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
 <span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
 <span><span class="co">#&gt; All Records Used: 228</span></span>
-<span><span class="co">#&gt; Run finished in 0.025 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.032 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span><span class="co"># There is a effect of age^2</span></span>
 <span></span>
@@ -559,7 +560,8 @@ will properly account for how each value depends on each other.</p>
 <span></span>
 <span><span class="va">res_comb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RelativeRisk.html">RelativeRisk</a></span><span class="op">(</span><span class="va">coxres</span>, <span class="va">df_off</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">x_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">$</span><span class="va">x</span>, <span class="va">res_age2</span><span class="op">$</span><span class="va">x</span>, <span class="va">df_off</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
+<span><span class="co"># The same age values are used for each res_age x value, except the res_age2 is returning age^2</span></span>
+<span><span class="va">x_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">$</span><span class="va">x</span>, <span class="va">res_age</span><span class="op">$</span><span class="va">x</span>, <span class="va">df_off</span><span class="op">$</span><span class="va">age</span><span class="op">)</span></span>
 <span><span class="va">y_all</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">$</span><span class="va">y</span>, <span class="va">res_age2</span><span class="op">$</span><span class="va">y</span>, <span class="va">res_comb</span><span class="op">$</span><span class="va">Risk</span><span class="op">)</span></span>
 <span><span class="va">method</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Linear"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_age</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Quadratic"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">res_age2</span><span class="op">)</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"Combined"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">df_off</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>

@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -129,7 +129,7 @@ that can be set.</p>
 </annotation></semantics></math></p>
 <p>The linear-quadratic and linear-exponential functions include special
 utility functions, to calculate the full sets of parameter given only
-the provided values. First is the <a href="../reference/Linked_Dose_Formula.html">Linked_Dose_Formula()</a>
+the provided values. First is the <a href="../reference/Linked_Dose_Formula.html">Linked_Dose_Formula</a>
 function, which returns a complete vector of parameter values. This
 function could be used to graph the expected dose response curve.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -206,7 +206,7 @@ piece-wise exponential parameter.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Suppose we used the same slope and intercept,</span></span>
 <span><span class="co"># our asymptote can be any value greater than 5*0.2</span></span>
-<span><span class="co"># Suppose we want the asymptote to be 5</span></span>
+<span><span class="co"># Suppose we want the asymptote to be 3</span></span>
 <span><span class="va">threshold</span> <span class="op">&lt;-</span> <span class="fl">5</span></span>
 <span><span class="va">slope</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span>
 <span></span>

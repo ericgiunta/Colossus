@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -305,6 +305,30 @@ of a searching interval, then updates the window until convergence.</td>
 <td align="center">step_size</td>
 <td align="center">Double used by the bisection method. Sets the initial
 interval length used. Defaults to 0.5</td>
+</tr>
+</tbody>
+</table>
+<p>The following options can be used by the multiple dose realization
+functions to select how realizations are combined:</p>
+<table class="table">
+<colgroup>
+<col width="47%">
+<col width="52%">
+</colgroup>
+<thead><tr class="header">
+<th align="center">Option</th>
+<th align="center">Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="center">fma</td>
+<td align="center">Boolean to select frequentist model averaging, and
+process realizations in serial. Defaults to FALSE.</td>
+</tr>
+<tr class="even">
+<td align="center">mcml</td>
+<td align="center">Boolean to select Monte Carlo maximum likelihood, and
+optimize the average score over all realizations. Defaults to True.</td>
 </tr>
 </tbody>
 </table>

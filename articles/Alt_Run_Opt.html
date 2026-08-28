@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -115,36 +115,30 @@ account for the effects of stratified covariates. Matched case-control
 is a specific application of stratified logistic regression.</td>
 </tr>
 <tr class="even">
-<td align="center">Simplified Model</td>
-<td align="center">For a multiplicative Log-Linear model,
-simplifications can be made to the code. These give a faster
-version.</td>
-</tr>
-<tr class="odd">
 <td align="center">Non-Derivative Calculation</td>
 <td align="center">If a single iteration is needed without derivatives,
 there is time and memory that can be saved</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">Competing Risks</td>
 <td align="center">If there is a competing event, rows are weighted by
 an estimate of the censoring rate to approximate a dataset without the
 effect of a competing event</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">Joint Analysis</td>
 <td align="center">A Poisson method which allows a model to solve for
 multiple outcomes, by creating multiple copies of rows with multiple
 events and using a factor variable to add covariates for specific
 outcomes</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">Multiple Initial Parameter Sets</td>
 <td align="center">The user provides multiple guesses for each starting
 parameter, <code>Colossus</code> runs low iteration regressions at each
 guess, and then a full run at the best guess</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">Linear Constraints</td>
 <td align="center">Applies a linear system of equations to the model
 parameters, which is applied during optimization.</td>
@@ -169,41 +163,34 @@ parameters, which is applied during optimization.</td>
 <td align="center">x</td>
 </tr>
 <tr class="even">
-<td align="center">Simplified Model</td>
-<td align="center">x</td>
-<td align="center"></td>
-<td align="center"></td>
-<td align="center"></td>
-</tr>
-<tr class="odd">
 <td align="center">Non-Derivative Calculation</td>
 <td align="center">x</td>
 <td align="center">x</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">Competing Risks</td>
 <td align="center">x</td>
 <td align="center"></td>
 <td align="center"></td>
 <td align="center"></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">Joint Analysis</td>
 <td align="center"></td>
 <td align="center">x</td>
 <td align="center"></td>
 <td align="center"></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td align="center">Multiple Initial Parameter Sets</td>
 <td align="center">x</td>
 <td align="center">x</td>
 <td align="center">x</td>
 <td align="center">x</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="center">Linear Constraints</td>
 <td align="center">x</td>
 <td align="center">x</td>
@@ -223,8 +210,8 @@ how each option changes that.</p>
 </h3>
 <p>In Cox Proportional Hazards, the Log-Likelihood is calculated by
 taking the ratio of the hazard ratio at each event to the sum of the
-hazard ratios of every other row at risk. This defines the risk group
-for every event time to be the intervals containing the event time.
+hazard ratios of every row at risk. This defines the risk group for
+every event time to be the intervals containing the event time.
 Intervals are assumed to be open on the left and closed on the right,
 and events are assumed to take place at the right endpoint. This gives
 the following common equation for the Log-Likelihood:</p>
@@ -234,17 +221,17 @@ the following common equation for the Log-Likelihood:</p>
     Ll = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right)^{\delta_i}
 \end{aligned}
 </annotation></semantics></math></p>
-<p>In which ‘r’ denotes hazard ratios, the denominator is the sum of
-hazard ratios of intervals containing the event time, and each term is
-raised to the power of 1 if the interval has an event and 0 otherwise.
-Different tie methods modify the denominator based on how the order of
-events is assumed, but the general form still stands. The goal is to
-compare each event interval to intervals within a similar time span.
-Stratification adds a condition: if the user stratifies over a covariate
-“F” then each risk group is split into subgroups with the same value of
-“F”. So the goal becomes to compare event intervals to intervals with
-similar strata AND time. This is done to remove the influence of the
-stratification variables from the calculations.</p>
+<p>In which <code>r</code> denotes hazard ratios, the denominator is the
+sum of hazard ratios of intervals containing the event time, and each
+term is raised to the power of 1 if the interval has an event and 0
+otherwise. Different tie methods modify the denominator based on how the
+order of events is assumed, but the general form still stands. The goal
+is to compare each event interval to intervals within a similar time
+span. Stratification adds a condition: if the user stratifies over a
+covariate “F” then each risk group is split into subgroups with the same
+value of “F”. So the goal becomes to compare event intervals to
+intervals with similar strata AND time. This is done to remove the
+influence of the stratification variables from the calculations.</p>
 <p>In code, this is done by adding an additional parameter for the
 stratification column and using a different response term in the model.
 Multiple strata columns can be provided by including a vector of
@@ -266,7 +253,7 @@ columns.</p>
 </h3>
 <p>Poisson model regression does not have risk groups to account for,
 but the theory is the same. To remove the influence of stratification
-covariate a new term is added to account for their effects. In
+covariates, a new term is added to account for their effects. In
 <code>Colossus</code>, this is a Log-Linear term. So the following may
 be the model used without stratification:</p>
 <p class="text-center" style="background-color: aliceblue">
@@ -299,8 +286,13 @@ combines the list of stratification columns into a single interaction,
 so it does not matter if the user provides a list or combines them
 themselves.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e"</span><span class="op">)</span></span>
-<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="fu">Poisson_Strata</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span>, <span class="va">e</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<code class="sourceCode R"><span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s0"</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="fu">Poisson_Strata</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span>, <span class="va">s0</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
+<span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">Strat_Col</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"s0"</span>, <span class="st">"s1"</span>, <span class="st">"s2"</span><span class="op">)</span></span>
+<span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/PoisRun.html">PoisRun</a></span><span class="op">(</span><span class="fu">Poisson_Strata</span><span class="op">(</span><span class="va">pyr</span>, <span class="va">event</span>, <span class="va">s0</span>, <span class="va">s1</span>, <span class="va">s2</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -315,10 +307,11 @@ is performed.</p>
 <div class="section level2">
 <h2 id="non-derivative-calculation">Non-Derivative Calculation<a class="anchor" aria-label="anchor" href="#non-derivative-calculation"></a>
 </h2>
-<p><code>Colossus</code> uses Newton’s method to perform the regression,
-which can become computationally intensive as the model becomes more
-complicated. So, <code>Colossus</code> contains functions to calculate
-only the scores for a parameter set and skip the derivative
+<p><code>Colossus</code> uses Newton’s method to perform the regression
+(see the <a href="Grad_Hess.html">Gradient descent vignette</a> for more
+details), which can become computationally intensive as the model
+becomes more complicated. So, <code>Colossus</code> contains functions
+to calculate only the scores for a parameter set and skip the derivative
 calculations. These results could be used to perform a bisection method
 of regression or plot the dependence between the score and parameter
 values. This ability is left for the user’s convenience.</p>
@@ -327,6 +320,8 @@ values. This ability is left for the user’s convenience.</p>
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
 <span>  a_n <span class="op">=</span> <span class="va">a_n</span>, control <span class="op">=</span> <span class="va">control</span>, single <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
+<p>This can be combined with multiple starting guesses to quickly
+calculate score estimates across a grid of possible values.</p>
 </div>
 <div class="section level2">
 <h2 id="competing-risks">Competing Risks<a class="anchor" aria-label="anchor" href="#competing-risks"></a>
@@ -503,7 +498,7 @@ a table and lists of formula into the input for a regression.</p>
 <span><span class="va">events</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"e0"</span>, <span class="st">"e1"</span><span class="op">)</span></span></code></pre></div>
 <p><code>Colossus</code> generally accepts a formula to describe the
 elements of the model. For a joint analysis, <code>Colossus</code>
-instead expects a list of formula. The formula are expect to cover the
+instead expects a list of formulae. The formula are expect to cover the
 model elements specific to each event, and potentially a model for
 shared elements. <code>Colossus</code> expects the name of the shared
 model to be “shared”. The left hand side of the shared model is not
@@ -518,9 +513,22 @@ object.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_form_joint.html">get_form_joint</a></span><span class="op">(</span><span class="va">formula_list</span>, <span class="va">df</span>, nthreads <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">model</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">model</span></span>
-<span><span class="va">df_combined</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">df</span></span>
+<span><span class="va">df_combined</span> <span class="op">&lt;-</span> <span class="va">res</span><span class="op">$</span><span class="va">data</span></span>
 <span><span class="va">df_combined</span></span>
-<span><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span><span class="co">#&gt;        t0    t1 events    e0    e1   fac   pyr fac_e0 fac_e1</span></span>
+<span><span class="co">#&gt;     &lt;num&gt; &lt;num&gt;  &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt; &lt;num&gt;  &lt;num&gt;  &lt;num&gt;</span></span>
+<span><span class="co">#&gt;  1:     0     1      0     1     0     0     1      0      0</span></span>
+<span><span class="co">#&gt;  2:     0     1      1     1     0     1     1      1      0</span></span>
+<span><span class="co">#&gt;  3:     0     1      2     1     0     1     1      1      0</span></span>
+<span><span class="co">#&gt;  4:     1     2      2     1     0     1     1      1      0</span></span>
+<span><span class="co">#&gt;  5:     1     2      1     1     0     0     1      0      0</span></span>
+<span><span class="co">#&gt;  6:     1     2      0     1     0     0     1      0      0</span></span>
+<span><span class="co">#&gt;  7:     0     1      1     0     1     0     1      0      0</span></span>
+<span><span class="co">#&gt;  8:     0     1      1     0     1     1     1      0      1</span></span>
+<span><span class="co">#&gt;  9:     0     1      0     0     1     1     1      0      1</span></span>
+<span><span class="co">#&gt; 10:     1     2      0     0     1     1     1      0      1</span></span>
+<span><span class="co">#&gt; 11:     1     2      1     0     1     0     1      0      0</span></span>
+<span><span class="co">#&gt; 12:     1     2      1     0     1     0     1      0      0</span></span></code></pre></div>
 <p>These results could be used as input for any of the available
 regression functions. <code>Colossus</code> also includes a wrapper
 function to directly call the Poisson model regression function.</p>
@@ -554,7 +562,7 @@ function to directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.589e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 12</span></span>
-<span><span class="co">#&gt; Run finished in 0.015 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -566,10 +574,10 @@ optimization, to solve for the parameters that both optimize the
 likelihood as well as solve the linear system of equations. The system
 of equations could be used to force parameter values to be off by
 constant values or have constant ratios. The initial parameter set need
-not satisfy the system of equations. One important detail is that linear
-constraints can be used with both the default Newton-Raphson
-optimization algorithm as well as the available gradient descent
-algorithms by applying a penalty.</p>
+not satisfy the system of equations, but convergence may improve if it
+does. One important detail is that linear constraints can be used with
+both the default Newton-Raphson optimization algorithm as well as the
+available gradient descent algorithms by applying a penalty.</p>
 <div class="section level3">
 <h3 id="general-input">General Input<a class="anchor" aria-label="anchor" href="#general-input"></a>
 </h3>
@@ -627,7 +635,7 @@ omitted and defaulted to zero.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.348e-06</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.019 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># instead we could make the values opposite</span></span>
@@ -659,7 +667,7 @@ omitted and defaulted to zero.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.499e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.053 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.064 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -712,15 +720,16 @@ linear constraints.</p>
 <div class="section level2">
 <h2 id="multiple-initial-parameter-sets">Multiple Initial Parameter Sets<a class="anchor" aria-label="anchor" href="#multiple-initial-parameter-sets"></a>
 </h2>
-<p>Every basic regression option in Colossus allows the input of no
-initial parameter guess, a single guess, or multiple guesses. The basic
-process is that Colossus will run regressions starting at each guess,
-record the final point and score, and then compare to determine the best
-result. Colossus then restarts the regression at the best point, and
-then returns the final result. This has two useful properties: multiple
-regressions can be performed at different points without repeating
-processing steps and the convergence values can be reset between the
-guesses and best guess regressions.</p>
+<p>Every basic regression option in <code>Colossus</code> allows the
+input of no initial parameter guess, a single guess, or multiple
+guesses. The basic process is that <code>Colossus</code> will run
+regressions starting at each guess, record the final point and score,
+and then compare to determine the best result. <code>Colossus</code>
+then restarts the regression at the best point, and then returns the
+final result. This has two useful properties: multiple regressions can
+be performed at different points without repeating processing steps and
+the convergence values can be reset between the guesses and best guess
+regressions.</p>
 <p>The first is an issue of time. Before a regression is run there are
 checks made to transform the data and model into the formats used for
 regression. By using multiple guesses, taking advantage of the data
@@ -787,7 +796,7 @@ iterations.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.784e-04</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.099 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.018 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># We can also print out the intermediate results</span></span>

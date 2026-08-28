@@ -47,7 +47,7 @@
     <li><a class="dropdown-item" href="../articles/Residual.html">Poisson and Logistic Residuals</a></li>
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
-    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul>
@@ -188,8 +188,8 @@ between the observed and predicted events.</p>
 <p>The second option is the deviance residual, which calculates the
 contribution of each row to the deviance. Similar to the deviance
 residual for poisson models, when the number of events are equal to zero
-or the number of trials the corresponding logarithm products are set to
-zero.</p>
+or equal to the number of trials, the corresponding logarithm products
+are set to zero.</p>
 <p class="text-center" style="background-color: aliceblue">
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>r</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><mo stretchy="true" form="prefix">|</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>n</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">|</mo></mrow><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>n</mi><mi>i</mi></msub></mrow></mfrac><msqrt><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mi mathvariant="normal">log</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>y</mi><mi>i</mi></msub><mrow><msub><mi>p</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>n</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>n</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="normal">log</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>−</mo><msub><mi>y</mi><mi>i</mi></msub></mrow><mrow><msub><mi>n</mi><mi>i</mi></msub><mo>−</mo><msub><mi>n</mi><mi>i</mi></msub><mo>⋅</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><msqrt><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>n</mi><mi>i</mi></msub><mi mathvariant="normal">log</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>i</mi></msub></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>r</mi><mi>i</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>=</mo><msub><mi>n</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msqrt><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>y</mi><mi>i</mi></msub><mi mathvariant="normal">log</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msub><mi>p</mi><mi>i</mi></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msqrt></mtd></mtr></mtable><annotation encoding="application/x-tex">
 \begin{aligned}
@@ -275,7 +275,7 @@ object with a parameter guess.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.582e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 63, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.01 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.011 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>There are three options for running the residual function, which are
 controlled using <code>pearson</code> and <code>deviance</code> boolean
