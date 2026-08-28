@@ -26,7 +26,7 @@ library(dplyr)
 
 ## Available Methods
 
-`Colossus` supports two methods of calculating a confidence interval for model parameters for Cox proportional hazards models. The Wald method and a likelihood-based boundary method. This vignette will be focused on the differences and what issues may arise.
+`Colossus` supports two methods of calculating a confidence interval for model parameters. The Wald method and a likelihood-based boundary method. This vignette will be focused on the differences for a Cox regression and what issues may arise.
 
 ### Wald Method
 
@@ -100,7 +100,7 @@ Next, suppose we were interested in the confidence intervals. Suppose we want 95
 
 Let us start with the fully exponential model. The Wald boundary is estimated using the central estimates and standard deviations. The Likelihood boundary is solved using the [LikelihoodBound()](../reference/LikelihoodBound.html) function applied to the result. The parameter number needs to be provided (indexed starting at one) and an alpha level needs to be provided.
 
-Overall, the Wald and likelihood-based boundaries are not the same. The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage are (0.800, 3.177) and (0.841, 3.242). The two boundaries are off by less than 0.1.
+Overall, the Wald and likelihood-based boundaries are not the same. The boundaries for temperature are (-0.017, 1.537) and (-0.01, 1.560), and the boundaries for voltage are (0.799, 3.175) and (0.841, 3.242). The two boundaries are off by less than 0.1.
 
 ```{r, eval=TRUE}
 names <- c("temperature", "voltage")
@@ -136,7 +136,7 @@ print(ci_2)
 print(e, 5)
 ```
 
-Next, we analyze a model with a linear effect. We would expect the predictions to be further off. The boundaries for temperature are (0.105, 1.796) and (0.129, 1.840), and the boundaries for voltage are (-3.32, 20.95) and (1.97, 34.472). The estimates for the temperature and voltage boundaries are much further off.
+Next, we analyze a model with a linear effect. We would expect the predictions to be further off. The boundaries for temperature are (0.105, 1.795) and (0.129, 1.840), and the boundaries for voltage are (-3.32, 20.92) and (1.97, 34.471). The estimates for the temperature and voltage boundaries are much further off.
 
 ```{r, eval=TRUE}
 ci_1 <- c(
@@ -300,7 +300,7 @@ $$
 $$
 </p>
 
-
+The same basic theory was applied to each regression type to calculate the expected information matrix. By default, this version is used to calculate the covariance matrix. However, the covariance matrix can also be calculated from the observed information matrix or the second derivative matrix directly. This version can be calculated using the `observed_info` model option with any regression call.
 
 
 

@@ -131,6 +131,14 @@ test_that("Constraint Check", {
     e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adam" = TRUE))
     expect_equal(e2$beta_0, c(-0.04067073, 0.04067073), tolerance = 1e-3)
     #
+    cons_mat0 <- matrix(c(1, 2, 1, 2), nrow = 2)
+    e2 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0, 0.0), gradient_control = list("adam" = TRUE))
+    expect_equal(e2$beta_0, c(-0.04067073, 0.04067073), tolerance = 1e-3)
+    expect_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = c(0.0, 1.0), gradient_control = list("adam" = TRUE)))
+    cons_mat0 <- matrix(c(1, 0), nrow = 1)
+    expect_error(CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, gradient_control = list("adam" = TRUE)))
+    #
+    cons_mat0 <- matrix(c(1, 1), nrow = 1)
     e3 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("momentum" = TRUE))
     e4 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adadelta" = TRUE))
     expect_equal(e3$beta_0, c(-0.1, 0.1), tolerance = 1e-3)

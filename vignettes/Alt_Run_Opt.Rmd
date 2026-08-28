@@ -26,7 +26,6 @@ The regression options in `Colossus` generally have additional options that can 
 | Option | Description |
 | :---------: | :----------: |
 | Stratification | In Cox PH, the stratification is applied in the risks groups to compare rows at the same stratified baseline. In Poisson model regression the stratification is an additional term in the model to account for the effects of stratified covariates. Matched case-control is a specific application of stratified logistic regression. |
-| Simplified Model | For a multiplicative Log-Linear model, simplifications can be made to the code. These give a faster version. |
 | Non-Derivative Calculation | If a single iteration is needed without derivatives, there is time and memory that can be saved |
 | Competing Risks | If there is a competing event, rows are weighted by an estimate of the censoring rate to approximate a dataset without the effect of a competing event |
 | Joint Analysis | A Poisson method which allows a model to solve for multiple outcomes, by creating multiple copies of rows with multiple events and using a factor variable to add covariates for specific outcomes |
@@ -38,7 +37,6 @@ The general availability is as follows:
 | Option | Cox PH | Poisson | Logistic | Matched Case-Control |
 | :---------: | :----------: | :-------: | :-------: | :-------: |
 | Stratification | x | x | | x |
-| Simplified Model | x |  |  |  |
 | Non-Derivative Calculation | x | x | x | x |
 | Competing Risks | x |  |  |  |
 | Joint Analysis |  | x |  |  |
@@ -52,7 +50,7 @@ The following sections review the math behind the basic functions and how each o
 
 ### Cox Proportional Hazards
 
-In Cox Proportional Hazards, the Log-Likelihood is calculated by taking the ratio of the hazard ratio at each event to the sum of the hazard ratios of every other row at risk. This defines the risk group for every event time to be the intervals containing the event time. Intervals are assumed to be open on the left and closed on the right, and events are assumed to take place at the right endpoint. This gives the following common equation for the Log-Likelihood:
+In Cox Proportional Hazards, the Log-Likelihood is calculated by taking the ratio of the hazard ratio at each event to the sum of the hazard ratios of every row at risk. This defines the risk group for every event time to be the intervals containing the event time. Intervals are assumed to be open on the left and closed on the right, and events are assumed to take place at the right endpoint. This gives the following common equation for the Log-Likelihood:
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -62,7 +60,7 @@ $$
 $$
 </p>
 
-In which 'r' denotes hazard ratios, the denominator is the sum of hazard ratios of intervals containing the event time, and each term is raised to the power of 1 if the interval has an event and 0 otherwise. Different tie methods modify the denominator based on how the order of events is assumed, but the general form still stands. The goal is to compare each event interval to intervals within a similar time span. Stratification adds a condition: if the user stratifies over a covariate "F" then each risk group is split into subgroups with the same value of "F". So the goal becomes to compare event intervals to intervals with similar strata AND time. This is done to remove the influence of the stratification variables from the calculations.
+In which `r` denotes hazard ratios, the denominator is the sum of hazard ratios of intervals containing the event time, and each term is raised to the power of 1 if the interval has an event and 0 otherwise. Different tie methods modify the denominator based on how the order of events is assumed, but the general form still stands. The goal is to compare each event interval to intervals within a similar time span. Stratification adds a condition: if the user stratifies over a covariate "F" then each risk group is split into subgroups with the same value of "F". So the goal becomes to compare event intervals to intervals with similar strata AND time. This is done to remove the influence of the stratification variables from the calculations.
 
 In code, this is done by adding an additional parameter for the stratification column and using a different response term in the model. Multiple strata columns can be provided by including a vector of columns.
 
@@ -81,7 +79,7 @@ e <- CoxRun(model, df,
 
 ### Poisson Regression
 
-Poisson model regression does not have risk groups to account for, but the theory is the same. To remove the influence of stratification covariate a new term is added to account for their effects. In `Colossus`, this is a Log-Linear term. So the following may be the model used without stratification:
+Poisson model regression does not have risk groups to account for, but the theory is the same. To remove the influence of stratification covariates, a new term is added to account for their effects. In `Colossus`, this is a Log-Linear term. So the following may be the model used without stratification:
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -114,8 +112,13 @@ $$
 In code, this is done by adding in a list of stratification columns and using a different response term in the model. `Colossus` combines the list of stratification columns into a single interaction, so it does not matter if the user provides a list or combines them themselves.
 
 ```{r, eval=FALSE}
-Strat_Col <- c("e")
-e <- PoisRun(Poisson_Strata(pyr, event, e) ~ loglinear(dose), df,
+Strat_Col <- c("s0")
+e <- PoisRun(Poisson_Strata(pyr, event, s0) ~ loglinear(dose), df,
+  a_n = a_n, control = control
+)
+
+Strat_Col <- c("s0", "s1", "s2")
+e <- PoisRun(Poisson_Strata(pyr, event, s0, s1, s2) ~ loglinear(dose), df,
   a_n = a_n, control = control
 )
 ```
@@ -126,7 +129,7 @@ See the [Matched Case-Control vignette](Matched_Case_Control.html) for more deta
 
 ## Non-Derivative Calculation
 
-`Colossus` uses Newton's method to perform the regression, which can become computationally intensive as the model becomes more complicated. So, `Colossus` contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. This ability is left for the user's convenience.
+`Colossus` uses Newton's method to perform the regression (see the [Gradient descent vignette](Grad_Hess.html) for more details), which can become computationally intensive as the model becomes more complicated. So, `Colossus` contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. This ability is left for the user's convenience.
 
 The code is similar to previous examples:
 ```{r, eval=FALSE}
@@ -134,6 +137,8 @@ e <- CoxRun(Cox(time1, time2, event) ~ loglinear(dose), df,
   a_n = a_n, control = control, single = TRUE
 )
 ```
+
+This can be combined with multiple starting guesses to quickly calculate score estimates across a grid of possible values.
 
 ## Competing Risks
 
@@ -228,7 +233,7 @@ df$pyr <- df$t1 - df$t0
 pyr <- "pyr"
 events <- c("e0", "e1")
 ```
-`Colossus` generally accepts a formula to describe the elements of the model. For a joint analysis, `Colossus` instead expects a list of formula. The formula are expect to cover the model elements specific to each event, and potentially a model for shared elements. `Colossus` expects the name of the shared model to be "shared". The left hand side of the shared model is not used.
+`Colossus` generally accepts a formula to describe the elements of the model. For a joint analysis, `Colossus` instead expects a list of formulae. The formula are expect to cover the model elements specific to each event, and potentially a model for shared elements. `Colossus` expects the name of the shared model to be "shared". The left hand side of the shared model is not used.
 
 ```{r, eval=TRUE}
 model_1 <- Pois(pyr, e0) ~ loglin(fac, 0)
@@ -240,7 +245,7 @@ The function returns a list containing the combined table and model object.
 ```{r, eval=TRUE}
 res <- get_form_joint(formula_list, df, nthreads = 1)
 model <- res$model
-df_combined <- res$df
+df_combined <- res$data
 df_combined
 ```
 
@@ -255,7 +260,7 @@ print(e)
 
 ## Linear Constraints
 
-Applying linear constraints adds an additional goal to the optimization, to solve for the parameters that both optimize the likelihood as well as solve the linear system of equations. The system of equations could be used to force parameter values to be off by constant values or have constant ratios. The initial parameter set need not satisfy the system of equations. One important detail is that linear constraints can be used with both the default Newton-Raphson optimization algorithm as well as the available gradient descent algorithms by applying a penalty.
+Applying linear constraints adds an additional goal to the optimization, to solve for the parameters that both optimize the likelihood as well as solve the linear system of equations. The system of equations could be used to force parameter values to be off by constant values or have constant ratios. The initial parameter set need not satisfy the system of equations, but convergence may improve if it does. One important detail is that linear constraints can be used with both the default Newton-Raphson optimization algorithm as well as the available gradient descent algorithms by applying a penalty.
 
 ### General Input
 
@@ -323,7 +328,7 @@ $$
 
 ## Multiple Initial Parameter Sets
 
-Every basic regression option in Colossus allows the input of no initial parameter guess, a single guess, or multiple guesses. The basic process is that Colossus will run regressions starting at each guess, record the final point and score, and then compare to determine the best result. Colossus then restarts the regression at the best point, and then returns the final result. This has two useful properties: multiple regressions can be performed at different points without repeating processing steps and the convergence values can be reset between the guesses and best guess regressions.
+Every basic regression option in `Colossus` allows the input of no initial parameter guess, a single guess, or multiple guesses. The basic process is that `Colossus` will run regressions starting at each guess, record the final point and score, and then compare to determine the best result. `Colossus` then restarts the regression at the best point, and then returns the final result. This has two useful properties: multiple regressions can be performed at different points without repeating processing steps and the convergence values can be reset between the guesses and best guess regressions.
 
 The first is an issue of time. Before a regression is run there are checks made to transform the data and model into the formats used for regression. By using multiple guesses, taking advantage of the data being constant, we can skip the time that would usually be required over multiple independent regressions. The second is an issue of how step sizes are controlled over a regression. As the regression converges, the maximum step size is decreased to reduce overstepping. This can lead to a regression getting caught in a local extrema. The step size is reset between regressions, so the best guess regression can possibly step outside of local extrema.
 

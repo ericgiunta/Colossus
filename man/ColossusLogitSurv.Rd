@@ -2,7 +2,7 @@
 % Please edit documentation in R/SurvTypes.R
 \name{ColossusLogitSurv}
 \alias{ColossusLogitSurv}
-\title{Interprets basic logistic survival formula RHS with no grouping}
+\title{Interprets basic logistic survival formula left hand side with no grouping}
 \usage{
 ColossusLogitSurv(...)
 }

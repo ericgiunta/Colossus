@@ -276,9 +276,9 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     stop("Error: negative events in atleast one row")
   }
   model_control <- Def_model_control(model_control)
-  if (min(keep_constant) > 0) {
-    stop("Error: Atleast one parameter must be free")
-  }
+  # if (min(keep_constant) > 0) {
+  #   stop("Error: Atleast one parameter must be free")
+  # }
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")
   }

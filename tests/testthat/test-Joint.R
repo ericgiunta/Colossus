@@ -19,7 +19,7 @@ test_that("Joint data generation, GMIX", {
   model_s <- Pois(pyr) ~ plinear(t0, 0) + gmix()
   formula_list <- list(model_1, model_2, "shared" = model_s)
   #
-  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, observed_info = TRUE))
   expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, norm = "mean"))
   expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, norm = "max"))
   expect_error(PoisRunJoint(formula_list, df, ncores = 1, norm = "bad"))
@@ -79,6 +79,28 @@ test_that("Joint data generation, GMIX", {
   model_s <- Pois(pyr) ~ plinear(t0, 0) + loglin(res, 1) + gmix(e, e)
   formula_list <- list(model_1, model_2, "shared" = model_s)
   expect_error(PoisRunJoint(formula_list, df, ncores = 1))
+})
+test_that("Joint data generation, other checks", {
+  a <- c(0, 0, 0, 1, 1, 1)
+  b <- c(1, 1, 1, 2, 2, 2)
+  c <- c(0, 1, 2, 2, 1, 0)
+  d <- c(1, 1, 0, 0, 1, 1)
+  e <- c(0, 1, 1, 1, 0, 0)
+  f <- c(1, 0, 0, 1, 1, 0)
+  df <- data.table("t0" = a, "t1" = b, "e0" = c, "e1" = d, "fac" = e, "res" = f)
+  df$pyr <- df$t1 - df$t0
+  events <- c("e0", "e1")
+  keep_constant_shared <- c(0, 0)
+  a_n_shared <- c(0.001, -0.02)
+  #
+  model_1 <- Pois(pyr, e0) ~ loglin(fac, 0) + M()
+  model_2 <- Pois(pyr, e1) ~ loglin(fac, 0) + M()
+  model_s <- Pois(pyr) ~ plinear(t0, 0) + M()
+  formula_list <- list(model_1, model_2, "shared" = model_s)
+  #
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, cons_mat = matrix(c(1, -1, 0), nrow = 1)))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, single = TRUE))
+  expect_no_error(PoisRunJoint(formula_list, df, ncores = 1, gradient_control = list()))
 })
 test_that("Joint data generation fill defaults, no error", {
   a <- c(0, 0, 0, 1, 1, 1)

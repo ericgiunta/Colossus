@@ -36,7 +36,7 @@ $$
 $$
 </p>
 
-Based on the number of entries, the format of the time interval is assumed. Cox models use an entry time, an exit time, and an event status. These can be either named 'start', 'tend', and 'event' or included in order. If none are named, a left truncated interval is assumed. A stratified cox model includes the named entry 'strata' or the right-most entry is assumed to be the stratification column. A Fine-Gray model adds a weighting column to the standard Cox interval representation, assumed to be an entry named 'weight' or the right-most entry. In total, the assumed order is: entry time, exit time, event status, strata column, and weighting column.
+Based on the number of entries, the format of the time interval is assumed. Cox models use an entry time, an exit time, and an event status. These can be either named 'start', 'tend', and 'event' or included in order. If one unnamed time entry is used, a left truncated interval is assumed. A stratified cox model includes the named entry 'strata' or the right-most entry is assumed to be the stratification column. A Fine-Gray model adds a weighting column to the standard Cox interval representation, assumed to be an entry named 'weight' or the right-most entry. In total, the assumed order is: entry time, exit time, event status, strata column, and weighting column.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -66,14 +66,9 @@ The right hand side adds elements to subterms. Each subterm should have the incl
 A formula can be converted to a vector representation by using the [get_form](../reference/get_form.html) function. This transformation is applied automatically when formula are provided to regression functions however. The following expressions are equivalent.
 
 ```{r}
-term_number <- c(0, 0, 1)
-subterm <- c("loglin", "loglin", "lin")
-covariates <- c("dose0", "dose1", "dose2")
-model_formula <- "M"
-time_start <- "t0"
-time_end <- "t1"
-event <- "lung"
-
+# Each model has entry and exit columns, t0 and t1
+# Events are in a column called lung
+# The hazard ratio has both an exponential and linear dependence
 Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1, 0) +
   linear(dose2, 1) + ME()
 Model_Eq <- Cox(t0, t1, lung) ~ loglinear(dose0, dose1) +

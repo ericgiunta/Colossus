@@ -281,14 +281,14 @@ List Plot_Cox_Omnibus_transition(IntegerVector& term_n, const StringVector& tfor
         MatrixXd df1 = MatrixXd::Zero(vv.size(), df0.cols());  //  stores memory for the derivative term parameters and columns
         df1 = df1.array();
         ijk_risk = dfc[der_iden] - 1;
-        dx = (df0.col(ijk_risk).maxCoeff() - df0.col(ijk_risk).minCoeff())/(vv.size() - 1);  //  varies from max to minimum
-        vv[0] = df0.col(ijk_risk).minCoeff();
-        generate(vv.begin(), vv.end(), [n = 0, &dx]() mutable { return n++ * dx; });
+        dx = (df0.col(ijk_risk).maxCoeff() - df0.col(ijk_risk).minCoeff())/static_cast<double>(vv.size() - 1);  //  varies from max to minimum
+//        vv[0] = df0.col(ijk_risk).minCoeff();
+//        generate(vv.begin(), vv.end(), [n = 0, &dx]() mutable { return n++ * dx; });
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
         for (vector<float>::size_type ij = 0; ij < vv.size(); ij++) {
-            df1(ij, ijk_risk) = vv[ij];  //  fills the column with varying values
+            df1(ij, ijk_risk) = df0.col(ijk_risk).minCoeff() + dx*ij;  //  fills the column with varying values
         }
         res = Plot_Omnibus_Cox(term_n, tform, beta_0, df1, dfc, fir, der_iden, modelform, step_max, thres_step_max, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, uniq_v, model_bool, Surv_bool, Risk_bool, Schoenfeld_bool, Risk_Sub_bool, gmix_theta, gmix_term);
     } else {

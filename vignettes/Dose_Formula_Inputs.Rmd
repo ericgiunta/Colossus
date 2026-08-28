@@ -54,7 +54,7 @@ $$
 $$
 </p>
 
-The linear-quadratic and linear-exponential functions include special utility functions, to calculate the full sets of parameter given only the provided values. First is the [Linked_Dose_Formula()](../reference/Linked_Dose_Formula.html) function, which returns a complete vector of parameter values. This function could be used to graph the expected dose response curve.
+The linear-quadratic and linear-exponential functions include special utility functions, to calculate the full sets of parameter given only the provided values. First is the [Linked_Dose_Formula](../reference/Linked_Dose_Formula.html) function, which returns a complete vector of parameter values. This function could be used to graph the expected dose response curve.
 
 ```{r, eval=TRUE}
 # Suppose we have a linear-quadratic model
@@ -111,7 +111,7 @@ The linear-exponential subterm is somewhat unique in that a negative exponential
 ```{r, eval=TRUE}
 # Suppose we used the same slope and intercept,
 # our asymptote can be any value greater than 5*0.2
-# Suppose we want the asymptote to be 5
+# Suppose we want the asymptote to be 3
 threshold <- 5
 slope <- 0.2
 

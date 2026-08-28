@@ -25,6 +25,27 @@ test_that("Basic formula and regression passes and fails", {
   expect_error(LogisticRun(0, df, control = control, a_n = a_n))
 })
 
+test_that("null check", {
+  df <- data.table(
+    "a" = c(0, 0, 0, 1, 0, 1),
+    "b" = c(1, 1, 1, 1, 1, 1),
+    "d" = c(1, 2, 3, 4, 3, 2)
+  )
+  model <- logit(b, a) ~ null()
+  expect_no_error(LogisticRun(model, df, ncores = 1))
+})
+
+test_that("constraint check", {
+  df <- data.table(
+    "a" = c(0, 0, 0, 1, 0, 1),
+    "b" = c(1, 1, 1, 1, 1, 1),
+    "d" = c(1, 2, 3, 4, 3, 2),
+    "e" = c(1, 1, 2, 2, 1, 1)
+  )
+  model <- logit(b, a) ~ loglinear(d, e)
+  expect_no_error(LogisticRun(model, df, ncores = 1, cons_mat = matrix(c(1, 1), nrow = 1)))
+})
+
 test_that("basic regression with link non-fail", {
   if (system.file(package = "survival") != "") {
     data(cancer, package = "survival")

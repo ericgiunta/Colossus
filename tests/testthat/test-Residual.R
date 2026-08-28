@@ -61,6 +61,20 @@ test_that("Poisson residual no error", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
   expect_error(e <- Residual(poisres_s, df, pearson = FALSE, deviance = TRUE))
   expect_error(Residual(model, df, pearson = FALSE, deviance = TRUE))
+  ##
+  a <- c(1, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(0, 0, 0, 1, 1, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+  #
+  formula <- Poisson(a, c) ~ null()
+  model <- get_form(formula, df)$model
+  poisres <- PoisRun(model, df, control = control)
+  #
+  expect_no_error(e <- Residual(poisres, df, pearson = FALSE, deviance = FALSE))
+  expect_no_error(e <- Residual(model, df, a_n = 0.1, pearson = FALSE, deviance = FALSE))
 })
 
 test_that("Logistic residual no error", {
@@ -116,6 +130,20 @@ test_that("Logistic residual no error", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
   expect_error(e <- Residual(logitres, df, pearson = FALSE, deviance = TRUE))
   expect_error(Residual(model, df, pearson = FALSE, deviance = TRUE))
+  ##
+  a <- c(1, 1, 2, 3, 4, 5, 6)
+  b <- c(1, 2, 3, 4, 5, 6, 7)
+  c <- c(0, 1, 0, 0, 0, 1, 0)
+  d <- c(3, 4, 5, 6, 7, 8, 9)
+  e <- c(0, 0, 0, 1, 1, 1, 1)
+  df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
+  #
+  formula <- Logit(a, c) ~ null()
+  model <- get_form(formula, df)$model
+  logitres <- LogisticRun(model, df, control = control)
+  #
+  expect_no_error(e <- Residual(logitres, df, pearson = FALSE, deviance = FALSE))
+  expect_no_error(e <- Residual(model, df, pearson = FALSE, deviance = FALSE, a_n = 0.1, link = "odds"))
 })
 
 test_that("Residual warnings", {

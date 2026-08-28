@@ -67,3 +67,10 @@ If a likelihood boundary is being calculated, there are several additional contr
 | search_mult | Double used by manual search option, scales the initial step by that amount. This can be done to widen or narrow the scope of the search if the initial quadratic assumption made by the Venzon-Moolgavkar algorithm is incorrect. |
 | bisect | Boolean to denote the bisection method of boundary solution. Solves for the optimal log-likelihood at both ends and middle of a searching interval, then updates the window until convergence. |
 | step_size | Double used by the bisection method. Sets the initial interval length used. Defaults to 0.5 |
+
+The following options can be used by the multiple dose realization functions to select how realizations are combined:
+
+| Option | Description |
+| :---------: | :----------: |
+| fma  | Boolean to select frequentist model averaging, and process realizations in serial. Defaults to FALSE.   |
+| mcml  | Boolean to select Monte Carlo maximum likelihood, and optimize the average score over all realizations. Defaults to True.   |

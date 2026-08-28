@@ -2,7 +2,7 @@
 % Please edit documentation in R/SurvTypes.R
 \name{ColossusCoxSurv}
 \alias{ColossusCoxSurv}
-\title{Interprets basic cox survival formula RHS}
+\title{Interprets basic cox survival formula left hand side}
 \usage{
 ColossusCoxSurv(...)
 }

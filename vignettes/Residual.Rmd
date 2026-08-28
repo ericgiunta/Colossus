@@ -77,7 +77,7 @@ $$
 $$
 </p>
 
-The second option is the deviance residual, which calculates the contribution of each row to the deviance. Similar to the deviance residual for poisson models, when the number of events are equal to zero or the number of trials the corresponding logarithm products are set to zero.
+The second option is the deviance residual, which calculates the contribution of each row to the deviance. Similar to the deviance residual for poisson models, when the number of events are equal to zero or equal to the number of trials, the corresponding logarithm products are set to zero.
 
 <p class="text-center" style="background-color: aliceblue">
 $$

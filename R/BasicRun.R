@@ -4679,6 +4679,9 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   if (missing(a_n)) {
     a_n <- object$beta_0
   }
+  if (poismodel$null) {
+    keep_constant <- c(0)
+  }
   if (missing(control)) {
     control <- object$control
   }
@@ -4893,6 +4896,9 @@ Residual.logitres <- function(x, df, control = list(), a_n = c(), pearson = FALS
   #
   if (missing(a_n)) {
     a_n <- object$beta_0
+  }
+  if (logitmodel$null) {
+    keep_constant <- c(0)
   }
   if (missing(control)) {
     control <- object$control
