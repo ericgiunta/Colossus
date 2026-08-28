@@ -33,7 +33,7 @@ Let us suppose that we are interested in performing a regression with three cova
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(a, r, s) = \exp{ \left(\beta_a \times a + \beta_a \times r + \beta_a \times s \right)}
+    \lambda(a, r, s) = \exp{ \left(\beta_a \cdot a + \beta_r \cdot r + \beta_s \cdot s \right)}
 \end{aligned}
 $$
 </p>
@@ -44,7 +44,7 @@ model <- Cox(t0, t1, event) ~ loglinear(a, r0, s0)
 a_n <- c(0.1, 0.1, 0.1)
 ```
 
-`Colossus` requires two items to apply multiple realizations, a list of columns to replace, and a matrix of columns for each realization. Suppose the user generates 5 realizations. Then there are two distributed columns and five realizations. Similar to other regression options, `Colossus` always expects column names listed in the model to be in the table.
+`Colossus` requires two items to apply multiple realizations: a list of columns to replace, and a matrix of columns for each realization. Suppose the user generates 5 realizations. Then there are two distributed columns and five realizations. Similar to other regression options, `Colossus` always expects column names listed in the model to be in the table.
 
 ```{r, eval=FALSE}
 # The two columns in the model to replace are the radiation/sleeping covariates
@@ -54,7 +54,7 @@ dose_index <- c("r0", "s0")
 # columns to be used for realizations 0-4, rows for each column being replaced
 dose_realizations <- matrix(
   c("r0", "r1", "r2", "r3", "r4", "s0", "s1", "s2", "s3", "s4"),
-  nrow = 2
+  nrow = 2, byrow = TRUE
 )
 ```
 
@@ -87,11 +87,11 @@ e_mcml <- CoxRunMulti(model, df,
 # The number of realizations will also be output.
 ```
 
-Both options are currently available for both Cox and Poisson regressions.
+Both options are currently available for Cox, Poisson, and standard Logistic regressions.
 
 ## Outcome Uncertainty
 
-The same basic theory applies to uncertainty in the outcome, except that there is only one column with realizations. An equivalent of the Frequentist Model Averaging approach has been implemented for logistic regression, to facilitate studies of outcome misclassification.
+The same basic theory applies to uncertainty in the outcome, except that there is only one column with realizations. An equivalent of the Frequentist Model Averaging approach has been implemented for poisson and logistic regression, to facilitate studies of outcome misclassification.
 
 ```{r, eval=FALSE}
 model <- Logit(trial, e0) ~ loglinear(a, r, s)
@@ -113,3 +113,4 @@ e_fma <- LogisticRunMultiOut(model, df,
 # in each realization.
 # The output can be printed for information.
 ```
+The expected likelihood equations can be easily rewritten in terms of the expected number of events, so there is no Monte Carlo Maximum Likelihood equivalent for outcome realizations. Instead, a standard regression can be performed with the average number of events.

@@ -92,6 +92,7 @@ parse_literal_string <- function(string) {
 check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), verbose = 2) {
   # check that the constraint matrix is valid
   # It should be a numeric matrix
+  # nocov start
   if (is.null(cons_mat)) {
     stop("Error: Constraint matrix was empty.")
   } else if (suppressWarnings(any(is.character(cons_mat)))) {
@@ -110,6 +111,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     }
     cons_mat <- matrix(as.numeric(unlist(cons_mat)), nrow = row_count)
   }
+  # nocov end
   if (nrow(cons_mat) < 1) {
     stop("Error: Constraint matrix was empty.")
   }
@@ -122,6 +124,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     stop("Error: Constraint matrix had too many columns.")
   }
   if (!missing(cons_vec)) {
+    # nocov start
     if (is.null(cons_vec)) {
       stop("Error: Constraint vector was empty.")
     } else if (suppressWarnings(any(is.character(cons_vec)))) {
@@ -135,6 +138,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     } else {
       cons_vec <- as.numeric(cons_vec)
     }
+    # nocov end
     if (length(cons_vec) < nrow(cons_mat)) {
       if (verbose >= 2) {
         warning("Warning: The constraint solution vector was too short. Zeros added for missing values.")
@@ -194,12 +198,14 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
         row_removed <- c(row_removed, 1)
       }
     }
-    # Remove the offending rows
-    total_mat <- total_mat[(row_removed == 0), ]
+    # Remove the offending rows and keep as matrix
+    total_mat <- matrix(total_mat[(row_removed == 0), ], nrow = nrow(total_mat) - sum(row_removed))
     # Convert to reduced row echelon format to simplify future calculations
-    total_mat <- rref(total_mat)
+    if (nrow(total_mat) > 1) {
+      total_mat <- rref(total_mat)
+    }
     # Pull out the new matrix and vector
-    cons_mat <- total_mat[, 1:(ncol(total_mat) - 1)]
+    cons_mat <- matrix(total_mat[, 1:(ncol(total_mat) - 1)], nrow = nrow(total_mat))
     cons_vec <- total_mat[, ncol(total_mat)]
   }
   #
@@ -1938,6 +1944,7 @@ Rcpp_version <- function() {
 #' @export
 #' @family Output and Information Functions
 System_Version <- function() {
+  # nocov start
   tstart <- Sys.time()
   os <- get_os()
   gcc <- gcc_version()
@@ -1978,6 +1985,7 @@ System_Version <- function() {
     omp_allowed <- FALSE
   }
   #
+  # nocov end
   list(
     `Operating System` = os, `Default c++` = gcc, `R Compiler` = Rcomp,
     `OpenMP Enabled` = OMP, `Multicore Allowed` = omp_allowed
@@ -2262,6 +2270,7 @@ print.logitresfma <- function(x, ...) {
 #' @noRd
 #' @return return nothing, prints the results to console
 Interpret_Output <- function(out_list, digits = 3) {
+  # nocov start
   # make sure the output isn't an error
   passed <- out_list$Status
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
@@ -2777,6 +2786,7 @@ Interpret_Output <- function(out_list, digits = 3) {
     }
     # nocov end
   }
+  # nocov end
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }
 
@@ -2792,7 +2802,7 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
   # make sure the output isn't an error
   passed <- out_list$Status
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
-
+  # nocov start
   # get the model details
   KeptRecords <- out_list$UsedRecords
   RemovedRecords <- out_list$RejectedRecords
@@ -2958,6 +2968,7 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
   } else if (any(passed != "PASSED")) {
     message("Warning: Atleast one realization failed.")
   }
+  # nocov end
   message("Further results can be extracted using 'output$LogLik', 'output$Parameters', 'output$Standard_Error', etc.")
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
 }

@@ -131,7 +131,7 @@ test_that("Run basic warnings and checks", {
   df <- data.table("a" = a, "b" = b, "c" = c, "d" = d, "e" = e)
 
   model <- Cox(a, b, c) ~ loglinear(d)
-  expect_warning(res <- CoxRun(model, df, ncores = 1, ncores = 1))
+  expect_warning(res <- CoxRun(model, df, ncores = 1, ncores = 1, observed_info = TRUE))
   expect_warning(res <- CoxRun(model, df, control = list(ncores = 1, ncores = 1)))
   model <- Pois(a, b) ~ loglinear(c, d)
   expect_warning(res <- PoisRun(model, df, ncores = 1, ncores = 1))

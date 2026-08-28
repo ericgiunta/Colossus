@@ -536,7 +536,7 @@ get_form_surv <- function(surv_obj, df) {
 
 #' Interprets the risk factor side of a formula
 #'
-#' \code{get_form_risk} interprets the RHS of a formula
+#' \code{get_form_risk} interprets the right hand side of a formula
 #' @param model_obj output from get_form_risk, list of risk factor model values
 #' @inheritParams R_template
 #' @noRd
@@ -632,14 +632,14 @@ get_form_risk <- function(model_obj, df) {
               stop("Error: Column: ", factor_col, " not in data")
             }
             if (is.null(levels(df[[factor_col]]))) {
-                xtemp <- do.call(factor, factor_arg_list)
+              xtemp <- do.call(factor, factor_arg_list)
             } else {
-                xtemp <- df[[factor_col]]
+              xtemp <- df[[factor_col]]
             }
             if (!("levels" %in% names(repeat_list))) { # using the levels will recreate the same factoring
               repeat_list[["levels"]] <- levels(xtemp)
             }
-#            print(levels(xtemp))
+            #            print(levels(xtemp))
             df[[factor_col]] <- xtemp
             val <- factorize(df, factor_col)
             df <- val$df
@@ -1187,10 +1187,10 @@ ColossusExpressionCall <- function(calls, df) {
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
       if (is.null(levels(df[[factor_col]]))) {
-            xtemp <- do.call(factor, factor_arg_list)
-        } else {
-            xtemp <- df[[factor_col]]
-        }
+        xtemp <- do.call(factor, factor_arg_list)
+      } else {
+        xtemp <- df[[factor_col]]
+      }
       df[[factor_col]] <- xtemp
       val <- factorize(df, factor_col)
       df <- val$df
@@ -1328,7 +1328,7 @@ ColossusExpressionCall <- function(calls, df) {
   df
 }
 
-#' Interprets basic cox survival formula RHS
+#' Interprets basic cox survival formula left hand side
 #'
 #' \code{ColossusCoxSurv} assigns and interprets interval columns for cox model.
 #' This functions is called using the arguments for Cox in the right-hand side of
@@ -1423,7 +1423,7 @@ ColossusCoxSurv <- function(...) {
   list(tstart = tstart, tend = tend, event = event)
 }
 
-#' Interprets basic cox survival formula RHS with strata
+#' Interprets basic cox survival formula left hand side with strata
 #'
 #' \code{ColossusCoxStrataSurv} assigns and interprets interval columns for cox model with stratification
 #'
@@ -1461,7 +1461,7 @@ ColossusCoxStrataSurv <- function(...) {
   res
 }
 
-#' Interprets basic fine-gray survival formula RHS
+#' Interprets basic fine-gray survival formula left hand side
 #'
 #' \code{ColossusFineGraySurv} assigns and interprets interval columns for fine-gray model
 #'
@@ -1499,7 +1499,7 @@ ColossusFineGraySurv <- function(...) {
   res
 }
 
-#' Interprets basic fine-gray survival formula RHS with strata
+#' Interprets basic fine-gray survival formula left hand side with strata
 #'
 #' \code{ColossusFineGraySurv} assigns and interprets interval columns for fine-gray model and stratification
 #'
@@ -1538,7 +1538,7 @@ ColossusFineGrayStrataSurv <- function(...) {
 }
 
 # --------------------------------------------------------------------------------- #
-#' Interprets basic poisson survival formula RHS
+#' Interprets basic poisson survival formula left hand side
 #'
 #' \code{ColossusPoisSurv} assigns and interprets interval columns for poisson model.
 #' This functions is called using the arguments for Poisson or Poisson_Strata in the
@@ -1610,7 +1610,7 @@ ColossusPoisSurv <- function(...) {
 }
 
 # --------------------------------------------------------------------------------- #
-#' Interprets basic case-control survival formula RHS with no grouping
+#' Interprets basic case-control survival formula left hand side with no grouping
 #'
 #' \code{ColossusCaseConSurv} assigns and interprets interval columns for case-control model without grouping.
 #'
@@ -1637,7 +1637,7 @@ ColossusCaseConSurv <- function(...) {
   list(event = event)
 }
 
-#' Interprets basic case-control survival formula RHS with grouping by risk group
+#' Interprets basic case-control survival formula left hand side with grouping by risk group
 #'
 #' \code{ColossusCaseConTimeSurv} assigns and interprets interval columns for case-control model with grouping by risk group.
 #'
@@ -1728,7 +1728,7 @@ ColossusCaseConTimeSurv <- function(...) {
   list(tstart = tstart, tend = tend, event = event)
 }
 
-#' Interprets basic case-control survival formula RHS with grouping by strata
+#' Interprets basic case-control survival formula left hand side with grouping by strata
 #'
 #' \code{ColossusCaseConStrataSurv} assigns and interprets interval columns for case-control model with grouping by strata.
 #'
@@ -1769,7 +1769,7 @@ ColossusCaseConStrataSurv <- function(...) {
   list(event = event, strata = strata)
 }
 
-#' Interprets basic case-control survival formula RHS with grouping by strata and risk group
+#' Interprets basic case-control survival formula left hand side with grouping by strata and risk group
 #'
 #' \code{ColossusCaseConTimeStrataSurv} assigns and interprets interval columns for case-control model with grouping by strata and risk group.
 #'
@@ -1807,7 +1807,7 @@ ColossusCaseConTimeStrataSurv <- function(...) {
   res
 }
 
-#' Interprets basic logistic survival formula RHS with no grouping
+#' Interprets basic logistic survival formula left hand side with no grouping
 #'
 #' \code{ColossusLogitSurv} assigns and interprets columns for trials and events in logistic model with no grouping.
 #'

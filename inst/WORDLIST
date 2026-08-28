@@ -39,6 +39,7 @@ expres
 fg
 FITOPT
 finegray
+fma
 func
 gcc
 ggplot
@@ -72,6 +73,7 @@ Makevars
 maxiter
 maxiters
 maxstep
+mcml
 modelform
 Moolgavkar
 mult

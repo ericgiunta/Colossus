@@ -167,7 +167,7 @@ table <- data.table::data.table(
 )
 ```
 
-In general, the person-year list should contain the columns used for the entry and/or exit dates as well as an options units value. Each entry or exit variable should be a list with columns corresponding to the calendar date columns. These columns should be named 'day', 'month', or 'year'. As already mentioned, missing entries will currently default to January 1st 1900.
+In general, the person-year list should contain the columns used for the entry and/or exit dates as well as an optional units value. Each entry or exit variable should be a list with columns corresponding to the calendar date columns. These columns should be named 'day', 'month', or 'year'. As already mentioned, missing entries will currently default to January 1st 1900.
 
 ```{r, eval=TRUE}
 # Our person-years are described by calendar dates

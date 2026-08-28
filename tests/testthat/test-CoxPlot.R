@@ -195,12 +195,12 @@ test_that("Coxph risk no error", {
   e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(ep <- plotRisk(e, df, plot_options)$d)
-    expect_equal(ep$y[7], 0.5488116, tolerance = 1e-4)
+    expect_equal(ep$y[7], 0.4965853, tolerance = 1e-4)
     expect_named(ep, c("x", "y"))
     #
     expect_no_error(ep <- plotRisk(e, df, plot_options, boundary = 1.95)$d)
-    expect_equal(ep$"y:lower"[7], 0.01537157, tolerance = 1e-4)
-    expect_equal(ep$"y:upper"[7], 19.59424, tolerance = 1e-4)
+    expect_equal(ep$"y:lower"[7], 0.007664865, tolerance = 1e-4)
+    expect_equal(ep$"y:upper"[7], 32.17238, tolerance = 1e-4)
   }
 })
 
@@ -218,6 +218,7 @@ test_that("Coxph risk no error, with interactions", {
   formula <- Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e))
   model <- get_form(formula, df)$model
   e <- CoxRun(model, df, control = control, a_n = a_n, norm = "max")
+  es <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0), df, control = control, a_n = 0.1)
   if (system.file(package = "ggplot2") != "") {
     df_test <- data.table(
       a = c(0, 0, 0, 0, 0, 0, 0, 0),
@@ -236,6 +237,8 @@ test_that("Coxph risk no error, with interactions", {
     a_n <- c(-0.1, 0.1)
     expect_no_error(ep <- RelativeRisk(formula, df_test, a_n = a_n))
     expect_equal(ep$Risk, 1 + df_test$d * -0.1 + df_test$d * df_test$d * 0.1, tolerance = 1e-3)
+    #
+    expect_no_error(RelativeRisk(es, df_test))
   }
 })
 

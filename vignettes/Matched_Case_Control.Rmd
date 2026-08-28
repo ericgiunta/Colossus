@@ -39,7 +39,7 @@ Suppose we have matched case-control data and divide our data into each matched 
 $$
 \begin{aligned}
     \frac{\prod_{i}^{m} r_i}{\sum_{c \in R} \left ( \prod_{j=1}^{m} r_{c_j} \right )} \\
-    L = \sum_{i=1}^{m} log(r_i) - log \left ( \sum_{c \in R} \left ( \prod_{j=1}^{m} r_{c_j} \right ) \right )
+    L = \sum_{i=1}^{m} \log(r_i) - \log \left ( \sum_{c \in R} \left ( \prod_{j=1}^{m} r_{c_j} \right ) \right )
 \end{aligned}
 $$
 </p>
@@ -95,7 +95,7 @@ Finally, these expressions for $B(m,n)$ can be substituted into the equations fo
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    L_{set} = \sum_{i=1}^{m} log(r_i) - log \left ( B(m,n) \right ) \\
+    L_{set} = \sum_{i=1}^{m} \log(r_i) - \log \left ( B(m,n) \right ) \\
     L^{\mu}_{set} = \sum_{i=1}^{m} \frac{r_i^{\mu}}{r_i} - \frac{B^{\mu}(m,n)}{B(m,n)} \\
     L^{\mu, \nu}_{set} = \sum_{i=1}^{m} \left ( \frac{r_i^{\mu,\nu}}{r_i} - \frac{r_i^{\mu}}{r_i}\frac{r_i^{nu}}{r_i} \right ) - \left ( \frac{B^{\mu,\nu}(m,n)}{B(m,n)} - \frac{B^{\mu}(m,n)}{B(m,n)}\frac{B^{\nu}(m,n)}{B(m,n)}  \right )
 \end{aligned}
@@ -104,14 +104,14 @@ $$
 
 #### Unconditional Logistic Regression
 
-It is important to note that the recursive formula calculation can quickly become time-consuming, particularly if there is a large number of cases. To make the matched case-control method generally applicable, the likelihood function can be changed to a logistic regression model in matched sets with a large number of cases. In general, the matched case-control regression function adds an item to the model control list, "cond_thres", to set the threshold to switch to a stratified logistic regression model.
+It is important to note that the recursive formula calculation can quickly become time-consuming, particularly if there is a large number of cases. To make the matched case-control method generally applicable, the likelihood function can be changed to a logistic regression model in matched sets with a large number of cases. In general, the matched case-control regression function adds an item to the model control list, `cond_thres`, to set the threshold to switch to a stratified logistic regression model.
 
 The logistic loglikelihood is defined by treating the matched case-control data as single trial data. The likelihood is a function of the event status ($\theta_i$) and odds ratio ($O_i$). The odds ratio for any row is calculated as the product of the odds ratio for the matched set ($O_s$) and the relative risk for the row ($r_i$). Behind the scenes, `Colossus` optimizes both the model parameters ($\vec{\beta}$) for the relative risk as well as a logistic model for the matched set odds ratios ($O_s=e^{\alpha_s}$).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    L_i = y_i ln(O_s r_i) - ln(1+ O_s r_i) \\
+    L_i = y_i \ln(O_s r_i) - \ln(1+ O_s r_i) \\
     \frac{\partial L_i}{\partial \beta_j} = y_i \frac{r^j_i}{r_i} - O_s \frac{r^j_i}{1 + O_s r_i}\\
     \frac{\partial L_i}{\partial \alpha_s} = (y_i - 1) + \frac{1}{1 + O_s r_i} \\
     \frac{\partial^2 L_i}{\partial \beta_j \partial \beta_k} = y_i \left ( \frac{r^{j,k}_i}{r_i} - \frac{r^j_i}{r_i} \frac{r^k_i}{r_i} \right ) - O_s \left ( \frac{r^{j,k}_i}{1 + O_s r_i} - O_s \frac{r^j_i}{1 + O_s r_i} \frac{r^k_i}{1 + O_s r_i} \right ) \\

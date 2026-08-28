@@ -404,7 +404,7 @@ test_that("Curve search, gradient", {
   poisres$beta_0 <- c(-2.917, 0.06526)
 
   a_n <- c(-0.857, -0.9)
-  expect_no_error(logitres <- LogisticRun(logit(event) ~ loglinear(CONST, dose0) + M(), df, a_n = a_n, control = control, gradient_control = list("adadelta" = TRUE)))
+  expect_no_error(logitres <- LogisticRun(logit(event) ~ loglinear(CONST, dose0) + M(), df, a_n = a_n, control = control, gradient_control = list("adadelta" = TRUE), norm = "max"))
   logitres$beta_0 <- c(-0.857, -0.9)
 
   a_n <- c(-1.493177, 5.020007, 1.438377)

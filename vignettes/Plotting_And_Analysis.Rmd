@@ -66,7 +66,7 @@ In general the [plot function](../reference/plot.coxres.html) can be used to cal
 
 ## Survival Function Approximation
 
-After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total risk. In the absence of excess risk, the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligible excess risk.
+After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total hazard ratio. In the absence of excess risk, the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligible excess risk.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -259,7 +259,7 @@ g
 
 ### Martingale Residuals
 
-Martingale residuals compare the event status and cumulative hazard for each subject. The residual is bound in the open interval $(-\infty, 1)$. Negative residuals correspond with subjects that survive despite high cumulative hazard and residuals near unity correspond with subjects that experienced an event despite low cumulative hazard. The distribution of residuals with event time can indicate if the model is over-predicting or under-predicting dependent on time.
+Martingale residuals compare the event status and cumulative hazard for each subject. The residual is bound in the open interval $(-\infty, 1)$. Negative residuals correspond with subjects that survive despite high cumulative hazard and residuals near unity correspond with subjects that experienced an event despite low cumulative hazard. The distribution of residuals with covariates can indicate if the model is over-predicting or under-predicting dependent on time.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -390,7 +390,8 @@ df_off <- df <- data.table(
 
 res_comb <- RelativeRisk(coxres, df_off)
 
-x_all <- c(res_age$x, res_age2$x, df_off$age)
+# The same age values are used for each res_age x value, except the res_age2 is returning age^2
+x_all <- c(res_age$x, res_age$x, df_off$age)
 y_all <- c(res_age$y, res_age2$y, res_comb$Risk)
 method <- c(rep("Linear", nrow(res_age)), rep("Quadratic", nrow(res_age2)), rep("Combined", nrow(df_off)))
 

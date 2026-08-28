@@ -2,7 +2,7 @@
 % Please edit documentation in R/SurvTypes.R
 \name{ColossusPoisSurv}
 \alias{ColossusPoisSurv}
-\title{Interprets basic poisson survival formula RHS}
+\title{Interprets basic poisson survival formula left hand side}
 \usage{
 ColossusPoisSurv(...)
 }
