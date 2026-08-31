@@ -31,15 +31,16 @@ jobs:
       - name: move to package and check
         run: |
           ls
-          Rscript -e "install.packages(c('devtools', 'remotes', 'goodpractice'))"
+          Rscript -e "install.packages(c('devtools', 'remotes', 'goodpractice', 'cyclocomp', 'rcmdcheck'))"
           Rscript -e "pak::local_install_deps(dependencies = TRUE)"
           Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
           Rscript -e "devtools::install()"
       - name: run tests
         run: |
-           Rscript -e "g <- goodpractice::gp(system.file(package = 'Colossus'), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
+           Rscript -e "library(goodpractice)
+           g <- gp(system.file(package = 'Colossus'), checks = all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
            print(g)
-           if (length(goodpractice::failed_check(g)) == 0){
+           if (length(failed_check(g)) == 0){
              stop('Failed checks')
            }
            "
@@ -49,7 +50,7 @@ jobs:
     - uses: actions/checkout@v4
     - run: |
         pipx run cpplint --filter=-whitespace/line_length,-readability/fn_size,-runtime/references --exclude=src/RcppExports.* --exclude=src/*.*o --exclude=src/Makevars* src/*.* &> cpplint_out.txt
-        if grep -q '.cpp' cpplint_out.txt; then
+        if grep -q 'Total errors found:' cpplint_out.txt; then
             echo "cpplint error"
             exit 1
         fi
