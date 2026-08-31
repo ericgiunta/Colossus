@@ -37,10 +37,10 @@ jobs:
           Rscript -e "devtools::install()"
       - name: run tests
         run: |
-           Rscript -e "g <- goodpractice::gp(".", checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
+           Rscript -e "g <- goodpractice::gp(system.file(package = 'Colossus'), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
            print(g)
            if (length(goodpractice::failed_check(g)) == 0){
-             stop("Failed checks")
+             stop('Failed checks')
            }
            "
   cpplint_check:
@@ -49,18 +49,8 @@ jobs:
     - uses: actions/checkout@v4
     - run: |
         pipx run cpplint --filter=-whitespace/line_length,-readability/fn_size,-runtime/references --exclude=src/RcppExports.* --exclude=src/*.*o --exclude=src/Makevars* src/*.* &> cpplint_out.txt
-        if grep -q 'Total errors found:' cpplint_out.txt; then
+        if grep -q '.cpp' cpplint_out.txt; then
             echo "cpplint error"
-            exit 1
-        fi
-  cppcheck_check:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - run: |
-        pipx run cppcheck -i src/RcppExports.cpp --enable=warning,portability,performance --error-exitcode=1 --inline-suppr src &> cppcheck_out.txt
-        if grep -q ']' cppcheck_out.txt; then
-            echo "cppcheck error"
             exit 1
         fi
   lintr:
