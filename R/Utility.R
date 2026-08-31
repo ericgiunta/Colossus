@@ -10,11 +10,11 @@ nested_split <- function(total_string) {
   # start by doing best
   sub_str <- strsplit(total_string, ",|(?>\\(.*?\\).*?\\K(,|$))", perl = TRUE)[[1]]
   # There may still be some areas where the nested section was split
-  final_split <- c("")
+  final_split <- ""
   temp_count <- 0
   for (i in sub_str) {
     temp_count <- temp_count + str_count(i, stringr::fixed("(")) - str_count(i, stringr::fixed(")")) # check to see if the current selections have the same number
-    if (final_split[length(final_split)] == "") {
+    if (!nzchar(final_split[length(final_split)])) {
       final_split[length(final_split)] <- i # first is just added
     } else {
       final_split[length(final_split)] <- paste(final_split[length(final_split)], i, sep = ",") # accumulate
@@ -67,17 +67,14 @@ parse_literal_string <- function(string) {
     return(factor_list)
   }
   if (string != ".") { # '.' breaks the numeric search
-    options(warn = -1)
-    if (tolower(string) %in% c("true", "false")) { # check for boolean
-      options(warn = 0)
+    if (with_options(list(warn = -1), tolower(string) %in% c("true", "false"))) { # check for boolean
       return(as.logical(string))
     }
     # needs to detect numbers
-    if (all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
-      options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
+    if (with_options(list(warn = -1), all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1)))) || all(vapply(string, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
+      # checks for an integer, decimal, decimal places or scientific notation
       return(as.numeric(string))
     }
-    options(warn = 0)
   }
   string
 }
@@ -89,7 +86,7 @@ parse_literal_string <- function(string) {
 #' @noRd
 #' @family Data Cleaning Functions
 #' @return returns a list with the updated values
-check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), verbose = 2) {
+check_constraints <- function(a_n, model_control, cons_mat, cons_vec = 0, verbose = 2) {
   # check that the constraint matrix is valid
   # It should be a numeric matrix
   # nocov start
@@ -101,7 +98,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     stop("Error: Constraint matrix was a date")
   } else if (!is.null(levels(cons_mat))) {
     stop("Error: Constraint matrix was a factor")
-  } else if ((suppressWarnings(any(is.na(as.matrix(as.numeric(cons_mat)))))) || (is.list(cons_mat))) {
+  } else if ((suppressWarnings(anyNA(as.matrix(as.numeric(cons_mat))))) || (is.list(cons_mat))) {
     stop("Error: Constraint matrix was not a numeric matrix.")
   } else {
     if (!is.matrix(cons_mat)) {
@@ -133,7 +130,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
       stop("Error: Constraint vector was a date")
     } else if (!is.null(levels(cons_vec))) {
       stop("Error: Constraint vector was a factor")
-    } else if ((suppressWarnings(any(is.na(as.numeric(cons_vec))))) || (is.list(cons_vec))) {
+    } else if ((suppressWarnings(anyNA(as.numeric(cons_vec)))) || (is.list(cons_vec))) {
       stop("Error: Constraint vector was not a numeric vector.")
     } else {
       cons_vec <- as.numeric(cons_vec)
@@ -149,7 +146,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     }
   } else {
     # Values may be set to zero by default, check each row
-    for (i in 1:nrow(cons_mat)) {
+    for (i in seq_len(nrow(cons_mat))) {
       if (sum(cons_mat[i, ] != 0) == 1) {
         # There is only one non-zero entry in this row, and the solution vector defaults to zero
         stop("Error: Constraint solution would set parameter to zero by default. It is preferable to manually set cons_vec to zero if this is intended.")
@@ -158,8 +155,8 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     cons_vec <- c(rep(0.0, nrow(cons_mat)))
   }
   #
-  row_remove <- c()
-  for (i in 1:nrow(cons_mat)) {
+  row_remove <- NULL
+  for (i in seq_len(nrow(cons_mat))) {
     if (all(cons_mat[i, ] == rep(0, ncol(cons_mat)))) {
       row_remove <- c(row_remove, 0)
     } else {
@@ -178,7 +175,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     # We want to simplify the matrix
     # Start by removing the linearly dependent rows and identifying incorrect rows
     total_mat <- cbind(cons_mat, unlist(cons_vec, use.names = FALSE))
-    row_removed <- c(0)
+    row_removed <- 0
     for (i in 2:nrow(total_mat)) {
       new_full_rank <- qr(total_mat[1:i, ])$rank # rank for the full solution matrix
       new_base_rank <- qr(cons_mat[1:i, ])$rank # rank for the constraint values
@@ -218,7 +215,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
     model_control$constraint <- FALSE
   }
   #
-  res <- list("control" = model_control, "mat" = cons_mat, "vec" = cons_vec)
+  res <- list(control = model_control, mat = cons_mat, vec = cons_vec)
 }
 
 #' Calculates and applies the interaction between a list of factor columns
@@ -233,8 +230,7 @@ check_constraints <- function(a_n, model_control, cons_mat, cons_vec = c(0), ver
 #' @return returns a list with the data and new columns
 Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose = TRUE), keep_base = TRUE, filter_df = TRUE) {
   vals <- col_list
-  og_name <- names(df)
-  combs <- c()
+  combs <- NULL
   if (length(vals) == 1) {
     # factor
     df$comb_strata <- as.integer(factor(df[[vals]])) - 1
@@ -305,7 +301,7 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, NA, 47, 36, NA, 55),
@@ -337,7 +333,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
       stop("Error: ", j, " missing from column names")
     }
     if (sum(is.na(df[[j]]))) {
-      data.table::set(df, which(is.na(df[[j]])), j, msv)
+      set(df, which(is.na(df[[j]])), j, msv)
       # nocov start
       if (verbose >= 3) {
         message(paste("Note: Column ", j, " had replaced values",
@@ -375,7 +371,7 @@ Def_Control <- function(control) {
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
     control_def$ncores <- min(c(2, as.numeric(detectCores()))) # reduces cores if testing is running
   }
-  if (Sys.getenv("ColossusOMP") == "") {
+  if (!nzchar(Sys.getenv("ColossusOMP"))) {
     syscheck <- System_Version()
     OpenMP <- syscheck[["OpenMP Enabled"]]
     if (!OpenMP) {
@@ -384,10 +380,10 @@ Def_Control <- function(control) {
       Sys.setenv(ColossusOMP = "TRUE")
       Sys.setenv(ColossusGCC = "TRUE")
       if (control["verbose"] > 1) {
-        if (system.file(package = "processx") == "") {
+        if (!nzchar(system.file(package = "processx"))) {
           warning("Warning: processx is missing, which is used to check default compiler. Parallelization is disabled by default.")
         }
-        if (system.file(package = "callr") == "") {
+        if (!nzchar(system.file(package = "callr"))) {
           warning("Warning: callr is missing, which is used to check default compiler. Parallelization is disabled by default.")
         }
       }
@@ -427,7 +423,7 @@ Def_Control <- function(control) {
       warning("Warning: OpenMP not detected, cores set to 1")
     }
     control$ncores <- 1 # nocov
-  } else if ((Sys.getenv("R_COLOSSUS_NOT_CRAN") == "") && (Sys.getenv("ColossusGCC") == "FALSE")) {
+  } else if ((!nzchar(Sys.getenv("R_COLOSSUS_NOT_CRAN"))) && (Sys.getenv("ColossusGCC") == "FALSE")) {
     control$ncores <- 1 # nocov
     if (control["verbose"] > 1) {
       # In the past, a fedora machine running clang had issues with parallel code. Now linux machine using clang only use 1 core.
@@ -484,11 +480,11 @@ Def_model_control <- function(control) {
   } else if (sum(link_vec) > 1) {
     stop("Error: Multiple link functions used, only select one link function")
   }
-  if (control["null"] == TRUE) {
+  if (control[["null"]]) {
     control["single"] <- TRUE
   }
   if ("step_size" %in% names(control)) {
-    if (suppressWarnings(any(is.na(as.numeric(control["step_size"]))))) {
+    if (suppressWarnings(anyNA(as.numeric(control["step_size"])))) {
       stop("Error: model control step size had a non-numeric value")
     } else {
       control["step_size"] <- as.numeric(control["step_size"])
@@ -497,7 +493,7 @@ Def_model_control <- function(control) {
     control["step_size"] <- 0.5
   }
   if ("unique_values" %in% names(control)) {
-    if (suppressWarnings(any(is.na(as.numeric(control["unique_values"]))))) {
+    if (suppressWarnings(anyNA(as.numeric(control["unique_values"])))) {
       stop("Error: unique values had a non-numeric value")
     } else {
       control["unique_values"] <- as.integer(control["unique_values"])
@@ -537,10 +533,10 @@ Def_model_control <- function(control) {
       stop("Error: gmix term was outside of [0,1.0]. Not the intended use, errors will occur.")
     }
   } else {
-    control["gmix_term"] <- c(0)
+    control["gmix_term"] <- 0
   }
   if ("conditional_threshold" %in% names(control)) {
-    if (suppressWarnings(any(is.na(as.numeric(control["conditional_threshold"]))))) {
+    if (suppressWarnings(anyNA(as.numeric(control["conditional_threshold"])))) {
       stop("Error: conditional threshold had a non-numeric value")
     } else {
       control["conditional_threshold"] <- as.integer(control["conditional_threshold"])
@@ -551,14 +547,14 @@ Def_model_control <- function(control) {
   }
   if (control[["log_bound"]]) {
     if ("qchi" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["qchi"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["qchi"])))) {
         stop("Error: chi squared value had a non-numeric value")
       } else {
         control["qchi"] <- as.numeric(control["qchi"])
       }
     } else {
       if ("alpha" %in% names(control)) {
-        if (suppressWarnings(any(is.na(as.numeric(control["alpha"]))))) {
+        if (suppressWarnings(anyNA(as.numeric(control["alpha"])))) {
           stop("Error: alpha value had a non-numeric value")
         } else {
           control["alpha"] <- as.numeric(control["alpha"])
@@ -574,7 +570,7 @@ Def_model_control <- function(control) {
       control["para_number"] <- control["para_num"]
     }
     if ("para_number" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["para_number"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["para_number"])))) {
         stop("Error: parameter number was non-numeric")
       } else {
         control["para_number"] <- as.integer(control["para_number"])
@@ -583,7 +579,7 @@ Def_model_control <- function(control) {
       control["para_number"] <- 1
     }
     if ("maxstep" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["maxstep"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["maxstep"])))) {
         stop("Error: maximum step size was non-numeric")
       } else {
         control["maxstep"] <- as.integer(control["maxstep"])
@@ -592,7 +588,7 @@ Def_model_control <- function(control) {
       control["maxstep"] <- 10
     }
     if ("manual" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.logical(control["manual"]))))) {
+      if (suppressWarnings(anyNA(as.logical(control["manual"])))) {
         stop("Error: manual search was non-logical")
       } else {
         control["manual"] <- as.logical(control["manual"])
@@ -601,7 +597,7 @@ Def_model_control <- function(control) {
       control["manual"] <- FALSE
     }
     if ("search_mult" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["search_mult"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["search_mult"])))) {
         stop("Error: solution search multiplier was non-numeric")
       } else {
         control["search_mult"] <- as.numeric(control["search_mult"])
@@ -610,7 +606,7 @@ Def_model_control <- function(control) {
       control["search_mult"] <- 1.0
     }
     if ("step_size" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["step_size"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["step_size"])))) {
         stop("Error: step size was non-numeric")
       } else {
         control["step_size"] <- as.numeric(control["step_size"])
@@ -619,7 +615,7 @@ Def_model_control <- function(control) {
       control["step_size"] <- 0.5
     }
     if ("bisect" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.logical(control["bisect"]))))) {
+      if (suppressWarnings(anyNA(as.logical(control["bisect"])))) {
         stop("Error: bisection search was non-logical")
       } else {
         control["bisect"] <- as.logical(control["bisect"])
@@ -634,7 +630,7 @@ Def_model_control <- function(control) {
     )
     for (nm in control_def_names) {
       if (nm %in% names(control)) {
-        if (suppressWarnings(any(is.na(as.logical(control[nm]))))) {
+        if (suppressWarnings(anyNA(as.logical(control[nm])))) {
           stop(paste0("Error: ", nm, " was non-logical"))
         } else {
           control[nm] <- as.logical(control[nm])
@@ -645,7 +641,7 @@ Def_model_control <- function(control) {
     }
     # add different parameters
     if ("momentum_decay" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["momentum_decay"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["momentum_decay"])))) {
         stop("Error: momentum decay was non-numeric")
       } else {
         control["momentum_decay"] <- as.numeric(control["momentum_decay"])
@@ -654,7 +650,7 @@ Def_model_control <- function(control) {
       control["momentum_decay"] <- 0.9
     }
     if ("learning_decay" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["learning_decay"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["learning_decay"])))) {
         stop("Error: learning decay was non-numeric")
       } else {
         control["learning_decay"] <- as.numeric(control["learning_decay"])
@@ -663,7 +659,7 @@ Def_model_control <- function(control) {
       control["learning_decay"] <- 0.999
     }
     if ("epsilon_decay" %in% names(control)) {
-      if (suppressWarnings(any(is.na(as.numeric(control["epsilon_decay"]))))) {
+      if (suppressWarnings(anyNA(as.numeric(control["epsilon_decay"])))) {
         stop("Error: epsilon decay was non-numeric")
       } else {
         control["epsilon_decay"] <- as.numeric(control["epsilon_decay"])
@@ -671,10 +667,10 @@ Def_model_control <- function(control) {
     } else {
       control["epsilon_decay"] <- 1e-4
     }
-    if (control["constraint"] == TRUE) {
+    if (control[["constraint"]]) {
       # needs to add constraint penalty
       if ("penalty_weight" %in% names(control)) {
-        if (suppressWarnings(any(is.na(as.numeric(control["penalty_weight"]))))) {
+        if (suppressWarnings(anyNA(as.numeric(control["penalty_weight"])))) {
           stop("Error: penalty weight was non-numeric")
         } else {
           control["penalty_weight"] <- as.numeric(control["penalty_weight"])
@@ -683,7 +679,7 @@ Def_model_control <- function(control) {
         control["penalty_weight"] <- 1.0
       }
       if ("penalty_method" %in% names(control)) {
-        if (suppressWarnings(any(is.na(as.character(control["penalty_method"]))))) {
+        if (suppressWarnings(anyNA(as.character(control["penalty_method"])))) {
           stop("Error: penalty method was not a string")
         } else {
           control["penalty_method"] <- as.character(control["penalty_method"])
@@ -755,8 +751,8 @@ Linked_Dose_Formula <- function(tforms, paras) {
     stop("Error: The subterm values and para values did not have equal length.")
   }
   if (is.null(names(tforms)) && is.null(names(paras))) {
-    names(tforms) <- seq_len(length(tforms))
-    names(paras) <- seq_len(length(paras))
+    names(tforms) <- seq_along(tforms)
+    names(paras) <- seq_along(paras)
   } else {
     if (!all(names(tforms) == names(paras))) {
       stop("Error: There were missing entries in one list.")
@@ -869,7 +865,7 @@ Linked_Lin_Exp_Para <- function(y, a0, a1_goal) {
 #' a <- c(0, 1, 2, 3, 4, 5, 6)
 #' b <- c(1, 2, 3, 4, 5, 6, 7)
 #' c <- c(0, 1, 2, 1, 0, 1, 0)
-#' df <- data.table::data.table(a = a, b = b, c = c)
+#' df <- data.table(a = a, b = b, c = c)
 #' col_list <- c("c")
 #' val <- factorize(df, col_list)
 #' df <- val$df
@@ -889,9 +885,9 @@ factorize <- function(df, col_list, verbose = 0) {
   # nocov end
   col_list <- vapply(col_list, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
   verbose <- Check_Verbose(verbose)
-  cols <- c()
+  cols <- NULL
   col0 <- names(df)
-  tnum <- c()
+  tnum <- NULL
   for (i in seq_along(col_list)) {
     col <- col_list[i]
     x <- sort(unlist(as.list(unique(df[, col, with = FALSE])),
@@ -932,7 +928,7 @@ factorize <- function(df, col_list, verbose = 0) {
 #' d <- c(3, 4, 5, 6, 7, 8, 9, 1, 2, 1, 1, 2, 1, 2)
 #' e <- c(1, 2, 0, 0, 1, 2, 0, 0, 1, 2, 0, 0, 1, 2)
 #' df <- data.table(a = a, b = b, c = c, d = d, e = e)
-#' keep_constant <- c(0)
+#' keep_constant <- 0
 #' a_n <- c(-0.1, 0.1, 0.1, 0.2)
 #' control <- list(ncores = 1, maxiter = 10, verbose = 0)
 #' model <- Cox(a, b, c) ~ plinear(d * d, 0) + loglinear(factor(e))
@@ -944,11 +940,9 @@ factorize <- function(df, col_list, verbose = 0) {
 #' score <- Likelihood_Ratio_Test(alternative_model, null_model)
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   alt_is_null <- alternative_model$modelcontrol$null
-  null_is_null <- null_model$modelcontrol$null
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
     #
     alt_is_null <- alternative_model$modelcontrol$null
-    null_is_null <- null_model$modelcontrol$null
     if (alt_is_null) {
       stop("Error: Alternative model shouldn't be null.")
     } else {
@@ -996,7 +990,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
   if (length(cols) > 1) {
     features_pair <- combn(cols, 2, simplify = FALSE) # list all column pairs
     terms_pair <- combn(term_n, 2, simplify = FALSE) # list all term pairs
-    toRemove <- c() # init a vector to store duplicates
+    toRemove <- NULL # init a vector to store duplicates
     for (pair_n in seq_along(features_pair)) {
       # put the pairs for testing into temp objects
       pair <- unlist(features_pair[pair_n])
@@ -1053,7 +1047,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
     newcol <- setdiff(cols, toRemove)
     if (length(newcol) == 1) {
       if (min(df[, newcol, with = FALSE]) == max(df[, newcol, with = FALSE])) {
-        return(c()) # nocov
+        return(NULL) # nocov
       } else {
         return(newcol)
       }
@@ -1066,7 +1060,7 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
     }
     if (min(df[, cols, with = FALSE]) == max(df[, cols, with = FALSE])) {
       if (min(df[, cols, with = FALSE]) == 0) {
-        return(c())
+        return(NULL)
       } else {
         return(cols)
       }
@@ -1074,9 +1068,9 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
       return(cols)
     }
   } else {
-    return(c())
+    return(NULL)
   }
-  c() # nocov
+  NULL # nocov
 }
 
 #' Applies time duration truncation limits to create columns for Cox model
@@ -1113,7 +1107,7 @@ Check_Trunc <- function(df, ce) {
     if (length(ce[[i]]) > 1) {
       stop(paste0("Error: The ", name, " column had multiple values")) # nocov
     }
-    if ((ce[[i]] == "") || (is.null(ce[[i]])) || (is.na(ce[[i]]))) {
+    if ((!nzchar(ce[[i]])) || (is.null(ce[[i]])) || (is.na(ce[[i]]))) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
   }
@@ -1162,7 +1156,7 @@ Check_Trunc <- function(df, ce) {
 #' a <- c(20, 20, 5, 10, 15)
 #' b <- c(1, 2, 1, 1, 2)
 #' c <- c(0, 0, 1, 1, 1)
-#' df <- data.table::data.table(a = a, b = b, c = c)
+#' df <- data.table(a = a, b = b, c = c)
 #' time1 <- "%trunc%"
 #' time2 <- "a"
 #' event <- "c"
@@ -1175,9 +1169,9 @@ Check_Trunc <- function(df, ce) {
 #' grt_f <- function(df, time_col) {
 #'   return((df[, "b"] * df[, get(time_col)])[[1]])
 #' }
-#' func_form <- c("lin")
+#' func_form <- "lin"
 #' df_new <- gen_time_dep(
-#'   df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
+#'   df, time1, time2, event, TRUE, 0.01, c("grt"), NULL,
 #'   c(grt_f), paste0(tempfile(), "test_new.csv"), func_form, 1
 #' )
 gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_cols, func_form, fname, tform, nthreads = as.numeric(detectCores())) {
@@ -1209,7 +1203,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
   time1 <- ce[1]
   time2 <- ce[2]
   dfn_same <- dfn[!(dfn %in% dep_cols)]
-  dfn_dep <- c()
+  dfn_dep <- NULL
   if (length(new_names) != length(func_form)) {
     stop("Error: new_names vector should be the same size as the list of functions applied")
   }
@@ -1257,14 +1251,13 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     x_time, x_dep, x_same, x_event, dt, fname,
     tform, tu, iscox, nthreads
   )
-  df_new <- data.table::fread(fname,
+  df_new <- fread(fname,
     data.table = TRUE,
     header = FALSE, nThread = nthreads,
     col.names = c(time1, time2, new_names, dfn_same, event0)
   )
-  data.table::setkeyv(df_new, c(event0, time2, time1))
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  setkeyv(df_new, c(event0, time2, time1))
+  #
   # ------------------------------------------------------------------------------ #
   df_new
 }
@@ -1287,7 +1280,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
 #' d1 <- c(6, 7, 8, 9)
 #' y0 <- c(1990, 1991, 1997, 1998)
 #' y1 <- c(2001, 2003, 2005, 2006)
-#' df <- data.table::data.table(m0 = m0, m1 = m1, d0 = d0, d1 = d1, y0 = y0, y1 = y1)
+#' df <- data.table(m0 = m0, m1 = m1, d0 = d0, d1 = d1, y0 = y0, y1 = y1)
 #' df <- Date_Shift(df, c("m0", "d0", "y0"), c("m1", "d1", "y1"), "date_since")
 #'
 Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
@@ -1346,7 +1339,7 @@ Date_Shift <- function(df, dcol0, dcol1, col_name, units = "days") {
 #' d1 <- c(6, 7, 8, 9)
 #' y0 <- c(1990, 1991, 1997, 1998)
 #' y1 <- c(2001, 2003, 2005, 2006)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   m0 = m0, m1 = m1,
 #'   d0 = d0, d1 = d1,
 #'   y0 = y0, y1 = y1
@@ -1414,14 +1407,14 @@ Time_Since <- function(df, dcol0, tref, col_name, units = "days") {
 #' names_e0 <- c("fac")
 #' names_e1 <- c("fac")
 #' names_shared <- c("t0", "t0")
-#' term_n_e0 <- c(0)
-#' term_n_e1 <- c(0)
+#' term_n_e0 <- 0
+#' term_n_e1 <- 0
 #' term_n_shared <- c(0, 0)
-#' tform_e0 <- c("loglin")
-#' tform_e1 <- c("loglin")
+#' tform_e0 <- "loglin"
+#' tform_e1 <- "loglin"
 #' tform_shared <- c("quad_slope", "loglin_top")
-#' keep_constant_e0 <- c(0)
-#' keep_constant_e1 <- c(0)
+#' keep_constant_e0 <- 0
+#' keep_constant_e1 <- 0
 #' keep_constant_shared <- c(0, 0)
 #' a_n_e0 <- c(-0.1)
 #' a_n_e1 <- c(0.1)
@@ -1524,13 +1517,13 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
   for (i in names(df)) {
     if (i %in% events) {
       if (i == events[1]) {
-        temp <- c()
+        temp <- NULL
         for (j in events) {
           temp <- c(temp, unlist(df[, j, with = FALSE], use.names = FALSE))
         }
         df0[, "events"] <- temp
       }
-      temp <- c()
+      temp <- NULL
       for (j in events) {
         if (i == j) {
           temp <- c(temp, rep(1, nrow(df)))
@@ -1544,11 +1537,11 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       df0[, i] <- temp
     }
   }
-  names <- c()
-  term_n <- c()
-  tform <- c()
-  keep_constant <- c()
-  a_n <- c()
+  names <- NULL
+  term_n <- NULL
+  tform <- NULL
+  keep_constant <- NULL
+  a_n <- NULL
   if ("shared" %in% names(name_list)) {
     names <- c(names, unlist(name_list["shared"], use.names = FALSE))
     term_n <- c(term_n, unlist(term_n_list["shared"], use.names = FALSE))
@@ -1560,8 +1553,8 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
   }
   for (i in events) {
     if (i %in% names(name_list)) {
-      interactions <- c()
-      new_names <- c()
+      interactions <- NULL
+      new_names <- NULL
       for (j in unlist(name_list[i], use.names = FALSE)) {
         interactions <- c(interactions, paste(j, "?*?", i, sep = ""))
         new_names <- c(new_names, paste(j, "_", i, sep = ""))
@@ -1603,7 +1596,7 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
   }
   # nocov end
   verbose <- Check_Verbose(verbose)
-  cols <- c()
+  cols <- NULL
   for (i in seq_along(interactions)) {
     interac <- interactions[i]
     formula <- unlist(strsplit(interac, "?", fixed = TRUE), use.names = FALSE)
@@ -1674,7 +1667,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
       norm_weight <- rep(1, length(names))
     } else if (tolower(norm) %in% c("max", "mean")) {
       # weight by the maximum value
-      norm_weight <- c()
+      norm_weight <- NULL
       if (tolower(norm) == "max") {
         for (i in seq_along(names)) {
           val <- summarize(df, max_value = max(abs(get(names[i]))))[[1]]
@@ -1725,7 +1718,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           df[, names[i]] <- df[, names[i], with = FALSE] / norm_weight[i]
         }
       }
-      if (model_control[["constraint"]] == TRUE) {
+      if (model_control[["constraint"]]) {
         for (i in seq_along(names)) {
           if (grepl("_int", tforms[i], fixed = TRUE)) {
             cons_mat[, i] <- cons_mat[, i] * norm_weight[i]
@@ -1807,7 +1800,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
               }
             }
           }
-          if (model_control[["constraint"]] == TRUE) {
+          if (model_control[["constraint"]]) {
             for (i in seq_along(names)) {
               if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$constraint_matrix[, i] <- res$constraint_matrix[, i] / norm_weight[i]
@@ -1861,7 +1854,7 @@ get_os <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or c++ output
 gcc_version <- function() {
-  if (system.file(package = "processx") == "") {
+  if (!nzchar(system.file(package = "processx"))) {
     out <- "package_missing"
   } else {
     out <- tryCatch(run("c++", "-v"),
@@ -1889,7 +1882,7 @@ gcc_version <- function() {
 #' @noRd
 #' @return returns a string representation of gcc, clang, or R CMD config CC output
 Rcomp_version <- function() {
-  if (system.file(package = "callr") == "") {
+  if (!nzchar(system.file(package = "callr"))) {
     out <- "package_missing"
   } else {
     out <- rcmd("config", "CC")
@@ -1908,34 +1901,6 @@ Rcomp_version <- function() {
   out
 }
 
-#' Checks default R c++ compiler
-#'
-#' \code{Rcpp_version} checks ~/.R/Makevars script for default compilers set, part of configuration script
-#'
-#' @noRd
-#' @return returns a string representation of gcc, clang, or head ~/.R/Makevars
-Rcpp_version <- function() {
-  if (system.file(package = "processx") == "") {
-    out <- "package_missing"
-  } else {
-    out <- tryCatch(run("head", "~/.R/Makevars", stderr_to_stdout = TRUE),
-      error = function(cnd) list(stdout = "")
-    )
-    out0 <- str_match(out$stdout, "clang")[1]
-    if (!is.na(out0)) {
-      out <- "clang" # nocov
-    } else {
-      out0 <- str_match(out$stdout, "gcc")[1]
-      if (!is.na(out0)) {
-        out <- "gcc" # nocov
-      } else {
-        out <- out$stdout # nocov
-      }
-    }
-  }
-  out
-}
-
 #' Checks OS, compilers, and OMP
 #'
 #' \code{System_Version} checks OS, default R c++ compiler, and if OMP is enabled
@@ -1945,7 +1910,6 @@ Rcpp_version <- function() {
 #' @family Output and Information Functions
 System_Version <- function() {
   # nocov start
-  tstart <- Sys.time()
   os <- get_os()
   gcc <- gcc_version()
   Rcomp <- Rcomp_version()
@@ -2332,9 +2296,6 @@ Interpret_Output <- function(out_list, digits = 3) {
         }
       }
     } else {
-      # Check if its a multidose problem
-      #      if (out_list$Survival_Type == "Cox_Multidose") {
-      #        message("Currently the multiple realization code is not setup for printing results, due to the potentially large number of realizations")
       if (is(out_list, "caseconres")) {
         # case control output
         # get the model details
@@ -2388,25 +2349,11 @@ Interpret_Output <- function(out_list, digits = 3) {
         converged <- out_list$Converged
         #
         iter_lim <- out_list$control$maxiter
-        ll_lim <- out_list$control$ll_epsilon
         step_lim <- out_list$control$epsilon
-        deriv_lim <- out_list$control$deriv_epsilon
         #
-        freepara <- out_list$FreeParameters
         freestrata <- out_list$FreeSets
         strata <- out_list$model$strata
         time_model <- out_list$modelcontrol$time_risk
-        #
-        modelform <- out_list$model$modelform
-        form_type <- case_when(
-          modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
-          modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
-          modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
-          modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
-          modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
-          modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
-          .default = "Unknown"
-        )
         #
         message("Final Results")
         if (null_model) {
@@ -2418,6 +2365,16 @@ Interpret_Output <- function(out_list, digits = 3) {
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message("\nMatched Case-Control Model Used")
         if ((!null_model) && (min(term_n) != max(term_n))) {
+          modelform <- out_list$model$modelform
+          form_type <- case_when(
+            modelform == "M" ~ "Multiplicative Model Used: T0*T1*T2*...",
+            modelform == "ME" ~ "Multiplicative-Excess Model Used: T0*(1+T1)*(1+T2)*...",
+            modelform == "A" ~ "Additive Model Used: T0+T1+T2+...",
+            modelform == "PA" ~ "Product-Additive Model Used: T0*(T1+T2+...)",
+            modelform == "PAE" ~ "Product-Additive-Excess Model Used: T0*(1+T1+T2+...)",
+            modelform == "GMIX" ~ "Geometric-Mixture Model Used: T0 *((1+T1)*(1+T2)*...)^(t)*(1+T1+T2+...)^(1-t)",
+            .default = "Unknown"
+          )
           message(form_type)
         }
         if (all(strata != "NONE")) {
@@ -2543,9 +2500,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         converged <- out_list$Converged
         #
         iter_lim <- out_list$control$maxiter
-        ll_lim <- out_list$control$ll_epsilon
         step_lim <- out_list$control$epsilon
-        deriv_lim <- out_list$control$deriv_epsilon
         #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         if (is(out_list, "coxres")) {
@@ -2804,8 +2759,6 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
   message("|", paste(rep("-", options()$width), collapse = ""), "|")
   # nocov start
   # get the model details
-  KeptRecords <- out_list$UsedRecords
-  RemovedRecords <- out_list$RejectedRecords
   ##
   names <- out_list$Parameter_Lists$names
   tforms <- out_list$Parameter_Lists$tforms
@@ -2838,10 +2791,6 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
   message("Final Serial Analysis Results")
   print(res_table)
   # get the model results
-  LogLik <- out_list$LogLik
-  AIC <- out_list$AIC
-  BIC <- out_list$BIC
-  deviation <- out_list$Deviance
   strata <- out_list$model$strata
   strata_level <- out_list$strata_levels
   cens_weight <- out_list$model$weight

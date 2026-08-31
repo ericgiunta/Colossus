@@ -207,7 +207,8 @@ NULL
 #' @importFrom processx run
 #' @importFrom dplyr mutate case_when replace_when group_by summarize n n_distinct slice bind_rows across all_of filter
 #' @importFrom tibble as_tibble tibble
-#' @importFrom lubridate make_date interval as.duration days is.Date ddays day month year days years
+#' @importFrom lubridate make_date interval as.duration days is.Date ddays day month year days years %within% %m+%
 #' @importFrom pracma rref
+#' @importFrom withr with_options with_envvar
 #' @useDynLib Colossus, .registration = TRUE
 NULL

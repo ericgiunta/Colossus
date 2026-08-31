@@ -4,7 +4,7 @@
 \alias{plotRisk.coxres}
 \title{Performs Cox Proportional Hazard model hazard ratio plots}
 \usage{
-\method{plotRisk}{coxres}(x, df, plot_options, a_n = c(), ...)
+\method{plotRisk}{coxres}(x, df, plot_options, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}

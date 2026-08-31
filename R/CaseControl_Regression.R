@@ -12,7 +12,7 @@
 #' @noRd
 #' @family Case Control Wrapper Functions
 #' @importFrom rlang .data
-RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -35,7 +35,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   if (max(df[, event0, with = FALSE]) > 1) {
     stop("Error: More than one event in atleast one row")
   }
-  if (model_control$time_risk == TRUE) {
+  if (model_control$time_risk) {
     ce <- c(time1, time2, event0)
     t_check <- Check_Trunc(df, ce)
     df <- t_check$df
@@ -63,8 +63,8 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       df$CONST <- 1
     }
   }
-  if (model_control$time_risk == TRUE) {
-    if (model_control$strata == TRUE) {
+  if (model_control$time_risk) {
+    if (model_control$strata) {
       if (!is.null(levels(df[[strat_col]]))) {
         # The column is a factor, so we can convert to numbers
         factor_lvl <- levels(df[[strat_col]])
@@ -85,15 +85,15 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       if (control$verbose >= 3) {
         message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
       }
-      data.table::setkeyv(df, c(strat_col, event0, time2, time1))
+      setkeyv(df, c(strat_col, event0, time2, time1))
       ce <- c(time1, time2, strat_col, event0)
     } else {
-      data.table::setkeyv(df, c(event0, time2, time1))
-      uniq <- c(0)
+      setkeyv(df, c(event0, time2, time1))
+      uniq <- 0
       ce <- c(time1, time2, event0)
     }
   } else {
-    if (model_control$strata == TRUE) {
+    if (model_control$strata) {
       if (!is.null(levels(df[[strat_col]]))) {
         # The column is a factor, so we can convert to numbers
         factor_lvl <- levels(df[[strat_col]])
@@ -127,22 +127,22 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       if (control$verbose >= 3) {
         message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
       }
-      data.table::setkeyv(df, c(strat_col, event0))
+      setkeyv(df, c(strat_col, event0))
       ce <- c(strat_col, event0)
     } else {
-      data.table::setkeyv(df, c(event0))
+      setkeyv(df, c(event0))
       ce <- c(event0)
-      uniq <- c(0)
+      uniq <- 0
     }
   }
-  if (model_control$time_risk == TRUE) {
+  if (model_control$time_risk) {
     dfend <- df[get(event0) == 1, ]
     tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
     if (control$verbose >= 3) {
       message(paste0("Note: ", length(tu), " risk groups")) # nocov
     }
   } else {
-    tu <- c(0)
+    tu <- 0
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -171,7 +171,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
-  a_ns <- c()
+  a_ns <- NULL
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }

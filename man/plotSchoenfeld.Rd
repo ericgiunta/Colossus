@@ -4,7 +4,7 @@
 \alias{plotSchoenfeld}
 \title{Generic Schoenfeld Residual Plotting function}
 \usage{
-plotSchoenfeld(x, df, plot_options, a_n = c(), ...)
+plotSchoenfeld(x, df, plot_options, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}

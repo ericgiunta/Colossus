@@ -144,7 +144,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
   if (suppressWarnings(!is(x$term_n, "numeric"))) {
     stop("Error: the term numbers had a non-numeric value")
   }
-  if ((any(is.null(x$term_n))) || (any(is.na(x$term_n)))) {
+  if ((any(is.null(x$term_n))) || (anyNA(x$term_n))) {
     stop(paste0("Error: The term_numbers must not be NA or NULL.")) # nocov
   }
   #
@@ -197,7 +197,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
   # --------------------------------------------------------------------- #
   # Check if not numeric
   if (length(x$keep_constant) > 0) {
-    if ((any(is.null(x$keep_constant))) || (any(is.na(x$keep_constant)))) {
+    if ((any(is.null(x$keep_constant))) || (anyNA(x$keep_constant))) {
       stop(paste0("Error: The constant vector must not be NA or NULL.")) # nocov
     }
     if (is(x$keep_constant, "logical")) {
@@ -340,7 +340,7 @@ validate_formula <- function(x, df, verbose = FALSE) {
       x$a_n <- x$a_n[[1]]
     }
     # Check if not numeric
-    if (suppressWarnings(any(is.na(as.numeric(x$a_n))))) {
+    if (suppressWarnings(anyNA(as.numeric(x$a_n)))) {
       stop("Error: the intial parameter guesses had a non-numeric value")
     }
     #
@@ -364,13 +364,13 @@ validate_formula <- function(x, df, verbose = FALSE) {
   } else {
     a_0 <- x$a_n[[1]]
     # Check if not numeric
-    if (suppressWarnings(any(is.na(as.numeric(a_0))))) {
+    if (suppressWarnings(anyNA(as.numeric(a_0)))) {
       stop("Error: the intial parameter guesses had a non-numeric value")
     }
     #
     for (a_i in x$a_n) {
       # Check if not numeric
-      if (suppressWarnings(any(is.na(as.numeric(a_i))))) {
+      if (suppressWarnings(anyNA(as.numeric(a_i)))) {
         stop("Error: the intial parameter guesses had a non-numeric value")
       }
       #
@@ -425,9 +425,9 @@ validate_formula <- function(x, df, verbose = FALSE) {
     "gmix-e", "excess-geometric-mixture"
   ))
   if (x$modelform %in% acceptable) {
-    if (x$modelform %in% c("MULTIPLICATIVE")) {
+    if (x$modelform == "MULTIPLICATIVE") {
       x$modelform <- "M"
-    } else if (x$modelform %in% c("MULTIPLICATIVE-EXCESS")) {
+    } else if (x$modelform == "MULTIPLICATIVE-EXCESS") {
       x$modelform <- "ME"
     } else if (x$modelform == "ADDITIVE") {
       x$modelform <- "A"
@@ -480,7 +480,7 @@ validate_coxsurv <- function(x, df) {
     if (length(x[[col]]) > 1) {
       stop(paste0("Error: The ", name, " column had multiple values")) # nocov
     }
-    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+    if ((!nzchar(x[[col]])) || (is.null(x[[col]])) || (is.na(x[[col]]))) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
   }
@@ -498,7 +498,7 @@ validate_coxsurv <- function(x, df) {
   if (length(x$strata) == 0) {
     stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+  if ((!all(nzchar(x$strata))) || (any(is.null(x$strata))) || (anyNA(x$strata))) {
     stop(paste0("Error: The strata must not be empty.")) # nocov
   }
   # check for null issues
@@ -536,7 +536,7 @@ validate_poissurv <- function(x, df) {
     if (length(x[[col]]) > 1) {
       stop(paste0("Error: The ", name, " column had multiple values")) # nocov
     }
-    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+    if ((!nzchar(x[[col]])) || (is.null(x[[col]])) || (is.na(x[[col]]))) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
     if (!(x[[col]] %in% names(df))) {
@@ -550,7 +550,7 @@ validate_poissurv <- function(x, df) {
   if (length(x$strata) == 0) {
     stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+  if ((!all(nzchar(x$strata))) || (any(is.null(x$strata))) || (anyNA(x$strata))) {
     stop(paste0("Error: The strata must not be empty.")) # nocov
   }
   # check for null issues
@@ -585,7 +585,7 @@ validate_caseconsurv <- function(x, df) {
     if (length(x[[col]]) > 1) {
       stop(paste0("Error: The ", name, " column had multiple values")) # nocov
     }
-    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+    if ((!nzchar(x[[col]])) || (is.null(x[[col]])) || (is.na(x[[col]]))) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
   }
@@ -612,7 +612,7 @@ validate_caseconsurv <- function(x, df) {
   if (length(x$strata) == 0) {
     stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
   }
-  if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
+  if ((!all(nzchar(x$strata))) || (any(is.null(x$strata))) || (anyNA(x$strata))) {
     stop(paste0("Error: The strata must not be empty.")) # nocov
   }
   # check for null issues
@@ -647,7 +647,7 @@ validate_logitsurv <- function(x, df) {
     if (length(x[[col]]) > 1) {
       stop(paste0("Error: The ", name, " column had multiple values")) # nocov
     }
-    if ((x[[col]] == "") || (is.null(x[[col]])) || (is.na(x[[col]]))) {
+    if ((!nzchar(x[[col]])) || (is.null(x[[col]])) || (is.na(x[[col]]))) {
       stop(paste0("Error: The ", name, " column must not be empty")) # nocov
     }
     if (!(x[[col]] %in% names(df))) {
@@ -669,17 +669,6 @@ validate_logitsurv <- function(x, df) {
     stop(paste0("Error: The null boolean had multiple values")) # nocov
   }
   #
-  # # Want to check for strata issues
-  # if (!is(x$strata, "character")) {
-  #   stop(paste0("Error: The strata must be string.")) # nocov
-  # }
-  # if (length(x$strata) == 0) {
-  #   stop(paste0("Error: Strata was empty. Set to 'NONE' if no strata is used.")) # nocov
-  # }
-  # if ((any(x$strata == "")) || (any(is.null(x$strata))) || (any(is.na(x$strata)))) {
-  #   stop(paste0("Error: The strata must not be empty.")) # nocov
-  # }
-  # #
 }
 
 validate_coxres <- function(x, df) {
@@ -762,14 +751,14 @@ coxmodel <- function(start_age = "",
                      strata = "",
                      weight = "",
                      null = FALSE,
-                     term_n = c(),
-                     tform = c(),
-                     names = c(),
+                     term_n = NULL,
+                     tform = NULL,
+                     names = NULL,
                      modelform = "",
-                     gmix_term = c(),
+                     gmix_term = NULL,
                      gmix_theta = 0,
                      a_n = list(),
-                     keep_constant = c(),
+                     keep_constant = NULL,
                      df = data.table(),
                      expres_calls = list(),
                      verbose = FALSE) {
@@ -797,14 +786,14 @@ poismodel <- function(person_year = "",
                       event = "",
                       strata = "",
                       null = FALSE,
-                      term_n = c(),
-                      tform = c(),
-                      names = c(),
+                      term_n = NULL,
+                      tform = NULL,
+                      names = NULL,
                       modelform = "",
-                      gmix_term = c(),
+                      gmix_term = NULL,
                       gmix_theta = 0,
                       a_n = list(),
-                      keep_constant = c(),
+                      keep_constant = NULL,
                       df = data.table(),
                       expres_calls = list(),
                       verbose = FALSE) {
@@ -831,14 +820,14 @@ caseconmodel <- function(start_age = "",
                          event = "",
                          strata = "",
                          null = FALSE,
-                         term_n = c(),
-                         tform = c(),
-                         names = c(),
+                         term_n = NULL,
+                         tform = NULL,
+                         names = NULL,
                          modelform = "",
-                         gmix_term = c(),
+                         gmix_term = NULL,
                          gmix_theta = 0,
                          a_n = list(),
-                         keep_constant = c(),
+                         keep_constant = NULL,
                          df = data.table(),
                          expres_calls = list(),
                          verbose = FALSE) {
@@ -865,14 +854,14 @@ logitmodel <- function(trials = "",
                        event = "",
                        strata = "",
                        null = FALSE,
-                       term_n = c(),
-                       tform = c(),
-                       names = c(),
+                       term_n = NULL,
+                       tform = NULL,
+                       names = NULL,
                        modelform = "",
-                       gmix_term = c(),
+                       gmix_term = NULL,
                        gmix_theta = 0,
                        a_n = list(),
-                       keep_constant = c(),
+                       keep_constant = NULL,
                        df = data.table(),
                        expres_calls = list(),
                        verbose = FALSE) {
@@ -926,10 +915,10 @@ ColossusControl <- function(verbose = 1,
     if (is.list(maxiters)) {
       stop("Error: maxiters was not a vector")
     }
-    if (suppressWarnings(any(is.na(as.numeric(maxiters))))) {
+    if (suppressWarnings(anyNA(as.numeric(maxiters)))) {
       stop("Error: maxiters had a non-numeric value")
     } else {
-      if ((any(!is.null(levels(maxiters)))) || (any(is.Date(maxiters)))) {
+      if ((!all(is.null(levels(maxiters)))) || (any(is.Date(maxiters)))) {
         stop(paste0("Error: Maxiteration vector was an invalid type."))
       }
       maxiters <- as.numeric(maxiters)

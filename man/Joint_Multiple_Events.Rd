@@ -51,14 +51,14 @@ events <- c("e0", "e1")
 names_e0 <- c("fac")
 names_e1 <- c("fac")
 names_shared <- c("t0", "t0")
-term_n_e0 <- c(0)
-term_n_e1 <- c(0)
+term_n_e0 <- 0
+term_n_e1 <- 0
 term_n_shared <- c(0, 0)
-tform_e0 <- c("loglin")
-tform_e1 <- c("loglin")
+tform_e0 <- "loglin"
+tform_e1 <- "loglin"
 tform_shared <- c("quad_slope", "loglin_top")
-keep_constant_e0 <- c(0)
-keep_constant_e1 <- c(0)
+keep_constant_e0 <- 0
+keep_constant_e1 <- 0
 keep_constant_shared <- c(0, 0)
 a_n_e0 <- c(-0.1)
 a_n_e1 <- c(0.1)

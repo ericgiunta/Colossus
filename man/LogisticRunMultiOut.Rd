@@ -7,16 +7,16 @@
 LogisticRunMultiOut(
   model,
   df,
-  a_n = list(c(0)),
-  keep_constant = c(0),
+  a_n = list(0),
+  keep_constant = 0,
   realization_columns = c("event0", "event1"),
   control = list(),
   gradient_control = list(),
   link = "odds",
   single = FALSE,
   observed_info = FALSE,
-  cons_mat = as.matrix(c(0)),
-  cons_vec = c(0),
+  cons_mat = as.matrix(0),
+  cons_vec = 0,
   ...
 )
 }
@@ -56,7 +56,7 @@ run a Colossus logistic regression function
 }
 \examples{
 library(data.table)
-df <- data.table::data.table(
+df <- data.table(
   UserID = c(112, 114, 213, 214, 115, 116, 117),
   t0 = c(18, 20, 18, 19, 21, 20, 18),
   t1 = c(30, 45, 57, 47, 36, 60, 55),

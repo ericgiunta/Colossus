@@ -56,7 +56,7 @@ library(data.table)
 a <- c(20, 20, 5, 10, 15)
 b <- c(1, 2, 1, 1, 2)
 c <- c(0, 0, 1, 1, 1)
-df <- data.table::data.table(a = a, b = b, c = c)
+df <- data.table(a = a, b = b, c = c)
 time1 <- "\%trunc\%"
 time2 <- "a"
 event <- "c"
@@ -69,9 +69,9 @@ control <- list(
 grt_f <- function(df, time_col) {
   return((df[, "b"] * df[, get(time_col)])[[1]])
 }
-func_form <- c("lin")
+func_form <- "lin"
 df_new <- gen_time_dep(
-  df, time1, time2, event, TRUE, 0.01, c("grt"), c(),
+  df, time1, time2, event, TRUE, 0.01, c("grt"), NULL,
   c(grt_f), paste0(tempfile(), "test_new.csv"), func_form, 1
 )
 }

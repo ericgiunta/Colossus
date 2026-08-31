@@ -12,7 +12,7 @@
 #' @noRd
 #' @family Cox Wrapper Functions
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -35,17 +35,16 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   #
   to_remove <- c("CONST", "%trunc%")
   to_keep <- c(time1, time2, event0, names)
-  if (model_control$cr == TRUE) {
+  if (model_control$cr) {
     to_keep <- c(to_keep, cens_weight)
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     to_keep <- c(to_keep, strat_col)
   }
   to_keep <- unique(to_keep)
   to_keep <- to_keep[!to_keep %in% to_remove]
   to_keep <- to_keep[to_keep %in% names(df)]
   df <- df[, to_keep, with = FALSE]
-  tend <- Sys.time()
   #
   ce <- c(time1, time2, event0)
   t_check <- Check_Trunc(df, ce)
@@ -78,8 +77,8 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     }
   }
   # nocov start
-  if (model_control$basic == TRUE) {
-    if (all(unique(tform) == c("loglin"))) {
+  if (model_control$basic) {
+    if (all(unique(tform) == "loglin")) {
       # good
     } else {
       if (control$verbose >= 2) {
@@ -100,7 +99,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       modelform <- "M"
     }
   }
-  if (model_control$linear_err == TRUE) {
+  if (model_control$linear_err) {
     if (all(sort(unique(tform)) != c("loglin", "plin"))) {
       stop("Error: Linear ERR model used, but term formula wasn't only loglin and plin")
     }
@@ -121,7 +120,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     }
   }
   # nocov end
-  if (model_control$cr == TRUE) {
+  if (model_control$cr) {
     if (cens_weight %in% names(df)) {
       # good
     } else {
@@ -130,9 +129,9 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   } else {
     df[[cens_weight]] <- 1
   }
-  if (model_control$strata == FALSE) {
-    data.table::setkeyv(df, c(event0, time2, time1))
-    uniq <- c(0)
+  if (!model_control$strata) {
+    setkeyv(df, c(event0, time2, time1))
+    uniq <- 0
     ce <- c(time1, time2, event0)
   } else {
     if (!is.null(levels(df[[strat_col]]))) {
@@ -155,7 +154,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     if (control$verbose >= 3) {
       message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
     }
-    data.table::setkeyv(df, c(strat_col, event0, time2, time1))
+    setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }
   dfend <- df[get(event0) == 1, ]
@@ -192,7 +191,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
-  a_ns <- c()
+  a_ns <- NULL
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
@@ -279,7 +278,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
 #' @inheritParams R_template
 #' @family Plotting Wrapper Functions
 #' @return returns a list of the final results
-Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
+Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), model_control = list()) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -311,9 +310,9 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
   model_control$risk_subset <- TRUE
   e <- Plot_Cox_Omnibus_transition(
     term_n, tform, a_n, dfc, x_all, 0, 0,
-    modelform, control, matrix(c(0)),
-    c(1), keep_constant, term_tot, c(0),
-    c(0), model_control
+    modelform, control, matrix(0),
+    1, keep_constant, term_tot, 0,
+    0, model_control
   )
   e
 }
@@ -328,7 +327,7 @@ Cox_Relative_Risk <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 =
 #' @noRd
 #' @return saves the plots in the current directory and returns the data used for plots
 #' @family Plotting Wrapper Functions
-RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), plot_options = list(), model_control = list()) {
+RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), plot_options = list(), model_control = list()) {
   names(plot_options) <- tolower(names(plot_options))
   # nocov start
   if (class(df)[[1]] != "data.table") {
@@ -363,8 +362,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   ce <- t_check$ce
   time1 <- ce[1]
   time2 <- ce[2]
-  data.table::setkeyv(df, c(event0, time2, time1))
-  base <- NULL
+  setkeyv(df, c(event0, time2, time1))
   plot_type <- plot_options$type
   if (plot_options$verbose >= 3) {
     message("Note: Getting Plot Info") # nocov
@@ -568,8 +566,8 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   }
   plot_options$verbose <- Check_Verbose(plot_options$verbose)
   control <- Def_Control(control)
-  verbose <- data.table::copy(plot_options$verbose)
-  maxiterc <- data.table::copy(control$maxiter)
+  verbose <- copy(plot_options$verbose)
+  maxiterc <- copy(control$maxiter)
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (length(tu) == 0) {
@@ -602,7 +600,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     if (verbose >= 3) {
       message("Note: starting ph_plot") # nocov
     }
-    if (plot_options$strat_haz == FALSE) {
+    if (!plot_options$strat_haz) {
       if (verbose >= 3) {
         message("Note: nonStratified survival curve calculation") # nocov
       }
@@ -611,18 +609,18 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         term_n, tform, a_n, dfc, x_all, 0, 0,
         modelform, control,
         as.matrix(df[, ce, with = FALSE]), tu,
-        keep_constant, term_tot, c(0), c(0),
+        keep_constant, term_tot, 0, 0,
         model_control
       )
-      t <- c()
-      h <- c()
-      ch <- c()
-      surv <- c()
-      surv_se <- c()
+      t <- NULL
+      h <- NULL
+      ch <- NULL
+      surv <- NULL
+      surv_se <- NULL
       if (verbose >= 3) {
         message("Note: writing survival data") # nocov
       }
-      dft <- data.table::data.table(
+      dft <- data.table(
         time = tu, base = e$baseline,
         greener = e$Green_Error
       )
@@ -657,7 +655,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         surv_se <- c(surv_se, exp(-1 * ch_temp) * sqrt(green_temp + beta_temp))
       }
       age_unit <- plot_options$age_unit
-      if (plot_options$martingale == TRUE) {
+      if (plot_options$martingale) {
         plot_table <- CoxMartingale(
           verbose, df, time1, time2, event0,
           e, t, ch,
@@ -665,7 +663,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
           plot_type[2], age_unit, plot_options$studyid
         )
       }
-      if (plot_options$surv_curv == TRUE) {
+      if (plot_options$surv_curv) {
         plot_table <- CoxSurvival(
           t, h, ch, surv, surv_se, plot_type[2], verbose,
           plot_options$time_lims, age_unit
@@ -676,7 +674,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       if (verbose >= 3) {
         message("Note: Stratified survival curve calculation") # nocov
       }
-      if (plot_options$surv_curv == TRUE) {
+      if (plot_options$surv_curv) {
         model_control$strata <- TRUE
         plot_table <- CoxStratifiedSurvival(
           verbose, df, event0,
@@ -687,7 +685,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
         )
       }
     }
-    if (plot_options$km == TRUE) {
+    if (plot_options$km) {
       plot_table <- CoxKaplanMeier(
         verbose, plot_options$studyid,
         all_names, df, event0, time1, time2, tu, term_n,
@@ -731,7 +729,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
 #' @return returns a list of the final results for each realization
 #' @family Cox Wrapper Functions
 #' @importFrom rlang .data
-RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", cens_weight = "null", model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -755,10 +753,10 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   #
   to_remove <- c("CONST", "%trunc%")
   to_keep <- c(time1, time2, event0, names, realization_index, as.vector(realization_columns))
-  if (model_control$cr == TRUE) {
+  if (model_control$cr) {
     to_keep <- c(to_keep, cens_weight)
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     to_keep <- c(to_keep, strat_col)
   }
   to_keep <- unique(to_keep)
@@ -796,7 +794,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       df$CONST <- 1
     }
   }
-  if (model_control$cr == TRUE) {
+  if (model_control$cr) {
     if (cens_weight %in% names(df)) {
       # good
     } else if (length(cens_weight) < nrow(df)) {
@@ -810,9 +808,9 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   } else {
     model_control$MCML <- FALSE
   }
-  if (model_control$strata == FALSE) {
-    data.table::setkeyv(df, c(event0, time2, time1))
-    uniq <- c(0)
+  if (!model_control$strata) {
+    setkeyv(df, c(event0, time2, time1))
+    uniq <- 0
     ce <- c(time1, time2, event0)
   } else {
     if (!is.null(levels(df[[strat_col]]))) {
@@ -839,7 +837,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       ))
       # nocov end
     }
-    data.table::setkeyv(df, c(strat_col, event0, time2, time1))
+    setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }
   dfend <- df[get(event0) == 1, ]
@@ -888,7 +886,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
   )
   if ("Status" %in% names(e)) {
     if (all(e$Status != "PASSED")) {
-      if (model_control$MCML == TRUE) {
+      if (model_control$MCML) {
         stop(e$Status)
       } else {
         stop("Error: Every realization failed.")

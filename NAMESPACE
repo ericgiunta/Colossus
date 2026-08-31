@@ -106,6 +106,8 @@ importFrom(dplyr,
   summarize
 )
 importFrom(lubridate,
+  "%m+%",
+  "%within%",
   as.duration,
   day,
   days,
@@ -142,5 +144,9 @@ importFrom(tibble,
 importFrom(utils,
   combn,
   head
+)
+importFrom(withr,
+  with_envvar,
+  with_options
 )
 useDynLib(Colossus, .registration = TRUE)

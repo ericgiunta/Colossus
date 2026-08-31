@@ -66,7 +66,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     model_share <- res$model
     df <- res$data
   } else {
-    model_share <- list(tform = c(), term_n = c(), names = c(), modelform = "M", gmix_theta = 0, gmix_term = c())
+    model_share <- list(tform = NULL, term_n = NULL, names = NULL, modelform = "M", gmix_theta = 0, gmix_term = NULL)
   }
   #
   # Now we need to check that the values are similar
@@ -102,7 +102,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   }
   # Now we pull everything out and get the joint model built
   # Pull it all out
-  events <- c()
+  events <- NULL
   name_list <- list(
     shared = model_share$names
   )
@@ -193,8 +193,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   #
   null <- FALSE
   model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   list(
     model = model, data = df
@@ -215,7 +214,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -269,18 +268,18 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   expres_calls <- model$expres_calls
   #
   if (null) {
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
     modelform <- "M"
   }
   #
   if (grepl("cox", surv_model_type, fixed = TRUE)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
   } else if (grepl("finegray", surv_model_type, fixed = TRUE)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
   } else if (grepl("pois", surv_model_type, fixed = TRUE)) {
-    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
     if (all(strata != "NONE")) {
       strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
       if (!all(strata %in% names(df))) {
@@ -288,14 +287,13 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
       }
     } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type, fixed = TRUE)) || (grepl("case_con", surv_model_type, fixed = TRUE))) {
-    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
   } else if ((grepl("logit", surv_model_type, fixed = TRUE)) || (grepl("logistic", surv_model_type, fixed = TRUE))) {
-    model <- logitmodel(trials, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, c(), c(), df, expres_calls)
+    model <- logitmodel(trials, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
   } else {
     stop("Error: Bad survival model type passed")
   }
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   list(
     model = model, data = df
@@ -545,11 +543,11 @@ get_form_surv <- function(surv_obj, df) {
 get_form_risk <- function(model_obj, df) {
   #
   model_obj <- gsub(" ", "", model_obj, fixed = TRUE)
-  term_n <- c()
-  tform <- c()
-  names <- c()
+  term_n <- NULL
+  tform <- NULL
+  names <- NULL
   gmix_theta <- 0
-  gmix_term <- c()
+  gmix_term <- NULL
   modelform <- "NONE"
   null <- FALSE
   expres_calls <- list() # storing any variables transformed, ie factor, ns, bs, etc. to be recalled when the data is reloaded
@@ -639,7 +637,6 @@ get_form_risk <- function(model_obj, df) {
             if (!("levels" %in% names(repeat_list))) { # using the levels will recreate the same factoring
               repeat_list[["levels"]] <- levels(xtemp)
             }
-            #            print(levels(xtemp))
             df[[factor_col]] <- xtemp
             val <- factorize(df, factor_col)
             df <- val$df
@@ -661,9 +658,8 @@ get_form_risk <- function(model_obj, df) {
             if (!(col %in% names(df))) {
               stop("Error: Column: ", col, " not in data")
             }
-            options(warn = -1)
-            if (all(vapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
-              options(warn = 0) # checks for an integer, decimal, decimal places or scientific notation
+            if (with_options(list(warn = -1), all(vapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(raised, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1))))) {
+              # checks for an integer, decimal, decimal places or scientific notation
               raised <- as.numeric(raised)
             } else {
               stop("Error: Column was not raised to a numeric power")
@@ -700,7 +696,7 @@ get_form_risk <- function(model_obj, df) {
               names(factor_arg_list)[[1]] <- "x"
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
-            if (system.file(package = "splines") == "") {
+            if (!nzchar(system.file(package = "splines"))) {
               stop("Error: Attempted to use ns(), but splines not detected on system.")
             }
             factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
@@ -721,7 +717,7 @@ get_form_risk <- function(model_obj, df) {
               repeat_list[["intercept"]] <- ns_att$intercept
             }
             #
-            col_name <- c()
+            col_name <- NULL
             for (i in seq_len(ncol(xtemp))) {
               x_col <- paste0(factor_col, "_ns", i)
               if (!(x_col %in% names(df))) {
@@ -760,7 +756,7 @@ get_form_risk <- function(model_obj, df) {
               names(factor_arg_list)[[1]] <- "x"
               factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
             }
-            if (system.file(package = "splines") == "") {
+            if (!nzchar(system.file(package = "splines"))) {
               stop("Error: Attempted to use bs(), but splines not detected on system.")
             }
             factor_col <- vapply(factor_col, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
@@ -783,7 +779,7 @@ get_form_risk <- function(model_obj, df) {
             if (!("intercept" %in% names(repeat_list))) {
               repeat_list[["intercept"]] <- bs_att$intercept
             }
-            col_name <- c()
+            col_name <- NULL
             for (i in seq_len(ncol(xtemp))) {
               x_col <- paste0(factor_col, "_bs", i)
               if (!(x_col %in% names(df))) {
@@ -829,7 +825,7 @@ get_form_risk <- function(model_obj, df) {
             }
             xtemp <- do.call(exp_name, factor_arg_list)
             #
-            col_name <- c()
+            col_name <- NULL
             if (is.atomic(xtemp)) {
               x_col <- paste0(factor_col, "_", exp_name)
               if (!(x_col %in% names(df))) {
@@ -861,7 +857,7 @@ get_form_risk <- function(model_obj, df) {
             }
           }
           interact_tables <- do.call(c, lapply(seq_along(cols), combn, x = cols, simplify = FALSE))
-          col_name <- c()
+          col_name <- NULL
           for (i_table in interact_tables) {
             vals <- unlist(i_table, use.names = FALSE)
             if (length(vals) == 1) {
@@ -893,13 +889,13 @@ get_form_risk <- function(model_obj, df) {
                   element_levels[[term_i]] <- factor_col
                 }
               }
-              combs <- c()
+              combs <- NULL
               for (i in element_levels[[1]]) {
                 combs <- c(combs, paste(i))
               }
               for (i in 2:length(element_levels)) {
                 comb_temp <- copy(combs)
-                combs <- c()
+                combs <- NULL
                 for (k in element_levels[[i]]) {
                   combs <- c(combs, paste(comb_temp, k, sep = ":"))
                 }
@@ -955,17 +951,17 @@ get_form_risk <- function(model_obj, df) {
         # convert subterm formula
         model_terms <- c(model_type)
         if (model_type %in% c("plin", "plinear", "product-linear")) {
-          model_terms <- c("plin")
+          model_terms <- "plin"
         } else if (model_type %in% c("lin", "linear")) {
-          model_terms <- c("lin")
+          model_terms <- "lin"
         } else if (model_type %in% c("loglin", "loglinear", "log-linear", "exponential", "exp")) {
-          model_terms <- c("loglin")
+          model_terms <- "loglin"
         } else if (model_type %in% c("loglin-dose", "loglinear-dose", "log-linear-dose")) {
           model_terms <- c("loglin_slope", "loglin_top")
         } else if (model_type %in% c("lin-dose", "linear-dose", "linear-piecewise")) {
           model_terms <- c("lin_slope", "lin_int")
         } else if (model_type %in% c("quadratic", "quad", "quad-dose", "quadratic-dose")) {
-          model_terms <- c("quad_slope")
+          model_terms <- "quad_slope"
         } else if (model_type %in% c("step-dose", "step-piecewise")) {
           model_terms <- c("step_slope", "step_int")
         } else if (model_type %in% c("lin-quad-dose", "linear-quadratic-dose", "linear-quadratic-piecewise")) {
@@ -1008,10 +1004,10 @@ get_form_risk <- function(model_obj, df) {
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
         model_paras <- gsub("\"", "", model_paras, fixed = TRUE) # remove literal strings if needed
         #
-        if (is.na(model_paras) || model_paras == "") {
+        if (is.na(model_paras) || !nzchar(model_paras)) {
           # Nothing, just give the defaults
           gmix_theta <- 0.5
-          gmix_term <- c()
+          gmix_term <- NULL
         } else {
           # There is something, but what?
           if (grepl(",", model_paras, fixed = TRUE)) {
@@ -1046,7 +1042,7 @@ get_form_risk <- function(model_obj, df) {
             if (all(vapply(model_paras, function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(model_paras, function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
               # It is a number, make it the gmix_theta
               gmix_theta <- as.numeric(model_paras)
-              gmix_term <- c()
+              gmix_term <- NULL
             } else {
               # it is not a number, is it a 'e' or 'r'?
               if (grepl(tolower(model_paras), "er", fixed = TRUE)) {
@@ -1064,7 +1060,7 @@ get_form_risk <- function(model_obj, df) {
       } else if (model_type %in% c("gmix-r", "relative-geometric-mixture")) {
         model_type <- "GMIX-R"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        if (is.na(model_paras) || model_paras == "") {
+        if (is.na(model_paras) || !nzchar(model_paras)) {
           # Nothing, just give the defaults
           gmix_theta <- 0.5
         } else {
@@ -1074,7 +1070,7 @@ get_form_risk <- function(model_obj, df) {
       } else if (model_type %in% c("gmix-e", "excess-geometric-mixture")) {
         model_type <- "GMIX-E"
         model_paras <- substr(right_model_terms[term_i], third_split + 1, nchar(right_model_terms[term_i]) - 1)
-        if (is.na(model_paras) || model_paras == "") {
+        if (is.na(model_paras) || !nzchar(model_paras)) {
           # Nothing, just give the defaults
           gmix_theta <- 0.5
         } else {
@@ -1130,7 +1126,7 @@ get_form_risk <- function(model_obj, df) {
         new_index <- og_index[(tform == u_tform) & (term_n == u_term_n)]
         if (length(new_name) > 1) {
           df_temp <- df[, new_name, with = FALSE]
-          removed <- c(0)
+          removed <- 0
           for (i in 2:length(names(df_temp))) {
             new_rank <- qr(df_temp[, 1:i])$rank
             if (new_rank == i - sum(removed)) {
@@ -1212,7 +1208,7 @@ ColossusExpressionCall <- function(calls, df) {
         names(factor_arg_list)[[1]] <- "x"
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
-      if (system.file(package = "splines") == "") {
+      if (!nzchar(system.file(package = "splines"))) {
         stop("Error: Attempted to use ns(), but splines not detected on system.")
       }
       xtemp <- do.call(splines::ns, factor_arg_list)
@@ -1235,7 +1231,7 @@ ColossusExpressionCall <- function(calls, df) {
         names(factor_arg_list)[[1]] <- "x"
         factor_arg_list[["x"]] <- copy(df[[factor_arg_list$x]])
       }
-      if (system.file(package = "splines") == "") {
+      if (!nzchar(system.file(package = "splines"))) {
         stop("Error: Attempted to use bs(), but splines not detected on system.")
       }
       xtemp <- do.call(splines::bs, factor_arg_list)
@@ -1274,13 +1270,13 @@ ColossusExpressionCall <- function(calls, df) {
               element_levels[[term_i]] <- factor_col
             }
           }
-          combs <- c()
+          combs <- NULL
           for (i in element_levels[[1]]) {
             combs <- c(combs, paste(i))
           }
           for (i in 2:length(element_levels)) {
             comb_temp <- copy(combs)
-            combs <- c()
+            combs <- NULL
             for (k in element_levels[[i]]) {
               combs <- c(combs, paste(comb_temp, k, sep = ":"))
             }
@@ -1397,13 +1393,13 @@ ColossusCoxSurv <- function(...) {
         event <- args[[2]]
       }
     } else if (length(args) == 3) {
-      if ((tstart == "%trunc%") && (argName[1] == "")) {
+      if ((tstart == "%trunc%") && (!nzchar(argName[1]))) {
         tstart <- args[[1]]
       }
-      if ((tend == "%trunc%") && (argName[2] == "")) {
+      if ((tend == "%trunc%") && (!nzchar(argName[2]))) {
         tend <- args[[2]]
       }
-      if ((event == "NULL") && (argName[3] == "")) {
+      if ((event == "NULL") && (!nzchar(argName[3]))) {
         event <- args[[3]]
       }
     } else {
@@ -1450,7 +1446,7 @@ ColossusCoxStrataSurv <- function(...) {
     strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
-    if (argName[length(args)] == "") {
+    if (!nzchar(argName[length(args)])) {
       strata <- parse_literal_string(args[[length(args)]])
       res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
@@ -1488,7 +1484,7 @@ ColossusFineGraySurv <- function(...) {
     weight <- args[[length(args)]]
     res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
   } else {
-    if (argName[length(args)] == "") {
+    if (!nzchar(argName[length(args)])) {
       weight <- args[[length(args)]]
       res <- do.call(ColossusCoxSurv, args[seq_len(length(args) - 1)])
     } else {
@@ -1526,7 +1522,7 @@ ColossusFineGrayStrataSurv <- function(...) {
     weight <- args[[length(args)]]
     res <- do.call(ColossusCoxStrataSurv, args[seq_len(length(args) - 1)])
   } else {
-    if (argName[length(args)] == "") {
+    if (!nzchar(argName[length(args)])) {
       weight <- args[[length(args)]]
       res <- do.call(ColossusCoxStrataSurv, args[seq_len(length(args) - 1)])
     } else {
@@ -1594,10 +1590,10 @@ ColossusPoisSurv <- function(...) {
         event <- args[[2]]
       }
     } else {
-      if ((pyr == "NULL") && (argName[1] == "")) {
+      if ((pyr == "NULL") && (!nzchar(argName[1]))) {
         pyr <- args[[1]]
       }
-      if ((event == "NULL") && (argName[2] == "")) {
+      if ((event == "NULL") && (!nzchar(argName[2]))) {
         event <- args[[2]]
       }
       strata <- unlist(args[3:length(args)], use.names = FALSE)
@@ -1702,13 +1698,13 @@ ColossusCaseConTimeSurv <- function(...) {
         event <- args[[2]]
       }
     } else if (length(args) == 3) {
-      if ((tstart == "%trunc%") && (argName[1] == "")) {
+      if ((tstart == "%trunc%") && (!nzchar(argName[1]))) {
         tstart <- args[[1]]
       }
-      if ((tend == "%trunc%") && (argName[2] == "")) {
+      if ((tend == "%trunc%") && (!nzchar(argName[2]))) {
         tend <- args[[2]]
       }
-      if ((event == "NULL") && (argName[3] == "")) {
+      if ((event == "NULL") && (!nzchar(argName[3]))) {
         event <- args[[3]]
       }
     } else {
@@ -1796,7 +1792,7 @@ ColossusCaseConTimeStrataSurv <- function(...) {
     strata <- parse_literal_string(args[[length(args)]])
     res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
   } else {
-    if (argName[length(args)] == "") {
+    if (!nzchar(argName[length(args)])) {
       strata <- parse_literal_string(args[[length(args)]])
       res <- do.call(ColossusCaseConTimeSurv, args[seq_len(length(args) - 1)])
     } else {

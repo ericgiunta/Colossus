@@ -11,7 +11,7 @@
 #' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -32,7 +32,7 @@
 #'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
 #'   control = control
 #' )
-CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
+CoxRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
@@ -162,16 +162,16 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
   if (coxmodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
   } else {
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
-      if (all(unique(tform) == c("loglin"))) {
+      if (all(unique(tform) == "loglin")) {
         model_control[["basic"]] <- TRUE
       } else if (identical(sort(unique(tform)), c("loglin", "plin")) && sum(tform == "plin") == 1) {
         model_control[["linear_err"]] <- TRUE
@@ -276,8 +276,6 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- coxmodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -288,8 +286,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
     res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -311,7 +308,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -329,7 +326,7 @@ CoxRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = 
 #' formula <- Pois(Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- PoisRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
-PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
+PoisRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
@@ -443,15 +440,15 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
   if (poismodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
     if (all(poismodel$strata != "NONE")) {
       model_control["strata"] <- TRUE
-      a_n <- c(0.0)
-      keep_constant <- c(1)
+      a_n <- 0.0
+      keep_constant <- 1
     } else {
       event_total <- sum(df[, event0, with = FALSE])
       time_total <- sum(df[, pyr0, with = FALSE])
@@ -554,8 +551,6 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count) # nocov
   }
   res$model <- poismodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -566,8 +561,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
     res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -589,7 +583,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #' @family Logistic Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -607,7 +601,7 @@ PoisRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control =
 #' formula <- logit(Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res <- LogisticRun(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5), control = control)
-LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
+LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "logitmodel")) {
     # using already prepped formula and data
@@ -705,7 +699,6 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   keep_constant <- logitmodel$keep_constant
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
-  strat_col <- logitmodel$strata
   # nocov start
   if (!is.numeric(df[[trial0]])) {
     stop("Error: Trial column was not numeric: ", trial0)
@@ -720,11 +713,11 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   if (logitmodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
     model_control["logit_odds"] <- TRUE
     #
     event_total <- sum(df[, event0, with = FALSE])
@@ -852,8 +845,6 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- logitmodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (model_control[["constraint"]]) {
@@ -862,8 +853,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
   }
   res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -886,7 +876,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
 #' @family Case Control Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -907,7 +897,7 @@ LogisticRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), contr
 #'   a_n = list(c(1.1, -0.1, 0.2, 0.5), c(1.6, -0.12, 0.3, 0.4)),
 #'   control = control
 #' )
-CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), conditional_threshold = 50, gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
+CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(), conditional_threshold = 50, gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "caseconmodel")) {
     # using already prepped formula and data
@@ -1007,11 +997,11 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
   if (caseconmodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
   } else {
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
@@ -1127,8 +1117,6 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- caseconmodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (!model_control$null) {
@@ -1139,8 +1127,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
     res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -1162,7 +1149,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -1183,7 +1170,7 @@ CaseControlRun <- function(model, df, a_n = list(c(0)), keep_constant = c(0), co
 #'   shared = Pois(Ending_Age) ~ loglinear(a, b, c, 0)
 #' )
 #' res <- PoisRunJoint(formula_list, df, control = control)
-PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), norm = "null", ...) {
+PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, norm = "null", ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
@@ -1370,8 +1357,6 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
     control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- poismodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   # ------------------------------------------------------------------------------ #
   res$norm <- norm
   if (model_control[["constraint"]]) {
@@ -1380,8 +1365,7 @@ PoisRunJoint <- function(model, df, a_n = list(c(0)), keep_constant = c(0), cont
   }
   res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -1430,7 +1414,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #' @family Predicted Risk and Rate
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -1448,7 +1432,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' res_risk <- RelativeRisk(formula, df, a_n = c(1.1, -0.1, 0.2, 0.5))
-RelativeRisk.formula <- function(x, df, a_n = c(), ...) {
+RelativeRisk.formula <- function(x, df, a_n = NULL, ...) {
   res <- get_form(x, df)
   if (is(res$model, "coxmodel")) {
     # using already prepped formula and data
@@ -1480,7 +1464,7 @@ RelativeRisk.formula <- function(x, df, a_n = c(), ...) {
 #' @family Predicted Risk and Rate
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -1499,7 +1483,7 @@ RelativeRisk.formula <- function(x, df, a_n = c(), ...) {
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' model <- get_form(formula, df)$model
 #' res_risk <- RelativeRisk(model, df, a_n = c(1.1, -0.1, 0.2, 0.5))
-RelativeRisk.coxmodel <- function(x, df, a_n = c(), ...) {
+RelativeRisk.coxmodel <- function(x, df, a_n = NULL, ...) {
   coxmodel <- copy(x)
   #
   time1 <- coxmodel$start_age
@@ -1563,16 +1547,16 @@ RelativeRisk.coxmodel <- function(x, df, a_n = c(), ...) {
   if (coxmodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
   } else {
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
-      if (all(unique(tform) == c("loglin"))) {
+      if (all(unique(tform) == "loglin")) {
         model_control[["basic"]] <- TRUE
       } else if (identical(sort(unique(tform)), c("loglin", "plin")) && sum(tform == "plin") == 1) {
         model_control[["linear_err"]] <- TRUE
@@ -1611,8 +1595,7 @@ RelativeRisk.coxmodel <- function(x, df, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -1631,7 +1614,7 @@ RelativeRisk.coxmodel <- function(x, df, a_n = c(), ...) {
 #' @family Predicted Risk and Rate
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -1653,7 +1636,7 @@ RelativeRisk.coxmodel <- function(x, df, a_n = c(), ...) {
 #'   control = control
 #' )
 #' res_risk <- RelativeRisk(res, df)
-RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
+RelativeRisk.coxres <- function(x, df, a_n = NULL, ...) {
   #
   coxmodel <- x$model
   time1 <- coxmodel$start_age
@@ -1716,8 +1699,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
   # ------------------------------------------------------------------------------ #
   res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -1731,7 +1713,7 @@ RelativeRisk.coxres <- function(x, df, a_n = c(), ...) {
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
 #' @export
-plotRisk <- function(x, df, plot_options, a_n = c(), ...) {
+plotRisk <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotRisk", x)
 }
 
@@ -1743,7 +1725,7 @@ plotRisk <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @noRd
 #' @export
-plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
+plotRisk.default <- function(x, df, plot_options, a_n = NULL, ...) {
   x
 }
 
@@ -1759,7 +1741,7 @@ plotRisk.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @return returns the data used for plots
 #' @family Plotting Wrapper Functions
 #' @export
-plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+plotRisk.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
   extraArgs <- list(...) # gather additional arguments
   controlargs <- c("verbose", "studyid", "fname", "cov_cols", "boundary") # names used in control function
   if (length(extraArgs)) {
@@ -1811,7 +1793,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
 #' @export
-plotSchoenfeld <- function(x, df, plot_options, a_n = c(), ...) {
+plotSchoenfeld <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotSchoenfeld", x)
 }
 
@@ -1823,7 +1805,7 @@ plotSchoenfeld <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @noRd
 #' @export
-plotSchoenfeld.default <- function(x, df, plot_options, a_n = c(), ...) {
+plotSchoenfeld.default <- function(x, df, plot_options, a_n = NULL, ...) {
   x
 }
 
@@ -1839,7 +1821,7 @@ plotSchoenfeld.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @return returns the data used for plots
 #' @family Plotting Wrapper Functions
 #' @export
-plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
   extraArgs <- list(...) # gather additional arguments
   controlargs <- c("verbose", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
@@ -1888,7 +1870,7 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
 #' @export
-plotMartingale <- function(x, df, plot_options, a_n = c(), ...) {
+plotMartingale <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotMartingale", x)
 }
 
@@ -1900,7 +1882,7 @@ plotMartingale <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @noRd
 #' @export
-plotMartingale.default <- function(x, df, plot_options, a_n = c(), ...) {
+plotMartingale.default <- function(x, df, plot_options, a_n = NULL, ...) {
   x
 }
 
@@ -1916,7 +1898,7 @@ plotMartingale.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @return returns the data used for plots
 #' @family Plotting Wrapper Functions
 #' @export
-plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+plotMartingale.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
   extraArgs <- list(...) # gather additional arguments
   controlargs <- c("verbose", "age_unit", "time_lims", "cov_cols", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
@@ -1967,7 +1949,7 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
 #' @export
-plotSurvival <- function(x, df, plot_options, a_n = c(), ...) {
+plotSurvival <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotSurvival", x)
 }
 
@@ -1979,7 +1961,7 @@ plotSurvival <- function(x, df, plot_options, a_n = c(), ...) {
 #' @inheritParams R_template
 #' @noRd
 #' @export
-plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
+plotSurvival.default <- function(x, df, plot_options, a_n = NULL, ...) {
   x
 }
 
@@ -1998,7 +1980,7 @@ plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -2026,7 +2008,7 @@ plotSurvival.default <- function(x, df, plot_options, a_n = c(), ...) {
 #'   verbose = FALSE
 #' )
 #' res_plot <- plotSurvival(res, df, plot_options)
-plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+plotSurvival.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
   extraArgs <- list(...) # gather additional arguments
   controlargs <- c("verbose", "age_unit", "time_lims", "strat_haz", "strat_col", "km", "studyid", "fname") # names used in control function
   if (length(extraArgs)) {
@@ -2083,7 +2065,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' @examples
 #' library(data.table)
 #' ## basic example code reproduced from the starting-description vignette
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
 #'   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
@@ -2111,7 +2093,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   verbose = FALSE
 #' )
 #' res_plot <- plot(res, df, plot_options)
-plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
+plot.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
   #
   coxmodel <- x$model
   time1 <- coxmodel$start_age
@@ -2231,8 +2213,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
   }
   res <- RunCoxPlots(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, plot_options = plot_options, model_control = model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -2250,7 +2231,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #' @family Cox Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
@@ -2274,7 +2255,7 @@ plot.coxres <- function(x, df, plot_options, a_n = c(), ...) {
 #'   realization_columns = realization_columns,
 #'   realization_index = realization_index
 #' )
-CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+CoxRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(0), cons_vec = 0, ...) {
   func_t_start <- Sys.time()
   if (is(model, "coxmodel")) {
     # using already prepped formula and data
@@ -2383,7 +2364,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
     # check for basic and linear_err
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
-      if (all(unique(tform) == c("loglin"))) {
+      if (all(unique(tform) == "loglin")) {
         model_control[["basic"]] <- TRUE
       } else if (identical(sort(unique(tform)), c("loglin", "plin")) && sum(tform == "plin") == 1) {
         model_control[["linear_err"]] <- TRUE
@@ -2480,13 +2461,10 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus_Multidose(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- coxmodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   res$realizations <- ncol(realization_columns)
   res$realization_mode <- "exposure"
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -2512,7 +2490,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
@@ -2536,7 +2514,7 @@ CoxRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), reali
 #'   realization_columns = realization_columns,
 #'   realization_index = realization_index
 #' )
-PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+PoisRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(0), cons_vec = 0, ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
@@ -2722,13 +2700,10 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
   # ------------------------------------------------------------------------------ #
   res <- RunPoisRegression_Omnibus_Multidose(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- poismodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   res$realizations <- ncol(realization_columns)
   res$realization_mode <- "exposure"
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -2754,7 +2729,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 #' @family Poisson Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
@@ -2776,7 +2751,7 @@ PoisRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), real
 #'   control = control,
 #'   realization_columns = realization_columns
 #' )
-PoisRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = c("event0", "event1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+PoisRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, realization_columns = c("event0", "event1"), control = list(), gradient_control = list(), single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, ...) {
   func_t_start <- Sys.time()
   if (is(model, "poismodel")) {
     # using already prepped formula and data
@@ -2886,7 +2861,6 @@ PoisRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0), r
   }
   if (all(poismodel$strata != "NONE")) {
     warning("Warning: Stratification not supported for poisson multi-output currently")
-    # model_control["strata"] <- TRUE
   }
   if (!missing(cons_mat)) {
     if (missing(cons_vec)) {
@@ -2938,13 +2912,10 @@ PoisRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0), r
   # ------------------------------------------------------------------------------ #
   res <- RunPoisRegression_Omnibus_Multioutcome(df, pyr0 = pyr0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, control = control, strat_col = strat_col, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- poismodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   res$realizations <- length(realization_columns)
   res$realization_mode <- "outcome"
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -2966,7 +2937,7 @@ PoisRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0), r
 #' @family Logistic Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
@@ -2990,7 +2961,7 @@ PoisRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0), r
 #'   realization_columns = realization_columns,
 #'   realization_index = realization_index
 #' )
-LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+LogisticRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, fma = TRUE, mcml = FALSE, cons_mat = as.matrix(0), cons_vec = 0, ...) {
   func_t_start <- Sys.time()
   if (is(model, "logitmodel")) {
     # using already prepped formula and data
@@ -3094,7 +3065,6 @@ LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), 
   keep_constant <- logitmodel$keep_constant
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
-  strat_col <- logitmodel$strata
   if (!is.numeric(df[[trial0]])) {
     stop("Error: Trial column was not numeric: ", trial0)
   }
@@ -3214,13 +3184,10 @@ LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), 
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus_Multidose(df, trial0 = trial0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, realization_index = realization_index, control = control, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- logitmodel
-  # res$modelcontrol <- model_control
-  # res$control <- control
   res$realizations <- length(realization_columns)
   res$realization_mode <- "exposure"
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -3246,7 +3213,7 @@ LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), 
 #' @family Logistic Wrapper Functions
 #' @examples
 #' library(data.table)
-#' df <- data.table::data.table(
+#' df <- data.table(
 #'   UserID = c(112, 114, 213, 214, 115, 116, 117),
 #'   t0 = c(18, 20, 18, 19, 21, 20, 18),
 #'   t1 = c(30, 45, 57, 47, 36, 60, 55),
@@ -3270,7 +3237,7 @@ LogisticRunMulti <- function(model, df, a_n = list(c(0)), keep_constant = c(0), 
 #'   realization_columns = realization_columns,
 #'   control = control
 #' )
-LogisticRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0), realization_columns = c("event0", "event1"), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(c(0)), cons_vec = c(0), ...) {
+LogisticRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, realization_columns = c("event0", "event1"), control = list(), gradient_control = list(), link = "odds", single = FALSE, observed_info = FALSE, cons_mat = as.matrix(0), cons_vec = 0, ...) {
   func_t_start <- Sys.time()
   if (is(model, "logitmodel")) {
     # using already prepped formula and data
@@ -3365,7 +3332,6 @@ LogisticRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0
   keep_constant <- logitmodel$keep_constant
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
-  strat_col <- logitmodel$strata
   # logistic regression functionitself will check if the columns are numeric
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
@@ -3430,6 +3396,7 @@ LogisticRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
+  on.exit(setDTthreads(thread_0)) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus_Multioutcome(df, trial0 = trial0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, control = control, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- logitmodel
@@ -3438,8 +3405,7 @@ LogisticRunMultiOut <- function(model, df, a_n = list(c(0)), keep_constant = c(0
   res$realizations <- length(realization_columns)
   res$realization_mode <- "outcome"
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -3497,8 +3463,8 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   tform <- coxmodel$tform
   keep_constant <- coxmodel$keep_constant
   modelform <- coxmodel$modelform
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
+  cons_mat <- as.matrix(0)
+  cons_vec <- 0
   strat_col <- coxmodel$strata
   cens_weight <- coxmodel$weight
   #
@@ -3644,13 +3610,6 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   } else {
     res$method <- "Venzon-Moolgavkar"
   }
-  #  if (model_control[["bisect"]]) {
-  #    res <- CoxCurveSolver(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
-  #    res$method <- "bisection"
-  #  } else {
-  #    res <- RunCoxRegression_Omnibus(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "_strata_col", cens_weight = cens_weight, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
-  #    res$method <- "Venzon-Moolgavkar"
-  #  }
   res$model <- coxmodel
   res$beta_0 <- object$beta_0
   res$para_number <- model_control$para_number
@@ -3677,8 +3636,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
     ), domain = NA)
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   coxres <- new_coxresbound(res)
   coxres <- validate_coxresbound(coxres, df)
@@ -3707,8 +3665,8 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   tform <- poismodel$tform
   keep_constant <- poismodel$keep_constant
   modelform <- poismodel$modelform
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
+  cons_mat <- as.matrix(0)
+  cons_vec <- 0
   strat_col <- poismodel$strata
   #
   calls <- poismodel$expres_calls
@@ -3857,8 +3815,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
     ), domain = NA)
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   poisres <- new_poisresbound(res)
   poisres <- validate_poisresbound(poisres, df)
@@ -3888,9 +3845,8 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   keep_constant <- logitmodel$keep_constant
   a_n <- logitmodel$a_n
   modelform <- logitmodel$modelform
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
-  strat_col <- logitmodel$strata
+  cons_mat <- as.matrix(0)
+  cons_vec <- 0
   #
   calls <- logitmodel$expres_calls
   df <- ColossusExpressionCall(calls, df)
@@ -4038,8 +3994,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
     ), domain = NA)
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   logitres <- new_logitresbound(res)
   logitres <- validate_logitresbound(logitres, df)
@@ -4084,7 +4039,7 @@ EventAssignment.default <- function(x, df, ...) {
 #' @return returns a list of the final results
 #' @export
 #' @family Poisson Event Assignment
-EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
+EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), a_n = NULL, ...) {
   poismodel <- x$model
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
@@ -4261,8 +4216,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     names(res$parameter_info) <- c("Column", "Subterm", "term_number")
   }
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -4280,7 +4234,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
 #' @return returns a list of the final results
 #' @export
 #' @family Poisson Event Assignment
-EventAssignment.poisresbound <- function(x, df, assign_control = list(), control = list(), a_n = c(), ...) {
+EventAssignment.poisresbound <- function(x, df, assign_control = list(), control = list(), a_n = NULL, ...) {
   poisres <- x$poisres
   poismodel <- poisres$model
   pyr0 <- poismodel$person_year
@@ -4441,8 +4395,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   )
   res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -4513,7 +4466,7 @@ Residual.coxmodel <- function(x, df, ...) {
 #' @return returns a list of the final results
 #' @export
 #' @family Residuals
-Residual.poismodel <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
+Residual.poismodel <- function(x, df, control = list(), a_n = NULL, pearson = FALSE, deviance = FALSE, ...) {
   poismodel <- copy(x)
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
@@ -4572,15 +4525,15 @@ Residual.poismodel <- function(x, df, control = list(), a_n = c(), pearson = FAL
   if (poismodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
     if (all(poismodel$strata != "NONE")) {
       model_control["strata"] <- TRUE
-      a_n <- c(0.0)
-      keep_constant <- c(1)
+      a_n <- 0.0
+      keep_constant <- 1
     } else {
       event_total <- sum(df[, event0, with = FALSE])
       time_total <- sum(df[, pyr0, with = FALSE])
@@ -4609,9 +4562,6 @@ Residual.poismodel <- function(x, df, control = list(), a_n = c(), pearson = FAL
   }
   model_control <- Def_model_control(model_control)
   #
-  #  if ((pearson == deviance) && (pearson)) {
-  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
-  #  }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
   # ------------------------------------------------------------------------------ #
@@ -4621,8 +4571,7 @@ Residual.poismodel <- function(x, df, control = list(), a_n = c(), pearson = FAL
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -4641,7 +4590,7 @@ Residual.poismodel <- function(x, df, control = list(), a_n = c(), pearson = FAL
 #' @return returns a list of the final results
 #' @export
 #' @family Residuals
-Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
+Residual.poisres <- function(x, df, control = list(), a_n = NULL, pearson = FALSE, deviance = FALSE, ...) {
   poismodel <- x$model
   pyr0 <- poismodel$person_year
   event0 <- poismodel$event
@@ -4680,7 +4629,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
     a_n <- object$beta_0
   }
   if (poismodel$null) {
-    keep_constant <- c(0)
+    keep_constant <- 0
   }
   if (missing(control)) {
     control <- object$control
@@ -4691,9 +4640,6 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   #
   model_control <- object$modelcontrol
   #
-  #  if ((pearson == deviance) && (pearson)) {
-  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
-  #  }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
   # ------------------------------------------------------------------------------ #
@@ -4703,8 +4649,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -4723,7 +4668,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = c(), pearson = FALSE
 #' @return returns a list of the final results
 #' @export
 #' @family Residuals
-Residual.logitmodel <- function(x, df, control = list(), a_n = c(), link = "odds", pearson = FALSE, deviance = FALSE, ...) {
+Residual.logitmodel <- function(x, df, control = list(), a_n = NULL, link = "odds", pearson = FALSE, deviance = FALSE, ...) {
   logitmodel <- copy(x)
   trial0 <- logitmodel$trials
   event0 <- logitmodel$event
@@ -4770,11 +4715,11 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = c(), link = "odds
   if (logitmodel$null) {
     model_control["null"] <- TRUE
     #
-    names <- c("CONST")
-    term_n <- c(0)
-    tform <- c("loglin")
-    keep_constant <- c(0)
-    a_n <- c(0)
+    names <- "CONST"
+    term_n <- 0
+    tform <- "loglin"
+    keep_constant <- 0
+    a_n <- 0.0
     model_control["logit_odds"] <- TRUE
     #
     event_total <- sum(df[, event0, with = FALSE])
@@ -4828,9 +4773,6 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = c(), link = "odds
     }
   }
   model_control <- Def_model_control(model_control)
-  #  if ((pearson == deviance) && (pearson)) {
-  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
-  #  }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
   # ------------------------------------------------------------------------------ #
@@ -4840,8 +4782,7 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = c(), link = "odds
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Residual(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -4860,7 +4801,7 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = c(), link = "odds
 #' @return returns a list of the final results
 #' @export
 #' @family Residuals
-Residual.logitres <- function(x, df, control = list(), a_n = c(), pearson = FALSE, deviance = FALSE, ...) {
+Residual.logitres <- function(x, df, control = list(), a_n = NULL, pearson = FALSE, deviance = FALSE, ...) {
   logitmodel <- x$model
   trial0 <- logitmodel$trials
   event0 <- logitmodel$event
@@ -4898,7 +4839,7 @@ Residual.logitres <- function(x, df, control = list(), a_n = c(), pearson = FALS
     a_n <- object$beta_0
   }
   if (logitmodel$null) {
-    keep_constant <- c(0)
+    keep_constant <- 0
   }
   if (missing(control)) {
     control <- object$control
@@ -4909,9 +4850,6 @@ Residual.logitres <- function(x, df, control = list(), a_n = c(), pearson = FALS
   #
   model_control <- object$modelcontrol
   #
-  #  if ((pearson == deviance) && (pearson)) {
-  #    stop("Error: Both pearson and deviance cannot be used at once, select only one")
-  #  }
   model_control$pearson <- pearson
   model_control$deviance <- deviance
   # ------------------------------------------------------------------------------ #
@@ -4921,8 +4859,7 @@ Residual.logitres <- function(x, df, control = list(), a_n = c(), pearson = FALS
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Residual(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control)
   # ------------------------------------------------------------------------------ #
-  # Revert data.table core change
-  thread_1 <- setDTthreads(thread_0) # revert the old number
+  #
   # ------------------------------------------------------------------------------ #
   res
 }

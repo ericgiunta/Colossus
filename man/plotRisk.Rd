@@ -4,7 +4,7 @@
 \alias{plotRisk}
 \title{Generic Risk Plotting function}
 \usage{
-plotRisk(x, df, plot_options, a_n = c(), ...)
+plotRisk(x, df, plot_options, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}

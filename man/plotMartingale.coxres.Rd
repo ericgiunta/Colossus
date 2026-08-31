@@ -4,7 +4,7 @@
 \alias{plotMartingale.coxres}
 \title{Performs Cox Proportional Hazard model martingale residual plots}
 \usage{
-\method{plotMartingale}{coxres}(x, df, plot_options, a_n = c(), ...)
+\method{plotMartingale}{coxres}(x, df, plot_options, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}

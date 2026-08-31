@@ -3,7 +3,6 @@
 ## ------------------------------------- ##
 test_that("System version", {
   expect_no_error(System_Version())
-  expect_no_error(Rcpp_version())
 })
 
 ## ------------------------------------- ##

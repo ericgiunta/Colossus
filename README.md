@@ -102,6 +102,6 @@ print(e)
 #> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
 #> All Records Used: 100
-#> Run finished in 0.236 seconds
+#> Run finished in 0.083 seconds
 #> |--------------------------------------------------------------------------------|
 ```

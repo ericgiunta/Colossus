@@ -1,0 +1,102 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# See https://github.com/r-lib/actions/tree/master/examples#readme for
+# additional example workflows available for the R community.
+
+name: CUSTOM_LINTS
+
+on:
+  workflow_dispatch:
+    branches: [main, dev]
+  push:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  goodpractice_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          Ncpus: 2
+      - name: install libraries
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev
+      - name: move to package and check
+        run: |
+          ls
+          Rscript -e "install.packages(c('devtools', 'remotes', 'goodpractice'))"
+          Rscript -e "pak::local_install_deps(dependencies = TRUE)"
+          Rscript -e "pak::local_install_dev_deps(dependencies = TRUE)"
+          Rscript -e "devtools::install()"
+      - name: run tests
+        run: |
+           Rscript -e "g <- goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
+           print(g)
+           if (length(goodpractice::failed_check(g)) == 0){
+             stop("Failed checks")
+           }
+           "
+  cpplint_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install libraries
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev cpplint
+      - name: run tests
+        run: |
+               cpplint --filter=-whitespace/line_length,-readability/fn_size,-runtime/references --exclude=src/RcppExports.* --exclude=src/*.*o --exclude=src/Makevars* src/*.* &> cpplint_out.txt
+                if grep -q 'Total errors found:' cpplint_out.txt; then
+                    echo "cpplint error"
+                    exit 1
+                fi
+  cppcheck_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install libraries
+        run: |
+          sudo apt-get install libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfontconfig1-dev libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev libuv1-dev cppcheck
+      - name: run tests
+        run: |
+               cppcheck -i src/RcppExports.cpp --enable=warning,portability,performance --error-exitcode=1 --inline-suppr src &> cppcheck_out.txt
+                if grep -q ']' cppcheck_out.txt; then
+                    echo "cppcheck error"
+                    exit 1
+                fi
+  lintr:
+    name: Run lintr scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # for checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@4e1feaf90520ec1215d1882fdddfe3411c08e492
+
+      - name: Setup lintr
+        uses: r-lib/actions/setup-r-dependencies@4e1feaf90520ec1215d1882fdddfe3411c08e492
+        with:
+          extra-packages: lintr
+
+      - name: Run lintr
+        run: lintr::sarif_output(lintr::lint_dir("."), "lintr-results.sarif")
+        shell: Rscript {0}
+        continue-on-error: true
+
+      - name: Upload analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: lintr-results.sarif
+          wait-for-processing: true
