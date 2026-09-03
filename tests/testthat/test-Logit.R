@@ -103,6 +103,43 @@ test_that("basic regression with link non-fail", {
   }
 })
 
+test_that("basic regression with link non-fail", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran |> setDT()
+    df <- copy(veteran)
+
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+
+    df$karno50 <- df$karno - 50
+    a_n <- c(0.1, 0.1)
+
+
+    control <- list(step_max = 0.1, maxiter = 100, ncores = 1)
+    #
+    #
+    model <- logit(status) ~ null()
+    # odds ident loglink probit
+    e <- LogisticRun(model, df, control = control, verbose = 0)
+    expect_equal(e$AIC, 68.405, tolerance = 1e-3)
+    e <- LogisticRun(model, df, control = control, verbose = 0, link = "odds")
+    expect_equal(e$AIC, 68.405, tolerance = 1e-3)
+    e <- LogisticRun(model, df, control = control, verbose = 0, link = "ident")
+    expect_equal(e$AIC, 68.405, tolerance = 1e-3)
+    e <- LogisticRun(model, df, control = control, verbose = 0, link = "loglink")
+    expect_equal(e$AIC, 68.405, tolerance = 1e-3)
+    e <- LogisticRun(model, df, control = control, verbose = 0, link = "probit")
+    expect_equal(e$AIC, 68.405, tolerance = 1e-3)
+  }
+})
+
 test_that("epicure check", {
   df <- fread("sholom.csv", nThread = min(c(detectCores(), 2)), data.table = TRUE)
 

@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Colossus
+# Colossus <a href="https://ericgiunta.github.io/Colossus/"><img src="man/figures/logo.svg" align="right" height="139" alt="Colossus website" /></a>
 
 <!-- badges: start -->
 
@@ -102,6 +102,6 @@ print(e)
 #> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
 #> All Records Used: 100
-#> Run finished in 0.083 seconds
+#> Run finished in 0.311 seconds
 #> |--------------------------------------------------------------------------------|
 ```

@@ -69,11 +69,11 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
     //
     List temp_list = List::create(_["Status"] = "TEMP");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
-//    time_point<system_clock> start_point, end_point;
-//    start_point = system_clock::now();
-//    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
-//    end_point = system_clock::now();
-//    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  //  the time duration is tracked
+    //    time_point<system_clock> start_point, end_point;
+    //    start_point = system_clock::now();
+    //    auto start = time_point_cast<microseconds>(start_point).time_since_epoch().count();
+    //    end_point = system_clock::now();
+    //    auto ending = time_point_cast<microseconds>(end_point).time_since_epoch().count();  //  the time duration is tracked
     //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
@@ -83,6 +83,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
     bool true_gradient = model_bool["gradient"];
     double lr = optim_para["lr"];
     int maxiter = optim_para["maxiter"];
@@ -319,8 +320,6 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
             neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_ZERO_RISK_START";
             // We can let the central estimates and standard deviations just stay zero
-//            beta_fin(guess, _) = a_n;
-//            std_fin(guess, _) = stdev;
         } else {
             Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
             //
@@ -454,8 +453,8 @@ List LogLik_Cox_PH_Multidose_Omnibus_Serial(IntegerVector& term_n, const StringV
             a_n = beta_0;
             beta_fin(guess, _) = a_n;
             LL_fin[guess] = Ll[0];
-            AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
-            BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
+            AIC_fin[guess] = 2*(degree_free)-2*Ll[0];
+            BIC_fin[guess] = (degree_free)*log(mat_row)-2*Ll[0];
             status_fin[guess] = "PASSED";
             neg_limit_fin[guess] = neg_limit;
             if (!model_bool["single"]) {
@@ -564,6 +563,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
     int ntime = tu.size();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
     bool true_gradient = model_bool["gradient"];
     double lr = optim_para["lr"];
     int maxiter = optim_para["maxiter"];
@@ -1085,7 +1085,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*Ll_Total[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
         //  returns a list of results
         return res_list;
     }
@@ -1158,7 +1158,7 @@ List LogLik_Cox_PH_Multidose_Omnibus_Integrated(IntegerVector& term_n, const Str
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
+    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(degree_free)-2*Ll_Total[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED", _["RiskGroups"] = total_risk_groups);
     //  returns a list of results
     return res_list;
 }
@@ -1263,6 +1263,10 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
         Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
     }
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
+    if (model_bool["strata"]) {
+        degree_free = degree_free + Strata_vals.size();
+    }
     //
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
@@ -1332,7 +1336,6 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
     MatrixXd PddP = MatrixXd::Zero(1, 1);
     MatrixXd PnotdP = MatrixXd::Zero(1, 1);
     MatrixXd PnotddP = MatrixXd::Zero(1, 1);
-//    NumericVector Strata_vals(1);
     string ties_method = "temp";
     bool convgd = FALSE;
     bool neg_limit = FALSE;
@@ -1414,8 +1417,6 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_ZERO_RISK_START";
             // We can let the central estimates and standard deviations just stay zero
-//            beta_fin(guess, _) = a_n;
-//            std_fin(guess, _) = stdev;
         } else {
             Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
             //
@@ -1543,8 +1544,8 @@ List LogLik_Pois_Multidose_Omnibus_Serial(const Ref<const MatrixXd>& PyrC, Integ
             a_n = beta_0;
             beta_fin(guess, _) = a_n;
             LL_fin[guess] = Ll[0];
-            AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
-            BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
+            AIC_fin[guess] = 2*(degree_free)-2*Ll[0];
+            BIC_fin[guess] = (degree_free)*log(mat_row)-2*Ll[0];
             dev_fin[guess] = dev;
             neg_limit_fin[guess] = neg_limit;
             status_fin[guess] = "PASSED";
@@ -1708,6 +1709,10 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         s_weights = VectorXd::Zero(mat_row);
         Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
+    }
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
+    if (model_bool["strata"]) {
+        degree_free = degree_free + Strata_vals.size();
     }
     //  ------------------------------------------------------------------------- //  initialize
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
@@ -2151,7 +2156,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     //
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = dev_total, _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = dev_total, _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*Ll_Total[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -2216,7 +2221,7 @@ List LogLik_Pois_Multidose_Omnibus_Integrated(const Ref<const MatrixXd>& PyrC, I
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = dev_total, _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = dev_total, _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(degree_free)-2*Ll_Total[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -2242,6 +2247,7 @@ List LogLik_Logist_Multidose_Omnibus_Serial(Ref<MatrixXd> CountEvent, IntegerVec
     const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
     bool true_gradient = model_bool["gradient"];
     double lr = optim_para["lr"];
     int maxiter = optim_para["maxiter"];
@@ -2656,8 +2662,8 @@ List LogLik_Logist_Multidose_Omnibus_Serial(Ref<MatrixXd> CountEvent, IntegerVec
             a_n = beta_0;
             beta_fin(guess, _) = a_n;
             LL_fin[guess] = Ll[0];
-            AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
-            BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
+            AIC_fin[guess] = 2*(degree_free)-2*Ll[0];
+            BIC_fin[guess] = (degree_free)*log(mat_row)-2*Ll[0];
             dev_fin[guess] = dev;
             neg_limit_fin[guess] = neg_limit;
             status_fin[guess] = "PASSED";
@@ -2753,6 +2759,7 @@ List LogLik_Logist_Multidose_Omnibus_Integrated(Ref<MatrixXd> CountEvent, Intege
     const int mat_row = df0.rows();
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
     double lr = optim_para["lr"];
     int maxiter = optim_para["maxiter"];
     int halfmax = optim_para["halfmax"];
@@ -3259,7 +3266,7 @@ List LogLik_Logist_Multidose_Omnibus_Integrated(Ref<MatrixXd> CountEvent, Intege
     List res_list;
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))+dev, _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -3320,7 +3327,7 @@ List LogLik_Logist_Multidose_Omnibus_Integrated(Ref<MatrixXd> CountEvent, Intege
         }
     }
     //
-    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll_Total[0], _["BIC"] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = wrap(dev), _["First_Der"] = wrap(Lld_Total), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(degree_free)-2*Ll_Total[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     //
     return res_list;
 }
@@ -3427,6 +3434,10 @@ List LogLik_Pois_Multioutcome_Omnibus_Serial(Ref<MatrixXd> PyrC, IntegerVector& 
         Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         // Gen_Strat_Weight(modelform, dfs, PyrC, s_weights, nthreads, tform, KeepConstant, term_n, term_tot, gmix_theta, gmix_term);
     }
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
+    if (model_bool["strata"]) {
+        degree_free = degree_free + Strata_vals.size();
+    }
     //
     vector<double> Ll(reqrdnum, 0.0);  //  log-likelihood values
     vector<double> Lld(reqrdnum, 0.0);  //  log-likelihood derivative values
@@ -3496,7 +3507,6 @@ List LogLik_Pois_Multioutcome_Omnibus_Serial(Ref<MatrixXd> PyrC, IntegerVector& 
     MatrixXd PddP = MatrixXd::Zero(1, 1);
     MatrixXd PnotdP = MatrixXd::Zero(1, 1);
     MatrixXd PnotddP = MatrixXd::Zero(1, 1);
-//    NumericVector Strata_vals(1);
     string ties_method = "temp";
     bool convgd = FALSE;
     bool neg_limit = FALSE;
@@ -3572,8 +3582,6 @@ List LogLik_Pois_Multioutcome_Omnibus_Serial(Ref<MatrixXd> PyrC, IntegerVector& 
             neg_limit_fin[guess] = true;
             status_fin[guess] = "FAILED_WITH_ZERO_RISK_START";
             // We can let the central estimates and standard deviations just stay zero
-//            beta_fin(guess, _) = a_n;
-//            std_fin(guess, _) = stdev;
         } else {
             Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
             //
@@ -3701,8 +3709,8 @@ List LogLik_Pois_Multioutcome_Omnibus_Serial(Ref<MatrixXd> PyrC, IntegerVector& 
             a_n = beta_0;
             beta_fin(guess, _) = a_n;
             LL_fin[guess] = Ll[0];
-            AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
-            BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
+            AIC_fin[guess] = 2*(degree_free)-2*Ll[0];
+            BIC_fin[guess] = (degree_free)*log(mat_row)-2*Ll[0];
             dev_fin[guess] = dev;
             neg_limit_fin[guess] = neg_limit;
             status_fin[guess] = "PASSED";
@@ -3814,6 +3822,7 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
     //
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
+    int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
     bool true_gradient = model_bool["gradient"];
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
@@ -4203,8 +4212,8 @@ List LogLik_Logist_Multioutcome_Omnibus_Serial(Ref<MatrixXd> CountEvent, Integer
             a_n = beta_0;
             beta_fin(guess, _) = a_n;
             LL_fin[guess] = Ll[0];
-            AIC_fin[guess] = 2*(totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))-2*Ll[0];
-            BIC_fin[guess] = (totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0))*log(mat_row)-2*Ll[0];
+            AIC_fin[guess] = 2*(degree_free)-2*Ll[0];
+            BIC_fin[guess] = (degree_free)*log(mat_row)-2*Ll[0];
             dev_fin[guess] = dev;
             neg_limit_fin[guess] = neg_limit;
             status_fin[guess] = "PASSED";

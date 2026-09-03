@@ -129,6 +129,7 @@ importFrom(stats,
   pchisq,
   pnorm,
   qchisq,
+  qnorm,
   runif,
   time,
   weighted.mean

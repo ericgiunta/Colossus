@@ -718,12 +718,56 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
     tform <- "loglin"
     keep_constant <- 0
     a_n <- 0.0
-    model_control["logit_odds"] <- TRUE
     #
     event_total <- sum(df[, event0, with = FALSE])
     trial_total <- sum(df[, trial0, with = FALSE])
     avg_rate <- event_total / trial_total
-    a_n <- c(-log(1 - avg_rate))
+    if (missing(link)) {
+      model_control["logit_odds"] <- TRUE
+    } else {
+      # "logit_odds", "logit_ident", "logit_loglink"
+      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+      link <- tolower(link)
+      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+      if (link %in% acceptable) {
+        if (link %in% c("logit_odds", "odds", "odd")) {
+          model_control["logit_odds"] <- TRUE
+        } else if (link %in% c("logit_ident", "ident", "id")) {
+          model_control["logit_ident"] <- TRUE
+        } else if (link %in% c("logit_loglink", "loglink", "log")) {
+          model_control["logit_loglink"] <- TRUE
+        } else if (link %in% c("logit_probit", "probit")) {
+          model_control["logit_probit"] <- TRUE
+        } else {
+          stop(gettextf(
+            "Error: Argument '%s' not matched to set link options",
+            link
+          ), domain = NA)
+        }
+      } else {
+        stop(gettextf(
+          "Error: Argument '%s' not matched to allowable link options",
+          link
+        ), domain = NA)
+      }
+    }
+    link_names <- c(
+      "logit_odds", "logit_ident", "logit_loglink", "logit_probit"
+    )
+    for (nm in link_names) {
+      if (!(nm %in% names(model_control))) {
+        model_control[nm] <- FALSE
+      }
+    }
+    if (model_control[["logit_odds"]]) {
+      a_n <- c(log(avg_rate / (1 - avg_rate)))
+    } else if (model_control[["logit_ident"]]) {
+      a_n <- c(log(avg_rate))
+    } else if (model_control[["logit_loglink"]]) {
+      a_n <- c(log(-log(avg_rate)))
+    } else if (model_control[["logit_probit"]]) {
+      a_n <- c(log(qnorm(avg_rate)))
+    }
   } else {
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
