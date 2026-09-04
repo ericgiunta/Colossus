@@ -129,7 +129,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
         if (totalnum == 1) {
             //  Don't need to calculate everything else, only h
             h = Lldd_mat(para_number, para_number);
-            //
             h = mult * pow(qchi/(- 1*h), 0.5);
             if (upper) {
                 h = abs(h)/2;
@@ -145,7 +144,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             removeRow(dOmdBeta, para_number);
             D0 = D0.inverse().matrix();
             dOmdBeta = - 1 * D0 * dOmdBeta;
-            //
             MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
             removeColumn(dLdBdO, para_number);
             h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
@@ -180,7 +178,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 v[j] = Lld_vec[j];
             }
         }
-        //
         //  At this point, we have the standard newton-raphson equation defined
         deriv_max = abs(v[0]);
         for (int ij = 0; ij < reqrdnum; ij++) {
@@ -188,7 +185,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 deriv_max = abs(v[ij]);
             }
         }
-        //
         if (abs(G.determinant()) < 1e-6) {
             //  The inverted matrix does not exist
             for (int ij = 0; ij < totalnum; ij++) {
@@ -198,7 +194,6 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
                 }
             }
         } else {
-//            Rcout << "Invertable" << endl;
             G = G.inverse().matrix();
             v = G.matrix() * v.matrix();
             VectorXd g1 = G.col(para_number);
@@ -206,18 +201,13 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             double as2 = g1.matrix().transpose() * D0 * g1.matrix();
             double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
             double cs0 = v.matrix().transpose() * D0 * v.matrix();
-            //
             if (pow(bs1, 2)-4*as2*cs0 >= 0) {
-//                Rcout << "Real solution" << endl;
                 double s0 = pow(bs1, 2)-4*as2*cs0;
                 double s1 = (-bs1 - pow(s0, 0.5))/(2*as2);
                 s0 = (-bs1 + pow(s0, 0.5))/(2*as2);
                 //  check which is closer
                 double s00 = (v + s0*g1).matrix().transpose() * D0 * (v + s0*g1).matrix();
                 double s11 = (v + s1*g1).matrix().transpose() * D0 * (v + s1*g1).matrix();
-                //
-//                Rcout << s0 << " " << s1 << endl;
-//                Rcout << s00 << " " << s11 << endl;
                 if (abs(s00) < abs(s11)) {
                     //  s1 is further away
                     for (int ij = 0; ij < totalnum; ij++) {
@@ -301,7 +291,6 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
                 Lldd_solve(ij) = Lldd_solve0(pij_ind);
             }
         }
-        //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
@@ -317,7 +306,6 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
                 } else {
                     dbeta[ijk] = lr * Lldd_solve(ijk);
                 }
-               //
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  //  the threshold values use different maximum deviation values
                     if (abs(dbeta[ijk]) > thres_step_max) {
                         dbeta[ijk] = thres_step_max * sign(dbeta[ijk]);

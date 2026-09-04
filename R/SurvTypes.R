@@ -596,7 +596,6 @@ get_form_risk <- function(model_obj, df) {
         # check if the element is a function
         if (grepl("(", model_paras[subterm_i], fixed = TRUE)) {
           # Some function is being used
-          # if (substr(model_paras[subterm_i], 1, 7) == "factor(") {
           if (startsWith(model_paras[subterm_i], "factor(")) {
             # baseline is set by using factor(column;baseline=level)
             factor_args <- substr(model_paras[subterm_i], 8, nchar(model_paras[subterm_i]) - 1)
@@ -644,7 +643,6 @@ get_form_risk <- function(model_obj, df) {
             level_ref <- paste(factor_col, levels(xtemp)[1], sep = "_")
             col_name <- col_name[col_name != level_ref]
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
-            # } else if (substr(model_paras[subterm_i], 1, 2) == "I(") {
           } else if (startsWith(model_paras[subterm_i], "I(")) {
             factor_args <- substr(model_paras[subterm_i], 3, nchar(model_paras[subterm_i]) - 1)
             repeat_list <- c(list(`_exp_type` = "power"), list(factor_args))
@@ -667,7 +665,6 @@ get_form_risk <- function(model_obj, df) {
             col_name <- factor_args
             df[[col_name]] <- df[[col]]^raised
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
-            # } else if (substr(model_paras[subterm_i], 1, 3) == "ns(") {
           } else if (startsWith(model_paras[subterm_i], "ns(")) {
             # natural cubic spline
             factor_args <- substr(model_paras[subterm_i], 4, nchar(model_paras[subterm_i]) - 1)
@@ -727,7 +724,6 @@ get_form_risk <- function(model_obj, df) {
             }
             expres_calls[[length(expres_calls) + 1]] <- repeat_list
             ##
-            # } else if (substr(model_paras[subterm_i], 1, 3) == "bs(") {
           } else if (startsWith(model_paras[subterm_i], "bs(")) {
             # b-spline for polynomial spline
             factor_args <- substr(model_paras[subterm_i], 4, nchar(model_paras[subterm_i]) - 1)
@@ -1438,7 +1434,7 @@ ColossusCoxStrataSurv <- function(...) {
     stop("Error: Too many entries in Cox Strata survival object")
   }
   strata <- "NULL"
-  # Is stata a named entry?
+  # Is strata a named entry?
   if ("strata" %in% argName) {
     strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCoxSurv, args[names(args) != "strata"])
@@ -1476,7 +1472,7 @@ ColossusFineGraySurv <- function(...) {
     stop("Error: Too many entries in FineGray survival object")
   }
   weight <- "NULL"
-  # Is stata a named entry?
+  # Is strata a named entry?
   if ("weight" %in% argName) {
     weight <- args$weight
     res <- do.call(ColossusCoxSurv, args[names(args) != "weight"])
@@ -1514,7 +1510,7 @@ ColossusFineGrayStrataSurv <- function(...) {
     stop("Error: Too many entries in FineGray Strata survival object")
   }
   weight <- "NULL"
-  # Is stata a named entry?
+  # Is strata a named entry?
   if ("weight" %in% argName) {
     weight <- args$weight
     res <- do.call(ColossusCoxStrataSurv, args[names(args) != "weight"])
@@ -1784,7 +1780,7 @@ ColossusCaseConTimeStrataSurv <- function(...) {
     stop("Error: Too many entries in Case-Control survival object matched on strata and time")
   }
   strata <- "NULL"
-  # Is stata a named entry?
+  # Is strata a named entry?
   if ("strata" %in% argName) {
     strata <- parse_literal_string(args$strata)
     res <- do.call(ColossusCaseConTimeSurv, args[names(args) != "strata"])

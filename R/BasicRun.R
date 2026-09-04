@@ -536,9 +536,7 @@ PoisRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(
       }
       if (int_count > 0) {
         if (control$verbose >= 3) {
-          # nocov start
           message("Note: Threshold max step adjusted to match new weighting")
-          # nocov end
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
@@ -710,6 +708,42 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
+  if (missing(link)) {
+    model_control["logit_odds"] <- TRUE
+  } else {
+    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+    link <- tolower(link)
+    link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+    if (link %in% acceptable) {
+      if (link %in% c("logit_odds", "odds", "odd")) {
+        model_control["logit_odds"] <- TRUE
+      } else if (link %in% c("logit_ident", "ident", "id")) {
+        model_control["logit_ident"] <- TRUE
+      } else if (link %in% c("logit_loglink", "loglink", "log")) {
+        model_control["logit_loglink"] <- TRUE
+      } else if (link %in% c("logit_probit", "probit")) {
+        model_control["logit_probit"] <- TRUE
+      } else {
+        stop(gettextf(
+          "Error: Argument '%s' not matched to set link options",
+          link
+        ), domain = NA)
+      }
+    } else {
+      stop(gettextf(
+        "Error: Argument '%s' not matched to allowable link options",
+        link
+      ), domain = NA)
+    }
+  }
+  link_names <- c(
+    "logit_odds", "logit_ident", "logit_loglink", "logit_probit"
+  )
+  for (nm in link_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
   if (logitmodel$null) {
     model_control["null"] <- TRUE
     #
@@ -722,43 +756,6 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
     event_total <- sum(df[, event0, with = FALSE])
     trial_total <- sum(df[, trial0, with = FALSE])
     avg_rate <- event_total / trial_total
-    if (missing(link)) {
-      model_control["logit_odds"] <- TRUE
-    } else {
-      # "logit_odds", "logit_ident", "logit_loglink"
-      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
-      link <- tolower(link)
-      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-      if (link %in% acceptable) {
-        if (link %in% c("logit_odds", "odds", "odd")) {
-          model_control["logit_odds"] <- TRUE
-        } else if (link %in% c("logit_ident", "ident", "id")) {
-          model_control["logit_ident"] <- TRUE
-        } else if (link %in% c("logit_loglink", "loglink", "log")) {
-          model_control["logit_loglink"] <- TRUE
-        } else if (link %in% c("logit_probit", "probit")) {
-          model_control["logit_probit"] <- TRUE
-        } else {
-          stop(gettextf(
-            "Error: Argument '%s' not matched to set link options",
-            link
-          ), domain = NA)
-        }
-      } else {
-        stop(gettextf(
-          "Error: Argument '%s' not matched to allowable link options",
-          link
-        ), domain = NA)
-      }
-    }
-    link_names <- c(
-      "logit_odds", "logit_ident", "logit_loglink", "logit_probit"
-    )
-    for (nm in link_names) {
-      if (!(nm %in% names(model_control))) {
-        model_control[nm] <- FALSE
-      }
-    }
     if (model_control[["logit_odds"]]) {
       a_n <- c(log(avg_rate / (1 - avg_rate)))
     } else if (model_control[["logit_ident"]]) {
@@ -774,35 +771,6 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
     } else if (modelform == "GMIX") {
       model_control[["gmix_term"]] <- logitmodel$gmix_term
       model_control[["gmix_theta"]] <- logitmodel$gmix_theta
-    }
-    if (missing(link)) {
-      model_control["logit_odds"] <- TRUE
-    } else {
-      # "logit_odds", "logit_ident", "logit_loglink"
-      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
-      link <- tolower(link)
-      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-      if (link %in% acceptable) {
-        if (link %in% c("logit_odds", "odds", "odd")) {
-          model_control["logit_odds"] <- TRUE
-        } else if (link %in% c("logit_ident", "ident", "id")) {
-          model_control["logit_ident"] <- TRUE
-        } else if (link %in% c("logit_loglink", "loglink", "log")) {
-          model_control["logit_loglink"] <- TRUE
-        } else if (link %in% c("logit_probit", "probit")) {
-          model_control["logit_probit"] <- TRUE
-        } else {
-          stop(gettextf(
-            "Error: Argument '%s' not matched to set link options",
-            link
-          ), domain = NA)
-        }
-      } else {
-        stop(gettextf(
-          "Error: Argument '%s' not matched to allowable link options",
-          link
-        ), domain = NA)
-      }
     }
     if (!missing(cons_mat)) {
       if (missing(cons_vec)) {
@@ -875,9 +843,7 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
     }
     if (int_count > 0) {
       if (control$verbose >= 3) {
-        # nocov start
         message("Note: Threshold max step adjusted to match new weighting")
-        # nocov end
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
@@ -1146,9 +1112,7 @@ CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control 
       }
       if (int_count > 0) {
         if (control$verbose >= 3) {
-          # nocov start
           message("Note: Threshold max step adjusted to match new weighting")
-          # nocov end
         }
         control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
       }
@@ -1170,8 +1134,6 @@ CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control 
     }
     res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
   }
-  # ------------------------------------------------------------------------------ #
-  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -1387,9 +1349,7 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
     }
     if (int_count > 0) {
       if (control$verbose >= 3) {
-        # nocov start
         message("Note: Threshold max step adjusted to match new weighting")
-        # nocov end
       }
       control$thres_step_max <- control$thres_step_max / (int_avg_weight / int_count)
     }
@@ -1408,8 +1368,6 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
     res$constraint_vector <- cons_vec
   }
   res <- apply_norm(df, norm, names, FALSE, list(output = res, norm_weight = norm_weight, tform = tform), model_control)
-  # ------------------------------------------------------------------------------ #
-  #
   # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
@@ -2959,8 +2917,6 @@ PoisRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, realiza
   res$realizations <- length(realization_columns)
   res$realization_mode <- "outcome"
   # ------------------------------------------------------------------------------ #
-  #
-  # ------------------------------------------------------------------------------ #
   func_t_end <- Sys.time()
   res$RunTime <- func_t_end - func_t_start
   # ------------------------------------------------------------------------------ #
@@ -3270,11 +3226,8 @@ LogisticRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realiz
 #' df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
 #' realization_columns <- c("event0", "event1", "event2")
 #' control <- list(
-#'   ncores = 1, lr = 0.75, maxiter = 1,
-#'   halfmax = 2, epsilon = 1e-6,
-#'   deriv_epsilon = 1e-6, step_max = 1.0,
-#'   thres_step_max = 100.0,
-#'   verbose = 0, ties = "breslow", double_step = 1
+#'   ncores = 1, lr = 0.75, maxiter = 10,
+#'   verbose = 0
 #' )
 #' formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
 #' res <- LogisticRunMultiOut(formula, df,
@@ -4104,9 +4057,9 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
       df$CONST <- 1
     }
   }
+  # nocov start
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    # nocov start
     for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
@@ -4114,8 +4067,8 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
         df[, name] <- df[, new_col, with = FALSE]
       }
     }
-    # nocov end
   }
+  # nocov end
   object <- validate_poisres(x, df)
   #
   if (missing(a_n)) {
@@ -4259,8 +4212,6 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
     res$parameter_info <- c(names[check_num], tform[check_num], term_n[check_num])
     names(res$parameter_info) <- c("Column", "Subterm", "term_number")
   }
-  # ------------------------------------------------------------------------------ #
-  #
   # ------------------------------------------------------------------------------ #
   res
 }
@@ -4531,9 +4482,9 @@ Residual.poismodel <- function(x, df, control = list(), a_n = NULL, pearson = FA
       df$CONST <- 1
     }
   }
+  # nocov start
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    # nocov start
     for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
@@ -4541,13 +4492,10 @@ Residual.poismodel <- function(x, df, control = list(), a_n = NULL, pearson = FA
         df[, name] <- df[, new_col, with = FALSE]
       }
     }
-    # nocov end
   }
+  # nocov end
   if (!missing(a_n)) {
     poismodel$a_n <- a_n # assigns the starting parameter values if given
-  }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    poismodel$keep_constant <- keep_constant
   }
   #
   if ("CONST" %in% poismodel$names) {
@@ -4655,9 +4603,9 @@ Residual.poisres <- function(x, df, control = list(), a_n = NULL, pearson = FALS
       df$CONST <- 1
     }
   }
+  # nocov start
   if (any(grepl(":intercept", names, fixed = TRUE))) {
     # one of the columns has a :intercept flag
-    # nocov start
     for (name in grep(":intercept", names, fixed = TRUE, value = TRUE)) {
       if (!(name %in% names(df))) {
         # this isn't a preexisting column
@@ -4665,8 +4613,8 @@ Residual.poisres <- function(x, df, control = list(), a_n = NULL, pearson = FALS
         df[, name] <- df[, new_col, with = FALSE]
       }
     }
-    # nocov end
   }
+  # nocov end
   object <- validate_poisres(x, df)
   #
   if (missing(a_n)) {
@@ -4756,6 +4704,42 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = NULL, link = "odd
   a_n <- logitmodel$a_n
   #
   model_control <- list()
+  if (missing(link)) {
+    model_control["logit_odds"] <- TRUE
+  } else {
+    acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
+    link <- tolower(link)
+    link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+    if (link %in% acceptable) {
+      if (link %in% c("logit_odds", "odds", "odd")) {
+        model_control["logit_odds"] <- TRUE
+      } else if (link %in% c("logit_ident", "ident", "id")) {
+        model_control["logit_ident"] <- TRUE
+      } else if (link %in% c("logit_loglink", "loglink", "log")) {
+        model_control["logit_loglink"] <- TRUE
+      } else if (link %in% c("logit_probit", "probit")) {
+        model_control["logit_probit"] <- TRUE
+      } else {
+        stop(gettextf(
+          "Error: Argument '%s' not matched to set link options",
+          link
+        ), domain = NA)
+      }
+    } else {
+      stop(gettextf(
+        "Error: Argument '%s' not matched to allowable link options",
+        link
+      ), domain = NA)
+    }
+  }
+  link_names <- c(
+    "logit_odds", "logit_ident", "logit_loglink", "logit_probit"
+  )
+  for (nm in link_names) {
+    if (!(nm %in% names(model_control))) {
+      model_control[nm] <- FALSE
+    }
+  }
   if (logitmodel$null) {
     model_control["null"] <- TRUE
     #
@@ -4764,47 +4748,25 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = NULL, link = "odd
     tform <- "loglin"
     keep_constant <- 0
     a_n <- 0.0
-    model_control["logit_odds"] <- TRUE
     #
     event_total <- sum(df[, event0, with = FALSE])
     trial_total <- sum(df[, trial0, with = FALSE])
     avg_rate <- event_total / trial_total
-    a_n <- c(-log(1 - avg_rate))
+    if (model_control[["logit_odds"]]) {
+      a_n <- c(log(avg_rate / (1 - avg_rate)))
+    } else if (model_control[["logit_ident"]]) {
+      a_n <- c(log(avg_rate))
+    } else if (model_control[["logit_loglink"]]) {
+      a_n <- c(log(-log(avg_rate)))
+    } else if (model_control[["logit_probit"]]) {
+      a_n <- c(log(qnorm(avg_rate)))
+    }
   } else {
     if (length(unique(term_n)) == 1) {
       modelform <- "M"
     } else if (modelform == "GMIX") {
       model_control[["gmix_term"]] <- logitmodel$gmix_term
       model_control[["gmix_theta"]] <- logitmodel$gmix_theta
-    }
-    if (missing(link)) {
-      model_control["logit_odds"] <- TRUE
-    } else {
-      # "logit_odds", "logit_ident", "logit_loglink"
-      acceptable <- c("logit_odds", "logit_ident", "logit_loglink", "logit_probit", "odds", "ident", "loglink", "probit", "id", "odd", "log")
-      link <- tolower(link)
-      link <- vapply(link, function(x) tryCatch(match.arg(x, choices = acceptable), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
-      if (link %in% acceptable) {
-        if (link %in% c("logit_odds", "odds", "odd")) {
-          model_control["logit_odds"] <- TRUE
-        } else if (link %in% c("logit_ident", "ident", "id")) {
-          model_control["logit_ident"] <- TRUE
-        } else if (link %in% c("logit_loglink", "loglink", "log")) {
-          model_control["logit_loglink"] <- TRUE
-        } else if (link %in% c("logit_probit", "probit")) {
-          model_control["logit_probit"] <- TRUE
-        } else {
-          stop(gettextf(
-            "Error: Argument '%s' not matched to set link options",
-            link
-          ), domain = NA)
-        }
-      } else {
-        stop(gettextf(
-          "Error: Argument '%s' not matched to allowable link options",
-          link
-        ), domain = NA)
-      }
     }
   }
   control_def_names <- c(

@@ -69,11 +69,8 @@ df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
 df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
 realization_columns <- c("event0", "event1", "event2")
 control <- list(
-  ncores = 1, lr = 0.75, maxiter = 1,
-  halfmax = 2, epsilon = 1e-6,
-  deriv_epsilon = 1e-6, step_max = 1.0,
-  thres_step_max = 100.0,
-  verbose = 0, ties = "breslow", double_step = 1
+  ncores = 1, lr = 0.75, maxiter = 10,
+  verbose = 0
 )
 formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
 res <- LogisticRunMultiOut(formula, df,

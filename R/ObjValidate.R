@@ -444,8 +444,8 @@ validate_formula <- function(x, df, verbose = FALSE) {
     }
   } else {
     stop(
-      "Error: Model formula ", x$modelform,
-      " not in acceptable list"
+      "Error: Model formula `", x$modelform,
+      "` not in acceptable list"
     )
   }
   if (x$modelform == "GMIX") {

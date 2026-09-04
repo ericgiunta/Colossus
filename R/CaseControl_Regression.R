@@ -110,14 +110,14 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       for (i in seq_along(uniq)) {
         df0 <- dfend[get(strat_col) == uniq[i], ]
         if (nrow(df0) == 0) {
+          # nocov start
           if (control$verbose >= 2) {
-            # nocov start
             warning(paste("Warning: no events for strata group:",
               uniq[i],
               sep = " "
             ))
-            # nocov end
           }
+          # nocov end
           df <- df[get(strat_col) != uniq[i], ] # nocov
         }
       }
@@ -152,15 +152,15 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       if (names[i] != "CONST") {
         if (min(df[[names[i]]]) == max(df[[names[i]]])) {
           keep_constant[i] <- 1 # nocov
+          # nocov start
           if (control$verbose >= 2) {
-            # nocov start
             warning(paste0(
               "Warning: element ", i,
               " with column name ", names[i],
               " was set constant"
             ))
-            # nocov end
           }
+          # nocov end
         }
       }
     }

@@ -30,6 +30,10 @@ jobs:
   lintr:
     name: Run lintr scanning
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # for checkout to fetch code
+      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -43,7 +47,12 @@ jobs:
           needs: lint
 
       - name: Lint
-        run: lintr::lint_package()
+        run: lintr::sarif_output(lintr::lint_package(), "lintr-results.sarif")
         shell: Rscript {0}
-        env:
-          LINTR_ERROR_ON_LINT: true
+        continue-on-error: true
+
+      - name: Upload analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: lintr-results.sarif
+          wait-for-processing: true

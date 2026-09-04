@@ -8,6 +8,7 @@
 #' @return returns a vector of substrings
 nested_split <- function(total_string) {
   # start by doing best
+  # split by commas, not between ()
   sub_str <- strsplit(total_string, ",|(?>\\(.*?\\).*?\\K(,|$))", perl = TRUE)[[1]]
   # There may still be some areas where the nested section was split
   final_split <- ""
@@ -23,6 +24,8 @@ nested_split <- function(total_string) {
       final_split <- c(final_split, "") # start next if the counts match
     }
   }
+  # during the final split, the counts should match
+  # Then the final entry should be empty
   if (final_split[length(final_split)] != "") {
     final_split # safety to avoid error cases
   } else {
@@ -272,7 +275,7 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
       if (term_i == 1) {
         df$comb_strata <- df[[factor_col]]
       } else {
-        df$comb_strata <- paste(df$comb_strata, df[[factor_col]], sep = ":")
+        df$comb_strata <- paste(df$comb_strata, df[[factor_col]], sep = ":") # build full string version
       }
     }
     df$comb_strata <- as.integer(factor(df$comb_strata)) # converts to integer levels
@@ -393,19 +396,19 @@ Def_Control <- function(control) {
         if (cpp_compiler != "") {
           if (cpp_compiler == "package_missing") {
             # just going to assume it will not work
-            Sys.setenv(ColossusGCC = "FALSE") # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
           } else if (cpp_compiler == "gcc") {
             R_compiler <- syscheck[["R Compiler"]]
             if (R_compiler != "gcc") {
-              Sys.setenv(ColossusGCC = "FALSE") # nocov
+              Sys.setenv(ColossusGCC = "FALSE")
             }
           } else if (cpp_compiler == "clang") {
-            Sys.setenv(ColossusGCC = "FALSE") # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
           }
         } else {
           R_compiler <- syscheck[["R Compiler"]]
           if (R_compiler != "gcc") {
-            Sys.setenv(ColossusGCC = "FALSE") # nocov
+            Sys.setenv(ColossusGCC = "FALSE")
           }
         }
       }
@@ -1160,12 +1163,6 @@ Check_Trunc <- function(df, ce) {
 #' time1 <- "%trunc%"
 #' time2 <- "a"
 #' event <- "c"
-#' control <- list(
-#'   lr = 0.75, maxiter = -1, halfmax = 5, epsilon = 1e-9,
-#'   deriv_epsilon = 1e-9, step_max = 1.0,
-#'   thres_step_max = 100.0,
-#'   verbose = FALSE, ties = "breslow", double_step = 1
-#' )
 #' grt_f <- function(df, time_col) {
 #'   return((df[, "b"] * df[, get(time_col)])[[1]])
 #' }
@@ -1676,6 +1673,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
             val <- 1.0
           } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
+            # Does not scale with covariate value
             val <- 1.0
           }
           norm_weight <- c(norm_weight, val)
@@ -1688,6 +1686,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
             val <- 1.0
           } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
+            # Does not scale with covariate value
             val <- 1.0
           }
           norm_weight <- c(norm_weight, val)

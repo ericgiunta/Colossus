@@ -135,16 +135,13 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
         double t0 = tu[ijk];
         VectorXi select_ind_all = ((((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)) || ((df_m.col(2).array() == 2) && (df_m.col(1).array() <= t0))).cast<int>();  //  indices at risk
         vector<int> indices_all;
-        //
         int th = 1;
-        //
         visit_lambda(select_ind_all,
             [&indices_all, th](double v, int i, int j) {
                 if (v == th)
                     indices_all.push_back(i + 1);
             });
         int at_risk = indices_all.size();
-        //
         vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
         for (auto it = begin(indices_all); it != end(indices_all); ++it) {
             if (indices.size() == 0) {
@@ -158,7 +155,6 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
             }
         }
         RiskPairs[ijk] = indices;
-        //
         select_ind_all = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  //  indices with events
         indices_all.clear();
         visit_lambda(select_ind_all,
@@ -172,7 +168,6 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
         if (at_risk > at_event) {
             total_risk_groups += 1;
         }
-        //
     }
     return;
 }
@@ -186,7 +181,6 @@ void Make_Groups_CR(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMa
 //' @noRd
 //'
 void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, IntegerMatrix& RiskFail, vector<vector<vector<int> > >& RiskPairs_Strata, const NumericVector& tu, const int& nthreads, NumericVector& Strata_vals, int& total_risk_groups) {
-    //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2) shared(df_m, RiskPairs_Strata, RiskFail, Strata_vals) reduction(+:total_risk_groups)
     #endif
@@ -195,21 +189,17 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
             double t0 = tu[ijk];
             VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
             vector<int> indices_end;
-            //
-            //
             int th = 1;
             visit_lambda(select_ind_end,
                 [&indices_end, th](double v, int i, int j) {
                     if (v == th)
                         indices_end.push_back(i + 1);
                 });
-            //
             vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
                 RiskFail(ijk, 2*s_ij + 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(ijk, 2*s_ij + 1) = indices_end[indices_end.size() - 1] - 1;
                 int at_event = indices_end.size();
-                //
                 select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                 indices_end.clear();
                 visit_lambda(select_ind_end,
@@ -229,7 +219,6 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
                         indices[indices.size() - 1] = *it;
                     }
                 }
-                //
                 RiskPairs_Strata[ijk][s_ij] = indices;
                 if (at_risk > at_event) {
                     total_risk_groups += 1;
@@ -252,7 +241,6 @@ void Make_Groups_Strata(const int& ntime, const Ref<const MatrixXd>& df_m, Integ
 //' @noRd
 //'
 void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vector<vector<int> >& RiskPairs_Strata_Pois, const int& nthreads) {
-    //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) shared(dfs, RiskPairs_Strata_Pois, Strata_vals)
     #endif
@@ -277,7 +265,6 @@ void Make_Strata(NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, vec
                 indices[indices.size() - 1] = *it;
             }
         }
-        //
         RiskPairs_Strata_Pois[s_ij] = indices;
     }
     return;
@@ -300,20 +287,17 @@ void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, In
             double t0 = tu[ijk];
             VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
             vector<int> indices_end;
-            //
             int th = 1;
             visit_lambda(select_ind_end,
                 [&indices_end, th](double v, int i, int j) {
                     if (v == th)
                         indices_end.push_back(i + 1);
                 });
-            //
             vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
                 RiskFail(ijk, 2*s_ij + 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(ijk, 2*s_ij + 1) = indices_end[indices_end.size() - 1] - 1;
                 int at_event = indices_end.size();
-                //
                 select_ind_end = (((((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0)) || ((df_m.col(2).array() == 2) && (df_m.col(1).array() <= t0))) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                 indices_end.clear();
                 visit_lambda(select_ind_end,
@@ -321,7 +305,6 @@ void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, In
                         if (v == th)
                                 indices_end.push_back(i + 1);
                     });
-                //
                 int at_risk = indices_end.size();
                 for (auto it = begin(indices_end); it != end(indices_end); ++it) {
                     if (indices.size() == 0) {
@@ -334,7 +317,6 @@ void Make_Groups_Strata_CR(const int& ntime, const Ref<const MatrixXd>& df_m, In
                         indices[indices.size() - 1] = *it;
                     }
                 }
-                //
                 RiskPairs_Strata[ijk][s_ij] = indices;
                 if (at_risk > at_event) {
                     total_risk_groups += 1;
@@ -361,7 +343,6 @@ void Make_Match(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix
     vector<int> indices = {1, static_cast<int>(df_m.rows())};
     int nstar = static_cast<int>(df_m.rows());
     RiskPairs[0] = indices;
-    //
     VectorXi select_ind_all = (df_m.col(0).array() == 1).cast<int>();  //  indices with events
     vector<int> indices_all;
     int th = 1;
@@ -372,7 +353,6 @@ void Make_Match(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix
         });
     RiskFail(0, 0) = indices_all[0] - 1;  //  Due to the sorting method, there is a continuous block of event rows
     RiskFail(0, 1) = indices_all[indices_all.size() - 1] - 1;
-    //
     int dj = RiskFail(0, 1) - RiskFail(0, 0) + 1;
     int m = static_cast<int>((nstar - dj + 1)*dj);
     vector<double> risk_initial(m, 0.0);
@@ -392,7 +372,6 @@ void Make_Match(List& model_bool, const Ref<const MatrixXd>& df_m, IntegerMatrix
             }
         }
     }
-    //
     return;
 }
 
@@ -413,20 +392,16 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
             vector<int> indices_end;
-            //
-            //
             int th = 1;
             visit_lambda(select_ind_end,
                 [&indices_end, th](double v, int i, int j) {
                     if (v == th)
                         indices_end.push_back(i + 1);
                 });
-            //
             vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
             if (indices_end.size() > 0) {
                 RiskFail(s_ij, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
-                //
                 int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0) + 1;
                 select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  //  indices at risk
                 indices_end.clear();
@@ -446,7 +421,6 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                         indices[indices.size() - 1] = *it;
                     }
                 }
-                //
                 RiskPairs[s_ij] = indices;
                 int nstar = indices_end.size();
                 int m = static_cast<int>((nstar - dj + 1)*dj);
@@ -458,7 +432,6 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                         strata_cond[s_ij] = 0;
                     }
                 }
-                //
             } else {
                 RiskFail(s_ij, 0) = - 1;
                 RiskFail(s_ij, 1) = - 1;
@@ -470,7 +443,6 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
         #endif
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             VectorXi select_ind_end = ((df_m.col(1).array() == 1) && (df_m.col(0).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
-            //
             vector<int> indices_end;
             int th = 1;
             visit_lambda(select_ind_end,
@@ -478,11 +450,9 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                     if (v == th)
                         indices_end.push_back(i + 1);
                 });
-            //
             if (indices_end.size() > 0) {
                 RiskFail(s_ij, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                 RiskFail(s_ij, 1) = indices_end[indices_end.size() - 1] - 1;
-                //
                 int dj = RiskFail(s_ij, 1) - RiskFail(s_ij, 0) + 1;
                 select_ind_end = (df_m.col(0).array() == Strata_vals[s_ij]).cast<int>();  //  indices at risk
                 indices_end.clear();
@@ -503,7 +473,6 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                         indices[indices.size() - 1] = *it;
                     }
                 }
-                //
                 RiskPairs[s_ij] = indices;
                 int nstar = indices_end.size();
                 int m = static_cast<int>((nstar - dj + 1)*dj);
@@ -522,7 +491,6 @@ void Make_Match_Strata(List& model_bool, const Ref<const MatrixXd>& df_m, Intege
                         Recur_Second[s_ij][i] = risk_initial;
                     }
                 }
-                //
             } else {
                 RiskFail(s_ij, 0) = - 1;
                 RiskFail(s_ij, 1) = - 1;
@@ -579,7 +547,6 @@ void Make_Match_Time(List& model_bool, const int& ntime, const Ref<const MatrixX
                 });
             RiskFail(ijk, 0) = indices_all[0] - 1;  //  Due to the sorting method, there is a continuous block of event rows
             RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
-            //
             int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0) + 1;
             int m = static_cast<int>((nstar - dj + 1)*dj);
             vector<double> risk_initial(m, 0.0);
@@ -628,7 +595,6 @@ void Make_Match_Time(List& model_bool, const int& ntime, const Ref<const MatrixX
                 });
             RiskFail(ijk, 0) = indices_all[0] - 1;  //  Due to the sorting method, there is a continuous block of event rows
             RiskFail(ijk, 1) = indices_all[indices_all.size() - 1] - 1;
-            //
             int dj = RiskFail(ijk, 1) - RiskFail(ijk, 0) + 1;
             int m = static_cast<int>((nstar - dj + 1)*dj);
             vector<double> risk_initial(m, 0.0);
@@ -669,7 +635,6 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
             for (int ijk = 0; ijk < ntime; ijk++) {
                 double t0 = tu[ijk];
                 VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
-                //
                 vector<int> indices_end;
                 int th = 1;
                 visit_lambda(select_ind_end,
@@ -677,13 +642,10 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
                         if (v == th)
                             indices_end.push_back(i + 1);
                     });
-                //
                 if (indices_end.size() > 0) {
                     RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                     RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
-                    //
                     int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0) + 1;
-                    //
                     select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                     indices_end.clear();
                     visit_lambda(select_ind_end,
@@ -703,7 +665,6 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
                             indices[indices.size() - 1] = *it;
                         }
                     }
-                    //
                     RiskPairs[s_ij*ntime+ijk] = indices;
                     int nstar = indices_end.size();
                     int m = static_cast<int>((nstar - dj + 1)*dj);
@@ -730,22 +691,17 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
                 double t0 = tu[ijk];
                 VectorXi select_ind_end = ((df_m.col(3).array() == 1) && (df_m.col(1).array() == t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices with events
                 vector<int> indices_end;
-                //
-                //
                 int th = 1;
                 visit_lambda(select_ind_end,
                     [&indices_end, th](double v, int i, int j) {
                         if (v == th)
                             indices_end.push_back(i + 1);
                     });
-                //
                 vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
                 if (indices_end.size() > 0) {
                     RiskFail(s_ij*ntime+ijk, 0) = indices_end[0] - 1;  //  due to the sorting method, there is a continuous block of event rows
                     RiskFail(s_ij*ntime+ijk, 1) = indices_end[indices_end.size() - 1] - 1;
-                    //
                     int dj = RiskFail(s_ij*ntime+ijk, 1) - RiskFail(s_ij*ntime+ijk, 0) + 1;
-                    //
                     select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(2).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                     indices_end.clear();
                     visit_lambda(select_ind_end,
@@ -764,7 +720,6 @@ void Make_Match_Time_Strata(List& model_bool, const int& ntime, const Ref<const 
                             indices[indices.size() - 1] = *it;
                         }
                     }
-                    //
                     RiskPairs[s_ij*ntime+ijk] = indices;
                     int nstar = indices_end.size();
                     int m = static_cast<int>((nstar - dj + 1)*dj);

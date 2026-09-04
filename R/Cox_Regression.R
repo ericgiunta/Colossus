@@ -171,15 +171,15 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
         if (names[i] != "CONST") {
           if (min(df[[names[i]]]) == max(df[[names[i]]])) {
             keep_constant[i] <- 1
+            # nocov start
             if (control$verbose >= 2) {
-              # nocov start
               warning(paste0(
                 "Warning: element ", i,
                 " with column name ", names[i],
                 " was set constant"
               ))
-              # nocov end
             }
+            # nocov end
           }
         }
       }

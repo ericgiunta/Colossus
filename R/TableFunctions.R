@@ -256,7 +256,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
   df <- df[, kept_col0, with = FALSE]
   #
   # Start the first at risk category
-  # without any time categories, every value will contibute
+  # without any time categories, every value will contribute
   df[["F_AT_RISK"]] <- 1
   df[["L_AT_RISK"]] <- 1
   # Checking for errors or valid data
