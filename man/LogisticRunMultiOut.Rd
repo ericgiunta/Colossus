@@ -7,16 +7,16 @@
 LogisticRunMultiOut(
   model,
   df,
-  a_n = list(c(0)),
-  keep_constant = c(0),
+  a_n = list(0),
+  keep_constant = 0,
   realization_columns = c("event0", "event1"),
   control = list(),
   gradient_control = list(),
   link = "odds",
   single = FALSE,
   observed_info = FALSE,
-  cons_mat = as.matrix(c(0)),
-  cons_vec = c(0),
+  cons_mat = as.matrix(0),
+  cons_vec = 0,
   ...
 )
 }
@@ -56,7 +56,7 @@ run a Colossus logistic regression function
 }
 \examples{
 library(data.table)
-df <- data.table::data.table(
+df <- data.table(
   UserID = c(112, 114, 213, 214, 115, 116, 117),
   t0 = c(18, 20, 18, 19, 21, 20, 18),
   t1 = c(30, 45, 57, 47, 36, 60, 55),
@@ -69,11 +69,8 @@ df$event1 <- rbinom(nrow(df), size = 1, prob = 0.3)
 df$event2 <- rbinom(nrow(df), size = 1, prob = 0.3)
 realization_columns <- c("event0", "event1", "event2")
 control <- list(
-  ncores = 1, lr = 0.75, maxiter = 1,
-  halfmax = 2, epsilon = 1e-6,
-  deriv_epsilon = 1e-6, step_max = 1.0,
-  thres_step_max = 100.0,
-  verbose = 0, ties = "breslow", double_step = 1
+  ncores = 1, lr = 0.75, maxiter = 10,
+  verbose = 0
 )
 formula <- logit(event) ~ loglinear(dose, 0) + multiplicative()
 res <- LogisticRunMultiOut(formula, df,

@@ -10,7 +10,7 @@
 #' @noRd
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
-RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -34,7 +34,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   if (min(df[, event0, with = FALSE]) < 0) {
     stop("Error: negative events in atleast one row")
   }
-  if (model_control$null == FALSE) {
+  if (!model_control$null) {
     if (min(keep_constant) > 0) {
       stop("Error: Atleast one parameter must be free")
     }
@@ -50,7 +50,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       df$CONST <- 1
     }
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
@@ -65,18 +65,18 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       # nocov end
     }
   } else {
-    val <- list(cols = c("a"))
+    val <- list(cols = "a")
     val_cols <- c(event0)
-    strata_vals <- c(1)
+    strata_vals <- 1
   }
-  data.table::setkeyv(df, val_cols)
+  setkeyv(df, val_cols)
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   ce <- c(pyr0, event0)
-  a_ns <- c()
+  a_ns <- NULL
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
@@ -142,7 +142,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     e$strata_levels <- length(strata_vals)
   }
   e$modelcontrol <- model_control
@@ -163,7 +163,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
 #' @family Poisson Wrapper Functions
 #' @return returns a list of the final results
 #'
-RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
+RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), strat_col = "null", model_control = list()) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -198,7 +198,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
       df$CONST <- 1
     }
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, FALSE)
     df <- val$data
@@ -213,9 +213,9 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
       # nocov end
     }
   } else {
-    val <- list(cols = c("a"))
+    val <- list(cols = "a")
     val_cols <- c(event0)
-    strata_vals <- c(1)
+    strata_vals <- 1
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -223,7 +223,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   ce <- c(pyr0, event0)
-  a_ns <- c()
+  a_ns <- NULL
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
@@ -250,7 +250,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
 #' @noRd
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
-RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), strat_col = "null", model_control = list()) {
+RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), strat_col = "null", model_control = list()) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -263,8 +263,6 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     )
   }
   # nocov end
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
   control <- Def_Control(control)
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
@@ -276,9 +274,6 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     stop("Error: negative events in atleast one row")
   }
   model_control <- Def_model_control(model_control)
-  # if (min(keep_constant) > 0) {
-  #   stop("Error: Atleast one parameter must be free")
-  # }
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")
   }
@@ -292,7 +287,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
       df$CONST <- 1
     }
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, FALSE)
     df <- val$data
@@ -307,16 +302,15 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
       # nocov end
     }
   } else {
-    val <- list(cols = c("a"))
+    val <- list(cols = "a")
     val_cols <- c(event0)
-    strata_vals <- c(1)
+    strata_vals <- 1
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   #
   df$og_order <- seq_len(nrow(df))
-  data.table::setkeyv(df, val_cols)
-  #  print(df)
+  setkeyv(df, val_cols)
   #
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
@@ -333,11 +327,11 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     model_control
   )
   extra_names <- names(e)
-  df_risk <- data.table("index" = df$og_order)
+  df_risk <- data.table(index = df$og_order)
   for (ex_name in extra_names) {
     df_risk[[ex_name]] <- e[[ex_name]]
   }
-  data.table::setkeyv(df_risk, "index")
+  setkeyv(df_risk, "index")
   for (ex_name in extra_names) {
     e[[ex_name]] <- df_risk[[ex_name]]
   }
@@ -358,7 +352,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
 #' @return returns a list of the final results for each realization
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
-RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -382,7 +376,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   #
   to_remove <- c("CONST", "%trunc%")
   to_keep <- c(pyr0, event0, names, realization_index, as.vector(realization_columns))
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     to_keep <- c(to_keep, strat_col)
   }
   to_keep <- unique(to_keep)
@@ -404,7 +398,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   } else {
     model_control$MCML <- FALSE
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
@@ -419,11 +413,11 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
       # nocov end
     }
   } else {
-    val <- list(cols = c("a"))
+    val <- list(cols = "a")
     val_cols <- c(event0)
-    strata_vals <- c(1)
+    strata_vals <- 1
   }
-  data.table::setkeyv(df, val_cols)
+  setkeyv(df, val_cols)
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -473,7 +467,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     e$strata_levels <- length(strata_vals)
   }
   e$modelcontrol <- model_control
@@ -500,7 +494,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
 #' @return returns a list of the final results for each realization
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
-RunPoisRegression_Omnibus_Multioutcome <- function(df, pyr0 = "pyr", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = c("event0", "event1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunPoisRegression_Omnibus_Multioutcome <- function(df, pyr0 = "pyr", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", realization_columns = c("event0", "event1"), control = list(), strat_col = "null", model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -524,7 +518,7 @@ RunPoisRegression_Omnibus_Multioutcome <- function(df, pyr0 = "pyr", event0 = "e
   #
   to_remove <- c("CONST", "%trunc%")
   to_keep <- c(pyr0, event0, names, as.vector(realization_columns))
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     to_keep <- c(to_keep, strat_col)
   }
   to_keep <- unique(to_keep)
@@ -560,14 +554,13 @@ RunPoisRegression_Omnibus_Multioutcome <- function(df, pyr0 = "pyr", event0 = "e
       df$CONST <- 1
     }
   }
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     stop("Error: Multi-outcome not compatable with stratification currently.")
   } else {
-    val <- list(cols = c("a"))
     val_cols <- c(event0)
-    strata_vals <- c(1)
+    strata_vals <- 1
   }
-  data.table::setkeyv(df, val_cols)
+  setkeyv(df, val_cols)
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -602,7 +595,7 @@ RunPoisRegression_Omnibus_Multioutcome <- function(df, pyr0 = "pyr", event0 = "e
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
-  if (model_control$strata == TRUE) {
+  if (model_control$strata) {
     e$strata_levels <- length(strata_vals)
   }
   e$modelcontrol <- model_control

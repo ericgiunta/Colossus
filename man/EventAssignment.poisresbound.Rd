@@ -9,7 +9,7 @@
   df,
   assign_control = list(),
   control = list(),
-  a_n = c(),
+  a_n = NULL,
   ...
 )
 }

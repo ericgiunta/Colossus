@@ -575,7 +575,7 @@ NULL
 #' \code{Print_LL} Called to print likelihood and derivatives
 #' @inheritParams CPP_template
 #'
-#' @return Noting
+#' @return Nothing
 #' @noRd
 #'
 NULL

@@ -10,7 +10,7 @@
 #' @noRd
 #' @family Logistic Wrapper Functions
 #' @importFrom rlang .data
-RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -49,17 +49,14 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")
   }
-  df0 <- data.table::data.table(a = c(0, 0))
-  val <- list(cols = c("a"))
-  val_cols <- c("a")
-  data.table::setkeyv(df, c(event0, trial0))
+  setkeyv(df, c(event0, trial0))
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
   x_all <- as.matrix(df[, all_names, with = FALSE])
   ce <- c(event0, trial0)
-  a_ns <- c()
+  a_ns <- NULL
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
@@ -149,7 +146,7 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
 #' @return returns a list of the final results
 #' @family Logistic Wrapper Functions
 #' @importFrom rlang .data
-RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", event0 = "event0", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = c("event0", "event1"), control = list(), model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", event0 = "event0", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", realization_columns = c("event0", "event1"), control = list(), model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -197,10 +194,7 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
       stop("Error: No events in column ", realization_columns[i])
     }
   }
-  df0 <- data.table::data.table(a = c(0, 0))
-  val <- list(cols = c("a"))
-  val_cols <- c("a")
-  data.table::setkeyv(df, trial0)
+  setkeyv(df, trial0)
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -254,7 +248,7 @@ RunLogisticRegression_Omnibus_Multioutcome <- function(df, trial0 = "CONST", eve
 #' @return returns a list of the final results for each realization
 #' @family Logistic Wrapper Functions
 #' @importFrom rlang .data
-RunLogisticRegression_Omnibus_Multidose <- function(df, trial0 = "CONST", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), model_control = list(), cons_mat = as.matrix(c(0)), cons_vec = c(0)) {
+RunLogisticRegression_Omnibus_Multidose <- function(df, trial0 = "CONST", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2), realization_index = c("temp0", "temp1"), control = list(), model_control = list(), cons_mat = as.matrix(0), cons_vec = 0) {
   func_t_start <- Sys.time()
   initial_size <- nrow(df)
   # nocov start
@@ -298,7 +292,7 @@ RunLogisticRegression_Omnibus_Multidose <- function(df, trial0 = "CONST", event0
     model_control$MCML <- FALSE
   }
   df <- df[get(trial0) > 0, ]
-  data.table::setkeyv(df, c(event0, trial0))
+  setkeyv(df, c(event0, trial0))
   #
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
@@ -369,7 +363,7 @@ RunLogisticRegression_Omnibus_Multidose <- function(df, trial0 = "CONST", event0
 #' @noRd
 #' @family Poisson Wrapper Functions
 #' @importFrom rlang .data
-RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event", names = c("CONST"), term_n = c(0), tform = "loglin", keep_constant = c(0), a_n = c(0), modelform = "M", control = list(), model_control = list()) {
+RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event", names = "CONST", term_n = 0, tform = "loglin", keep_constant = 0, a_n = 0, modelform = "M", control = list(), model_control = list()) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -382,8 +376,6 @@ RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event
     )
   }
   # nocov end
-  cons_mat <- as.matrix(c(0))
-  cons_vec <- c(0)
   control <- Def_Control(control)
   if (typeof(a_n) != "list") {
     a_n <- list(a_n)
@@ -395,9 +387,6 @@ RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event
     stop("Error: negative events in atleast one row")
   }
   model_control <- Def_model_control(model_control)
-  # if (min(keep_constant) > 0) {
-  #   stop("Error: Atleast one parameter must be free")
-  # }
   if (sum(df[, event0, with = FALSE]) == 0) {
     stop("Error: no events")
   }
@@ -415,9 +404,6 @@ RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)
   #
-  #  df$og_order <- seq_len(nrow(df))
-  #  data.table::setkeyv(df, val_cols)
-  #  print(df)
   #
   dfc <- match(names, all_names)
   term_tot <- max(term_n) + 1
@@ -431,14 +417,5 @@ RunLogisticRegression_Residual <- function(df, trial0 = "trial", event0 = "event
     term_tot,
     model_control
   )
-  #  extra_names <- names(e)
-  #  df_risk <- data.table("index" = df$og_order)
-  #  for (ex_name in extra_names) {
-  #    df_risk[[ex_name]] <- e[[ex_name]]
-  #  }
-  #  data.table::setkeyv(df_risk, "index")
-  #  for (ex_name in extra_names) {
-  #    e[[ex_name]] <- df_risk[[ex_name]]
-  #  }
   e
 }

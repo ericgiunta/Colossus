@@ -4,7 +4,7 @@
 \alias{RelativeRisk.coxres}
 \title{Calculates hazard ratios for a reference vector}
 \usage{
-\method{RelativeRisk}{coxres}(x, df, a_n = c(), ...)
+\method{RelativeRisk}{coxres}(x, df, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}
@@ -24,7 +24,7 @@ relative risk in the data using the risk model from the result
 }
 \examples{
 library(data.table)
-df <- data.table::data.table(
+df <- data.table(
   UserID = c(112, 114, 213, 214, 115, 116, 117),
   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),

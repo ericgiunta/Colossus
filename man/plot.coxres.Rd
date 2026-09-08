@@ -4,7 +4,7 @@
 \alias{plot.coxres}
 \title{Performs Cox Proportional Hazard model plots}
 \usage{
-\method{plot}{coxres}(x, df, plot_options, a_n = c(), ...)
+\method{plot}{coxres}(x, df, plot_options, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}
@@ -28,7 +28,7 @@ The 'plot_options' variable can be used to select the types of plots run.
 \examples{
 library(data.table)
 ## basic example code reproduced from the starting-description vignette
-df <- data.table::data.table(
+df <- data.table(
   UserID = c(112, 114, 213, 214, 115, 116, 117),
   Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
   Ending_Age = c(30, 45, 57, 47, 36, 60, 55),

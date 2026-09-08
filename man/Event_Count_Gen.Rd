@@ -24,7 +24,7 @@ library(data.table)
 a <- c(0, 1, 2, 3, 4, 5, 6)
 b <- c(1, 2, 3, 4, 5, 6, 7)
 c <- c(0, 1, 0, 0, 0, 1, 0)
-table <- data.table::data.table(
+table <- data.table(
   a = a,
   b = b,
   c = c

@@ -8,7 +8,7 @@
   x,
   df,
   control = list(),
-  a_n = c(),
+  a_n = NULL,
   link = "odds",
   pearson = FALSE,
   deviance = FALSE,

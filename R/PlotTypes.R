@@ -7,7 +7,7 @@
 #' @return saves the plots in the current directory and returns a list of data-tables plotted
 #' @noRd
 CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, plot_name, age_unit, studyID) {
-  IDS <- base <- res <- doses <- NULL
+  IDS <- NULL
   if (verbose >= 3) {
     message("Note: Plotting Martingale Residuals") # nocov
   }
@@ -24,7 +24,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
       message(paste0("Note: Martingale Plot: ", dname)) # nocov
     }
     if (studyID %in% names(df)) {
-      dfr <- data.table::data.table(
+      dfr <- data.table(
         Risks = e$Risks, ch_e = ch_e,
         ch_s = ch_s, e = e_i,
         IDS = unlist(df[, studyID, with = FALSE], use.names = FALSE),
@@ -35,16 +35,16 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
       name_temp <- names(dfr)
       for (i in seq_along(name_temp)) {
         if (grepl("cov", name_temp[i], fixed = TRUE)) {
-          data.table::setnames(dfr, name_temp[i], c("cov"))
+          setnames(dfr, name_temp[i], "cov")
         } else if (grepl("IDS", name_temp[i], fixed = TRUE)) {
-          data.table::setnames(dfr, name_temp[i], c("IDS"))
+          setnames(dfr, name_temp[i], "IDS")
         }
       }
       dfr$res <- dfr$e - (dfr$ch_e - dfr$ch_s) * dfr$Risks
       Martingale_Error <- dfr[, lapply(.SD, sum), by = IDS]
       times <- dfr[, lapply(.SD, max), by = IDS]
     } else {
-      dfr <- data.table::data.table(
+      dfr <- data.table(
         Risks = e$Risks, ch_e = ch_e,
         ch_s = ch_s, e = e_i, time = time_e,
         cov = unlist(df[, dname, with = FALSE], use.names = FALSE)
@@ -52,16 +52,16 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
       name_temp <- names(dfr)
       for (i in seq_along(name_temp)) {
         if (grepl("cov", name_temp[i], fixed = TRUE)) {
-          data.table::setnames(dfr, name_temp[i], c("cov"))
+          setnames(dfr, name_temp[i], "cov")
         } else if (grepl("IDS", name_temp[i], fixed = TRUE)) {
-          data.table::setnames(dfr, name_temp[i], c("IDS"))
+          setnames(dfr, name_temp[i], "IDS")
         }
       }
       dfr$res <- dfr$e - (dfr$ch_e) * dfr$Risks
       Martingale_Error <- dfr
       times <- dfr
     }
-    dft <- data.table::data.table(
+    dft <- data.table(
       cov_max = times$cov,
       time_max = times$time,
       res_sum = Martingale_Error$res,
@@ -70,7 +70,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
     table_out[[dname]] <- dft
   }
   if (studyID %in% names(df)) {
-    dfr <- data.table::data.table(
+    dfr <- data.table(
       Risks = e$Risks, ch_e = ch_e,
       ch_s = ch_s, e = e_i,
       IDS = unlist(df[, studyID, with = FALSE],
@@ -81,26 +81,26 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
     name_temp <- names(dfr)
     for (i in seq_along(name_temp)) {
       if (grepl("IDS", name_temp[i], fixed = TRUE)) {
-        data.table::setnames(dfr, name_temp[i], c("IDS"))
+        setnames(dfr, name_temp[i], "IDS")
       }
     }
     dfr$res <- dfr$e - (dfr$ch_e - dfr$ch_s) * dfr$Risks
     Martingale_Error <- dfr[, lapply(.SD, sum), by = IDS]
     times <- dfr[, lapply(.SD, max), by = IDS]
   } else {
-    dfr <- data.table::data.table(
+    dfr <- data.table(
       Risks = e$Risks, ch_e = ch_e,
       ch_s = ch_s, e = e_i, time = time_e
     )
     name_temp <- names(dfr)
     for (i in seq_along(name_temp)) {
       if (grepl("IDS", name_temp[i], fixed = TRUE)) {
-        data.table::setnames(dfr, name_temp[i], c("IDS"))
+        setnames(dfr, name_temp[i], "IDS")
       }
     }
     dfr$res <- dfr$e - (dfr$ch_e) * dfr$Risks
   }
-  dft <- data.table::data.table(
+  dft <- data.table(
     time_max = dfr$time, res_sum = dfr$res,
     event = dfr$e
   )
@@ -121,14 +121,14 @@ CoxSurvival <- function(t, h, ch, surv, surv_se, plot_name, verbose, time_lims, 
     message("Note: Plotting Survival Curves") # nocov
   }
   table_out <- list()
-  dft <- data.table::data.table(t = t, h = h, ch = ch, surv = surv, surv_se = surv_se)
-  data.table::setkeyv(dft, "t")
+  dft <- data.table(t = t, h = h, ch = ch, surv = surv, surv_se = surv_se)
+  setkeyv(dft, "t")
   dft <- dft[(t >= time_lims[1]) & (t <= time_lims[2]), ]
   table_out[["standard"]] <- dft
   Ls <- log(surv)
   Lls_u <- log(-Ls)
   Lt_u <- log(t)
-  dft <- data.table::data.table(t = Lt_u, s = Lls_u)
+  dft <- data.table(t = Lt_u, s = Lls_u)
   table_out[["log"]] <- dft
   table_out
 }
@@ -146,18 +146,15 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
     message("Note: Plotting Kaplan-Meier Curve") # nocov
   }
   model_control <- Def_model_control(model_control)
-  base <- NULL
-  all_names <- unique(names)
-  dfc <- match(names, all_names)
   df_study <- df[, lapply(.SD, max), by = studyID]
   dfend <- df_study[get(event0) == 1, ]
   t_num <- length(unlist(unique(df_study[, studyID, with = FALSE]),
     use.names = FALSE
   ))
   # number of unique individuals in total set
-  t_t <- c(0)
-  n_t <- c(1)
-  g_se <- c(0)
+  t_t <- 0
+  n_t <- 1
+  g_se <- 0
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]),
     use.names = FALSE
   )) # all event times
@@ -179,7 +176,7 @@ CoxKaplanMeier <- function(verbose, studyID, names, df, event0, time1, time2, tu
   }
   n_se <- sqrt(cumsum(g_se)) * n_t
   table_out <- list()
-  dft <- data.table::data.table(t_t = t_t, n_t = n_t, n_se = n_se)
+  dft <- data.table(t_t = t_t, n_t = n_t, n_se = n_se)
   table_out[["kaplin-meier"]] <- dft
   table_out
 }
@@ -216,7 +213,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
       der_iden, modelform,
       control,
       as.matrix(df[, ce, with = FALSE]), tu,
-      keep_constant, term_tot, c(0), c(0),
+      keep_constant, term_tot, 0, 0,
       model_control
     )
     if ("Failure" %in% names(e)) {
@@ -244,7 +241,7 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
         der_iden, modelform,
         control,
         as.matrix(df[, ce, with = FALSE]), tu,
-        keep_constant, term_tot, c(0), c(0),
+        keep_constant, term_tot, 0, 0,
         model_control
       )
       if ("Failure" %in% names(e)) {
@@ -259,17 +256,17 @@ CoxRisk <- function(verbose, df, event0, time1, time2, names, term_n, tform, a_n
         der_iden, modelform,
         control,
         as.matrix(df[, ce, with = FALSE]), tu,
-        keep_constant, term_tot, c(0), c(0),
+        keep_constant, term_tot, 0, 0,
         model_control
       )
       if ("Failure" %in% names(e)) {
         stop(e)
       }
       y_high <- e$y
-      dft <- data.table::data.table(x = x, y = y, `y:lower` = y_low, `y:upper` = y_high)
+      dft <- data.table(x = x, y = y, `y:lower` = y_low, `y:upper` = y_high)
       table_out[[dnames[fir_KM]]] <- dft
     } else {
-      dft <- data.table::data.table(x = x, y = y)
+      dft <- data.table(x = x, y = y)
       table_out[[dnames[fir_KM]]] <- dft
     }
   }
@@ -305,10 +302,9 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   if (control$verbose >= 3) {
     message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
   }
-  data.table::setkeyv(df, c(strat_col, event0, time2, time1))
+  setkeyv(df, c(strat_col, event0, time2, time1))
   ce <- c(time1, time2, event0, strat_col)
   model_control <- Def_model_control(model_control)
-  base <- NULL
   ce <- c(time1, time2, event0, strat_col)
   all_names <- unique(names)
   dfc <- match(names, all_names)
@@ -327,11 +323,10 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     model_control = list(strata = TRUE)
   )
   a_n <- e$beta_0
-  plot_name <- plot_type[2]
-  tt <- c()
-  tsurv <- c()
-  tsurv_se <- c()
-  categ <- c()
+  tt <- NULL
+  tsurv <- NULL
+  tsurv_se <- NULL
+  categ <- NULL
   if (verbose >= 3) {
     message(paste("Note: Starting Stratification: Calculation")) # nocov
   }
@@ -341,7 +336,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control,
     as.matrix(df[, ce, with = FALSE]),
-    tu, keep_constant, term_tot, uniq, c(0),
+    tu, keep_constant, term_tot, uniq, 0,
     model_control
   )
   cov_mat <- e$Covariance
@@ -355,12 +350,12 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
       # nocov end
     }
     col_u <- uniq[col_i]
-    t <- c()
-    h <- c()
-    ch <- c()
-    surv <- c()
-    surv_se <- c()
-    dft <- data.table::data.table(time = tu, base = e$baseline[, col_i], greener = e$Green_Error[, col_i])
+    t <- NULL
+    h <- NULL
+    ch <- NULL
+    surv <- NULL
+    surv_se <- NULL
+    dft <- data.table(time = tu, base = e$baseline[, col_i], greener = e$Green_Error[, col_i])
     i_0 <- length(tu) * (col_i - 1) + 1
     i_1 <- i_0 + length(tu) - 1
     total_beta_error <- e$Beta_Error[i_0:i_1, ]
@@ -407,9 +402,9 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     tsurv_se <- c(tsurv_se, surv_se)
     categ <- c(categ, rep(paste(col_u), length(t)))
   }
-  dft <- data.table::data.table(t = tt, surv = tsurv, cat_group = categ)
-  sbreaks <- c()
-  slabels <- c()
+  dft <- data.table(t = tt, surv = tsurv, cat_group = categ)
+  sbreaks <- NULL
+  slabels <- NULL
   for (i in seq_along(uniq)) {
     sbreaks <- c(sbreaks, paste(uniq[i]))
     slabels <- c(slabels, paste0("For ", strat_col, "=", uniq[i]))
@@ -430,7 +425,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
 #' @noRd
 #' @importFrom rlang .data
 PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, age_unit, plot_name, model_control = list()) {
-  data.table::setkeyv(df, c(event0, time2, time1))
+  setkeyv(df, c(event0, time2, time1))
   model_control <- Def_model_control(model_control)
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
@@ -455,8 +450,8 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     term_n, tform, a_n, dfc, x_all, 0, 0,
     modelform, control,
     as.matrix(df[, ce, with = FALSE]),
-    tu, keep_constant, term_tot, c(0),
-    c(0), model_control
+    tu, keep_constant, term_tot, 0,
+    0, model_control
   )
   res <- res_list$residual
   res_scaled <- res_list$scaled
@@ -466,7 +461,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
       cov_res <- cov - sum(head(keep_constant, cov))
       y <- unlist(res[, cov_res], use.names = FALSE)
       y_scale <- unlist(res_scaled[, cov_res], use.names = FALSE)
-      dft <- data.table::data.table(time = tu, y = y)
+      dft <- data.table(time = tu, y = y)
       dft$y_scale <- y_scale
       table_out[[names[cov]]] <- dft
     }

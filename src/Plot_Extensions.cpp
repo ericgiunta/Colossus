@@ -75,15 +75,12 @@ void visit_lambda(const Mat& m, const Func& f) {
 //' @noRd
 //'
 List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, const Ref<const MatrixXd>& df_m, NumericVector& tu, NumericVector& Strata_vals, int verbose, int nthreads) {
-    //
     int ntime = tu.size();
     NumericMatrix baseline(ntime, Strata_vals.size());
     NumericMatrix hazard_error(ntime, Strata_vals.size());
     NumericMatrix greenwood_error(ntime, Strata_vals.size());
     NumericMatrix dSdbeta(ntime*Strata_vals.size(), reqrdnum);  //  Each row is ordered by time in each strata
-    //
     //  Iterates through the risk groups and approximates the baseline
-    //
     // const Map<MatrixXd> df_m(as<Map<MatrixXd> >(df_groups));
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads) collapse(2)
@@ -103,7 +100,6 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
             int dSb_iterate = ijk + s_ij*ntime;
             if (indices_end.size() > 0) {
                 int dj = indices_end[indices_end.size() - 1] - indices_end[0] + 1;  //  number of events
-                //
                 select_ind_end = (((df_m.col(0).array() < t0) || (df_m.col(0).array() == df_m.col(1).array())) && (df_m.col(1).array() >= t0) && (df_m.col(3).array() == Strata_vals[s_ij])).cast<int>();  //  indices at risk
                 indices_end.clear();
                 visit_lambda(select_ind_end,
@@ -152,11 +148,9 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
             }
         }
     }
-    //
     NumericVector w_R = wrap(R.col(0));
     //  returns the baseline approximates and the risk information
     List res_list = List::create(_["baseline"] = baseline, _["Standard_Error"] = hazard_error, _["Risks"] = w_R, _["Green_Error"] = greenwood_error, _["Beta_Error"] = dSdbeta);
-    //
     return res_list;
 }
 
@@ -170,15 +164,12 @@ List PLOT_SURV_Strata(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_
 //' @noRd
 //'
 List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, int nthreads) {
-    //
     int ntime = tu.size();
     vector<double> baseline(ntime, 0.0);
     vector<double> hazard_error(ntime, 0.0);
     vector<double> greenwood_error(ntime, 0.0);
     NumericMatrix dSdbeta(ntime, reqrdnum);
-    //
     //  Iterates through the risk groups and approximates the baseline
-    //
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
@@ -188,8 +179,6 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
         vector<int> indices_all;
         VectorXi select_ind_end = ((df_m.col(2).array() == 1) && (df_m.col(1).array() == t0)).cast<int>();  //  indices with events
         vector<int> indices_end;
-        //
-        //
         int th = 1;
         visit_lambda(select_ind_all,
             [&indices_all, th](double v, int i, int j) {
@@ -201,7 +190,6 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
                 if (v == th)
                     indices_end.push_back(i + 1);
             });
-        //
         vector<int> indices;  //  generates vector of (start, end) pairs for indices at risk
         for (auto it = begin(indices_all); it != end(indices_all); ++it) {
             if (indices.size() == 0) {
@@ -223,7 +211,6 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
         }
         baseline[ijk] = dj / Rs1;  //  approximates the baseline hazard
         hazard_error[ijk] = dj / pow(Rs1, 2);
-        //
         if (drisk == dj) {
             greenwood_error[ijk] = 0;  //  technically infinite uncertainty, filling with zero for now
         } else {
@@ -237,14 +224,12 @@ List PLOT_SURV(int reqrdnum, MatrixXd& R, MatrixXd& Rd, NumericVector& a_er, con
             dSdbeta(ijk, ij) = dj * Rs2 / pow(Rs1, 2);
         }
     }
-    //
     NumericVector w_base = wrap(baseline);
     NumericVector w_base_er = wrap(hazard_error);
     NumericVector w_R = wrap(R.col(0));
     NumericVector w_Green = wrap(greenwood_error);
     //  returns the baseline approximates and the risk information
     List res_list = List::create(_["baseline"] = w_base, _["Standard_Error"] = w_base_er, _["Risks"] = w_R, _["Green_Error"] = w_Green, _["Beta_Error"] = dSdbeta);
-    //
     return res_list;
 }
 
@@ -264,7 +249,6 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
     MatrixXd residuals = MatrixXd::Zero(ntime, reqrdnum);
     MatrixXd res_scale = MatrixXd::Zero(ntime, reqrdnum);
     VectorXd res_df = VectorXd::Zero(ntime);
-    //
     VectorXd req_beta = VectorXd::Zero(reqrdnum);
     for (int i = 0;  i < totalnum; i++) {
         if (KeepConstant[i] == 0) {
@@ -277,18 +261,13 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
     #endif
     for (int ijk = 0; ijk < totalnum; ijk++) {  //  totalnum*(totalnum + 1)/2
         for (int j = 0; j < ntime; j++) {
-            //
             if (KeepConstant[ijk] == 0) {
-                //
                 int ij = ijk - sum(head(KeepConstant, ijk));
                 int df0_c = dfc[ijk] - 1;
-                //
                 vector<int> InGroup = RiskPairs[j];
                 double t_sum  = 0;
                 double x_expect  = 0;
-                //
                 //  calculates the total term value
-                //
                 for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                     t_sum += R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                     x_expect += (df0.block(InGroup[i] - 1, df0_c, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
@@ -296,7 +275,6 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
                 int dj = RiskFail(j, 1)-RiskFail(j, 0) + 1;
                 double x_risks = df0.block(RiskFail(j, 0), df0_c, dj, 1).sum()/dj;  //  calculate the average covariate value with events
                 x_expect = x_expect / t_sum / dj;  //  calculates the averaged covariate value
-                //
                 residuals(j, ij) = (x_risks - x_expect);
                 if (ij == 0) {
                     res_df(j) = dj;
@@ -304,9 +282,7 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
             }
         }
     }
-    //
     res_scale = ((residuals * Lldd_inv) * ntime).array() + req_beta.transpose().replicate(residuals.rows(), 1).array();
-    //
     List res_list = List::create(_["residuals"] = wrap(residuals), _["scaled"] = wrap(res_scale), _["df"] = wrap(res_df));
     //  returns residuals
     return res_list;
@@ -323,15 +299,11 @@ List Schoenfeld_Calc(int ntime, int totalnum, const  VectorXd& beta_0, const Ref
 //' @noRd
 //'
 List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, int fir, int der_iden, const string& modelform, double step_max, double thres_step_max, const Ref<const MatrixXd>& df_m, NumericVector& tu, int verbose, IntegerVector KeepConstant, int term_tot, const string& ties_method, int nthreads, NumericVector& Strata_vals, const VectorXd& cens_weight, int uniq_v, List model_bool, bool Surv_bool, bool Risk_bool, bool Schoenfeld_bool, bool Risk_Sub_bool, const double gmix_theta, const IntegerVector& gmix_term) {
-    //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
-    //
     //  Time durations are measured from this point on in microseconds
-    //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
     //  totalnum: number of terms used
-    //
     //  ------------------------------------------------------------------------- //  initialize
     int ijk_risk = 0;
     if (Risk_bool) {
@@ -348,19 +320,16 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     //  ------------------------------------------------------------------------- //  initialize
     totalnum = term_n.size();
     reqrdnum = totalnum - sum(KeepConstant);
-    //
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
     //  ------------------------------------------------------------------------- //  initialize
     MatrixXd T0;
     MatrixXd Td0;
     MatrixXd Tdd0;
-    //
     MatrixXd Te;
     MatrixXd R;
     MatrixXd Rd;
     MatrixXd Rdd;
-    //
     MatrixXd Dose;
     MatrixXd nonDose;
     MatrixXd nonDose_LIN;
@@ -375,7 +344,6 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     T0 = MatrixXd::Zero(df0.rows(), totalnum);  //  preallocates matrix for Term column
     Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
     //  ------------------------------------------------------------------------- //  initialize
@@ -392,9 +360,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     //  ------------------------------------------------------------------------- //  initialize
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-    //
     List res_list;
-    //
     if (Risk_bool) {
         res_list = List::create(_["x"] = wrap(df0.col(ijk_risk)), _["y"] = wrap(R.col(0)));  //  returns list of covariate values and risk
         return res_list;
@@ -403,9 +369,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
         res_list = List::create(_["Risk"] = wrap(R.col(0)));  //  returns list of covariate values and risk
         return res_list;
     }
-    //
     //  -------------------------------------------------------------------------------------------
-    //
     IntegerMatrix RiskFail;
     vector<vector<int> > RiskPairs(ntime);
     vector<vector<vector<int> > > RiskPairs_Strata(ntime, vector<vector<int>>(Strata_vals.size()));
@@ -449,7 +413,6 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     }
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
-    //
     MatrixXd Lldd_inv = - 1 * Lldd_mat.inverse().matrix();  //  uses inverse information matrix to calculate the standard deviation
     VectorXd stdev = VectorXd::Zero(totalnum);
     for (int ij = 0; ij < totalnum; ij++) {
@@ -458,9 +421,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
             stdev(ij) = sqrt(Lldd_inv(pij_ind, pij_ind));
         }
     }
-    //
     NumericVector a_er(wrap(stdev));
-    //
     if (Surv_bool) {
         if (model_bool["strata"]) {
             res_list = PLOT_SURV_Strata(reqrdnum, R, Rd, a_er, df_m, tu, Strata_vals, verbose, nthreads);
@@ -473,7 +434,6 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
         res_list = Schoenfeld_Calc(ntime, totalnum, beta_0, df0, R, Lldd_inv, RiskFail, RiskPairs, dfc, verbose, KeepConstant, nthreads);
         return res_list;
     }
-    //
     res_list = List::create(_["PASS"] = 0);
     //  returns a list of results
     return res_list;
@@ -489,21 +449,16 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
 //' @noRd
 //'
 List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, const string& modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
-    //
     int totalnum = term_n.size();
     const int mat_row = df0.rows();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
-    //
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum);  //  preallocates matrix for Term column
-    //
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for column terms used for temporary storage
     MatrixXd R = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for Risks
-    //
     MatrixXd Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  //  matrix of the total dose term values
     MatrixXd nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  //  matrix of the total non-dose term values
     MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  //  matrix of Linear subterm values
@@ -523,10 +478,8 @@ List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<Ve
         Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
     }
     Make_Risks_Single(modelform, tform, term_n, totalnum, fir, T0, Te, R, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, nthreads, KeepConstant, gmix_theta, gmix_term);
-    //
     MatrixXd caused = MatrixXd::Zero(PyrC.rows(), 3);
     MatrixXd predict = MatrixXd::Zero(PyrC.rows(), 3);
-    //
     predict.col(0) = (TTerm.col(fir).array() * PyrC.col(0).array());
     predict.col(2) = (R.col(0).array() * PyrC.col(0).array()).array();
     if (model_bool["strata"]) {
@@ -536,11 +489,9 @@ List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<Ve
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double E_sum = 0;
             double R_sum = 0;
-            //
             vector<int> InGroup = RiskPairs_Strata_Pois[s_ij];
             //  now has the grouping pairs
             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
-                //
                 E_sum += PyrC.block(InGroup[i] - 1, 1, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                 R_sum += (PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
             }
@@ -553,12 +504,10 @@ List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<Ve
     }
     predict.col(1) = predict.col(2).array() - predict.col(0).array();
     predict = (predict.array().isFinite()).select(predict, 0);
-    //
     caused.col(0) = PyrC.col(1).array() * predict.col(0).array() / predict.col(2).array();
     caused.col(1) = PyrC.col(1).array() * predict.col(1).array() / predict.col(2).array();
     caused.col(2) = PyrC.col(1).array();
     caused = (caused.array().isFinite()).select(caused, 0);  //  Correction to account for rows with zero predicted events, due to strata effects
-    //
     res_list = List::create(_["caused"] = wrap(caused), _["predict"] = wrap(predict));
     return res_list;
 }
@@ -573,32 +522,26 @@ List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<Ve
 //' @noRd
 //'
 List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
-    //
     List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
-    //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
     //  totalnum: number of terms used
-    //
     //  ------------------------------------------------------------------------- //  initialize
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     const int mat_row = df0.rows();
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
-    //
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     //  ------------------------------------------------------------------------- //  initialize
     MatrixXd T0 = MatrixXd::Zero(df0.rows(), totalnum);  //  preallocates matrix for Term column
     MatrixXd Te = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for column terms used for temporary storage
     MatrixXd R = MatrixXd::Zero(df0.rows(), 1);  //  preallocates matrix for Risks
-    //
     MatrixXd Dose = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  //  matrix of the total dose term values
     MatrixXd nonDose = MatrixXd::Constant(df0.rows(), term_tot, 1.0);  //  matrix of the total non-dose term values
     MatrixXd nonDose_LIN = MatrixXd::Constant(df0.rows(), term_tot, 0.0);  //  matrix of Linear subterm values
@@ -607,10 +550,8 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     MatrixXd TTerm = MatrixXd::Zero(Dose.rows(), Dose.cols());  //  matrix of term values
     MatrixXd Td0 = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Term derivative columns
     MatrixXd Tdd0 = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-    //
     MatrixXd Rd = MatrixXd::Zero(df0.rows(), reqrdnum);  //  preallocates matrix for Risk derivatives
     MatrixXd Rdd = MatrixXd::Zero(df0.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
-    //
     double dint = 0;  //  the amount of change used to calculate derivatives in threshold paramters
     double dslp = 0;
     MatrixXd RdR;
@@ -625,28 +566,18 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
-//    Rcout << "About to start strata" << endl;
     if (model_bool["strata"]) {
         Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         s_weights = VectorXd::Zero(df0.rows());
-//        Rcout << "In strata" << endl;
-//        #ifdef _OPENMP
-//        #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
-//        #endif
         for (int s_ij = 0; s_ij < Strata_vals.size(); s_ij++) {
             double E_sum = 0;
             double R_sum = 0;
-            //
             vector<int> InGroup = RiskPairs_Strata_Pois[s_ij];
-//            Rcout << s_ij << " " << InGroup.size() << endl;
             //  now has the grouping pairs
             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
-                //
                 E_sum += PyrC.block(InGroup[i] - 1, 1, InGroup[i + 1]-InGroup[i] + 1, 1).sum();
                 R_sum += (PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array() * R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array()).sum();
-//                Rcout << PyrC.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum() << " " << R.block(InGroup[i] - 1, 0, InGroup[i + 1]-InGroup[i] + 1, 1).array().sum() << endl;
             }
             for (vector<double>::size_type i = 0; i < InGroup.size() - 1; i = i + 2) {
                 s_weights.segment(InGroup[i] - 1, InGroup[i + 1]-InGroup[i] + 1) = VectorXd::Constant(InGroup[i + 1]-InGroup[i] + 1, E_sum / R_sum);
@@ -672,7 +603,6 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
         d_residual = 2*d_residual.array();
     }
     List res_list = List::create(_["Risk"] = wrap(R.col(0)), _["Raw_Residual"] = wrap(r_residual.col(0)));
-    //
     if (Pearson_bool) {
         res_list.push_back(wrap(p_residual.col(0)), "Pearson_Residual");
     }
@@ -692,38 +622,31 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
 //' @noRd
 //'
 List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, int fir, const string& modelform, double step_max, double thres_step_max, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, List model_bool, const double gmix_theta, const IntegerVector gmix_term, bool Pearson_bool, bool Deviance_bool) {
-    //
 //    List temp_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     //  Time durations are measured from this point on in microseconds
-    //
     //  df0: covariate data
     //  ntime: number of event times for Cox PH
     //  totalnum: number of terms used
-    //
     //  ------------------------------------------------------------------------- //  initialize
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     const int mat_row = df0.rows();
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
-    //
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  Lld_worst: stores the highest magnitude log-likelihood derivative
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     //  ------------------------------------------------------------------------- //  initialize
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     MatrixXd T0 = MatrixXd::Zero(mat_row, totalnum);  //  preallocates matrix for Term column
     MatrixXd Te = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for column terms used for temporary storage
     MatrixXd R = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Risks
     MatrixXd P = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for Probabilities
     MatrixXd Pnot = MatrixXd::Zero(mat_row, 1);  //  preallocates matrix for 1-P
-    //
     MatrixXd Dose = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of the total dose term values
     MatrixXd nonDose = MatrixXd::Constant(mat_row, term_tot, 1.0);  //  matrix of the total non-dose term values
     MatrixXd nonDose_LIN = MatrixXd::Constant(mat_row, term_tot, 0.0);  //  matrix of Linear subterm values
@@ -732,12 +655,10 @@ List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& te
     MatrixXd TTerm = MatrixXd::Zero(mat_row, term_tot);  //  matrix of term values
     MatrixXd Td0 = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Term derivative columns
     MatrixXd Tdd0 = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Term second derivative columns
-    //
     MatrixXd Rd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk derivatives
     MatrixXd Rdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk second derivatives
     MatrixXd Pd = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability derivatives
     MatrixXd Pdd = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for probability second derivatives
-    //
     MatrixXd RdR = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for Risk to derivative ratios
     MatrixXd RddR = MatrixXd::Zero(mat_row, reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     MatrixXd PdP = MatrixXd::Zero(mat_row, reqrdnum);  //  preallocates matrix for probability to derivative ratios
@@ -748,10 +669,8 @@ List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& te
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    //
     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
-//    List res_list = List::create(_["STATUS"] = "PASS");
     // Now we calculate residuals
     MatrixXd p_residual = MatrixXd::Zero(df0.rows(), 1);
     MatrixXd d_residual = MatrixXd::Zero(df0.rows(), 1);
@@ -769,13 +688,11 @@ List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& te
         // Now correct for no events or all events
         dev_left = (CountEvent.col(0).array() > 0).select(dev_left, 0).array();
         dev_right = (CountEvent.col(1).array() - CountEvent.col(0).array() > 0).select(dev_right, 0).array();
-        //
         d_residual = (2*(dev_left.col(0).array() + dev_right.col(0).array()).array()).array().pow(0.5).array();
         // correct for sign
         d_residual = (r_residual.col(0).array() > 0).select(d_residual, -1*d_residual.array()).array();
     }
     List res_list = List::create(_["Probability"] = wrap(P.col(0)), _["Raw_Residual"] = wrap(r_residual.col(0)));
-    //
     if (Pearson_bool) {
         res_list.push_back(wrap(p_residual.col(0)), "Pearson_Residual");
     }

@@ -10,7 +10,7 @@ Event_Time_Gen(
   time_scale = list(),
   categ = list(),
   summaries = list(),
-  events = c(),
+  events = NULL,
   fcount = FALSE,
   lcount = FALSE,
   studyid = "studyID",
@@ -61,7 +61,7 @@ i <- c(
   1901, 1902, 1903, 1904,
   1905, 1906, 1907
 )
-table <- data.table::data.table(
+table <- data.table(
   a = a, b = b, c = c,
   d = d, e = e, f = f,
   g = g, h = h, i = i
@@ -75,7 +75,7 @@ calendar_categ <- list(
   month = c(1, 1, 1),
   year = c(1901, 1904, 1908)
 )
-time_scale <- list("time" = calendar_categ)
+time_scale <- list(time = calendar_categ)
 summary <- list(
   c = "count AS cases"
 )

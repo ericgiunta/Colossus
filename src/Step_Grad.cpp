@@ -68,7 +68,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
     for (int ij = 0; ij < kept_covs; ij++) {
         Lld_vec[ij] = Lld[ij];
     }
-    //
     //  Written for the sake of preparing what variables will be needed
     bool momentum_bool = model_bool["momentum"];  //  assumed I will define booleans to pick which one is used
     bool adadelta_bool = model_bool["adadelta"];
@@ -80,7 +79,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
     double epsilon_momentum = optim_para["epsilon_decay"];
     //  required vectors for storage
     if (momentum_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -94,7 +92,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
             }
         }
     } else if (adadelta_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -109,16 +106,13 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
             }
         }
     } else if (adam_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
-                //
                 double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1, iteration));
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2, iteration));
-                //
                 dbeta[ijk] = lr / (pow(v_t_bias, 0.5)+epsilon_momentum) * m_t_bias;
                 if (abs(dbeta[ijk]) > step_max) {
                     dbeta[ijk] = step_max * sign(dbeta[ijk]);
@@ -128,7 +122,6 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
             }
         }
     } else {
-        //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
@@ -169,7 +162,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
         score_adjust = 2 * penalty_weight * (pred_delta.array() * Lin_Sys.col(ij).array()).sum();
         Lld_vec[ij] = Lld[ij] - score_adjust;
     }
-    //
     //  Written for the sake of preparing what variables will be needed
     bool momentum_bool = model_bool["momentum"];  //  assumed I will define booleans to pick which one is used
     bool adadelta_bool = model_bool["adadelta"];
@@ -181,7 +173,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
     double epsilon_momentum = optim_para["epsilon_decay"];
     //  required vectors for storage
     if (momentum_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -195,7 +186,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
             }
         }
     } else if (adadelta_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -210,16 +200,13 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
             }
         }
     } else if (adam_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
-                //
                 double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1, iteration));
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2, iteration));
-                //
                 dbeta[ijk] = lr / (pow(v_t_bias, 0.5)+epsilon_momentum) * m_t_bias;
                 if (abs(dbeta[ijk]) > step_max) {
                     dbeta[ijk] = step_max * sign(dbeta[ijk]);
@@ -229,7 +216,6 @@ void Calc_Change_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Res,
             }
         }
     } else {
-        //
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
@@ -283,7 +269,6 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
     for (int ij = 0; ij < kept_strata; ij++) {
         Lld_vec[ij+kept_covs] = LldOdds[ij];
     }
-    //
     //  Written for the sake of preparing what variables will be needed
     bool momentum_bool = model_bool["momentum"];  //  assumed I will define booleans to pick which one is used
     bool adadelta_bool = model_bool["adadelta"];
@@ -295,7 +280,6 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
     double epsilon_momentum = optim_para["epsilon_decay"];
     //  required vectors for storage
     if (momentum_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -323,7 +307,6 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
             }
         }
     } else if (adadelta_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -353,16 +336,13 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
             }
         }
     } else if (adam_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
-                //
                 double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1, iteration));
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2, iteration));
-                //
                 dbeta[ijk] = lr / (pow(v_t_bias, 0.5)+epsilon_momentum) * m_t_bias;
                 if (abs(dbeta[ijk]) > step_max) {
                     dbeta[ijk] = step_max * sign(dbeta[ijk]);
@@ -378,10 +358,8 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
                 int pjk_ind = ijk - reduce(strata_cond.begin(), it_end) + kept_covs;
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
-                //
                 double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1, iteration));
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2, iteration));
-                //
                 dstrata[ijk] = lr / (pow(v_t_bias, 0.5)+epsilon_momentum) * m_t_bias;
                 if (abs(dstrata[ijk]) > step_max) {
                     dstrata[ijk] = step_max * sign(dstrata[ijk]);
@@ -391,7 +369,6 @@ void Calc_Change_Background_Gradient(const int& nthreads, List& model_bool, cons
             }
         }
     } else {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -448,7 +425,6 @@ void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorX
     for (int ij = 0; ij < kept_strata; ij++) {
         Lld_vec[ij+kept_covs] = LldOdds[ij];
     }
-    //
     //  Written for the sake of preparing what variables will be needed
     bool momentum_bool = model_bool["momentum"];  //  assumed I will define booleans to pick which one is used
     bool adadelta_bool = model_bool["adadelta"];
@@ -460,7 +436,6 @@ void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorX
     double epsilon_momentum = optim_para["epsilon_decay"];
     //  required vectors for storage
     if (momentum_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -488,7 +463,6 @@ void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorX
             }
         }
     } else if (adadelta_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
@@ -518,16 +492,13 @@ void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorX
             }
         }
     } else if (adam_bool) {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
-                //
                 double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1, iteration));
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2, iteration));
-                //
                 dbeta[ijk] = lr / (pow(v_t_bias, 0.5)+epsilon_momentum) * m_t_bias;
                 if (abs(dbeta[ijk]) > step_max) {
                     dbeta[ijk] = step_max * sign(dbeta[ijk]);
@@ -543,10 +514,8 @@ void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorX
                 int pjk_ind = ijk - reduce(strata_cond.begin(), it_end) + kept_covs;
                 m_g_store[pjk_ind] = decay1 * m_g_store[pjk_ind] + (1-decay1)*Lld_vec[pjk_ind];
                 v_beta_store[pjk_ind] = decay2 * v_beta_store[pjk_ind] + (1-decay2)*pow(Lld_vec[pjk_ind], 2);
-                //
                 double m_t_bias = m_g_store[pjk_ind] / (1 - pow(decay1, iteration));
                 double v_t_bias = v_beta_store[pjk_ind] / (1 - pow(decay2, iteration));
-                //
                 dstrata[ijk] = lr / (pow(v_t_bias, 0.5)+epsilon_momentum) * m_t_bias;
                 if (abs(dstrata[ijk]) > step_max) {
                     dstrata[ijk] = step_max * sign(dstrata[ijk]);
@@ -556,7 +525,6 @@ void Calc_Change_Background_Gradient_Cons(const MatrixXd& Lin_Sys, const VectorX
             }
         }
     } else {
-        //
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));

@@ -7,8 +7,8 @@
 PoisRunMulti(
   model,
   df,
-  a_n = list(c(0)),
-  keep_constant = c(0),
+  a_n = list(0),
+  keep_constant = 0,
   realization_columns = matrix(c("temp00", "temp01", "temp10", "temp11"), nrow = 2),
   realization_index = c("temp0", "temp1"),
   control = list(),
@@ -17,8 +17,8 @@ PoisRunMulti(
   observed_info = FALSE,
   fma = TRUE,
   mcml = FALSE,
-  cons_mat = as.matrix(c(0)),
-  cons_vec = c(0),
+  cons_mat = as.matrix(0),
+  cons_vec = 0,
   ...
 )
 }
@@ -62,7 +62,7 @@ run a Colossus poisson regression function
 }
 \examples{
 library(data.table)
-df <- data.table::data.table(
+df <- data.table(
   UserID = c(112, 114, 213, 214, 115, 116, 117),
   t0 = c(18, 20, 18, 19, 21, 20, 18),
   t1 = c(30, 45, 57, 47, 36, 60, 55),

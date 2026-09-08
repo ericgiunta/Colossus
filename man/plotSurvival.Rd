@@ -4,7 +4,7 @@
 \alias{plotSurvival}
 \title{Generic Survival Plotting function}
 \usage{
-plotSurvival(x, df, plot_options, a_n = c(), ...)
+plotSurvival(x, df, plot_options, a_n = NULL, ...)
 }
 \arguments{
 \item{x}{result object from a regression, class coxres}
