@@ -1,3 +1,4 @@
+#' @param ... extended for other necessary parameters or named control arguments
 #' @param a0  linear slope
 #' @param a1_goal  exponential maximum desired
 #' @param a_n  list of initial parameter values, used to determine the number of parameters. May be either a list of vectors or a single vector.
@@ -203,7 +204,7 @@ NULL
 #' @importFrom rlang .data
 #' @importFrom methods is
 #' @importFrom callr rcmd
-#' @importFrom stringr str_match str_count
+#' @importFrom stringr str_match str_count fixed
 #' @importFrom processx run
 #' @importFrom dplyr mutate case_when replace_when group_by summarize n n_distinct slice bind_rows across all_of filter
 #' @importFrom tibble as_tibble tibble

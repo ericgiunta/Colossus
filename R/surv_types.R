@@ -15,7 +15,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
     nthreads <- min(c(2, nthreads))
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # nocov start
   if (class(df)[[1]] != "data.table") {
@@ -235,7 +235,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
     nthreads <- min(c(2, nthreads))
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   if (length(lapply(strsplit(Reduce(paste, deparse(formula)), "", fixed = TRUE), function(x) which(x == "~"))[[1]]) != 1) {
     stop("Error: The formula contained multiple '~', invalid formula")
@@ -732,11 +732,11 @@ get_form_risk <- function(model_obj, df) {
             factor_arg_list <- list()
             for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
-              if (str_count(para_cur, "=") == 0) {
+              if (str_count(para_cur, fixed("=")) == 0) {
                 # no name, just add to list
                 factor_arg_list[[i]] <- para_cur
               } else {
-                para_break <- vapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="), numeric(str_count(para_cur, "=")))[[1]]
+                para_break <- vapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="), numeric(str_count(para_cur, fixed("="))))[[1]]
                 item_name <- substr(para_cur, 1, para_break - 1)
                 item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
@@ -788,7 +788,7 @@ get_form_risk <- function(model_obj, df) {
           } else {
             # ----------------------------------------------------------------------------------- #
             # generic function call
-            para_split <- vapply(strsplit(model_paras[subterm_i], "", fixed = TRUE), function(x) which(x == "("), numeric(str_count(model_paras[subterm_i], "\\(")))[[1]]
+            para_split <- vapply(strsplit(model_paras[subterm_i], "", fixed = TRUE), function(x) which(x == "("), numeric(str_count(model_paras[subterm_i], fixed("("))))[[1]]
             exp_name <- substr(model_paras[subterm_i], 1, para_split - 1)
             factor_args <- substr(model_paras[subterm_i], para_split + 1, nchar(model_paras[subterm_i]) - 1)
             factor_args <- nested_split(factor_args)
@@ -796,11 +796,11 @@ get_form_risk <- function(model_obj, df) {
             factor_arg_list <- list()
             for (i in seq_along(factor_args)) {
               para_cur <- factor_args[i]
-              if (str_count(para_cur, "=") == 0) {
+              if (str_count(para_cur, fixed("=")) == 0) {
                 # no name, just add to list
                 factor_arg_list[[i]] <- para_cur
               } else {
-                para_break <- vapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="), numeric(str_count(para_cur, "=")))[[1]]
+                para_break <- vapply(strsplit(para_cur, "", fixed = TRUE), function(x) which(x == "="), numeric(str_count(para_cur, fixed("="))))[[1]]
                 item_name <- substr(para_cur, 1, para_break - 1)
                 item_value <- substr(para_cur, para_break + 1, nchar(para_cur))
                 factor_arg_list[[item_name]] <- parse_literal_string(item_value)
@@ -1331,9 +1331,8 @@ ColossusExpressionCall <- function(calls, df) {
 #'
 #' @param ... entries for a cox survival object, tstart, tend, and event. Either in order or named. If unnamed and two entries, tend and event are assumed.
 #'
-#' @export
 #' @return returns list with interval endpoints and event
-#' @family Formula Interpretation
+#' @noRd
 ColossusCoxSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
@@ -1540,9 +1539,8 @@ ColossusFineGrayStrataSurv <- function(...) {
 #'
 #' @param ... entries for a Poisson object with or without strata, pyr, event, and any strata columns. Either in order or named. The first two are assumed to be pyr and event, the rest assumed to be strata columns
 #'
-#' @export
 #' @return returns list with duration, strata if used, and event
-#' @family Formula Interpretation
+#' @noRd
 ColossusPoisSurv <- function(...) {
   args <- list(...)
   argName <- names(args)
@@ -1805,9 +1803,8 @@ ColossusCaseConTimeStrataSurv <- function(...) {
 #'
 #' @param ... entries for a Logistic object, trials and events. trials not provided assumes one trial per row.
 #'
-#' @export
 #' @return returns list with event
-#' @family Formula Interpretation
+#' @noRd
 ColossusLogitSurv <- function(...) {
   args <- list(...)
   argName <- names(args)

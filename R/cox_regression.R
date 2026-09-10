@@ -152,7 +152,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       use.names = FALSE
     ))
     if (control$verbose >= 3) {
-      message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
+      message("Note: ", length(uniq), " strata used") # nocov
     }
     setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
@@ -160,7 +160,7 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
   dfend <- df[get(event0) == 1, ]
   tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
   if (control$verbose >= 3) {
-    message(paste0("Note: ", length(tu), " risk groups")) # nocov
+    message("Note: ", length(tu), " risk groups") # nocov
   }
   all_names <- unique(names)
   if (!model_control$null) {
@@ -173,11 +173,11 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
             keep_constant[i] <- 1
             # nocov start
             if (control$verbose >= 2) {
-              warning(paste0(
+              warning(
                 "Warning: element ", i,
                 " with column name ", names[i],
                 " was set constant"
-              ))
+              )
             }
             # nocov end
           }
@@ -235,9 +235,8 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
       }
     }
   } else {
-    res <- Check_Iters(control, a_n)
+    res <- Check_Iters(control, length(a_n))
     control <- res$control
-    a_n <- res$a_n
     if (model_control$null) {
       a_ns <- matrix(a_ns)
     } else {
@@ -379,7 +378,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
     stop("Error: no events")
   }
   if (plot_options$verbose >= 3) {
-    message(paste0("Note: ", length(tu), " risk groups")) # nocov
+    message("Note: ", length(tu), " risk groups") # nocov
   }
   if ("type" %in% names(plot_options)) {
     if (!is(plot_options$type, "character")) {
@@ -406,7 +405,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       stop("Error: Stratafied hazard boolean had multiple values.")
     }
     if ((is.na(plot_options$strat_haz)) || (is.null(plot_options$strat_haz))) {
-      stop(paste0("Error: The stratafied hazard boolean was null or NA."))
+      stop("Error: The stratafied hazard boolean was null or NA.")
     }
     if (plot_options$strat_haz) {
       if ("strat_col" %in% names(plot_options)) {
@@ -446,7 +445,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       stop("Error: Martingale boolean had multiple values.")
     }
     if ((is.na(plot_options$martingale)) || (is.null(plot_options$martingale))) {
-      stop(paste0("Error: The martingale boolean was null or NA."))
+      stop("Error: The martingale boolean was null or NA.")
     }
     if (plot_options$martingale) {
       if ("cov_cols" %in% names(plot_options)) {
@@ -495,7 +494,7 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
       stop("Error: Kaplan-Meier boolean had multiple values.")
     }
     if ((is.na(plot_options$km)) || (is.null(plot_options$km))) {
-      stop(paste0("Error: The Kaplan-Meier boolean was null or NA."))
+      stop("Error: The Kaplan-Meier boolean was null or NA.")
     }
     if (plot_options$km) {
       if ("studyid" %in% names(plot_options)) {
@@ -555,10 +554,10 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
   for (iden_col in c("verbose", "martingale", "surv_curv", "strat_haz", "km")) {
     if (iden_col %in% names(plot_options)) {
       if ((!is(plot_options[[iden_col]], "logical")) && (iden_col != "verbose")) {
-        stop(paste0("Error: The ", iden_col, " boolean was not logical."))
+        stop("Error: The ", iden_col, " boolean was not logical.")
       }
       if ((is.na(plot_options[[iden_col]])) || (is.null(plot_options[[iden_col]]))) {
-        stop(paste0("Error: The ", iden_col, " value was null or NA."))
+        stop("Error: The ", iden_col, " value was null or NA.")
       }
     } else {
       plot_options[iden_col] <- FALSE
@@ -832,9 +831,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     ))
     if (control$verbose >= 3) {
       # nocov start
-      message(paste("Note:", length(uniq), " strata used",
-        sep = " "
-      ))
+      message("Note:", length(uniq), " strata used")
       # nocov end
     }
     setkeyv(df, c(strat_col, event0, time2, time1))
@@ -846,7 +843,7 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
     stop("Error: no events")
   }
   if (control$verbose >= 3) {
-    message(paste0("Note: ", length(tu), " risk groups")) # nocov
+    message("Note: ", length(tu), " risk groups") # nocov
   }
   all_names <- unique(names)
   df <- Replace_Missing(df, all_names, 0.0, control$verbose)

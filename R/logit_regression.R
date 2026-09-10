@@ -102,9 +102,8 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
       }
     }
   } else {
-    res <- Check_Iters(control, a_n)
+    res <- Check_Iters(control, length(a_n))
     control <- res$control
-    a_n <- res$a_n
     #
     e <- logist_Omnibus_transition(
       as.matrix(df[, ce, with = FALSE]),

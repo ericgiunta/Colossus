@@ -41,9 +41,6 @@ S3method(print,poisresbound)
 S3method(print,poisresfma)
 S3method(print,poisresmcml)
 export(CaseControlRun)
-export(ColossusCoxSurv)
-export(ColossusLogitSurv)
-export(ColossusPoisSurv)
 export(CoxRun)
 export(CoxRunMulti)
 export(Date_Shift)
@@ -135,6 +132,7 @@ importFrom(stats,
   weighted.mean
 )
 importFrom(stringr,
+  fixed,
   str_count,
   str_match
 )

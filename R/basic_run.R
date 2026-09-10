@@ -243,7 +243,7 @@ CoxRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list()
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!coxmodel$null) {
@@ -516,7 +516,7 @@ PoisRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!poismodel$null) {
@@ -824,7 +824,7 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -1092,7 +1092,7 @@ CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control 
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   int_count <- 0.0
   if (!caseconmodel$null) {
@@ -1330,7 +1330,7 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -1385,6 +1385,7 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @family Predicted Risk and Rate
+#' @return returns matrices of the relatives risks
 #' @export
 RelativeRisk <- function(x, df, ...) {
   UseMethod("RelativeRisk", x)
@@ -1397,6 +1398,7 @@ RelativeRisk <- function(x, df, ...) {
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @noRd
+#' @return returns matrices of the relatives risks
 #' @export
 RelativeRisk.default <- function(x, df, ...) {
   x
@@ -1411,7 +1413,7 @@ RelativeRisk.default <- function(x, df, ...) {
 #' @param ... extended to match any future parameters needed
 #' @inheritParams R_template
 #'
-#' @return returns a class fully describing the model and the regression results
+#' @return returns matrices of the relatives risks
 #' @export
 #' @family Predicted Risk and Rate
 #' @examples
@@ -1593,7 +1595,7 @@ RelativeRisk.coxmodel <- function(x, df, a_n = NULL, ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   # ------------------------------------------------------------------------------ #
@@ -1697,7 +1699,7 @@ RelativeRisk.coxres <- function(x, df, a_n = NULL, ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- Cox_Relative_Risk(df, time1 = time1, time2 = time2, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, model_control = model_control)
   # ------------------------------------------------------------------------------ #
@@ -1714,6 +1716,7 @@ RelativeRisk.coxres <- function(x, df, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @export
 plotRisk <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotRisk", x)
@@ -1725,6 +1728,7 @@ plotRisk <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @noRd
 #' @export
 plotRisk.default <- function(x, df, plot_options, a_n = NULL, ...) {
@@ -1794,6 +1798,7 @@ plotRisk.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @export
 plotSchoenfeld <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotSchoenfeld", x)
@@ -1805,6 +1810,7 @@ plotSchoenfeld <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @noRd
 #' @export
 plotSchoenfeld.default <- function(x, df, plot_options, a_n = NULL, ...) {
@@ -1871,6 +1877,7 @@ plotSchoenfeld.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @export
 plotMartingale <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotMartingale", x)
@@ -1882,6 +1889,7 @@ plotMartingale <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @noRd
 #' @export
 plotMartingale.default <- function(x, df, plot_options, a_n = NULL, ...) {
@@ -1950,6 +1958,7 @@ plotMartingale.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @export
 plotSurvival <- function(x, df, plot_options, a_n = NULL, ...) {
   UseMethod("plotSurvival", x)
@@ -1961,6 +1970,7 @@ plotSurvival <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param x result object from a regression, class coxres
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
+#' @return returns the data used for plots
 #' @noRd
 #' @export
 plotSurvival.default <- function(x, df, plot_options, a_n = NULL, ...) {
@@ -2061,7 +2071,7 @@ plotSurvival.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
 #' @param ... can include the named entries for the plot_options parameter
 #' @inheritParams R_template
 #'
-#' @return saves the plots in the current directory and returns the data used for plots
+#' @return returns the data used for plots
 #' @family Plotting Wrapper Functions
 #' @export
 #' @examples
@@ -2151,7 +2161,7 @@ plot.coxres <- function(x, df, plot_options, a_n = NULL, ...) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   #
   extraArgs <- list(...) # gather additional arguments
@@ -2356,7 +2366,7 @@ CoxRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realization
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # We want to create the previously used model_control list, based on the input
   model_control <- list()
@@ -2603,7 +2613,7 @@ PoisRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realizatio
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -2840,7 +2850,7 @@ PoisRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, realiza
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   pyr0 <- poismodel$person_year
@@ -3054,7 +3064,7 @@ LogisticRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realiz
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   # Pull out the actual model vectors and values
   trial0 <- logitmodel$trials
@@ -3393,7 +3403,7 @@ LogisticRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, rea
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus_Multioutcome(df, trial0 = trial0, event0 = event0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, realization_columns = realization_columns, control = control, model_control = model_control, cons_mat = cons_mat, cons_vec = cons_vec)
   res$model <- logitmodel
@@ -3420,6 +3430,7 @@ LogisticRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, rea
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
+#' @return returns a summary of the likelihood boundary
 #' @family Likelihood Boundaries
 LikelihoodBound <- function(x, df, curve_control = list(), control = list(), ...) {
   UseMethod("LikelihoodBound", x)
@@ -3432,6 +3443,7 @@ LikelihoodBound <- function(x, df, curve_control = list(), control = list(), ...
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @noRd
+#' @return returns a summary of the likelihood boundary
 #' @export
 LikelihoodBound.default <- function(x, df, curve_control = list(), control = list(), ...) {
   x
@@ -3446,7 +3458,7 @@ LikelihoodBound.default <- function(x, df, curve_control = list(), control = lis
 #' @param ... can include the named entries for the curve_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns a summary of the likelihood boundary
 #' @export
 #' @family Likelihood Boundaries
 LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list(), ...) {
@@ -3566,7 +3578,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   if (all(strat_col != "NONE")) {
     #
@@ -3649,7 +3661,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
 #' @param ... can include the named entries for the curve_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns a summary of the likelihood boundary
 #' @export
 #' @family Likelihood Boundaries
 LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = list(), ...) {
@@ -3754,7 +3766,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -3828,7 +3840,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
 #' @param ... can include the named entries for the curve_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns a summary of the likelihood boundary
 #' @export
 #' @family Likelihood Boundaries
 LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = list(), ...) {
@@ -3933,7 +3945,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   norm_res <- apply_norm(df, norm, names, TRUE, list(a_n = a_n, cons_mat = cons_mat, tform = tform), model_control)
   a_n <- norm_res$a_n
@@ -4006,6 +4018,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
+#' @return returns matrices of events assigned to background and excess
 #' @family Poisson Event Assignment
 EventAssignment <- function(x, df, ...) {
   UseMethod("EventAssignment", x)
@@ -4017,6 +4030,7 @@ EventAssignment <- function(x, df, ...) {
 #' @param x result object from a regression, class poisres
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
+#' @return returns matrices of events assigned to background and excess
 #' @noRd
 #' @export
 EventAssignment.default <- function(x, df, ...) {
@@ -4033,7 +4047,7 @@ EventAssignment.default <- function(x, df, ...) {
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns matrices of events assigned to background and excess
 #' @export
 #' @family Poisson Event Assignment
 EventAssignment.poisres <- function(x, df, assign_control = list(), control = list(), a_n = NULL, ...) {
@@ -4112,7 +4126,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   check_num <- 1
   z <- 2
@@ -4226,7 +4240,7 @@ EventAssignment.poisres <- function(x, df, assign_control = list(), control = li
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns matrices of events assigned to background and excess
 #' @export
 #' @family Poisson Event Assignment
 EventAssignment.poisresbound <- function(x, df, assign_control = list(), control = list(), a_n = NULL, ...) {
@@ -4306,7 +4320,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   #
   check_num <- x$para_number
@@ -4404,6 +4418,7 @@ EventAssignment.poisresbound <- function(x, df, assign_control = list(), control
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @export
+#' @return returns matrices of residuals
 #' @family Residuals
 Residual <- function(x, df, ...) {
   UseMethod("Residual", x)
@@ -4416,6 +4431,7 @@ Residual <- function(x, df, ...) {
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @noRd
+#' @return returns matrices of residuals
 #' @export
 Residual.default <- function(x, df, ...) {
   x
@@ -4428,6 +4444,7 @@ Residual.default <- function(x, df, ...) {
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @noRd
+#' @return returns matrices of residuals
 #' @export
 Residual.coxres <- function(x, df, ...) {
   warning("Warning: Residual function is not for a Cox result, use the associated plotting functions to find Schoenfeld or Martingale residuals.")
@@ -4441,6 +4458,7 @@ Residual.coxres <- function(x, df, ...) {
 #' @param ... extended for other necessary parameters
 #' @inheritParams R_template
 #' @noRd
+#' @return returns matrices of residuals
 #' @export
 Residual.coxmodel <- function(x, df, ...) {
   warning("Warning: Residual function is not for a Cox model, use the associated plotting functions to find Schoenfeld or Martingale residuals.")
@@ -4458,7 +4476,7 @@ Residual.coxmodel <- function(x, df, ...) {
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns matrices of residuals
 #' @export
 #' @family Residuals
 Residual.poismodel <- function(x, df, control = list(), a_n = NULL, pearson = FALSE, deviance = FALSE, ...) {
@@ -4559,7 +4577,7 @@ Residual.poismodel <- function(x, df, control = list(), a_n = NULL, pearson = FA
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   # ------------------------------------------------------------------------------ #
@@ -4579,7 +4597,7 @@ Residual.poismodel <- function(x, df, control = list(), a_n = NULL, pearson = FA
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns matrices of residuals
 #' @export
 #' @family Residuals
 Residual.poisres <- function(x, df, control = list(), a_n = NULL, pearson = FALSE, deviance = FALSE, ...) {
@@ -4637,7 +4655,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = NULL, pearson = FALS
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Residual(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control)
   # ------------------------------------------------------------------------------ #
@@ -4657,7 +4675,7 @@ Residual.poisres <- function(x, df, control = list(), a_n = NULL, pearson = FALS
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns matrices of residuals
 #' @export
 #' @family Residuals
 Residual.logitmodel <- function(x, df, control = list(), a_n = NULL, link = "odds", pearson = FALSE, deviance = FALSE, ...) {
@@ -4784,7 +4802,7 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = NULL, link = "odd
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Residual(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control)
   # ------------------------------------------------------------------------------ #
@@ -4804,7 +4822,7 @@ Residual.logitmodel <- function(x, df, control = list(), a_n = NULL, link = "odd
 #' @param ... can include the named entries for the assign_control list parameter
 #' @inheritParams R_template
 #'
-#' @return returns a list of the final results
+#' @return returns matrices of residuals
 #' @export
 #' @family Residuals
 Residual.logitres <- function(x, df, control = list(), a_n = NULL, pearson = FALSE, deviance = FALSE, ...) {
@@ -4861,7 +4879,7 @@ Residual.logitres <- function(x, df, control = list(), a_n = NULL, pearson = FAL
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   thread_0 <- setDTthreads(control$ncores) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Residual(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control)
   # ------------------------------------------------------------------------------ #

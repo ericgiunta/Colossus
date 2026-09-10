@@ -21,7 +21,7 @@ CoxMartingale <- function(verbose, df, time1, time2, event0, e, t, ch, dnames, p
   for (cov_i in seq_along(dnames)) {
     dname <- dnames[cov_i]
     if (verbose >= 3) {
-      message(paste0("Note: Martingale Plot: ", dname)) # nocov
+      message("Note: Martingale Plot: ", dname) # nocov
     }
     if (studyID %in% names(df)) {
       dfr <- data.table(
@@ -290,9 +290,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     df0 <- dfend[get(strat_col) == uniq[i], ]
     tu0 <- unlist(unique(df0[, time2, with = FALSE]), use.names = FALSE)
     if (length(tu0) == 0) {
-      warning(paste("Warning: no events for strata group:", uniq[i],
-        sep = " "
-      ))
+      warning("Warning: no events for strata group: ", uniq[i])
       df <- df[get(strat_col) != uniq[i], ]
     }
   }
@@ -300,7 +298,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     use.names = FALSE
   ))
   if (control$verbose >= 3) {
-    message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
+    message("Note: ", length(uniq), " strata used") # nocov
   }
   setkeyv(df, c(strat_col, event0, time2, time1))
   ce <- c(time1, time2, event0, strat_col)
@@ -328,7 +326,7 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   tsurv_se <- NULL
   categ <- NULL
   if (verbose >= 3) {
-    message(paste("Note: Starting Stratification: Calculation")) # nocov
+    message("Note: Starting Stratification: Calculation") # nocov
   }
   model_control$surv <- TRUE
   model_control$strata <- TRUE
@@ -343,10 +341,10 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
   for (col_i in seq_along(uniq)) {
     if (verbose >= 3) {
       # nocov start
-      message(paste(
+      message(
         "Note: Starting Stratification calculation ",
         col_i
-      ))
+      )
       # nocov end
     }
     col_u <- uniq[col_i]
@@ -433,7 +431,7 @@ PlotCox_Schoenfeld_Residual <- function(df, time1, time2, event0, names, term_n,
     stop("Error: no events")
   }
   if (control$verbose >= 3) {
-    message(paste0("Note: ", length(tu), " risk groups")) # nocov
+    message("Note: ", length(tu), " risk groups") # nocov
   }
   all_names <- unique(names)
   dfc <- match(names, all_names)

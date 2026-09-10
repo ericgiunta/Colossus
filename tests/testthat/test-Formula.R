@@ -625,3 +625,52 @@ test_that("Basic formula passes and fails", {
   expect_no_error(res <- LogisticRun(model, df, control = control))
   expect_no_error(LogisticRun(res, df, control = control))
 })
+
+test_that("printing, no issues", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran |> setDT()
+    df <- copy(veteran)
+
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+    df$status <- as.integer(df$status > 0)
+
+    df$karno50 <- df$karno - 50
+
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
+    # run each
+    expect_no_error(e0 <- CoxRun(Cox(time, status) ~ loglinear(trt, karno50), df, keep_constant = c(0, 0), control = control))
+    expect_no_error(e1 <- CoxRun(Cox(time, status) ~ loglinear(trt, karno50), df, keep_constant = c(0, 1), control = control))
+    #
+    expect_no_error(e2 <- PoisRun(Pois(time, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 0), control = control))
+    expect_no_error(e3 <- PoisRun(Pois(time, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 1), control = control))
+    #
+    expect_no_error(e4 <- LogisticRun(Logit(CONST, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 0), control = control))
+    expect_no_error(e5 <- LogisticRun(Logit(CONST, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 1), control = control))
+    #
+    expect_no_error(e6 <- CaseControlRun(CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt), df, keep_constant = c(0, 0), control = control))
+    expect_no_error(e7 <- CaseControlRun(CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt), df, keep_constant = c(0, 1), control = control))
+    #
+    zz <- file(paste0(tempfile(), ".txt"), open = "wt")
+    sink(zz)
+    sink(zz, type = "message")
+    expect_no_warning(print(e0))
+    expect_warning(print(e1))
+    expect_no_warning(print(e2))
+    expect_warning(print(e3))
+    expect_no_warning(print(e4))
+    expect_warning(print(e5))
+    expect_no_warning(print(e6))
+    expect_warning(print(e7))
+    sink(type = "message")
+    sink(NULL)
+    close(zz)
+  }
+})

@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Colossus <a href="https://ericgiunta.github.io/Colossus/"><img src="man/figures/logo.svg" align="right" height="139" alt="Colossus website" /></a>
+# Colossus <a href="https://ericgiunta.github.io/Colossus/"><img src="man/figures/logo.png" align="right" height="137" alt="Colossus website" /></a>
 
 <!-- badges: start -->
 [![](https://img.shields.io/github/languages/code-size/ericgiunta/Colossus.svg)](https://github.com/ericgiunta/Colossus)

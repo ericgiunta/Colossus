@@ -59,9 +59,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
       # nocov start
-      message(paste("Note: ", length(strat_col), " strata used",
-        sep = ""
-      ))
+      message("Note: ", length(strat_col), " strata used")
       # nocov end
     }
   } else {
@@ -118,9 +116,8 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       }
     }
   } else {
-    res <- Check_Iters(control, a_n)
+    res <- Check_Iters(control, length(a_n))
     control <- res$control
-    a_n <- res$a_n
     #
     e <- pois_Omnibus_transition(
       as.matrix(df[, ce, with = FALSE]),
@@ -207,9 +204,7 @@ RunPoissonEventAssignment <- function(df, pyr0 = "pyr", event0 = "event", names 
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
       # nocov start
-      message(paste("Note: ", length(strat_col), " strata used",
-        sep = ""
-      ))
+      message("Note: ", length(strat_col), " strata used")
       # nocov end
     }
   } else {
@@ -296,9 +291,7 @@ RunPoissonRegression_Residual <- function(df, pyr0 = "pyr", event0 = "event", na
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
       # nocov start
-      message(paste("Note: ", length(strat_col), " strata used",
-        sep = ""
-      ))
+      message("Note: ", length(strat_col), " strata used")
       # nocov end
     }
   } else {
@@ -407,9 +400,7 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
       # nocov start
-      message(paste("Note: ", length(strat_col), " strata used",
-        sep = ""
-      ))
+      message("Note: ", length(strat_col), " strata used")
       # nocov end
     }
   } else {

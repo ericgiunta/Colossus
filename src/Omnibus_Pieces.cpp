@@ -386,6 +386,31 @@ void Pois_Term_Risk_Calc(const string& modelform, const StringVector& tform, con
             }
         }
     }
+//    Rcout << "C++ Note: Values checked ";
+//    for (int ijk = 0; ijk < totalnum; ijk++) {
+//        Rcout << beta_0[ijk] << " ";
+//    }
+//    Rcout << " " << endl;
+//    Rcout << "C++ Note: risk checked ";
+//    for (int ijk = 0; ijk < 1; ijk++) {
+//        Rcout << R.col(0).sum() << " ";
+//    }
+//    Rcout << " " << endl;
+//    Rcout << "C++ Note: risk1 checked ";
+//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//        Rcout << Rd.col(ijk).sum() << " ";
+//    }
+//    Rcout << " " << endl;
+//    Rcout << "C++ Note: risk2 checked ";
+//    for (int ijk = 0; ijk < reqrdnum; ijk++) {
+//        Rcout << Rdd.col(ijk*(ijk + 1)/2+ijk).sum() << " ";
+//    }
+//    Rcout << " " << endl;
+//    Rcout << "C++ Note: ALL risk2 checked ";
+//    for (int ijk = 0; ijk < reqrdnum*(reqrdnum + 1)/2; ijk++) {
+//        Rcout << Rdd.col(ijk).sum() << " ";
+//    }
+//    Rcout << " " << endl;
     return;
 }
 
