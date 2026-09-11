@@ -37,7 +37,7 @@ jobs:
           Rscript -e "devtools::install()"
       - name: run tests
         run: |
-           Rscript -e "g <- withr::with_options(list(goodpractice.exclude_path = c("./R/RcppExports.R", "./tests/testthat/"), goodpractice.function_length_limit = 1000),goodpractice::gp(".", checks = goodpractice::checks_by_group("revdep", "code_structure", "spelling", "urlchecker", "vignette", "description", "package_structure")))
+           Rscript -e "g <- withr::with_options(list(goodpractice.exclude_path = c('./R/RcppExports.R', './tests/testthat/'), goodpractice.function_length_limit = 1000),goodpractice::gp('.', checks = goodpractice::checks_by_group('revdep', 'code_structure', 'spelling', 'urlchecker', 'vignette', 'description', 'package_structure')))
            print(g)
            if (length(goodpractice::failed_check(g)) != 0){
              stop('Failed checks')
