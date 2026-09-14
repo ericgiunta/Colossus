@@ -447,7 +447,7 @@ following:</p>
 <span><span class="va">pyr</span> <span class="op">&lt;-</span> <span class="st">"Person_Years"</span></span>
 <span><span class="va">event</span> <span class="op">&lt;-</span> <span class="st">"Cancer_Status"</span></span></code></pre></div>
 <p>The regression types are added to the formula on the left-hand side.
-Similar to the Surv function in the <code>survival</code> package, the
+Similar to the Surv function in the <a href="https://github.com/therneau/survival" class="external-link">survival</a> package, the
 left-hand side of the formula specifies the type of model and which
 time/event columns are used.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
@@ -469,8 +469,8 @@ categories. The first category is convergence parameters. These cover
 the number of iterations used, limits on parameter changes, and stopping
 criteria. The second category is parameters used for debugging and
 additional information. More information on control parameters can be
-found in the <a href="Control_Options.html">control options
-vignette</a>.</p>
+found in the control options vignette
+(<code><a href="../articles/Control_Options.html">vignette("Control_Options")</a></code>).</p>
 <p>The common convergence parameters are as follows:</p>
 <table class="table">
 <colgroup>
@@ -598,7 +598,7 @@ called as follows:</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.033 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.034 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -705,7 +705,10 @@ change the model equation or provide a new starting guess with a lower
 step size limit. This is an example of how to interpret the results of a
 <code>Colossus</code> run.</p>
 <p>There are additional variants of these functions which are described
-in greater detail in the other vignettes, like the <a href="Matched_Case_Control.html">matched case-control regression</a>, <a href="Logistic.html">logistic regression</a>, and <a href="Alt_Run_Opt.html">alternative run options</a> vignettes.</p>
+in greater detail in the other vignettes, like the matched case-control
+regression (<code><a href="../articles/Matched_Case_Control.html">vignette("Matched_Case_Control")</a></code>), logistic
+regression (<code><a href="../articles/Logistic.html">vignette("Logistic")</a></code>), and alternative run
+options (<code><a href="../articles/Alt_Run_Opt.html">vignette("Alt_Run_Opt")</a></code>) vignettes.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

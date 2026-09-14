@@ -303,22 +303,23 @@ themselves.</p>
 <div class="section level3">
 <h3 id="logistic-and-matched-case-control-regression">Logistic and Matched Case-Control Regression<a class="anchor" aria-label="anchor" href="#logistic-and-matched-case-control-regression"></a>
 </h3>
-<p>See the <a href="Matched_Case_Control.html">Matched Case-Control
-vignette</a> for more details about how stratified logistic regression
-is performed.</p>
+<p>See the Matched Case-Control vignette
+(<code><a href="../articles/Matched_Case_Control.html">vignette("Matched_Case_Control")</a></code>) for more details about
+how stratified logistic regression is performed.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="non-derivative-calculation">Non-Derivative Calculation<a class="anchor" aria-label="anchor" href="#non-derivative-calculation"></a>
 </h2>
 <p><code>Colossus</code> uses Newton’s method to perform the regression
-(see the <a href="Grad_Hess.html">Gradient descent vignette</a> for more
-details), which can become computationally intensive as the model
-becomes more complicated. So, <code>Colossus</code> contains functions
-to calculate only the scores for a parameter set and skip the derivative
-calculations. These results could be used to perform a bisection method
-of regression or plot the dependence between the score and parameter
-values. This ability is left for the user’s convenience.</p>
+(see the Gradient descent vignette (<code><a href="../articles/Grad_Hess.html">vignette("Grad_Hess")</a></code>)
+for more details), which can become computationally intensive as the
+model becomes more complicated. So, <code>Colossus</code> contains
+functions to calculate only the scores for a parameter set and skip the
+derivative calculations. These results could be used to perform a
+bisection method of regression or plot the dependence between the score
+and parameter values. This ability is left for the user’s
+convenience.</p>
 <p>The code is similar to previous examples:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">e</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/CoxRun.html">CoxRun</a></span><span class="op">(</span><span class="fu">Cox</span><span class="op">(</span><span class="va">time1</span>, <span class="va">time2</span>, <span class="va">event</span><span class="op">)</span> <span class="op">~</span> <span class="fu">loglinear</span><span class="op">(</span><span class="va">dose</span><span class="op">)</span>, <span class="va">df</span>,</span>
@@ -372,8 +373,8 @@ risk. If we assume that no time-dependent covariates are being used,
 then all that remains is to weigh the contribution of these competing
 events. In general, a weighting column is provided before regression,
 the values can be solved from a survival curve or by using the
-“finegray” function of the <a href="https://CRAN.R-project.org/package=survival" class="external-link">survival
-package</a>.</p>
+<code><a href="https://rdrr.io/pkg/survival/man/finegray.html" class="external-link">survival::finegray()</a></code> function of the
+<a href="https://github.com/therneau/survival" class="external-link">survival</a> package.</p>
 <p>In code, the call is similar to the standard function. The process
 for finding a weighting is included below. In this example, we assume
 the event column, lung, to contain a 0 for no events, 1 for the primary
@@ -639,7 +640,7 @@ omitted and defaulted to zero.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.348e-06</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.021 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># instead we could make the values opposite</span></span>
@@ -680,10 +681,10 @@ omitted and defaulted to zero.</p>
 <p>Linear constraints can be directly combined with the optimization
 equations used in a Newton-Raphson algorithm, but they can still be used
 with a gradient descent algorithm. For more details on the differences,
-reference the <a href="Grad_Hess.html">vignette on the differences
-between optimization algorithms</a>. The linear constraints are added to
-the optimization using a penalty approach, regardless of the gradient
-descent option used.</p>
+reference the vignette on the differences between optimization
+algorithms (<code><a href="../articles/Grad_Hess.html">vignette("Grad_Hess")</a></code>). The linear constraints
+are added to the optimization using a penalty approach, regardless of
+the gradient descent option used.</p>
 <p>To begin, a penalty weight is set by the user through the
 <code>penalty_weight</code> parameter
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>)
@@ -800,7 +801,7 @@ iterations.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.784e-04</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.02 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.021 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># We can also print out the intermediate results</span></span>
