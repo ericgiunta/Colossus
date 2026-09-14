@@ -230,3 +230,8 @@
 * Functions added for multiple-outcome realizations, further details in vignette.
 * Residual functions improved for Poisson and Logistic regressions, with vignette describing options.
 
+# Colossus 1.6.2
+
+* Guess results now reverse the normalization as well.
+* Stratified poisson models now report results relative to the total observed strata, and list the number of non-zero strata and rows.
+

@@ -29,7 +29,7 @@ if (system.file(package = "ggplot2") != "") {
 
 ## Example Setup
 
-We will use analysis of the lung dataset in the `survival` package to visualize the different plotting methods available in Colossus.
+We will use analysis of the lung dataset in the `{survival}` package to visualize the different plotting methods available in Colossus.
 
 ```{r, eval=TRUE}
 if (system.file(package = "survival") != "") {
@@ -62,7 +62,7 @@ coxres <- CoxRun(Cox(time, status) ~ loglinear(age, sex, 0),
 )
 ```
 
-In general the [plot function](../reference/plot.coxres.html) can be used to call the various different types of plots using a list of plotting options. In this vignette we will be calling the specific functions for each application.
+In general the `plot.coxres()` function can be used to call the various different types of plots using a list of plotting options. In this vignette we will be calling the specific functions for each application.
 
 ## Survival Function Approximation
 
@@ -98,7 +98,7 @@ $$
 $$
 </p>
 
-We can calculate the instantaneous hazard, cumulative hazard, and baseline surviving fraction using the [plotSurvival](../reference/plotSurvival.coxres.html) function. We can get the Kaplan-Meier estimates using the KM option.
+We can calculate the instantaneous hazard, cumulative hazard, and baseline surviving fraction using the 'plotSurvival.coxres()` function. We can get the Kaplan-Meier estimates using the KM option.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 # We can start by obtaining the approximated survival curve data
@@ -198,7 +198,7 @@ $$
 $$
 </p>
 
-We can plot schoenfeld residuals using the [plotSchoenfeld](../reference/plotSchoenfeld.coxres.html) function.
+We can plot schoenfeld residuals using the `plotSchoenfeld.coxres()` function.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
@@ -269,7 +269,7 @@ $$
 $$
 </p>
 
-We can plot martingale residuals using the [plotMartingale](../reference/plotMartingale.coxres.html) function.
+We can plot martingale residuals using the `plotMartingale.coxres()` function.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 # We want to plot results by our two covariates
@@ -322,7 +322,7 @@ g
 
 ## General Evaluation of Risk
 
-`Colossus` also offers scripts that plot the relative risk by covariate value for each covariate in the model, assuming every other covariate is zero. Results for specific covariates can be requested by passing an optional argument, otherwise every covariate used in the risk model is included. Risk at Wald confidence interval boundaries can also be calculated by including a 'boundary' option set to a z-score. In this example, 95 percent confidence intervals are included and plotted. We can plot the risk curves using the [plotRisk](../reference/plotRisk.coxres.html) function.
+`Colossus` also offers scripts that plot the relative risk by covariate value for each covariate in the model, assuming every other covariate is zero. Results for specific covariates can be requested by passing an optional argument, otherwise every covariate used in the risk model is included. Risk at Wald confidence interval boundaries can also be calculated by including a 'boundary' option set to a z-score. In this example, 95 percent confidence intervals are included and plotted. We can plot the risk curves using the `plotRisk.coxres()` function.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 plot_options <- list(
@@ -357,7 +357,7 @@ if (system.file(package = "ggplot2") != "") {
 g
 ```
 
-There is a similar option for returning predicted hazard ratio for a set of input data points, or a reference point, called the [RelativeRisk](../reference/RelativeRisk.coxres.html) function. This can be used similarly to the [plotRisk](../reference/plotRisk.coxres.html) function by manually defining the points to calculate risk at. This has one significant benefit, it can account for interactions. If a model transforms a column, then it has multiple covariates dependent on a single input column. The [plotRisk](../reference/plotRisk.coxres.html) function will only calculate the change in risk based on the final calculated covariates independently, while the [RelativeRisk](../reference/RelativeRisk.coxres.html) function will properly account for how each value depends on each other.
+There is a similar option for returning predicted hazard ratio for a set of input data points, or a reference point, called the `RelativeRisk.coxres()` function. This can be used similarly to the `plotRisk()` function by manually defining the points to calculate risk at. This has one significant benefit, it can account for interactions. If a model transforms a column, then it has multiple covariates dependent on a single input column. The `plotRisk.coxres()` function will only calculate the change in risk based on the final calculated covariates independently, while the `RelativeRisk.coxres()` function will properly account for how each value depends on each other.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 control <- list(ncores = 1)

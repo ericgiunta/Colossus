@@ -36,12 +36,6 @@ tests should be run. Setting “NOT_CRAN” to “false” will disable the
 longer tests. Currently, OpenMP support is not configured for linux
 compiling with clang.
 
-Note: From versions 1.3.1 to 1.4.1 the expected inputs changed.
-Regressions are now run with [CoxRun()](reference/CoxRun.html) and
-[PoisRun()](reference/PoisRun.html) and formula inputs. Please see the
-[Unified Equation Representation
-vignette](articles/Equation_Expression.html) for more details.
-
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
@@ -102,6 +96,6 @@ print(e)
 #> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
 #> All Records Used: 100
-#> Run finished in 1.422 seconds
+#> Run finished in 0.826 seconds
 #> |--------------------------------------------------------------------------------|
 ```

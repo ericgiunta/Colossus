@@ -103,7 +103,7 @@ $$
 
 ## Running the functions
 
-Residuals for poisson and logistic models and regressions can be calculated using the [Residual()](../reference/Residual.html) function. Note that this is currently only used for poisson and logistic models, Cox residuals can be calculated using the [plotSchoenfeld()](../reference/plotSchoenfeld.html) and [plotMartingale()](../reference/plotMartingale.html) functions. This function can be applied to the results of a regression, or a model object with a parameter guess.
+Residuals for poisson and logistic models and regressions can be calculated using the `Residual()` function. Note that this is currently only used for poisson and logistic models, Cox residuals can be calculated using the `plotSchoenfeld.coxres()` and `plotMartingale.coxres() functions. This function can be applied to the results of a regression, or a model object with a parameter guess.
 
 ```{r, eval=TRUE}
 if (system.file(package = "survival") != "") {

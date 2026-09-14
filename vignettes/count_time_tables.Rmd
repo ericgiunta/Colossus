@@ -23,7 +23,7 @@ library(parallel)
 
 ## General Purpose
 
-There are multiple reasons why individual level data may be grouped, including visualization or performing analysis on aggregated data. Either way the process is similar, we want to take a table and apply categorizations and summarize events. `Colossus` offers two functions designed to create grouped tables, [Event_Count_Gen](../reference/Event_Count_Gen.html) and [Event_Time_Gen](../reference/Event_Time_Gen.html) which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
+There are multiple reasons why individual level data may be grouped, including visualization or performing analysis on aggregated data. Either way the process is similar, we want to take a table and apply categorizations and summarize events. `Colossus` offers two functions designed to create grouped tables, `Event_Count_Gen()` and `Event_Time_Gen()` which create person-count tables and person-time tables respectively. The following sections will cover generally how to use each function and what different needs are met.
 
 ### Person-Count Tables
 

@@ -50,16 +50,23 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
       df$CONST <- 1
     }
   }
+  # If we have strata, then we need to handle the number of strata correctly
+  # Some strata have no events, so we can remove without changing the score
+  # Existing methods use the observed strata, so we want to correct it
+  row_count <- list(total = nrow(df), used = nrow(df))
+  strata_count <- list(total = 0, used = 0)
   if (model_control$strata) {
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
     val_cols <- val$combs
     strata_vals <- val$levels
+    row_count <- val$row_count
+    strata_count <- val$strata_count
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
       # nocov start
-      message("Note: ", length(strat_col), " strata used")
+      message("Note: ", length(strat_col), " strata columns used")
       # nocov end
     }
   } else {
@@ -140,7 +147,20 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   e$Parameter_Lists$modelformula <- modelform
   e$Survival_Type <- "Poisson"
   if (model_control$strata) {
-    e$strata_levels <- length(strata_vals)
+    e$row_count <- row_count
+    e$strata_count <- strata_count
+    # We want to correct the degrees of freedom
+    e$strata_levels <- strata_count$total
+    run_size <- row_count$total
+    deg_0 <- (e$AIC - e$Deviance) / 2.0
+    #
+    AIC_change <- 2 * (deg_0 + strata_count$total) - 2 * (deg_0 + strata_count$used)
+    BIC_change <- log(row_count$total) * (deg_0 + strata_count$total) - log(row_count$used) * (deg_0 + strata_count$used)
+    # Returned AIC and BIC
+    e$AIC <- e$AIC + AIC_change
+    e$Guess_Results$AIC <- e$Guess_Results$AIC + AIC_change
+    e$BIC <- e$BIC + BIC_change
+    e$Guess_Results$BIC <- e$Guess_Results$BIC + BIC_change
   }
   e$modelcontrol <- model_control
   e$control <- control
@@ -391,12 +411,19 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   } else {
     model_control$MCML <- FALSE
   }
+  # If we have strata, then we need to handle the number of strata correctly
+  # Some strata have no events, so we can remove without changing the score
+  # Existing methods use the observed strata, so we want to correct it
+  row_count <- list(total = nrow(df), used = nrow(df))
+  strata_count <- list(total = 0, used = 0)
   if (model_control$strata) {
     ## ------------------------------------------------------------------------------- ##
     val <- Make_Interaction_Strata(df, event0, strat_col, control, TRUE, TRUE)
     df <- val$data
     val_cols <- val$combs
     strata_vals <- val$levels
+    row_count <- val$row_count
+    strata_count <- val$strata_count
     ## ------------------------------------------------------------------------------- ##
     if (control$verbose >= 3) {
       # nocov start
@@ -459,7 +486,20 @@ RunPoisRegression_Omnibus_Multidose <- function(df, pyr0 = "pyr", event0 = "even
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
   if (model_control$strata) {
-    e$strata_levels <- length(strata_vals)
+    e$row_count <- row_count
+    e$strata_count <- strata_count
+    # We want to correct the degrees of freedom
+    e$strata_levels <- strata_count$total
+    run_size <- row_count$total
+    deg_0 <- (e$AIC - e$Deviance) / 2.0
+    #
+    AIC_change <- 2 * (deg_0 + strata_count$total) - 2 * (deg_0 + strata_count$used)
+    BIC_change <- log(row_count$total) * (deg_0 + strata_count$total) - log(row_count$used) * (deg_0 + strata_count$used)
+    # Returned AIC and BIC
+    e$AIC <- e$AIC + AIC_change
+    e$Guess_Results$AIC <- e$Guess_Results$AIC + AIC_change
+    e$BIC <- e$BIC + BIC_change
+    e$Guess_Results$BIC <- e$Guess_Results$BIC + BIC_change
   }
   e$modelcontrol <- model_control
   e$control <- control

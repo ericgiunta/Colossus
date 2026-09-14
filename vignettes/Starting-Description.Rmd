@@ -183,7 +183,7 @@ pyr <- "Person_Years"
 event <- "Cancer_Status"
 ```
 
-The regression types are added to the formula on the left-hand side. Similar to the Surv function in the `survival` package, the left-hand side of the formula specifies the type of model and which time/event columns are used.
+The regression types are added to the formula on the left-hand side. Similar to the Surv function in the `{survival}` package, the left-hand side of the formula specifies the type of model and which time/event columns are used.
 
 ```{r}
 # For the interval case
@@ -198,7 +198,7 @@ RHS <- Cox(Ending_Age, Cancer_Status) ~ risk_factors
 
 ## Control and Verbosity
 
-`Colossus` offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information. More information on control parameters can be found in the [control options vignette](Control_Options.html).
+`Colossus` offers several options that control how the input data is used and returned. This can be split into two general categories. The first category is convergence parameters. These cover the number of iterations used, limits on parameter changes, and stopping criteria. The second category is parameters used for debugging and additional information. More information on control parameters can be found in the control options vignette (`vignette("Control_Options")`).
 
 The common convergence parameters are as follows:
 
@@ -263,7 +263,7 @@ The following are output in the regression output lists:
 
 In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a `Colossus` run.
 
-There are additional variants of these functions which are described in greater detail in the other vignettes, like the [matched case-control regression](Matched_Case_Control.html), [logistic regression](Logistic.html), and [alternative run options](Alt_Run_Opt.html) vignettes.
+There are additional variants of these functions which are described in greater detail in the other vignettes, like the matched case-control regression (`vignette("Matched_Case_Control")`), logistic regression (`vignette("Logistic")`), and alternative run options (`vignette("Alt_Run_Opt")`) vignettes.
 
 
 

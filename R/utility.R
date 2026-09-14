@@ -14,7 +14,7 @@ nested_split <- function(total_string) {
   final_split <- ""
   temp_count <- 0
   for (i in sub_str) {
-    temp_count <- temp_count + str_count(i, stringr::fixed("(")) - str_count(i, stringr::fixed(")")) # check to see if the current selections have the same number
+    temp_count <- temp_count + str_count(i, fixed("(")) - str_count(i, fixed(")")) # check to see if the current selections have the same number
     if (!nzchar(final_split[length(final_split)])) {
       final_split[length(final_split)] <- i # first is just added
     } else {
@@ -238,34 +238,13 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     # factor
     df$comb_strata <- as.integer(factor(df[[vals]])) - 1
     combs <- unique(df$comb_strata)
+    #
+    strata_total <- length(combs)
+    rows_total <- nrow(df)
+    strata_used <- length(combs)
+    rows_used <- nrow(df)
   } else {
-    # there are multiple to combine
-    # get the levels for each element
-    if (filter_df) {
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        if (is.null(levels(df[[factor_col]]))) {
-          df[[factor_col]] <- factor(df[[factor_col]]) # Only convert to factor if needed
-        }
-        i_levels <- levels(df[[factor_col]]) # get the levels of the factor
-        if (!keep_base) {
-          level_ref <- levels(df[[factor_col]])[1] # We can remove the baseline from the returned combinations
-          i_levels <- i_levels[i_levels != level_ref]
-        }
-        # We only care about combinations that have events, so we can filter out some combinations early if the base level has no events
-        for (col in i_levels) {
-          temp <- sum(df[get(factor_col) == col, ][[event0]]) # get number of events
-          if (temp == 0) { # if none then we remove that data and the level column
-            if (control$verbose >= 2) {
-              # nocov start
-              warning("Warning: no events for strata group: ", col)
-              # nocov end
-            }
-            df <- df[get(factor_col) != col, ] # remove data
-          }
-        }
-      }
-    }
+    # We want to know the total number of strata
     # We want to combine the strata values together
     df$comb_strata <- ""
     for (term_i in seq_along(vals)) {
@@ -278,17 +257,20 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     }
     df$comb_strata <- as.integer(factor(df$comb_strata)) # converts to integer levels
     combs <- unique(df$comb_strata)
+    strata_total <- length(combs)
+    rows_total <- nrow(df)
     if (filter_df) {
+      # Maybe we want to filter out the unused data
       df_end <- df[get(event0) == 1, ] # get the event data
       combs <- unique(df_end$comb_strata) # check for the strata with events
       comb_tot <- unique(df$comb)
       comb_remove <- comb_tot[!comb_tot %in% combs] # get the strata that were not in the event data
-      for (comb in comb_remove) {
-        df <- df["comb_strata" != comb, ] # remove data
-      }
+      df <- df[df$comb_strata %in% combs]
     }
+    strata_used <- length(combs)
+    rows_used <- nrow(df)
   }
-  list(data = df, combs = "comb_strata", levels = combs)
+  list(data = df, combs = "comb_strata", levels = combs, strata_count = list(total = strata_total, used = strata_used), row_count = list(total = rows_total, used = rows_used))
 }
 
 #' Automatically assigns missing values in listed columns
@@ -1748,8 +1730,10 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           for (i in seq_along(names)) {
             if (grepl("_int", tforms[i], fixed = TRUE)) {
               res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+              res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] * norm_weight[i]
             } else {
               res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+              res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] / norm_weight[i]
             }
           }
         } else {
@@ -1759,10 +1743,12 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
               if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] * norm_weight[i]
                 res$Standard_Error[i] <- res$Standard_Error[i] * norm_weight[i]
               } else {
                 res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] / norm_weight[i]
                 res$Standard_Error[i] <- res$Standard_Error[i] / norm_weight[i]
               }
               for (j in seq_along(names)) {
@@ -1790,8 +1776,10 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
             } else {
               if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] * norm_weight[i]
               } else {
                 res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] / norm_weight[i]
               }
             }
           }
@@ -2590,6 +2578,9 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
             message("Strata split into ", strata_level, " distinct levels")
+            row_count <- out_list$row_count
+            strata_count <- out_list$strata_count
+            message("Note: Regression based on non-zero event strata, ", strata_count$used, " strata and ", row_count$used, " rows.")
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))

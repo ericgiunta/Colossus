@@ -63,7 +63,7 @@ $$
 
 The right hand side adds elements to subterms. Each subterm should have the included columns, and optionally the term number. Subterms are assumed to be in term 0 if a term number is not provided, and the model is assumed to be multiplicative excess. The factor option automatically removes the first level as a reference. Note that unused levels can be listed first to use all levels.
 
-A formula can be converted to a vector representation by using the [get_form](../reference/get_form.html) function. This transformation is applied automatically when formula are provided to regression functions however. The following expressions are equivalent.
+A formula can be converted to a vector representation by using the `get_form()` function. This transformation is applied automatically when formula are provided to regression functions however. The following expressions are equivalent.
 
 ```{r}
 # Each model has entry and exit columns, t0 and t1

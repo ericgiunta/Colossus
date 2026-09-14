@@ -68,7 +68,7 @@ $$
 
 ### Examples of Use
 
-The use of a logistic model in `Colossus` closely follows the other regression options. We start by loading and preparing the data. In this example, we will be using the Veterans' Administration Lung Cancer study data from the `survival` package. Every row has 1 trial and a binary event status column. Once again, our model uses a trial column, an event column, and the "risk" equation that will be converted to a probability. In this case, the number of trials is 1, so the column can be omitted, but to illustrate, we will artificially create a trial column named "trial".
+The use of a logistic model in `Colossus` closely follows the other regression options. We start by loading and preparing the data. In this example, we will be using the Veterans' Administration Lung Cancer study data from the `{survival}` package. Every row has 1 trial and a binary event status column. Once again, our model uses a trial column, an event column, and the "risk" equation that will be converted to a probability. In this case, the number of trials is 1, so the column can be omitted, but to illustrate, we will artificially create a trial column named "trial".
 
 ```{r, eval = TRUE}
 #

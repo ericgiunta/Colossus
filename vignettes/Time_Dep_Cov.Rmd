@@ -124,7 +124,7 @@ This is most helpful in situations where the user has reason to believe that the
 
 ## Examples of Use
 
-The following provide a basic example for each method listed above. We start by setting up the data, which for this example is the cancer data from the R `survival` package.
+The following provide a basic example for each method listed above. We start by setting up the data, which for this example is the cancer data from the R `{survival}` package.
 
 ```{r}
 # Setting up the data for use

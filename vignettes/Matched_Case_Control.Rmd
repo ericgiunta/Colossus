@@ -123,7 +123,7 @@ $$
 
 ### Examples of Use
 
-The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included in the R `survival` package. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short, we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
+The following provides a basic example of how to use the matched case-control regression function. The data used is from a lung cancer study, included in the R `{survival}` package. Slight adjustments were made to make the data line up with data included with 32-bit Epicure, for comparison. In short, we want to model the effects of treatment and Karnofsky performance score on sets matched by cancer cell type.
 
 ```{r, eval = TRUE}
 #
