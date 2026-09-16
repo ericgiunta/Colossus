@@ -45,6 +45,8 @@ using Rcpp::as;
 using Rcpp::IntegerVector;
 using Rcpp::StringVector;
 using Rcpp::Rcout;
+using Rcpp::sum;
+using Rcpp::head;
 
 //' Utility function to calculate the term and subterm values
 //'

@@ -234,4 +234,5 @@
 
 * Guess results now reverse the normalization as well.
 * Stratified poisson models now report results relative to the total observed strata, and list the number of non-zero strata and rows.
+* Fixed bug in likelihood-based boundaries in models with constant parameters
 

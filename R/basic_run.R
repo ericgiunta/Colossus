@@ -273,7 +273,7 @@ CoxRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list()
   # ------------------------------------------------------------------------------ #
   res <- RunCoxRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
-    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+    res$control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- coxmodel
   # ------------------------------------------------------------------------------ #
@@ -546,7 +546,7 @@ PoisRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
-    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count) # nocov
+    res$control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count) # nocov
   }
   res$model <- poismodel
   # ------------------------------------------------------------------------------ #
@@ -852,7 +852,7 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
   # ------------------------------------------------------------------------------ #
   res <- RunLogisticRegression_Omnibus(df, trial0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
-    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+    res$control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- logitmodel
   # ------------------------------------------------------------------------------ #
@@ -1122,7 +1122,7 @@ CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control 
   # ------------------------------------------------------------------------------ #
   res <- RunCaseControlRegression_Omnibus(df, time1, time2, event0, names, term_n, tform, keep_constant, a_n, modelform, control, "_strata_col", cens_weight, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
-    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+    res$control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- caseconmodel
   # ------------------------------------------------------------------------------ #
@@ -1358,7 +1358,7 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
   # ------------------------------------------------------------------------------ #
   res <- RunPoissonRegression_Omnibus(df, pyr0, event0, names, term_n, tform, keep_constant, a_n, modelform, control, strat_col, model_control, cons_mat, cons_vec)
   if (int_count > 0) {
-    control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
+    res$control$thres_step_max <- control$thres_step_max * (int_avg_weight / int_count)
   }
   res$model <- poismodel
   # ------------------------------------------------------------------------------ #
@@ -3529,7 +3529,7 @@ LikelihoodBound.coxres <- function(x, df, curve_control = list(), control = list
   #
   model_control["log_bound"] <- TRUE
   extraArgs <- list(...) # gather additional arguments
-  controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
+  controlargs <- c("bisect", "qchi", "alpha", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
@@ -3717,7 +3717,7 @@ LikelihoodBound.poisres <- function(x, df, curve_control = list(), control = lis
   #
   model_control["log_bound"] <- TRUE
   extraArgs <- list(...) # gather additional arguments
-  controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
+  controlargs <- c("bisect", "qchi", "alpha", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same
@@ -3896,7 +3896,7 @@ LikelihoodBound.logitres <- function(x, df, curve_control = list(), control = li
   #
   model_control["log_bound"] <- TRUE
   extraArgs <- list(...) # gather additional arguments
-  controlargs <- c("bisect", "qchi", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
+  controlargs <- c("bisect", "qchi", "alpha", "para_number", "manual", "search_mult", "maxstep", "step_size") # names used in control function
   if (length(extraArgs)) {
     names(extraArgs) <- tolower(names(extraArgs)) # set the names to lowercase
     names(extraArgs) <- lapply(names(extraArgs), function(x) tryCatch(match.arg(x, choices = controlargs), error = function(error_message) x)) # match against expected values. but keep any that don't match the same

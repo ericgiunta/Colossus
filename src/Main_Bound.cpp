@@ -1492,14 +1492,17 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
     int bound_val = 1;
     while ((step < maxstep) && (iter_continue)) {
         step++;
+//        Rcout << "Step:" << step << endl;
         trouble = false;
         half_check = 0;
+//        Rcout << 0 << endl;
         Log_Bound(deriv_max, Lldd_mat, Lld_vec, Lstar, qchi, Ll[0], para_number, nthreads, totalnum, reqrdnum, KeepConstant, term_tot, step, dbeta, beta_0, upper, trouble, verbose, mult);
+//        Rcout << 1 << endl;
         if (trouble) {
             Calc_Change_trouble(para_number, nthreads, totalnum, thres_step_max, lr, step_max, Ll, Lld, Lldd, dbeta, tform, thres_step_max, step_max, KeepConstant_trouble);
         }
         beta_a = beta_c;
-
+//        Rcout << 2 << endl;
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 if ((tform[ijk] == "lin_quad_int") || (tform[ijk] == "lin_exp_int") || (tform[ijk] == "step_int") || (tform[ijk] == "lin_int")) {  //  the threshold values use different maximum deviation values
@@ -1515,6 +1518,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
                 dbeta[ijk] = 0;
             }
         }
+//        Rcout << "DBETA CHECK" << endl;
         max_change = abs(dbeta[0]);
         for (int ij = 0; ij < totalnum; ij++) {
             if (ij == para_number) {
@@ -1533,10 +1537,12 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
         //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
         //  The same subterm, risk, sides, and log-likelihood calculations are performed every half-step and iteration
         //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
-
+//        Rcout << "START RISK" << endl;
         Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         bound_val = 1;
+//        Rcout << "LOG LOOP" << endl;
         Cox_Pois_Log_Loop(step_max, model_bool, beta_0, beta_a, beta_c, bound_val, dbeta, df0, dfc, dint, Dose, thres_step_max, dslp, fir, gmix_term, gmix_theta, half_check, halfmax, KeepConstant, limit_hit, lr, modelform, nonDose, nonDose_LIN, nonDose_LOGLIN, nonDose_PLIN, nthreads, R, Rd, Rdd, RddR, RdR, dfs, PyrC, s_weights, T0, Td0, Tdd0, Te, term_n, term_tot, tform, totalnum, TTerm, verbose);
+//        Rcout << "LOOP EXIT" << endl;
         for (int ij = 0; ij < totalnum; ij++) {
             beta_0[ij] = beta_c[ij];
         }
@@ -1546,8 +1552,11 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             limit_converged[1] = FALSE;
             break;
         }
+//        Rcout << "START DEV" << endl;
         Pois_Dev_LL_Calc(reqrdnum, totalnum, fir, R, Rd, Rdd, beta_0, RdR, RddR, Ll, Lld, Lldd, RiskPairs_Strata_Pois, Strata_vals, dfs, PyrC, s_weights, dev_temp, nthreads, KeepConstant, verbose, model_bool, iter_stop, dev);
+//        Rcout << "END DEV" << endl;
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
+//        Rcout << "LL START" << endl;
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
@@ -1573,6 +1582,7 @@ List LogLik_Poisson_Omnibus_Log_Bound(const Ref<const MatrixXd>& PyrC, NumericVe
             iter_continue = false;
             limit_converged[1] = TRUE;
         }
+//        Rcout << "LL END" << endl;
     }
     VectorXd::Map(&beta_upper[0], beta_0.size()) = beta_0;  //  stores the final upper parameters
     if (verbose >= 4) {

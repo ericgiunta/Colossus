@@ -52,6 +52,8 @@ using Rcpp::StringVector;
 using Rcpp::List;
 using Rcpp::_;
 using Rcpp::Rcout;
+using Rcpp::sum;
+using Rcpp::head;
 
 //' Utility function to calculate repeated values used in Cox Log-Likelihood calculation
 //'

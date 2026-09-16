@@ -167,9 +167,9 @@ test_that("Coxph EPICURE validated answers, loglin", {
   alphas <- c(0.75, 0.5, 1 - 0.683, 0.25, 0.1, 0.05, 0.025, 0.01, 0.005)
   for (alpha_i in c(1, 5)) { # seq_along(alphas)) {
     a_n <- c(-0.6067, 5.019)
-    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "alpha" = alphas[alpha_i], "para_number" = 1)
+    model_control <- list("basic" = TRUE, "log_bound" = TRUE, "para_number" = 1)
     curve_control <- list("alpha" = alphas[alpha_i], "para_number" = 1)
-    e <- LikelihoodBound(coxres, df, curve_control, control = control)
+    e <- LikelihoodBound(coxres, df, curve_control, control = control, alpha = alphas[alpha_i])
     a <- e$Parameter_Limits
     expect_equal(a[1], v_lower[alpha_i], tolerance = 1e-4)
     expect_equal(a[2], v_upper[alpha_i], tolerance = 1e-4)

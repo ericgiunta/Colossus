@@ -49,6 +49,8 @@ using Rcpp::List;
 using Rcpp::_;
 using Rcpp::Rcout;
 using Rcpp::Dimension;
+using Rcpp::sum;
+using Rcpp::head;
 
 template<typename Func>
 struct lambda_as_visitor_wrapper : Func {

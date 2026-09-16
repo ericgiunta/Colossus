@@ -921,6 +921,7 @@ factorize <- function(df, col_list, verbose = 0) {
 #' score <- Likelihood_Ratio_Test(alternative_model, null_model)
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   alt_is_null <- alternative_model$modelcontrol$null
+  null_is_null <- null_model$modelcontrol$null
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
     #
     alt_is_null <- alternative_model$modelcontrol$null
@@ -929,13 +930,16 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
     } else {
       alt_count <- length(alternative_model$beta_0) - sum(alternative_model$model$keep_constant)
     }
-    if (alt_is_null) {
+    if (null_is_null) {
       null_count <- 0
     } else {
       null_count <- length(null_model$beta_0) - sum(null_model$model$keep_constant)
     }
     #
     freedom <- alt_count - null_count
+    if (freedom == 0) {
+      stop("Error: The models had the same number of solved parameters.")
+    }
     val <- 2 * (alternative_model$LogLik - null_model$LogLik)
     pval <- pchisq(val, freedom, lower.tail = FALSE)
     return(list(Difference = val, `p value` = pval))

@@ -55,6 +55,8 @@ using Rcpp::List;
 using Rcpp::_;
 using Rcpp::Rcout;
 using Rcpp::Dimension;
+using Rcpp::sum;
+using Rcpp::head;
 
 //' Primary Cox PH regression with multiple distributed dose columns and optional combinations of null, stratification, competing risks, multiplicative log-linear model, and no derivative calculation.
 //'
