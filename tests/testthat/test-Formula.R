@@ -120,6 +120,13 @@ test_that("Run basic errors and checks", {
   expect_error(PoisRunJoint(model, df, control = 2)) # control wasn't a list
   expect_no_error(PoisRunJoint(model, df, ncores = 1, a_n = 0.1, keep_constant = 0))
   #
+  model0 <- Pois(b, c) ~ loglinear(d, 1)
+  model1 <- Pois(b, c) ~ loglinear(CONST, 0) + loglinear(d, 1)
+  model2 <- Pois(b, c) ~ loglinear(d, 2)
+  expect_no_error(res0 <- PoisRun(model0, df, ncores = 1))
+  expect_no_error(res1 <- PoisRun(model1, df, ncores = 1))
+  expect_error(PoisRun(model2, df, ncores = 1))
+  expect_equal(res0$LogLik, res1$LogLik, tolerance = 1e-2)
 })
 
 test_that("Run basic warnings and checks", {

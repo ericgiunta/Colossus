@@ -1099,6 +1099,19 @@ get_form_risk <- function(model_obj, df) {
     } else if (length(gmix_term) > term_tot) {
       stop("Error: The gmix option was used with more values than terms")
     }
+    # If there is no term 0, we can fill in an intercept?
+    # assume loglinear subterm, so it is forced non-zero
+    # matches epicure behavior
+    if (min(term_n) > 0) {
+      term_n <- c(0, term_n)
+      tform <- c("loglinear", tform)
+      names <- c("CONST", names)
+      if ("CONST" %in% names(df)) {
+        # fine
+      } else {
+        df$CONST <- 1
+      }
+    }
   }
   # We want to check that it is in the data and not a character
   all_name <- unique(names)
