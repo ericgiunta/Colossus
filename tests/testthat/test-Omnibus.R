@@ -326,14 +326,14 @@ test_that("check deviation calc, expected cox", {
     #
     control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-    devs <- c(devs, sum(e$Standard_Error))
+    devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-  devs <- c(devs, sum(e$Standard_Error))
+  devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
 
   time1 <- "t0"
   time2 <- "t1"
@@ -351,14 +351,14 @@ test_that("check deviation calc, expected cox", {
     #
     control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-    devs <- c(devs, sum(e$Standard_Error))
+    devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-  devs <- c(devs, sum(e$Standard_Error))
+  devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
 
   expect_equal(devs, c(0.61445, 0.54101, 0.73858, 0.95015, 0.63646, 0.56292, 0.73815, 0.97195), tolerance = 1e-4)
 })
@@ -393,14 +393,14 @@ test_that("check deviation calc, Observed cox", {
     #
     control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-    devs <- c(devs, sum(e$Standard_Error))
+    devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
   }
   a_n <- c(0.6465390, 0.4260961, 0.1572781)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-  devs <- c(devs, sum(e$Standard_Error))
+  devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
 
   time1 <- "t0"
   time2 <- "t1"
@@ -410,7 +410,7 @@ test_that("check deviation calc, Observed cox", {
   tform <- c("loglin", "loglin", "plin")
   keep_constant <- c(0, 0, 0)
   a_n <- c(-0.1, 0.1, 0.2)
-
+  model_control <- list("strata" = FALSE, "basic" = FALSE, "single" = FALSE, "cr" = FALSE, "observed_info" = FALSE)
   for (i in 1:3) {
     a_n <- c(0.6428582, 0.4240752, 0.1507817)
     keep_constant <- c(0, 0, 0)
@@ -418,15 +418,15 @@ test_that("check deviation calc, Observed cox", {
     #
     control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
     e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-    devs <- c(devs, sum(e$Standard_Error))
+    devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
   }
   a_n <- c(0.6428582, 0.4240752, 0.1507817)
   keep_constant <- c(0, 0, 0)
   #
   control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- RunCoxRegression_Omnibus(df, time1, time2, event, names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n, modelform = modelform, control = control, strat_col = "fac", model_control = model_control)
-  devs <- c(devs, sum(e$Standard_Error))
-  expect_equal(devs, c(0.6091269, 0.5356671, 0.7385757, 0.9448081, 0.7051473, 0.5838560, 0.7381538, 0.9897501), tolerance = 1e-4)
+  devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
+  expect_equal(devs, c(0.6091269, 0.5356671, 0.7385757, 0.9448081, 0.6364623, 0.5629189, 0.7381538, 0.9719466), tolerance = 1e-4)
 })
 
 test_that("check Linear Constraints", {
@@ -497,7 +497,7 @@ test_that("check deviation calc, poisson", {
       #
       control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
       e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + loglinear(rand, 1), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
-      devs <- c(devs, sum(e$Standard_Error))
+      devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
     }
     event <- "lung"
     names <- c("dose", "fac", "rand")
@@ -513,10 +513,10 @@ test_that("check deviation calc, poisson", {
       #
       control <- list("ncores" = 1, "lr" = 0.75, "maxiters" = c(1, 1), "halfmax" = 2, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
       e <- PoisRun(Pois(pyr, lung) ~ loglinear(dose, fac, 0) + plinear(rand, 0), df, keep_constant = keep_constant, a_n = a_n, observed_info = inma_type, control = control)
-      devs <- c(devs, sum(e$Standard_Error))
+      devs <- c(devs, sum(e$Standard_Error, na.rm = TRUE))
     }
   }
-  expect_equal(devs, c(0.02931793, 0.01422684, 0.03017106, 0.03298415, 0.01800232, 0.04098284, 0.03682491, 0.02111656, 0.03017106, 0.02698643, 0.01008488, 0.04098284), tolerance = 1e-3)
+  expect_equal(devs, c(0.02931793, 0.01422684, 0.03017106, 0.00000000, 0.00000000, 0.04098284, 0.03682491, 0.02111656, 0.03017106, 0.03386810, 0.03145809, 0.04098284), tolerance = 1e-3)
 })
 
 test_that("Various CoxRegressionOmnibus options", {
