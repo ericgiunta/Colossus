@@ -539,7 +539,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
             int jk_ind = jk - sum(head(KeepConstant, jk));
             if (tij == tjk) {
                 if (as<string>(tform[ij]) == "loglin") {
-                    if (ij != jk) && (as<string>(tform[jk]) == "loglin") {
+                    if ((ij != jk) && (as<string>(tform[jk]) == "loglin")) {
                         Tdd0.col((ij_ind)*(ij_ind + 1)/2+jk_ind) = df0.col(df0_jk).array() * Td0.col(ij_ind).array();
                     }
                 }
