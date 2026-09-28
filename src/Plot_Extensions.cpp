@@ -59,6 +59,15 @@ struct lambda_as_visitor_wrapper : Func {
     void init(const S& v, I i, I j) { return Func::operator()(v, i, j); }
 };
 
+namespace Eigen {
+namespace internal {
+template<typename Func>
+struct functor_traits<lambda_as_visitor_wrapper<Func>> {
+    enum { Cost = 1, PacketAccess = false, LinearAccess = false, IsRepeatable = true };
+};
+}
+}
+
 template<typename Mat, typename Func>
 void visit_lambda(const Mat& m, const Func& f) {
     lambda_as_visitor_wrapper<Func> visitor(f);
