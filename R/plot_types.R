@@ -337,7 +337,6 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     tu, keep_constant, term_tot, uniq, 0,
     model_control
   )
-  cov_mat <- e$Covariance
   for (col_i in seq_along(uniq)) {
     if (verbose >= 3) {
       # nocov start
@@ -353,22 +352,9 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
     ch <- NULL
     surv <- NULL
     surv_se <- NULL
-    dft <- data.table(time = tu, base = e$baseline[, col_i], greener = e$Green_Error[, col_i])
+    dft <- data.table(time = tu, base = e$baseline[, col_i])
     i_0 <- length(tu) * (col_i - 1) + 1
     i_1 <- i_0 + length(tu) - 1
-    total_beta_error <- e$Beta_Error[i_0:i_1, ]
-    if (is.null(ncol(total_beta_error))) {
-      beta_cols <- 1
-      for (i in 1:beta_cols) {
-        dft[[paste0("betaer_", i)]] <- total_beta_error
-      }
-    } else {
-      beta_cols <- ncol(total_beta_error)
-      for (i in 1:beta_cols) {
-        dft[[paste0("betaer_", i)]] <- total_beta_error[, i]
-      }
-    }
-    beta_vec <- rep(0, beta_cols)
     for (i in tu) {
       if ((i <= time_lims[2]) && (i >= time_lims[1])) {
         t <- c(t, i)
@@ -381,32 +367,13 @@ CoxStratifiedSurvival <- function(verbose, df, event0, time1, time2, names, term
           h <- c(h, ch[length(ch)] - ch[length(ch)])
         }
         surv <- c(surv, exp(-1 * ch_temp))
-        green_temp <- sum(df_temp$greener)
-        for (i in 1:beta_cols) {
-          beta_vec[i] <- sum(df_temp[[paste0("betaer_", i)]])
-        }
-        if (beta_cols == 1) {
-          beta_temp <- beta_vec * cov_mat * beta_vec
-        } else {
-          beta_mat <- as.matrix(beta_vec, ncol = 1)
-          beta_temp <- t(beta_mat) %*% cov_mat %*% beta_mat
-          beta_temp <- beta_temp[1, 1]
-        }
-        surv_se <- c(surv_se, exp(-1 * ch_temp) * sqrt(green_temp + beta_temp))
       }
     }
     tt <- c(tt, t)
     tsurv <- c(tsurv, surv)
-    tsurv_se <- c(tsurv_se, surv_se)
     categ <- c(categ, rep(paste(col_u), length(t)))
   }
   dft <- data.table(t = tt, surv = tsurv, cat_group = categ)
-  sbreaks <- NULL
-  slabels <- NULL
-  for (i in seq_along(uniq)) {
-    sbreaks <- c(sbreaks, paste(uniq[i]))
-    slabels <- c(slabels, paste0("For ", strat_col, "=", uniq[i]))
-  }
   table_out <- list()
   table_out[["stratified_survival"]] <- dft
   table_out
