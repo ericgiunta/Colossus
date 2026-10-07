@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Colossus <a href="https://ericgiunta.github.io/Colossus/"><img src="man/figures/logo.svg" align="right" height="139" alt="Colossus website" /></a>
+# Colossus <a href="https://ericgiunta.github.io/Colossus/"><img src="man/figures/logo.png" align="right" height="137" alt="Colossus website" /></a>
 
 <!-- badges: start -->
 
@@ -35,12 +35,6 @@ testing checks for the “NOT_CRAN” variable to determine if additional
 tests should be run. Setting “NOT_CRAN” to “false” will disable the
 longer tests. Currently, OpenMP support is not configured for linux
 compiling with clang.
-
-Note: From versions 1.3.1 to 1.4.1 the expected inputs changed.
-Regressions are now run with [CoxRun()](reference/CoxRun.html) and
-[PoisRun()](reference/PoisRun.html) and formula inputs. Please see the
-[Unified Equation Representation
-vignette](articles/Equation_Expression.html) for more details.
 
 ## Example
 
@@ -102,6 +96,6 @@ print(e)
 #> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
 #> All Records Used: 100
-#> Run finished in 0.311 seconds
+#> Run finished in 0.826 seconds
 #> |--------------------------------------------------------------------------------|
 ```

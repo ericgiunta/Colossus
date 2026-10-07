@@ -14,7 +14,7 @@ nested_split <- function(total_string) {
   final_split <- ""
   temp_count <- 0
   for (i in sub_str) {
-    temp_count <- temp_count + str_count(i, stringr::fixed("(")) - str_count(i, stringr::fixed(")")) # check to see if the current selections have the same number
+    temp_count <- temp_count + str_count(i, fixed("(")) - str_count(i, fixed(")")) # check to see if the current selections have the same number
     if (!nzchar(final_split[length(final_split)])) {
       final_split[length(final_split)] <- i # first is just added
     } else {
@@ -238,36 +238,13 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     # factor
     df$comb_strata <- as.integer(factor(df[[vals]])) - 1
     combs <- unique(df$comb_strata)
+    #
+    strata_total <- length(combs)
+    rows_total <- nrow(df)
+    strata_used <- length(combs)
+    rows_used <- nrow(df)
   } else {
-    # there are multiple to combine
-    # get the levels for each element
-    if (filter_df) {
-      for (term_i in seq_along(vals)) {
-        factor_col <- vals[term_i]
-        if (is.null(levels(df[[factor_col]]))) {
-          df[[factor_col]] <- factor(df[[factor_col]]) # Only convert to factor if needed
-        }
-        i_levels <- levels(df[[factor_col]]) # get the levels of the factor
-        if (!keep_base) {
-          level_ref <- levels(df[[factor_col]])[1] # We can remove the baseline from the returned combinations
-          i_levels <- i_levels[i_levels != level_ref]
-        }
-        # We only care about combinations that have events, so we can filter out some combinations early if the base level has no events
-        for (col in i_levels) {
-          temp <- sum(df[get(factor_col) == col, ][[event0]]) # get number of events
-          if (temp == 0) { # if none then we remove that data and the level column
-            if (control$verbose >= 2) {
-              # nocov start
-              warning(paste("Warning: no events for strata group:", col,
-                sep = " "
-              ))
-              # nocov end
-            }
-            df <- df[get(factor_col) != col, ] # remove data
-          }
-        }
-      }
-    }
+    # We want to know the total number of strata
     # We want to combine the strata values together
     df$comb_strata <- ""
     for (term_i in seq_along(vals)) {
@@ -280,17 +257,20 @@ Make_Interaction_Strata <- function(df, event0, col_list, control = list(verbose
     }
     df$comb_strata <- as.integer(factor(df$comb_strata)) # converts to integer levels
     combs <- unique(df$comb_strata)
+    strata_total <- length(combs)
+    rows_total <- nrow(df)
     if (filter_df) {
+      # Maybe we want to filter out the unused data
       df_end <- df[get(event0) == 1, ] # get the event data
       combs <- unique(df_end$comb_strata) # check for the strata with events
       comb_tot <- unique(df$comb)
       comb_remove <- comb_tot[!comb_tot %in% combs] # get the strata that were not in the event data
-      for (comb in comb_remove) {
-        df <- df["comb_strata" != comb, ] # remove data
-      }
+      df <- df[df$comb_strata %in% combs]
     }
+    strata_used <- length(combs)
+    rows_used <- nrow(df)
   }
-  list(data = df, combs = "comb_strata", levels = combs)
+  list(data = df, combs = "comb_strata", levels = combs, strata_count = list(total = strata_total, used = strata_used), row_count = list(total = rows_total, used = rows_used))
 }
 
 #' Automatically assigns missing values in listed columns
@@ -339,9 +319,7 @@ Replace_Missing <- function(df, name_list, msv, verbose = FALSE) {
       set(df, which(is.na(df[[j]])), j, msv)
       # nocov start
       if (verbose >= 3) {
-        message(paste("Note: Column ", j, " had replaced values",
-          sep = ""
-        ))
+        message("Note: Column ", j, " had replaced values")
       }
       # nocov end
     }
@@ -466,10 +444,10 @@ Def_model_control <- function(control) {
   for (nm in control_def_names) {
     if (nm %in% names(control)) {
       if (((length(control[[nm]]) > 1) || is.list(control[[nm]]))) {
-        stop(paste0("Error: ", nm, " was not a single value."))
+        stop("Error: ", nm, " was not a single value.")
       }
       if (suppressWarnings(is.na(as.logical(control[nm])))) {
-        stop(paste0("Error: ", nm, " had a non-logical value"))
+        stop("Error: ", nm, " had a non-logical value")
       } else {
         control[nm] <- as.logical(control[nm])
       }
@@ -634,7 +612,7 @@ Def_model_control <- function(control) {
     for (nm in control_def_names) {
       if (nm %in% names(control)) {
         if (suppressWarnings(anyNA(as.logical(control[nm])))) {
-          stop(paste0("Error: ", nm, " was non-logical"))
+          stop("Error: ", nm, " was non-logical")
         } else {
           control[nm] <- as.logical(control[nm])
         }
@@ -703,35 +681,35 @@ Def_model_control <- function(control) {
 #' @inheritParams R_template
 #' @family Data Cleaning Functions
 #' @return returns a list with the corrected control list and a_n
-Check_Iters <- function(control, a_n) {
+Check_Iters <- function(control, a_n_length) {
   if ("maxiters" %in% names(control)) {
-    if (length(control$maxiters) == length(a_n) + 1) {
+    if (length(control$maxiters) == a_n_length + 1) {
       # all good, it matches
     } else {
       if (control$verbose >= 3) {
         # nocov start
-        message(paste("Note: Initial starts:", length(a_n),
-          ", Number of iterations provided:",
+        message(
+          "Note: Initial starts: ", a_n_length,
+          " , Number of iterations provided: ",
           length(control$maxiters),
-          ". Colossus requires one more iteration counts than number of guesses (for best guess)",
-          sep = " "
-        ))
+          ". Colossus requires one more iteration counts than number of guesses (for best guess)"
+        )
         # nocov end
       }
-      if (length(control$maxiters) < length(a_n) + 1) { # If we have too few entries, we fill in by repeating the first entry
-        additional <- length(a_n) + 1 - length(control$maxiters)
+      if (length(control$maxiters) < a_n_length + 1) { # If we have too few entries, we fill in by repeating the first entry
+        additional <- a_n_length + 1 - length(control$maxiters)
         control$maxiters <- c(rep(control$maxiters[1], additional), control$maxiters)
       } else { # if we have too many, we keep the first length(a_n) and final entry
-        additional <- length(a_n)
+        additional <- a_n_length
         control$maxiters <- c(control$maxiters[1:additional], control$maxiters[length(control$maxiters)])
       }
     }
     control$guesses <- length(control$maxiters) - 1
   } else {
-    control$guesses <- length(a_n)
-    control$maxiters <- c(rep(1, length(a_n)), control$maxiter)
+    control$guesses <- a_n_length
+    control$maxiters <- c(rep(1, a_n_length), control$maxiter)
   }
-  list(control = control, a_n = a_n)
+  list(control = control)
 }
 
 #' Calculates Full Parameter list for Special Dose Formula
@@ -819,7 +797,7 @@ Linked_Dose_Formula <- function(tforms, paras) {
       }
       full_paras[[nm]] <- c(y, a0, a1, b1, c1)
     } else {
-      stop(paste0("Error: Tform value of `", tforms[nm], "` was not `quad` or `exp`."))
+      stop("Error: Tform value of `", tforms[nm], "` was not `quad` or `exp`.")
     }
   }
   full_paras
@@ -908,7 +886,7 @@ factorize <- function(df, col_list, verbose = 0) {
     cols <- Check_Dupe_Columns(df, cols, rep(0, length(cols)), verbose, TRUE)
   }
   if (verbose >= 3) {
-    message(paste("Note: Number of factors:", length(cols), sep = "")) # nocov
+    message("Note: Number of factors:", length(cols)) # nocov
   }
   list(df = df, cols = cols)
 }
@@ -943,6 +921,7 @@ factorize <- function(df, col_list, verbose = 0) {
 #' score <- Likelihood_Ratio_Test(alternative_model, null_model)
 Likelihood_Ratio_Test <- function(alternative_model, null_model) {
   alt_is_null <- alternative_model$modelcontrol$null
+  null_is_null <- null_model$modelcontrol$null
   if (("LogLik" %in% names(alternative_model)) && ("LogLik" %in% names(null_model))) {
     #
     alt_is_null <- alternative_model$modelcontrol$null
@@ -951,13 +930,16 @@ Likelihood_Ratio_Test <- function(alternative_model, null_model) {
     } else {
       alt_count <- length(alternative_model$beta_0) - sum(alternative_model$model$keep_constant)
     }
-    if (alt_is_null) {
+    if (null_is_null) {
       null_count <- 0
     } else {
       null_count <- length(null_model$beta_0) - sum(null_model$model$keep_constant)
     }
     #
     freedom <- alt_count - null_count
+    if (freedom == 0) {
+      stop("Error: The models had the same number of solved parameters.")
+    }
     val <- 2 * (alternative_model$LogLik - null_model$LogLik)
     pval <- pchisq(val, freedom, lower.tail = FALSE)
     return(list(Difference = val, `p value` = pval))
@@ -1023,10 +1005,10 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
           if (all(df[[f1]] == df[[f2]])) { # test for duplicates
             if (verbose >= 2) {
               # nocov start
-              warning(paste("Warning: ", f1, " and ", f2,
-                " are equal",
-                sep = ""
-              ))
+              warning(
+                "Warning: ", f1, " and ", f2,
+                " are equal"
+              )
               # nocov end
             }
             toRemove <- c(toRemove, f2) # build the list of duplicates
@@ -1035,10 +1017,10 @@ Check_Dupe_Columns <- function(df, cols, term_n, verbose = 0, factor_check = FAL
             if (min(df[[f2]]) == 0) {
               if (verbose >= 2) {
                 # nocov start
-                warning(paste("Warning: ", f2,
-                  " is equal to zero, removed.",
-                  sep = ""
-                ))
+                warning(
+                  "Warning: ", f2,
+                  " is equal to zero, removed."
+                )
                 # nocov end
               }
               toRemove <- c(toRemove, f2) # remove zero values
@@ -1102,16 +1084,16 @@ Check_Trunc <- function(df, ce) {
   for (i in 1:3) {
     name <- name_vec[i]
     if (!is(ce[[i]], "character")) {
-      stop(paste0("Error: The ", name, " column must be a string")) # nocov
+      stop("Error: The ", name, " column must be a string") # nocov
     }
     if (length(ce[[i]]) == 0) {
-      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+      stop("Error: The ", name, " column must not be empty") # nocov
     }
     if (length(ce[[i]]) > 1) {
-      stop(paste0("Error: The ", name, " column had multiple values")) # nocov
+      stop("Error: The ", name, " column had multiple values") # nocov
     }
     if ((!nzchar(ce[[i]])) || (is.null(ce[[i]])) || (is.na(ce[[i]]))) {
-      stop(paste0("Error: The ", name, " column must not be empty")) # nocov
+      stop("Error: The ", name, " column must not be empty") # nocov
     }
   }
   if (ce[1] == ce[2]) {
@@ -1190,7 +1172,7 @@ gen_time_dep <- function(df, time1, time2, event0, iscox, dt, new_names, dep_col
     nthreads <- min(c(2, nthreads))
   }
   thread_0 <- setDTthreads(nthreads) # save the old number and set the new number
-  on.exit(setDTthreads(thread_0)) # revert to old number on exit
+  on.exit(setDTthreads(thread_0), add = TRUE) # revert to old number on exit
   # ------------------------------------------------------------------------------ #
   dfn <- names(df)
   ce <- c(time1, time2, event0)
@@ -1553,8 +1535,8 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       interactions <- NULL
       new_names <- NULL
       for (j in unlist(name_list[i], use.names = FALSE)) {
-        interactions <- c(interactions, paste(j, "?*?", i, sep = ""))
-        new_names <- c(new_names, paste(j, "_", i, sep = ""))
+        interactions <- c(interactions, paste0(j, "?*?", i))
+        new_names <- c(new_names, paste0(j, "_", i))
       }
       vals <- interact_them(df0, interactions, new_names)
       df0 <- vals$df
@@ -1603,23 +1585,23 @@ interact_them <- function(df, interactions, new_names, verbose = 0) {
         length(formula), "but should be 3."
       )
     }
-    newcol <- paste(formula[1], formula[2], formula[3], sep = "")
+    newcol <- paste0(formula[1], formula[2], formula[3])
     if (new_names[i] != "") {
       newcol <- new_names[i]
     }
     col1 <- formula[1]
     col2 <- formula[3]
-    if (paste(formula[1], "?", formula[2], "?", formula[3], sep = "") %in% interactions[i + seq_along(interactions)]) {
+    if (paste0(formula[1], "?", formula[2], "?", formula[3]) %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
-        warning(paste("Warning: interation ", i, "is duplicated")) # nocov
+        warning("Warning: interation ", i, "is duplicated") # nocov
       }
-    } else if (paste(formula[3], "?", formula[2], "?", formula[1], sep = "") %in% interactions[i + seq_along(interactions)]) {
+    } else if (paste0(formula[3], "?", formula[2], "?", formula[1]) %in% interactions[i + seq_along(interactions)]) {
       if (verbose >= 2) {
         # nocov start
-        warning(paste(
+        warning(
           "Warning: the reverse of interation ", i,
           "is duplicated"
-        ))
+        )
         # nocov end
       }
     } else {
@@ -1669,7 +1651,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         for (i in seq_along(names)) {
           val <- summarize(df, max_value = max(abs(get(names[i]))))[[1]]
           if (val == 0.0) {
-            warning(paste("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.", sep = "")) # nocov
+            warning("Warning: Maximum value for ", names[i], " was 0. Normalization not applied to column.") # nocov
             val <- 1.0
           } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
@@ -1682,7 +1664,7 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
         for (i in seq_along(names)) {
           val <- summarize(df, mean_value = mean(get(names[i])))[[1]]
           if (val == 0.0) {
-            warning(paste("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.", sep = "")) # nocov
+            warning("Warning: Average value for ", names[i], " was 0. Normalization not applied to column.") # nocov
             val <- 1.0
           } else if (tforms[i] == "step_slope") {
             # Forcing to 1, no need to normalize this one
@@ -1752,8 +1734,10 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
           for (i in seq_along(names)) {
             if (grepl("_int", tforms[i], fixed = TRUE)) {
               res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+              res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] * norm_weight[i]
             } else {
               res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+              res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] / norm_weight[i]
             }
           }
         } else {
@@ -1763,10 +1747,12 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
               if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$First_Der[i_der] <- res$First_Der[i_der] / norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] * norm_weight[i]
                 res$Standard_Error[i] <- res$Standard_Error[i] * norm_weight[i]
               } else {
                 res$First_Der[i_der] <- res$First_Der[i_der] * norm_weight[i]
                 res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] / norm_weight[i]
                 res$Standard_Error[i] <- res$Standard_Error[i] / norm_weight[i]
               }
               for (j in seq_along(names)) {
@@ -1794,8 +1780,10 @@ apply_norm <- function(df, norm, names, input, values, model_control) {
             } else {
               if (grepl("_int", tforms[i], fixed = TRUE)) {
                 res$beta_0[i] <- res$beta_0[i] * norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] * norm_weight[i]
               } else {
                 res$beta_0[i] <- res$beta_0[i] / norm_weight[i]
+                res$Guess_Results$Parameters[, i] <- res$Guess_Results$Parameters[, i] / norm_weight[i]
               }
             }
           }
@@ -1904,6 +1892,8 @@ Rcomp_version <- function() {
 #'
 #' \code{System_Version} checks OS, default R c++ compiler, and if OMP is enabled
 #'
+#' @examples
+#' System_Version()
 #' @return returns a list of results
 #' @export
 #' @family Output and Information Functions
@@ -1986,6 +1976,7 @@ Check_Verbose <- function(verbose) {
 #' @param x result object from a regression
 #' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
+#' @name generalprint
 #' @noRd
 #' @return return nothing, prints the results to console
 #' @family Output and Information Functions
@@ -2008,9 +1999,8 @@ general_print <- function(x, ...) {
 #'
 #' \code{general_fma_print} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
 #'
+#' @inheritParams generalprint
 #' @noRd
 #' @return return nothing, prints the results to console
 #' @family Output and Information Functions
@@ -2033,8 +2023,7 @@ general_fma_print <- function(x, ...) {
 #'
 #' \code{print.coxres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxres
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2042,14 +2031,14 @@ general_fma_print <- function(x, ...) {
 #' @family Output and Information Functions
 print.coxres <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a poisson regression output clearly
 #'
 #' \code{print.poisres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class poisres
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2057,14 +2046,14 @@ print.coxres <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisres <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a case-control regression output clearly
 #'
 #' \code{print.caseconres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class caseconres
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2072,14 +2061,14 @@ print.poisres <- function(x, ...) {
 #' @family Output and Information Functions
 print.caseconres <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a logistic regression output clearly
 #'
 #' \code{print.logitres} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class logitres
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2087,14 +2076,14 @@ print.caseconres <- function(x, ...) {
 #' @family Output and Information Functions
 print.logitres <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a cox likelihood boundary regression output clearly
 #'
 #' \code{print.coxresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxresbound
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2102,14 +2091,14 @@ print.logitres <- function(x, ...) {
 #' @family Output and Information Functions
 print.coxresbound <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a poisson likelihood boundary regression output clearly
 #'
 #' \code{print.poisresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class poisresbound
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2117,14 +2106,14 @@ print.coxresbound <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisresbound <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a logistic likelihood boundary regression output clearly
 #'
 #' \code{print.logitresbound} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class logitresbound
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2132,14 +2121,14 @@ print.poisresbound <- function(x, ...) {
 #' @family Output and Information Functions
 print.logitresbound <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a cox MCML regression output clearly
 #'
 #' \code{print.coxresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxresmcml
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2147,14 +2136,14 @@ print.logitresbound <- function(x, ...) {
 #' @family Output and Information Functions
 print.coxresmcml <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a poisson MCML regression output clearly
 #'
 #' \code{print.poisresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class poisresmcml
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2162,14 +2151,14 @@ print.coxresmcml <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisresmcml <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a logistic MCML regression output clearly
 #'
 #' \code{print.logitresmcml} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class logitresmcml
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2177,14 +2166,14 @@ print.poisresmcml <- function(x, ...) {
 #' @family Output and Information Functions
 print.logitresmcml <- function(x, ...) {
   general_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a cox FMA regression output clearly
 #'
 #' \code{print.coxresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class coxresfma
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2192,14 +2181,14 @@ print.logitresmcml <- function(x, ...) {
 #' @family Output and Information Functions
 print.coxresfma <- function(x, ...) {
   general_fma_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a poisson FMA regression output clearly
 #'
 #' \code{print.poisresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class poisresfma
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2207,14 +2196,14 @@ print.coxresfma <- function(x, ...) {
 #' @family Output and Information Functions
 print.poisresfma <- function(x, ...) {
   general_fma_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a logistic outcome FMA regression output clearly
 #'
 #' \code{print.logitresfma} uses the list output from a regression, prints off a table of results and summarizes the score and convergence.
 #'
-#' @param x result object from a regression, class logitresfma
-#' @param ... can include the number of digits, named digit, or an unnamed integer entry assumed to be digits
+#' @inheritParams generalprint
 #'
 #' @return return nothing, prints the results to console
 #' @noRd
@@ -2222,6 +2211,7 @@ print.poisresfma <- function(x, ...) {
 #' @family Output and Information Functions
 print.logitresfma <- function(x, ...) {
   general_fma_print(x, ...)
+  invisible(x)
 }
 
 #' Prints a regression output clearly
@@ -2236,7 +2226,7 @@ Interpret_Output <- function(out_list, digits = 3) {
   # nocov start
   # make sure the output isn't an error
   passed <- out_list$Status
-  message("|", paste(rep("-", options()$width), collapse = ""), "|")
+  message("|", paste0(rep("-", options()$width), collapse = ""), "|")
   if (!is.na(passed)) {
     if ("Likelihood_Goal" %in% names(out_list)) {
       # likelihood boundary output
@@ -2264,33 +2254,33 @@ Interpret_Output <- function(out_list, digits = 3) {
         message("Logistic Model")
       }
       if (all(strata != "NONE")) {
-        message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+        message("Model stratified by ", paste0(shQuote(strata), collapse = ", "))
       }
-      message(paste("Solving for the boundary of element: ", para_number, "\nApplied to column: '", name, "'\nSubterm: ", tform, "\nTerm number: ", term_n, sep = ""))
+      message("Solving for the boundary of element: ", para_number, "\nApplied to column: '", name, "'\nSubterm: ", tform, "\nTerm number: ", term_n)
       if (neg[1]) {
-        message(paste("Lower limit was not found, last step was at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+        message("Lower limit was not found, last step was at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits))
       } else {
         if (conv[1]) {
-          message(paste("Lower limit converged to at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+          message("Lower limit converged to at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits))
         } else {
           if (limits[1] == beta_0) {
-            message(paste("Lower limit stayed at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), ", consider increasing `search_mult` or `step_max` to increase the first step", sep = ""))
+            message("Lower limit stayed at ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), ", consider increasing `search_mult` or `step_max` to increase the first step")
           } else {
-            message(paste("Lower limit reached ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+            message("Lower limit reached ", format(limits[1], digits = digits), " at a score of ", round(lik_bound[1], digits), " with of goal of ", round(lik_goal, digits), " but did not converge")
           }
         }
       }
-      message(paste("Central estimate was ", format(beta_0, digits = digits), sep = ""))
+      message("Central estimate was ", format(beta_0, digits = digits))
       if (neg[2]) {
-        message(paste("Upper limit was not found, last step was at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+        message("Upper limit was not found, last step was at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits))
       } else {
         if (conv[2]) {
-          message(paste("Upper limit converged to at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), sep = ""))
+          message("Upper limit converged to at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits))
         } else {
           if (limits[2] == beta_0) {
-            message(paste("Upper limit stayed at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), ", consider increasing `search_mult` or `step_max` to increase the first step", sep = ""))
+            message("Upper limit stayed at ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), ", consider increasing `search_mult` or `step_max` to increase the first step")
           } else {
-            message(paste("Upper limit reached ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge", sep = ""))
+            message("Upper limit reached ", format(limits[2], digits = digits), " at a score of ", round(lik_bound[2], digits), " with of goal of ", round(lik_goal, digits), " but did not converge")
           }
         }
       }
@@ -2314,7 +2304,12 @@ Interpret_Output <- function(out_list, digits = 3) {
             CI_low <- as.numeric(format(beta_0 - 1.96 * stdev, digits = digits))
             CI_high <- as.numeric(format(beta_0 + 1.96 * stdev, digits = digits))
             CI <- paste0("(", CI_low, " - ", CI_high, ")")
-            res_table <- data.table(
+            # Don't print CI or pval for constant terms
+            is.na(stdev) <- keep_constant
+            is.na(CI) <- keep_constant
+            is.na(pval) <- keep_constant
+            #
+            res_table <- with_options(list(warn = -1), data.table(
               Covariate = names,
               Subterm = tforms,
               `Term Number` = term_n,
@@ -2323,7 +2318,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               `Standard Error` = as.numeric(format(stdev, digits = digits)),
               `95% Confidence Interval` = CI,
               `2-tail p-value` = as.numeric(format(pval, digits = digits))
-            )
+            ))
           } else {
             res_table <- data.table(
               Covariate = names,
@@ -2358,7 +2353,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         if (null_model) {
           message("Null model used")
         } else {
-          print(res_table)
+          with_options(list(warn = -1), print(res_table)) # Ignores warning about NA coercion
         }
         #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
@@ -2378,9 +2373,9 @@ Interpret_Output <- function(out_list, digits = 3) {
         }
         if (all(strata != "NONE")) {
           if (time_model) {
-            message("Model stratified by ", paste(shQuote(strata), " and time at risk", collapse = ", "))
+            message("Model stratified by ", paste0(shQuote(strata), " and time at risk", collapse = ", "))
           } else {
-            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+            message("Model stratified by ", paste0(shQuote(strata), collapse = ", "))
           }
         } else if (time_model) {
           message("Model stratified by time at risk")
@@ -2388,15 +2383,15 @@ Interpret_Output <- function(out_list, digits = 3) {
           message("No risk grouping applied")
         }
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-        message(paste("Deviance: ", round(deviance, digits), sep = ""))
-        message(paste(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood", sep = ""))
+        message("Deviance: ", round(deviance, digits))
+        message(freestrata, " out of ", length(strata_odds), " matched sets used Unconditional Likelihood")
         if (!is.null(converged)) {
           if (iteration == 0) {
-            message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits))
           } else {
-            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits))
             if (delta_ll > 0) {
-              message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+              message("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits))
             } else {
               message("Log-likelihood was not improved in last iteration")
             }
@@ -2440,7 +2435,11 @@ Interpret_Output <- function(out_list, digits = 3) {
             CI_low <- as.numeric(format(beta_0 - 1.96 * stdev, digits = digits))
             CI_high <- as.numeric(format(beta_0 + 1.96 * stdev, digits = digits))
             CI <- paste0("(", CI_low, " - ", CI_high, ")")
-            res_table <- data.table(
+            # Don't print CI or pval for constant terms
+            is.na(stdev) <- keep_constant
+            is.na(CI) <- keep_constant
+            is.na(pval) <- keep_constant
+            res_table <- with_options(list(warn = -1), data.table(
               Covariate = names,
               Subterm = tforms,
               `Term Number` = term_n,
@@ -2449,7 +2448,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               `Standard Error` = as.numeric(format(stdev, digits = digits)),
               `95% Confidence Interval` = CI,
               `2-tail p-value` = as.numeric(format(pval, digits = digits))
-            )
+            ))
           } else {
             res_table <- data.table(
               Covariate = names,
@@ -2482,7 +2481,7 @@ Interpret_Output <- function(out_list, digits = 3) {
         if (null_model) {
           message("Null model used")
         } else {
-          print(res_table)
+          with_options(list(warn = -1), print(res_table)) # Ignores warning about NA coercion
         }
         # get the model results
         LogLik <- out_list$LogLik
@@ -2508,7 +2507,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("\nCox Model Used")
           } else {
             # fine-gray model
-            message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+            message("\nFine-Gray Model Used, weighted by ", cens_weight)
           }
           #
           tstart <- out_list$model$start_age
@@ -2534,14 +2533,14 @@ Interpret_Output <- function(out_list, digits = 3) {
           risk_groups <- out_list$RiskGroups
           message("Risk Groups Used: ", risk_groups)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits))
         } else if (is(out_list, "coxresmcml")) {
           if (cens_weight == "NONE") {
             # cox model
             message("\nCox Model Used")
           } else {
             # fine-gray model
-            message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+            message("\nFine-Gray Model Used, weighted by ", cens_weight)
           }
           #
           tstart <- out_list$model$start_age
@@ -2569,7 +2568,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           realizations <- out_list$realizations
           message("Exposure Realizations Used: ", realizations)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits))
         } else if (is(out_list, "poisres")) {
           # poisson model
           message("\nPoisson Model Used")
@@ -2582,10 +2581,13 @@ Interpret_Output <- function(out_list, digits = 3) {
           }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
-            message("Strata split into ", strata_level, " distinct levels", sep = "")
+            message("Strata split into ", strata_level, " distinct levels")
+            row_count <- out_list$row_count
+            strata_count <- out_list$strata_count
+            message("Note: Regression based on non-zero event strata, ", strata_count$used, " strata and ", row_count$used, " rows.")
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
         } else if (is(out_list, "poisresmcml")) {
           # poisson model
           message("\nPoisson Model Used")
@@ -2598,12 +2600,12 @@ Interpret_Output <- function(out_list, digits = 3) {
           }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
-            message("Strata split into ", strata_level, " distinct levels", sep = "")
+            message("Strata split into ", strata_level, " distinct levels")
           }
           realizations <- out_list$realizations
           message("Exposure Realizations Used: ", realizations)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
         } else if (is(out_list, "logitres")) {
           # logistic model
           message("\nLogisitic Model Used")
@@ -2641,7 +2643,7 @@ Interpret_Output <- function(out_list, digits = 3) {
           realizations <- out_list$realizations
           message("Exposure Realizations Used: ", realizations)
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
         } else if (is(out_list, "logitresmcml")) {
           # logistic model
           message("\nLogisitic Model Used")
@@ -2677,7 +2679,7 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
         } else {
           message("\nUnknown Model Used")
           if ((!null_model) && (min(term_n) != max(term_n))) {
@@ -2687,15 +2689,15 @@ Interpret_Output <- function(out_list, digits = 3) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message(paste("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits), sep = ""))
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits))
         }
         if (!is.null(converged)) {
           if (iteration == 0) {
-            message(paste("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message("Iterations run: ", iteration, "\nmaximum step size: None taken, maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits))
           } else {
-            message(paste("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits), sep = ""))
+            message("Iterations run: ", iteration, "\nmaximum step size: ", formatC(step_max, format = "e", digits = digits), ", maximum first derivative: ", formatC(deriv_max, format = "e", digits = digits))
             if (delta_ll > 0) {
-              message(paste("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits), sep = ""))
+              message("Last iteration improved the log-likelihood by: ", formatC(delta_ll, format = "e", digits = digits))
             } else {
               message("Log-likelihood was not improved in last iteration")
             }
@@ -2724,7 +2726,7 @@ Interpret_Output <- function(out_list, digits = 3) {
       }
     }
   } else {
-    message(paste("Regression Failed"))
+    message("Regression Failed")
   }
   if ("RunTime" %in% names(out_list)) {
     run_time_sec <- as.numeric(out_list$RunTime, units = "secs")
@@ -2732,11 +2734,11 @@ Interpret_Output <- function(out_list, digits = 3) {
     run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
     # nocov start
     if (run_time_sec < 60) {
-      message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
+      message("Run finished in ", round(run_time_sec, digits), " seconds")
     } else if (run_time_min < 60) {
-      message(paste("Run finished in ", round(run_time_min, digits), " minutes", sep = ""))
+      message("Run finished in ", round(run_time_min, digits), " minutes")
     } else {
-      message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
+      message("Run finished in ", round(run_time_hour, digits), " hours")
     }
     # nocov end
   }
@@ -2801,7 +2803,7 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
       message("\nCox Model Used")
     } else {
       # fine-gray model
-      message(paste("\nFine-Gray Model Used, weighted by ", cens_weight, sep = ""))
+      message("\nFine-Gray Model Used, weighted by ", cens_weight)
     }
     #
     tstart <- out_list$model$start_age
@@ -2841,7 +2843,7 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
     }
     if (all(strata != "NONE")) {
       message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
-      message("Strata split into ", strata_level, " distinct levels", sep = "")
+      message("Strata split into ", strata_level, " distinct levels")
     }
     realizations <- out_list$realizations
     realization_mode <- out_list$realization_mode
@@ -2902,11 +2904,11 @@ Interpret_FMA_Output <- function(out_list, digits = 3) {
     run_time_hour <- as.numeric(out_list$RunTime, units = "hours")
     # nocov start
     if (run_time_sec < 60) {
-      message(paste("Run finished in ", round(run_time_sec, digits), " seconds", sep = ""))
+      message("Run finished in ", round(run_time_sec, digits), " seconds")
     } else if (run_time_min < 60) {
-      message(paste("Run finished in ", round(run_time_min, digits), " minutes", sep = ""))
+      message("Run finished in ", round(run_time_min, digits), " minutes")
     } else {
-      message(paste("Run finished in ", round(run_time_hour, digits), " hours", sep = ""))
+      message("Run finished in ", round(run_time_hour, digits), " hours")
     }
     # nocov end
   }

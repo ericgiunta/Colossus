@@ -25,7 +25,7 @@ if (system.file(package = "ggplot2") != "") {
 
 ## Dose Response Formula
 
-`Colossus` features a term composed of the sum of multiple linear and non-linear elements which can be used to define many dose-response curves used in radiation epidemiology. These terms are referred to as dose-response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formulae are available, reproduced from the [starting description vignette](Starting-Description.html).
+`Colossus` features a term composed of the sum of multiple linear and non-linear elements which can be used to define many dose-response curves used in radiation epidemiology. These terms are referred to as dose-response terms, but there is nothing prohibiting them from being used for non-dose covariates. The following formulae are available, reproduced from the starting description vignette (`vignette("Starting-Description")`).
 
 <p class="text-center" style="background-color: aliceblue">
 $$
@@ -54,7 +54,7 @@ $$
 $$
 </p>
 
-The linear-quadratic and linear-exponential functions include special utility functions, to calculate the full sets of parameter given only the provided values. First is the [Linked_Dose_Formula](../reference/Linked_Dose_Formula.html) function, which returns a complete vector of parameter values. This function could be used to graph the expected dose response curve.
+The linear-quadratic and linear-exponential functions include special utility functions, to calculate the full sets of parameter given only the provided values. First is the `Linked_Dose_Formula()` function, which returns a complete vector of parameter values. This function could be used to graph the expected dose response curve.
 
 ```{r, eval=TRUE}
 # Suppose we have a linear-quadratic model
@@ -106,7 +106,7 @@ if (system.file(package = "ggplot2") != "") {
 g
 ```
 
-The linear-exponential subterm is somewhat unique in that a negative exponential slope ($\mu$) produces a dose response asymptote. There is also a utility function for finding the input parameters of a linear-exponential curve that approaches some desired maximum magnitude. In this case, we can use the [Linked_Lin_Exp_Para()](../reference/Linked_Lin_Exp_Para.html) function. This function uses the desired intercept, linear slope, and maximum value to return the correct exponential slope. This can be used to help define starting values, without having to manually solve for the piece-wise exponential parameter.
+The linear-exponential subterm is somewhat unique in that a negative exponential slope ($\mu$) produces a dose response asymptote. There is also a utility function for finding the input parameters of a linear-exponential curve that approaches some desired maximum magnitude. In this case, we can use the `Linked_Lin_Exp_Para()` function. This function uses the desired intercept, linear slope, and maximum value to return the correct exponential slope. This can be used to help define starting values, without having to manually solve for the piece-wise exponential parameter.
 
 ```{r, eval=TRUE}
 # Suppose we used the same slope and intercept,

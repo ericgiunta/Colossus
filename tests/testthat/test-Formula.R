@@ -120,6 +120,13 @@ test_that("Run basic errors and checks", {
   expect_error(PoisRunJoint(model, df, control = 2)) # control wasn't a list
   expect_no_error(PoisRunJoint(model, df, ncores = 1, a_n = 0.1, keep_constant = 0))
   #
+  model0 <- Pois(b, c) ~ loglinear(d, 1)
+  model1 <- Pois(b, c) ~ loglinear(CONST, 0) + loglinear(d, 1)
+  model2 <- Pois(b, c) ~ loglinear(d, 2)
+  expect_no_error(res0 <- PoisRun(model0, df, ncores = 1))
+  expect_no_error(res1 <- PoisRun(model1, df, ncores = 1))
+  expect_error(PoisRun(model2, df, ncores = 1))
+  expect_equal(res0$LogLik, res1$LogLik, tolerance = 1e-2)
 })
 
 test_that("Run basic warnings and checks", {
@@ -408,7 +415,19 @@ test_that("Poisson, long formula correction", {
   expect_no_error(get_form(model0, df))
   control <- list(ncores = 1, maxiter = -1, maxiters = c(-1, -1))
   res <- PoisRun(model0, df, control = control)
-  expect_identical(res$strata_level, 19L)
+  expect_identical(res$strata_level, 1000L)
+  # Checking the strata update
+  expect_identical(res$row_count$total, 1000L)
+  expect_identical(res$strata_count$total, 1000L)
+  expect_identical(res$row_count$used, 19L)
+  expect_identical(res$strata_count$used, 19L)
+  #
+  model0 <- Pois_Strata(t1, lung, rand0, rand1) ~ loglinear(dose)
+  res <- PoisRun(model0, df, control = control, a_n = list(c(0.1), c(0.4)))
+  expect_equal(res$AIC, 187.2105, tolerance = 1e-2)
+  expect_equal(res$BIC, 360.3997, tolerance = 1e-2)
+  expect_equal(res$Guess_Results$AIC, c(225.2105, 255.8943), tolerance = 1e-2)
+  expect_equal(res$Guess_Results$BIC, c(360.3997, 391.0835), tolerance = 1e-2)
 })
 
 test_that("Pois multi_surv nonerror", {
@@ -624,4 +643,80 @@ test_that("Basic formula passes and fails", {
   expect_error(LogisticRun(model, df, bad_arg = control))
   expect_no_error(res <- LogisticRun(model, df, control = control))
   expect_no_error(LogisticRun(res, df, control = control))
+})
+
+test_that("printing, no issues", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran |> setDT()
+    df <- copy(veteran)
+
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+    df$status <- as.integer(df$status > 0)
+
+    df$karno50 <- df$karno - 50
+
+    control <- list(verbose = 0, step_max = 0.1, ncores = 1)
+    # run each
+    expect_no_error(e0 <- CoxRun(Cox(time, status) ~ loglinear(trt, karno50), df, keep_constant = c(0, 0), control = control))
+    expect_no_error(e1 <- CoxRun(Cox(time, status) ~ loglinear(trt, karno50), df, keep_constant = c(0, 1), control = control))
+    #
+    expect_no_error(e2 <- PoisRun(Pois(time, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 0), control = control))
+    expect_no_error(e3 <- PoisRun(Pois(time, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 1), control = control))
+    #
+    expect_no_error(e4 <- LogisticRun(Logit(CONST, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 0), control = control))
+    expect_no_error(e5 <- LogisticRun(Logit(CONST, status) ~ loglinear(CONST, trt, karno50), df, keep_constant = c(0, 0, 1), control = control))
+    #
+    expect_no_error(e6 <- CaseControlRun(CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt), df, keep_constant = c(0, 0), control = control))
+    expect_no_error(e7 <- CaseControlRun(CaseCon_Strata_Time(time, status, cell) ~ loglinear(karno50, trt), df, keep_constant = c(0, 1), control = control))
+    #
+    zz <- file(paste0(tempfile(), ".txt"), open = "wt")
+    sink(zz)
+    sink(zz, type = "message")
+    expect_no_warning(print(e0))
+    expect_warning(print(e1))
+    expect_no_warning(print(e2))
+    expect_warning(print(e3))
+    expect_no_warning(print(e4))
+    expect_warning(print(e5))
+    expect_no_warning(print(e6))
+    expect_warning(print(e7))
+    sink(type = "message")
+    sink(NULL)
+    close(zz)
+  }
+})
+
+test_that("Guess Results, check for normalization and results", {
+  if (system.file(package = "survival") != "") {
+    data(cancer, package = "survival")
+    veteran |> setDT()
+    df <- copy(veteran)
+    # Make the same adjustments as Epicure example 6.5
+    karno <- df$karno
+    karno[93] <- 20
+    df$karno <- karno / 100
+    df$trt <- df$trt - 1
+    df$trt <- as.integer(df$trt == 0)
+    cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+    df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+    df$karno50 <- df$karno - 50
+    control <- list(ncores = 1, maxiter = 20, halfmax = 1)
+    #
+    a_n <- list(c(0.1, 0.1), c(0.1, 0.2), c(0.1, 0.3), c(0.1, 0.4), c(0.1, 0.5), c(0.1, 0.6), c(0.1, 0.7))
+    model <- Pois_Strata(time, status, cell) ~ loglinear(trt, 0) + linear(karno, 1) + A()
+    poisres <- PoisRun(model, df, a_n = a_n, control = control, norm = "null", keep_constant = c(0, 1))
+    expect_equal(poisres$Guess_Results$Parameters[, 2], c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7))
+    poisres <- PoisRun(model, df, a_n = a_n, control = control, norm = "mean", keep_constant = c(0, 1))
+    expect_equal(poisres$Guess_Results$Parameters[, 2], c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7))
+    poisres <- PoisRun(model, df, a_n = a_n, control = control, norm = "max", keep_constant = c(0, 1))
+    expect_equal(poisres$Guess_Results$Parameters[, 2], c(0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7))
+  }
 })

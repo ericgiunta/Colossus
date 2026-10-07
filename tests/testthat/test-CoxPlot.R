@@ -179,6 +179,13 @@ test_that("Coxph plot stratafied no error", {
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(ep <- plotSurvival(e, df, plot_options, verbose = 0)$stratified_survival)
     expect_equal(ep$surv[2], 0.5999075, tolerance = 1e-4)
+    #
+    e <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d * d, 0), df, control = control, a_n = a_n)
+    plot_options <- list(
+      "type" = c("surv"), "studyid" = "a",
+      "verbose" = 0, "surv_curv" = T, "martingale" = F, "strat_haz" = T, "km" = F
+    )
+    expect_no_error(ep <- plot(e, df, plot_options = plot_options))
   }
 })
 

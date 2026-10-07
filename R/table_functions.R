@@ -125,7 +125,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
   restricted_names <- c("F_AT_RISK", "L_AT_RISK", "_day_entry", "_month_entry", "_year_entry", "_day_exit", "_month_exit", "_year_exit", "_birth", "_entry", "_exit", "def_entry_age", "def_exit_age", "interval_dur", "_arbitrary_age", "PYR")
   for (r_name in restricted_names) {
     if (r_name %in% names(df)) {
-      warning(paste0("Warning: `", r_name, "` is a restricted name and may be overwritten."))
+      warning("Warning: `", r_name, "` is a restricted name and may be overwritten.")
     }
   }
   # nocov end
@@ -150,7 +150,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
     df[["studyID"]] <- seq_len(nrow(df))
   } else {
     if (!(studyid %in% names(df))) {
-      stop(paste0("Error: Study id was set to `", studyid, "`, but it was not in the data."))
+      stop("Error: Study id was set to `", studyid, "`, but it was not in the data.")
     }
   }
   # We start by assuming no time-scale
@@ -280,7 +280,7 @@ Event_Time_Gen <- function(table, pyr = list(), time_scale = list(), categ = lis
     }
     event_cols <- c(event_cols, evt_df)
     event_names <- c(event_names, evt_col)
-    evt_list[evt_df] <- paste("count AS ", evt_col, sep = "")
+    evt_list[evt_df] <- paste0("count AS ", evt_col)
   }
   if (verbose) {
     message("Note: Starting time categorization.")
@@ -466,10 +466,10 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
         istart <- make_date(year = year_categ[time_i], month = month_categ[time_i], day = day_categ[time_i]) # interval start
         iend <- make_date(year = year_categ[time_i + 1], month = month_categ[time_i + 1], day = day_categ[time_i + 1]) # interval end
         if (anyNA(istart)) {
-          stop(paste0("Error: Calender entry date failed (d/m/y: ", day_categ[time_i], "/", month_categ[time_i], "/", year_categ[time_i], "). Check for impossible value."))
+          stop("Error: Calender entry date failed (d/m/y: ", day_categ[time_i], "/", month_categ[time_i], "/", year_categ[time_i], "). Check for impossible value.")
         }
         if (anyNA(iend)) {
-          stop(paste0("Error: Calender exit date failed (d/m/y: ", day_categ[time_i + 1], "/", month_categ[time_i + 1], "/", year_categ[time_i + 1], "). Check for impossible value."))
+          stop("Error: Calender exit date failed (d/m/y: ", day_categ[time_i + 1], "/", month_categ[time_i + 1], "/", year_categ[time_i + 1], "). Check for impossible value.")
         }
         # We don't want the upper limit to be inclusive, so we call roll it back 1 day
         # Start by checking if the category is one day
@@ -480,7 +480,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
         }
         # We also want to be sure the bin is increasing in time
         if (bin_dur < days(0)) {
-          stop(paste0("Error: Calender category starting at (d/m/y: ", day_categ[time_i], "/", month_categ[time_i], "/", year_categ[time_i], ") was not increasing with time."))
+          stop("Error: Calender category starting at (d/m/y: ", day_categ[time_i], "/", month_categ[time_i], "/", year_categ[time_i], ") was not increasing with time.")
         }
         if (pyr_entry$trunc) {
           entry <- istart - years(1)
@@ -490,7 +490,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
         }
         # Now the interval is only fully inclusive if the width is zero
         # The end of the categorical interval is counted, so if it is within, then we add the extra day
-        cat_str <- paste(cat_str, paste("[", istart, " to ", iend, "]", sep = ""), sep = " ") # prepare the interval info
+        cat_str <- paste(cat_str, paste0("[", istart, " to ", iend, "]"), sep = " ") # prepare the interval info
         categ_interval <- interval(istart, iend) # define as date interval
         c_categ <- list()
         # both entry and exit
@@ -718,7 +718,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
         temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
         match_index <- which(temp %in% c("/", "]"))
         if (length(match_index) < 1) {
-          stop(paste("Error: Category ", cat, " did not have categories.", sep = ""))
+          stop("Error: Category ", cat, " did not have categories.")
         }
         categ_cols <- c(categ_cols, cat_col)
         match_i <- 1
@@ -759,7 +759,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
         L <- Ls[time_i]
         U <- Us[time_i]
         if (U < L) {
-          stop(paste0("Error: Age category went from", L, " to ", U, " and was not increasing."))
+          stop("Error: Age category went from", L, " to ", U, " and was not increasing.")
         }
         ## We convert to a calendar based comparison
         # We need to find the entry and exit dates, convert L and U to integer/decimal and add to birth
@@ -804,7 +804,7 @@ Calendar_Process <- function(df, table_names, pyr = list(), time_scale = list(),
           # we do not have an exit time
           exit <- iend + years(1)
         }
-        cat_str <- paste(cat_str, paste("[", L, " to ", U, ")", sep = ""), sep = " ") # prepare the interval info
+        cat_str <- paste(cat_str, paste0("[", L, " to ", U, ")"), sep = " ") # prepare the interval info
         c_categ <- list()
         categ_interval <- interval(istart, iend) # define as date interval
         # both entry and exit
@@ -1135,7 +1135,7 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
         temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
         match_index <- which(temp %in% c("/", "]"))
         if (length(match_index) < 1) {
-          stop(paste("Error: Category ", cat, " did not have categories.", sep = ""))
+          stop("Error: Category ", cat, " did not have categories.")
         }
         categ_cols <- c(categ_cols, cat_col)
         match_i <- 1
@@ -1178,7 +1178,7 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
       temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
       match_index <- which(temp %in% c("/", "]"))
       if (length(match_index) < 1) {
-        stop(paste("Error: Category ", cat, " did not have categories.", sep = ""))
+        stop("Error: Category ", cat, " did not have categories.")
       }
       categ_cols <- c(categ_cols, cat_col)
       match_i <- 1
@@ -1219,7 +1219,7 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
       L <- Ls[time_i]
       U <- Us[time_i]
       if (U < L) {
-        stop(paste0("Error: Age category went from", L, " to ", U, " and was not increasing."))
+        stop("Error: Age category went from", L, " to ", U, " and was not increasing.")
       }
       if (pyr_exit$trunc) {
         # we do not have an exit time
@@ -1229,7 +1229,7 @@ UserScale_Process <- function(df, table_names, pyr = list(), time_scale = list()
         # we do not have an exit time
         entry <- rep(L - 1, length(exit))
       }
-      cat_str <- paste(cat_str, paste("[", L, " to ", U, ")", sep = ""), sep = " ") # prepare the interval info
+      cat_str <- paste(cat_str, paste0("[", L, " to ", U, ")"), sep = " ") # prepare the interval info
       c_categ <- list()
       #
       find_bool <- (entry <= L & U <= exit & df[[cat_col]] == "Unassigned")
@@ -1367,7 +1367,7 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
   for (evt_i in seq_along(names(summaries))) { # for each event summary
     evt <- names(summaries)[evt_i]
     if (!(evt %in% names(df))) {
-      stop(paste0("Error: The column `", evt, "` was not present in the data for summary"))
+      stop("Error: The column `", evt, "` was not present in the data for summary")
     }
     col_name <- evt
     weight <- "NULL"
@@ -1402,7 +1402,7 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
         temp[4] <- "by"
       }
       if (temp[2] == temp[4]) {
-        stop(paste0("Error: ", temp[2], " used twice."))
+        stop("Error: ", temp[2], " used twice.")
       }
       if (!any(c(temp[2], temp[4]) %in% c("by", "as"))) {
         stop("Error: Only AS, WEIGHT, and BY can be used to change summaries.")
@@ -1424,14 +1424,14 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
     }
     method <- lapply(method, function(x) tryCatch(match.arg(x, choices = acceptable_methods), error = function(error_message) x))[[1]] # match against expected values
     if (!(method %in% acceptable_methods)) {
-      stop(paste0("Error: Provided method of `", method, "` was not valid."))
+      stop("Error: Provided method of `", method, "` was not valid.")
     }
     if (weight != "NULL") {
       if (!(weight %in% names(df))) {
         if (weight %in% names(evt_name_change)) {
           weight <- evt_name_change[[weight]]
         } else {
-          stop(paste0("Error: Weighting column, `", weight, "` was not in the data."))
+          stop("Error: Weighting column, `", weight, "` was not in the data.")
         }
       }
       if (method == "rmean") {
@@ -1441,10 +1441,10 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
       } else if (method %in% c("mean", "sum", "xmean", "xsum")) {
         method <- paste0("weighted_", method)
       } else if (!(method %in% c("weighted_sum", "weighted_mean", "mean", "rmean"))) {
-        warning(paste0("Warning: A weighting column was given, but the `", method, "` method does not support weighting."))
+        warning("Warning: A weighting column was given, but the `", method, "` method does not support weighting.")
       }
     } else {
-      if ((!time_table) && grepl("weighted_", method)) {
+      if ((!time_table) && grepl("weighted_", method, fixed = TRUE)) {
         stop("Error: No default weighting for event-count tables.")
       }
       weight <- "PYR"
@@ -1489,7 +1489,7 @@ generate_summaries <- function(df, summaries, event_cols, event_names, categ_col
         summarize("{col_name}" := weighted.mean(.data[[evt]], .data[[weight]]), .groups = "drop")
       df_temp[[col_name]] <- replace_when(df_temp[[col_name]], is.nan(df_temp[[col_name]]) ~ 0)
     } else {
-      stop(paste0("Error: method, `", method, "` was missed"))
+      stop("Error: method, `", method, "` was missed")
     }
     df_group[[col_name]] <- df_temp[[col_name]]
   }
@@ -1548,15 +1548,15 @@ Category_Process <- function(df, table_names, categ, categ_cols, categ_bounds) {
         if (grepl("]", temp1[i], fixed = TRUE)) { # check for including the upper limit
           U <- as.numeric(gsub("]", "", temp1[i], fixed = TRUE)) # get upper limit
           a_col_categ <- replace_when(df[[cat_col]], df[[cat_df]] <= U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i])) # assign the level to unassigned rows
-          cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ") # add boundary information to list of intervals
+          cat_str <- paste(cat_str, paste0("[", L, ", ", U, "]"), sep = " ") # add boundary information to list of intervals
         } else {
           U <- as.numeric(temp1[i]) # get upper limit
           if (L == U) { # discrete case
             a_col_categ <- replace_when(df[[cat_col]], df[[cat_df]] == U & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]))
-            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+            cat_str <- paste(cat_str, paste0("[", L, ", ", U, "]"), sep = " ")
           } else { # interval case
             a_col_categ <- replace_when(df[[cat_col]], df[[cat_df]] < U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ as.character(temp2[i]))
-            cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
+            cat_str <- paste(cat_str, paste0("[", L, ", ", U, ")"), sep = " ")
           }
         }
         df[[cat_col]] <- a_col_categ # update tibble
@@ -1583,7 +1583,7 @@ Category_Process <- function(df, table_names, categ, categ_cols, categ_bounds) {
         temp <- strsplit(temp, "\\s+")[[1]] # seperate values and delimiters
         match_index <- which(temp %in% c("/", "]"))
         if (length(match_index) < 1) {
-          stop(paste("Error: Category ", cat_df, " did not have categories.", sep = ""))
+          stop("Error: Category ", cat_df, " did not have categories.")
         }
         categ_cols <- c(categ_cols, cat_col)
         df <- mutate(df, "{cat_col}" := "Unassigned") # initialize column
@@ -1616,13 +1616,13 @@ Category_Process <- function(df, table_names, categ, categ_cols, categ_bounds) {
           }
           if (L == U) { # discrete case
             a_categ <- replace_when(df[[cat_col]], df[[cat_df]] == U & df[[cat_col]] == "Unassigned" ~ entry_label)
-            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+            cat_str <- paste(cat_str, paste0("[", L, ", ", U, "]"), sep = " ")
           } else if (temp[time_i] == "/") { # strictly below upper bound
             a_categ <- replace_when(df[[cat_col]], df[[cat_df]] < U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ entry_label)
-            cat_str <- paste(cat_str, paste("[", L, ", ", U, ")", sep = ""), sep = " ")
+            cat_str <- paste(cat_str, paste0("[", L, ", ", U, ")"), sep = " ")
           } else { # including both bounds
             a_categ <- replace_when(df[[cat_col]], df[[cat_df]] <= U & df[[cat_df]] >= L & df[[cat_col]] == "Unassigned" ~ entry_label)
-            cat_str <- paste(cat_str, paste("[", L, ", ", U, "]", sep = ""), sep = " ")
+            cat_str <- paste(cat_str, paste0("[", L, ", ", U, "]"), sep = " ")
           }
           df[[cat_col]] <- a_categ # update tibble
           match_i <- match_i + 1
@@ -1847,7 +1847,7 @@ Necessary_Columns <- function(table_names = NULL, events = NULL, categ = list(),
           temp[4] <- "by"
         }
         if (temp[2] == temp[4]) {
-          stop(paste0("Error: ", temp[2], " used twice."))
+          stop("Error: ", temp[2], " used twice.")
         }
         if (!any(c(temp[2], temp[4]) %in% c("by", "as"))) {
           stop("Error: Only AS, WEIGHT, and BY can be used to change summaries.")

@@ -125,11 +125,11 @@ e <- PoisRun(Poisson_Strata(pyr, event, s0, s1, s2) ~ loglinear(dose), df,
 
 ### Logistic and Matched Case-Control Regression
 
-See the [Matched Case-Control vignette](Matched_Case_Control.html) for more details about how stratified logistic regression is performed.
+See the Matched Case-Control vignette (`vignette("Matched_Case_Control")`) for more details about how stratified logistic regression is performed.
 
 ## Non-Derivative Calculation
 
-`Colossus` uses Newton's method to perform the regression (see the [Gradient descent vignette](Grad_Hess.html) for more details), which can become computationally intensive as the model becomes more complicated. So, `Colossus` contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. This ability is left for the user's convenience.
+`Colossus` uses Newton's method to perform the regression (see the Gradient descent vignette (`vignette("Grad_Hess")`) for more details), which can become computationally intensive as the model becomes more complicated. So, `Colossus` contains functions to calculate only the scores for a parameter set and skip the derivative calculations. These results could be used to perform a bisection method of regression or plot the dependence between the score and parameter values. This ability is left for the user's convenience.
 
 The code is similar to previous examples:
 ```{r, eval=FALSE}
@@ -167,7 +167,7 @@ $$
 $$
 </p>
 
-This means that risk groups would contain both intervals actually at risk and intervals with competing events treated as if they were at risk. If we assume that no time-dependent covariates are being used, then all that remains is to weigh the contribution of these competing events. In general, a weighting column is provided before regression, the values can be solved from a survival curve or by using the "finegray" function of the [survival package](https://CRAN.R-project.org/package=survival).
+This means that risk groups would contain both intervals actually at risk and intervals with competing events treated as if they were at risk. If we assume that no time-dependent covariates are being used, then all that remains is to weigh the contribution of these competing events. In general, a weighting column is provided before regression, the values can be solved from a survival curve or by using the `survival::finegray()` function of the `{survival}` package.
 
 In code, the call is similar to the standard function. The process for finding a weighting is included below. In this example, we assume the event column, lung, to contain a 0 for no events, 1 for the primary event, and 2 for the competing event.
 
@@ -303,7 +303,7 @@ print(e)
 
 ### Application to gradient descent
 
-Linear constraints can be directly combined with the optimization equations used in a Newton-Raphson algorithm, but they can still be used with a gradient descent algorithm. For more details on the differences, reference the [vignette on the differences between optimization algorithms](Grad_Hess.html). The linear constraints are added to the optimization using a penalty approach, regardless of the gradient descent option used.
+Linear constraints can be directly combined with the optimization equations used in a Newton-Raphson algorithm, but they can still be used with a gradient descent algorithm. For more details on the differences, reference the vignette on the differences between optimization algorithms (`vignette("Grad_Hess")`). The linear constraints are added to the optimization using a penalty approach, regardless of the gradient descent option used.
 
 To begin, a penalty weight is set by the user through the `penalty_weight` parameter ($\lambda$) of the `gradient_control` list. This penalty is applied to an updated score ($LL^{*}$) which accounts for both the log-likelihood as well as the constraint accuracy ($\Delta b$). The updated score is optimized by a parameter set that solves the linear constraints and optimizes the log-likelihood.
 

@@ -49,6 +49,8 @@ using Rcpp::List;
 using Rcpp::Rcout;
 using Rcpp::_;
 using Rcpp::Dimension;
+using Rcpp::sum;
+using Rcpp::head;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));

@@ -42,12 +42,13 @@ R code is formatted using the styler package, to ensure consistent style. Prior 
 styler::style_pkg()
 ```
 
-Additional R code checking is performed using the `goodpractice` package (after installing the local Colossus version) to identify potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed.
+Additional R code checking is performed using the `goodpractice` package to identify potential issues. Some warnings are expected, specifically the line length and tests with repeated argeuments passed. Additional checks are also performed using `lintr` and a custom exclusion file. Both checks are automatically run by a github action. 
 ```r
-goodpractice::gp(system.file(package = "Colossus"), checks = goodpractice::all_checks()[c(1:17,19,21:23,25:35,37:326,328:338)])
+withr::with_options(list(goodpractice.exclude_path = c("./R/RcppExports.R", "./tests/testthat/"), goodpractice.function_length_limit = 1000),goodpractice::gp(".", checks = goodpractice::checks_by_group("revdep", "code_structure", "spelling", "urlchecker", "vignette", "description", "package_structure")))
+lintr::lint_package()
 ```
 
-C++ code is checked against google's `cpplint` tool, excluding warnings for line length and function size and any warnings on `RcppExport` files.
+C++ code is checked against google's `cpplint` tool, excluding warnings for line length and function size and any warnings on `RcppExport` files. This check is automatically run with a github action.
 ```bash
 cpplint --filter=-whitespace/line_length,-readability/fn_size,-runtime/references --exclude=src/RcppExports.* --exclude=src/*.*o --exclude=src/Makevars* src/*.*
 ```

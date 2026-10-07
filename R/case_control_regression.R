@@ -83,7 +83,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
         use.names = FALSE
       ))
       if (control$verbose >= 3) {
-        message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
+        message("Note: ", length(uniq), " strata used") # nocov
       }
       setkeyv(df, c(strat_col, event0, time2, time1))
       ce <- c(time1, time2, strat_col, event0)
@@ -112,10 +112,10 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
         if (nrow(df0) == 0) {
           # nocov start
           if (control$verbose >= 2) {
-            warning(paste("Warning: no events for strata group:",
-              uniq[i],
-              sep = " "
-            ))
+            warning(
+              "Warning: no events for strata group: ",
+              uniq[i]
+            )
           }
           # nocov end
           df <- df[get(strat_col) != uniq[i], ] # nocov
@@ -125,7 +125,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
         use.names = FALSE
       ))
       if (control$verbose >= 3) {
-        message(paste("Note:", length(uniq), " strata used", sep = " ")) # nocov
+        message("Note: ", length(uniq), " strata used") # nocov
       }
       setkeyv(df, c(strat_col, event0))
       ce <- c(strat_col, event0)
@@ -139,7 +139,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     dfend <- df[get(event0) == 1, ]
     tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
     if (control$verbose >= 3) {
-      message(paste0("Note: ", length(tu), " risk groups")) # nocov
+      message("Note: ", length(tu), " risk groups") # nocov
     }
   } else {
     tu <- 0
@@ -154,11 +154,11 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
           keep_constant[i] <- 1 # nocov
           # nocov start
           if (control$verbose >= 2) {
-            warning(paste0(
+            warning(
               "Warning: element ", i,
               " with column name ", names[i],
               " was set constant"
-            ))
+            )
           }
           # nocov end
         }
@@ -175,9 +175,8 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
   for (i in a_n) {
     a_ns <- c(a_ns, i)
   }
-  res <- Check_Iters(control, a_n)
+  res <- Check_Iters(control, length(a_n))
   control <- res$control
-  a_n <- res$a_n
   if (model_control$null) {
     a_ns <- matrix(a_ns)
   } else {

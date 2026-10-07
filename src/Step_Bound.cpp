@@ -49,6 +49,8 @@ using Rcpp::List;
 using Rcpp::Rcout;
 using Rcpp::_;
 using Rcpp::Dimension;
+using Rcpp::sum;
+using Rcpp::head;
 
 template <typename T> int sign(T val) {
     return (T(0) < val) - (val < T(0));
@@ -122,13 +124,16 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
     //  store the second derivative as D0
     MatrixXd D0 = Lldd_mat;
     deriv_max = 100;
+    // If we have constant values, then the para_number does not map to the correct column in the derivatives
+    int para_der_number = para_number - sum(head(KeepConstant, para_number));
+    // para_number works for the original covariates, dbeta, etc.
     if (step == 0) {
         //  initial step
         //  Special case if there is only one parameter
         double h = 0.0;
-        if (totalnum == 1) {
+        if (Lld_vec.size() == 1) {
             //  Don't need to calculate everything else, only h
-            h = Lldd_mat(para_number, para_number);
+            h = Lldd_mat(para_der_number, para_der_number);
             h = mult * pow(qchi/(- 1*h), 0.5);
             if (upper) {
                 h = abs(h)/2;
@@ -138,15 +143,15 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
             dbeta[para_number] = h;
         } else {
             //  Calculate dom/dbet and h
-            MatrixXd dOmdBeta = Lldd_mat.col(para_number).matrix();
-            removeRow(D0, para_number);
-            removeColumn(D0, para_number);
-            removeRow(dOmdBeta, para_number);
+            MatrixXd dOmdBeta = Lldd_mat.col(para_der_number).matrix();
+            removeRow(D0, para_der_number);
+            removeColumn(D0, para_der_number);
+            removeRow(dOmdBeta, para_der_number);
             D0 = D0.inverse().matrix();
             dOmdBeta = - 1 * D0 * dOmdBeta;
-            MatrixXd dLdBdO = Lldd_mat.row(para_number).matrix();
-            removeColumn(dLdBdO, para_number);
-            h = Lldd_mat(para_number, para_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
+            MatrixXd dLdBdO = Lldd_mat.row(para_der_number).matrix();
+            removeColumn(dLdBdO, para_der_number);
+            h = Lldd_mat(para_der_number, para_der_number) - (dLdBdO.matrix() * D0 * dLdBdO.matrix().transpose().matrix())(0, 0);
             h = mult * pow(qchi/(- 1*h), 0.5);
             if (upper) {
                 h = abs(h)/2;
@@ -170,10 +175,10 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
     } else {
         MatrixXd G = MatrixXd::Zero(reqrdnum, reqrdnum);
         VectorXd v = VectorXd::Zero(reqrdnum);
-        v[para_number] = L0 - Lstar;
-        G.row(para_number) = Lld_vec;
+        v[para_der_number] = L0 - Lstar;
+        G.row(para_der_number) = Lld_vec;
         for (int j = 0;  j < reqrdnum; j++) {
-            if (j != para_number) {
+            if (j != para_der_number) {
                 G.row(j) = D0.row(j);
                 v[j] = Lld_vec[j];
             }
@@ -196,7 +201,7 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
         } else {
             G = G.inverse().matrix();
             v = G.matrix() * v.matrix();
-            VectorXd g1 = G.col(para_number);
+            VectorXd g1 = G.col(para_der_number);
             //  we now must solve for the roots
             double as2 = g1.matrix().transpose() * D0 * g1.matrix();
             double bs1 = 2*v.matrix().transpose() *D0 * g1.matrix() - 2;
@@ -253,6 +258,8 @@ void Log_Bound(double& deriv_max, const MatrixXd& Lldd_mat, const VectorXd& Lld_
 void Calc_Change_trouble(const int& para_number, const int& nthreads, const int& totalnum, const double& thres_step_max, const double& lr, const double& step_max, const vector<double>& Ll, const vector<double>& Lld, const vector<double>& Lldd, vector<double>& dbeta, const StringVector&   tform, const double& dint, const double& dslp, IntegerVector KeepConstant_trouble) {
     int kept_covs = totalnum - sum(KeepConstant_trouble);
     if (kept_covs > 0) {
+        // If we have constant values, then the para_number does not map to the correct column in the derivatives
+        int para_der_number = para_number - sum(head(KeepConstant_trouble, para_number));
         NumericVector Lldd_vec(kept_covs * kept_covs);
         NumericVector Lld_vec(kept_covs);
         #ifdef _OPENMP
@@ -267,10 +274,10 @@ void Calc_Change_trouble(const int& para_number, const int& nthreads, const int&
             }
             int ij0 = ij;
             int jk0 = jk;
-            if (ij >= para_number) {
+            if (ij >= para_der_number) {
                 ij0++;
             }
-            if (jk >= para_number) {
+            if (jk >= para_der_number) {
                 jk0++;
             }
             Lldd_vec[jk * kept_covs + ij] = Lldd[jk0 * (kept_covs + 1) + ij0];
