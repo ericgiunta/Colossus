@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -575,16 +575,16 @@ called as follows:</p>
 <span><span class="co">#&gt; Final Results</span></span>
 <span><span class="co">#&gt;    Covariate Subterm Term Number Central Estimate Standard Error</span></span>
 <span><span class="co">#&gt;       &lt;char&gt;  &lt;char&gt;       &lt;int&gt;            &lt;num&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:         a  loglin           0             46.5            NaN</span></span>
-<span><span class="co">#&gt; 2:         b     lin           1             84.4       1.25e+10</span></span>
-<span><span class="co">#&gt; 3:         c     lin           1             84.4       1.25e+10</span></span>
-<span><span class="co">#&gt; 4:         d    plin           2            101.1       0.00e+00</span></span>
+<span><span class="co">#&gt; 1:         a  loglin           0             46.5       39530759</span></span>
+<span><span class="co">#&gt; 2:         b     lin           1             83.4          13072</span></span>
+<span><span class="co">#&gt; 3:         c     lin           1             83.4            105</span></span>
+<span><span class="co">#&gt; 4:         d    plin           2            100.1           2156</span></span>
 <span><span class="co">#&gt;    95% Confidence Interval 2-tail p-value</span></span>
 <span><span class="co">#&gt;                     &lt;char&gt;          &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1:             (NaN - NaN)            NaN</span></span>
-<span><span class="co">#&gt; 2:  (-2.46e+10 - 2.46e+10)              1</span></span>
-<span><span class="co">#&gt; 3:  (-2.46e+10 - 2.46e+10)              1</span></span>
-<span><span class="co">#&gt; 4:             (101 - 101)              0</span></span>
+<span><span class="co">#&gt; 1:  (-77480241 - 77480334)          1.000</span></span>
+<span><span class="co">#&gt; 2:        (-25537 - 25704)          0.995</span></span>
+<span><span class="co">#&gt; 3:            (-122 - 289)          0.427</span></span>
+<span><span class="co">#&gt; 4:          (-4125 - 4325)          0.963</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cox Model Used</span></span>
@@ -594,11 +594,11 @@ called as follows:</p>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 1.331,  AIC: 9.331</span></span>
 <span><span class="co">#&gt; Iterations run: 100</span></span>
-<span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 9.863e-05</span></span>
-<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 9.960e-05</span></span>
-<span><span class="co">#&gt; Analysis converged</span></span>
+<span><span class="co">#&gt; maximum step size: 1.000e+00, maximum first derivative: 1.006e-04</span></span>
+<span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.016e-04</span></span>
+<span><span class="co">#&gt; Analysis did not converge, iteration limit was hit. Regression may converge with additional iterations ('maxiter').</span></span>
 <span><span class="co">#&gt; Records Used: 6, Records Removed: 1</span></span>
-<span><span class="co">#&gt; Run finished in 0.036 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># or a Poisson model regression</span></span>
@@ -632,7 +632,7 @@ called as follows:</p>
 <span><span class="co">#&gt; Log-likelihood was not improved in last iteration</span></span>
 <span><span class="co">#&gt; Analysis did not converge, step size limit was hit. Regression may converge if limit is reduced ('epsilon').</span></span>
 <span><span class="co">#&gt; All Records Used: 7</span></span>
-<span><span class="co">#&gt; Run finished in 0.023 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.017 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 <p>The following are output in the regression output lists:</p>
 <table class="table">

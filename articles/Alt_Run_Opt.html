@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -567,7 +567,7 @@ function to directly call the Poisson model regression function.</p>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 3.589e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 12</span></span>
-<span><span class="co">#&gt; Run finished in 0.025 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 </div>
@@ -635,12 +635,12 @@ omitted and defaulted to zero.</p>
 <span><span class="co">#&gt; Risk Groups Used: 2</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 3.892,  AIC: 7.892</span></span>
-<span><span class="co">#&gt; Iterations run: 3</span></span>
+<span><span class="co">#&gt; Iterations run: 4</span></span>
 <span><span class="co">#&gt; maximum step size: 8.208e-01, maximum first derivative: 3.881e-01</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.348e-06</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.024 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.016 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># instead we could make the values opposite</span></span>
@@ -667,12 +667,12 @@ omitted and defaulted to zero.</p>
 <span><span class="co">#&gt; Risk Groups Used: 2</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 4.325,  AIC: 8.325</span></span>
-<span><span class="co">#&gt; Iterations run: 3</span></span>
+<span><span class="co">#&gt; Iterations run: 4</span></span>
 <span><span class="co">#&gt; maximum step size: 2.297e-03, maximum first derivative: 1.649e-01</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 4.499e-05</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.021 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.014 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -796,31 +796,31 @@ iterations.</p>
 <span><span class="co">#&gt; Risk Groups Used: 2</span></span>
 <span><span class="co">#&gt; |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|</span></span>
 <span><span class="co">#&gt; -2*Log-Likelihood: 3.526,  AIC: 7.526</span></span>
-<span><span class="co">#&gt; Iterations run: 5</span></span>
+<span><span class="co">#&gt; Iterations run: 10</span></span>
 <span><span class="co">#&gt; maximum step size: 7.503e-01, maximum first derivative: 9.380e-05</span></span>
 <span><span class="co">#&gt; Last iteration improved the log-likelihood by: 1.784e-04</span></span>
 <span><span class="co">#&gt; Analysis converged</span></span>
 <span><span class="co">#&gt; All Records Used: 6</span></span>
-<span><span class="co">#&gt; Run finished in 0.022 seconds</span></span>
+<span><span class="co">#&gt; Run finished in 0.015 seconds</span></span>
 <span><span class="co">#&gt; |--------------------------------------------------------------------------------|</span></span>
 <span></span>
 <span><span class="co"># We can also print out the intermediate results</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">e</span><span class="op">$</span><span class="va">Guess_Results</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $LogLik</span></span>
-<span><span class="co">#&gt; [1] -1.770675 -1.769945 -1.769577 -1.770509</span></span>
+<span><span class="co">#&gt; [1] -2.231681 -2.171760 -2.164990 -2.238230</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $AIC</span></span>
-<span><span class="co">#&gt; [1] 7.541350 7.539889 7.539154 7.541018</span></span>
+<span><span class="co">#&gt; [1] 8.463362 8.343520 8.329979 8.476459</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $BIC</span></span>
-<span><span class="co">#&gt; [1] 7.124869 7.123408 7.122673 7.124537</span></span>
+<span><span class="co">#&gt; [1] 8.046881 7.927038 7.913498 8.059978</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $Parameters</span></span>
-<span><span class="co">#&gt;           [,1]      [,2]</span></span>
-<span><span class="co">#&gt; [1,] -4.298096 -3.952823</span></span>
-<span><span class="co">#&gt; [2,] -4.395503 -4.049275</span></span>
-<span><span class="co">#&gt; [3,] -4.448003 -4.102073</span></span>
-<span><span class="co">#&gt; [4,] -4.319146 -3.974500</span></span></code></pre></div>
+<span><span class="co">#&gt;      [,1] [,2]</span></span>
+<span><span class="co">#&gt; [1,]  0.1  0.1</span></span>
+<span><span class="co">#&gt; [2,] -0.1  0.1</span></span>
+<span><span class="co">#&gt; [3,] -0.1 -0.1</span></span>
+<span><span class="co">#&gt; [4,]  0.1 -0.1</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
