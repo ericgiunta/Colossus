@@ -184,7 +184,7 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
     VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
     double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
     for (int i = 0; i < kept_covs; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
-        for (int j = 0; j < kept_covs; j++) {
+        for (int j = i; j < kept_covs; j++) {
             if (i == j) {
                 ll_change += 1/2 * Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
             } else {
@@ -268,7 +268,7 @@ void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& l
     VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
     double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
     for (int i = 0; i < kept_covs; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
-        for (int j = 0; j < kept_covs; j++) {
+        for (int j = i; j < kept_covs; j++) {
             if (i == j) {
                 ll_change += 1/2 * Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
             } else {

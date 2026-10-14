@@ -236,6 +236,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
     MatrixXd PnotddP = MatrixXd::Zero(1, 1);
     int degree_free = totalnum-accumulate(KeepConstant.begin(), KeepConstant.end(), 0.0);
     for (int guess = 0; guess <guesses; guess++) {
+//        Rcout << "Starting guess: " << guess << endl;
         Cox_Refresh_R_TERM(totalnum, reqrdnum, term_tot, dint, dslp, thres_step_max, step_max, df0, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, model_bool);
         Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
         fill(Ll.begin(), Ll.end(), 0.0);
@@ -315,9 +316,6 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                 }
                 Intercept_Bound(nthreads, totalnum, beta_0, dbeta, dfc, df0, KeepConstant, tform);
             }
-            if ((Ll_iter_best > 0) || (Ll_iter_best < Ll[ind0])) {
-                Ll_iter_best = Ll[ind0];
-            }
             if (model_bool["gradient"]) {
                 for (int ij = 0; ij < totalnum; ij++) {
                     beta_0[ij] = beta_a[ij] + dbeta[ij];
@@ -354,6 +352,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                         beta_0[ij] = beta_best[ij];
                     }
                     Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+                    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
                     Ll_improve = Ll[ind0] - Ll_improve;
                 } else {
                     Ll_improve = Ll[ind0] - Ll_improve;
@@ -362,6 +361,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                     }
                 }
             }
+//            Rcout << "Ending iteration" << endl;
+//            Rcout << "Beta0: ";
+//            for (int ij = 0; ij < totalnum; ij++) {
+//                Rcout << beta_0[ij] << " ";
+//            }
+//            Rcout << " " << endl;
+//            Rcout << "LL: " << Ll[ind0] << endl;
             Lld_worst = abs(Lld[0]);
             for (int ij = 1; ij < reqrdnum; ij++) {
                 if (abs(Lld[ij]) > Lld_worst) {
@@ -471,6 +477,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         beta_c[i] = beta_0[i];
     }
     while ((iteration < maxiter) && (iter_stop == 0)) {
+//        Rcout << "Starting iteration: " << iteration << endl;
+//        Rcout << "Beta0: ";
+//        for (int ij = 0; ij < totalnum; ij++) {
+//            Rcout << beta_a[ij] << " ";
+//        }
+//        Rcout << " " << endl;
+//        Rcout << "LL: " << Ll[ind0] << endl;
         Ll_improve = Ll[ind0];
         iteration++;
         beta_a = beta_c;
@@ -525,6 +538,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                 //  ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------//
                 Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
                 Cox_Pois_Check_Continue(model_bool, beta_0, beta_best, beta_c, cens_weight, dbeta, dev, dev_temp, fir, halfmax, halves, ind0, iter_stop, neg_limit, KeepConstant, Ll, Ll_abs_best, Lld, Lldd, Lls1, Lls2, Lls3, Lstar, nthreads, ntime, RiskPairs_Strata_Pois, dfs, PyrC, s_weights, R, Rd, Rdd, RddR, RdR, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, reqrdnum, tform, RiskFail,  RiskPairs, RiskPairs_Strata, Rls1, Rls2, Rls3, Strata_vals, term_n, ties_method, totalnum, TTerm, verbose);
+//                Rcout << "Half-step: " << halves << endl;
+//                Rcout << "Beta0: ";
+//                for (int ij = 0; ij < totalnum; ij++) {
+//                    Rcout << beta_0[ij] << " ";
+//                }
+//                Rcout << " " << endl;
+//                Rcout << "LL: " << Ll[ind0] << endl;
             }
             if (beta_best != beta_c) {  //  if the risk matrices aren't the optimal values, then they must be recalculated
                 //  If it goes through every half step without improvement, then the maximum change needs to be decreased
@@ -546,6 +566,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
             }
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+//        Rcout << "Ending iteration" << endl;
+//        Rcout << "Beta0: ";
+//        for (int ij = 0; ij < totalnum; ij++) {
+//            Rcout << beta_0[ij] << " ";
+//        }
+//        Rcout << " " << endl;
+//        Rcout << "LL: " << Ll[ind0] << endl;
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
         Lld_worst = abs(Lld[0]);
         for (int ij = 1; ij < reqrdnum; ij++) {

@@ -143,7 +143,7 @@ test_that("Coxph risk plotting above discrete step number limit", {
     expect_error(plotRisk(e, df, "fname" = paste0(tempfile(), "run"), studyid = "a", bad = 0))
     expect_error(plotRisk(e, df, plot_options = 0)$d)
     expect_no_error(ep <- plotRisk(e, df, plot_options)$d)
-    expect_equal(ep$y[100], 0.9938494, tolerance = 1e-4)
+    expect_equal(ep$y[100], 0.9754640, tolerance = 1e-4)
   }
 })
 
@@ -178,7 +178,7 @@ test_that("Coxph plot stratafied no error", {
   e <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d, 0), df, control = control, a_n = a_n)
   if (system.file(package = "ggplot2") != "") {
     expect_no_error(ep <- plotSurvival(e, df, plot_options, verbose = 0)$stratified_survival)
-    expect_equal(ep$surv[2], 0.5999075, tolerance = 1e-4)
+    expect_equal(ep$surv[2], 0.5880531, tolerance = 1e-4)
     #
     e <- CoxRun(Cox_Strata(a, b, c, e) ~ loglinear(d * d, 0), df, control = control, a_n = a_n)
     plot_options <- list(
