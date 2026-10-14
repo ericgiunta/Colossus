@@ -91,11 +91,11 @@ print(e)
 #> Risk Groups Used: 4
 #> |- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -|
 #> -2*Log-Likelihood: 182.74,  AIC: 186.74
-#> Iterations run: 5
+#> Iterations run: 6
 #> maximum step size: 1.133e-03, maximum first derivative: 5.375e-03
 #> Last iteration improved the log-likelihood by: 1.500e-05
 #> Analysis converged
 #> All Records Used: 100
-#> Run finished in 0.826 seconds
+#> Run finished in 0.222 seconds
 #> |--------------------------------------------------------------------------------|
 ```

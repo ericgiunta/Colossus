@@ -146,14 +146,27 @@ RunCoxRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%trunc%", e
     dfend <- df[get(event0) == 1, ]
     uniq_end <- unlist(unique(dfend[, strat_col, with = FALSE]),
       use.names = FALSE
-    )
-    df <- df[get(strat_col) %in% uniq_end, ]
+    ) # get the strata with events
+    df <- df[get(strat_col) %in% uniq_end, ] # filter data to strata with events
     uniq <- sort(unlist(unique(df[, strat_col, with = FALSE]),
       use.names = FALSE
     ))
     if (control$verbose >= 3) {
       message("Note: ", length(uniq), " strata used") # nocov
     }
+    # Filter within each strata?
+    strata_time_keep_colossus <- 0
+    df$strata_time_keep_colossus <- 0
+    for (strat_val in uniq) {
+      dfend <- df[(get(event0) == 1) & (get(strat_col) == strat_val), ]
+      tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+      # remove rows that end before first event
+      df[(get(time2) < tu[1]) & (get(strat_col) == strat_val), "strata_time_keep_colossus"] <- 1
+      # remove rows that start after the last event
+      df[(get(time1) > tu[length(tu)]) & (get(strat_col) == strat_val), "strata_time_keep_colossus"] <- 1
+    }
+    df <- df[strata_time_keep_colossus == 0, ]
+    #
     setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }
@@ -834,6 +847,19 @@ RunCoxRegression_Omnibus_Multidose <- function(df, time1 = "%trunc%", time2 = "%
       message("Note:", length(uniq), " strata used")
       # nocov end
     }
+    # Filter within each strata?
+    strata_time_keep_colossus <- 0
+    df$strata_time_keep_colossus <- 0
+    for (strat_val in uniq) {
+      dfend <- df[(get(event0) == 1) & (get(strat_col) == strat_val), ]
+      tu <- sort(unlist(unique(dfend[, time2, with = FALSE]), use.names = FALSE))
+      # remove rows that end before first event
+      df[(get(time2) < tu[1]) & (get(strat_col) == strat_val), "strata_time_keep_colossus"] <- 1
+      # remove rows that start after the last event
+      df[(get(time1) > tu[length(tu)]) & (get(strat_col) == strat_val), "strata_time_keep_colossus"] <- 1
+    }
+    df <- df[strata_time_keep_colossus == 0, ]
+    #
     setkeyv(df, c(strat_col, event0, time2, time1))
     ce <- c(time1, time2, event0, strat_col)
   }

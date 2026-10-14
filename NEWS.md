@@ -241,3 +241,7 @@
 
 * Added fix for upcoming RcppEigen update
 
+# Colossus 1.6.4
+
+* Stratified Cox models now filter out intervals starting/ending not at risk, reduces unused rows kept for regression.
+

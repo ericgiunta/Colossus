@@ -61,9 +61,9 @@ test_that("Coxph gradient methods", {
   e1 <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(fac, 1) + A(), df, a_n = a_n, control = control, gradient_control = gradient_control)
   e2 <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(fac, 1) + ME(), df, a_n = a_n, control = control, gradient_control = gradient_control)
   e3 <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, 0) + loglinear(fac, 1) + GMIX(), df, a_n = a_n, control = control, gradient_control = gradient_control)
-  expect_equal(e1$beta_0, c(0.5944258, 0.5397812), tolerance = 1e-3)
-  expect_equal(e2$beta_0, c(0.6594536, 0.7276018), tolerance = 1e-3)
-  expect_equal(e3$beta_0, c(0.6594536, 0.7276018), tolerance = 1e-3)
+  expect_equal(e1$beta_0, c(0.6095083, 0.5640095), tolerance = 1e-3)
+  expect_equal(e2$beta_0, c(0.6660507, 0.7313366), tolerance = 1e-3)
+  expect_equal(e3$beta_0, c(0.6660507, 0.7313366), tolerance = 1e-3)
 })
 
 test_that("Pois strata_gradient", {
@@ -142,7 +142,7 @@ test_that("Constraint Check", {
     e3 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("momentum" = TRUE))
     e4 <- CoxRun(Cox_Strata(time, status, cell) ~ loglinear(karno, trt), df, a_n = c(-0.1, 0.1), control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adadelta" = TRUE))
     expect_equal(e3$beta_0, c(-0.1, 0.1), tolerance = 1e-3)
-    expect_equal(e4$beta_0, c(-0.02365675, 0.02365675), tolerance = 1e-3)
+    expect_equal(e4$beta_0, c(-0.03302255, 0.03302255), tolerance = 1e-3)
     #
     cons_mat0 <- matrix(c(0, 0, 0, 0, 1), nrow = 1)
     e5 <- PoisRun(Pois(time, status) ~ loglinear(factor(cell, level = c(-1, 0, 1, 2, 3)), trt), df, control = control, cons_mat = cons_mat0, cons_vec = 0.0, gradient_control = list("adam" = TRUE))
