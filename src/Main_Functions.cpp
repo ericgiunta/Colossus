@@ -907,7 +907,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         convgd = FALSE;
         iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
         if (verbose >= 4) {
-            Rcout << "C++ Note: starting guess " << guess << " with " << maxiter << " maximum iterations" << endl;
+            Rcout << "C++ Note: starting guess " << guess+1 << " with " << maxiter << " maximum iterations" << endl;
         }
         maxiter = maxiters[guess];
         a_n = a_ns.row(guess);
