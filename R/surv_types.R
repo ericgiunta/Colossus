@@ -1021,8 +1021,19 @@ get_form_risk <- function(model_obj, df) {
                 # Remaining entry was wrong
                 stop("Error: Gmix term had an invalid option after the theta value. Please only use 'e/r'")
               }
+            } else if (all(vapply(model_paras[length(model_paras)], function(x) grepl("^[\\-]{0,1}[0-9]*\\.{0,1}[0-9]*$", x), logical(1))) || all(vapply(model_paras[1], function(x) grepl("^[\\-]{0,1}[0-9]+e[\\-]{0,1}[0-9]+$", x), logical(1)))) {
+              # Last item is number
+              gmix_theta <- as.numeric(length(model_paras))
+              para_else <- model_paras[1:(length(model_paras) - 1)]
+              # Check if they are all valid
+              if (all(vapply(para_else, grepl, x = "er", logical(1)))) {
+                gmix_term <- as.numeric(para_else == "e")
+              } else {
+                # Remaining entry was wrong
+                stop("Error: Gmix term had an invalid option after the theta value. Please only use 'e/r'")
+              }
             } else {
-              # wasn't a number
+              # Assuming no theta given
               gmix_theta <- 0.5
               para_else <- model_paras[seq_along(model_paras)]
               # Check if they are all valid
@@ -1030,7 +1041,7 @@ get_form_risk <- function(model_obj, df) {
                 gmix_term <- as.numeric(para_else == "e")
               } else {
                 # Remaining entry was wrong
-                stop("Error: Gmix term had an invalid option. Please only use a number or 'e/r'")
+                stop("Error: Gmix term had an invalid option. Expected theta first, or omitted for theta of 0.5. Please only use a '0/1' or 'e/r' for terms.")
               }
             }
           } else {
