@@ -19,6 +19,7 @@ Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of
 library(Colossus)
 library(data.table)
 library(parallel)
+set.seed(3742)
 ```
 
 ## Colossus Description
@@ -44,11 +45,11 @@ There are currently six types of risk models available. The risk can be expresse
 $$
 \begin{aligned}
     R_{A} &= \sum_{i=0}^n T_i\\
-    R_{PA} &= T_0 \times \sum_{i=1}^n T_i\\
-    R_{PAE} &= T_0 \times \left(1 + \sum_{i=1}^n T_i \right)\\
-    R_{M} &= T_0 \times \prod_{i=1}^n \left(T_i \right)\\
-    R_{ME} &= T_0 \times \prod_{i=1}^n \left( 1 + T_i \right)\\
-    R_{GMIX} &= T_0 \times \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \times \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
+    R_{PA} &= T_0 \cdot \sum_{i=1}^n T_i\\
+    R_{PAE} &= T_0 \cdot \left(1 + \sum_{i=1}^n T_i \right)\\
+    R_{M} &= T_0 \cdot \prod_{i=1}^n \left(T_i \right)\\
+    R_{ME} &= T_0 \cdot \prod_{i=1}^n \left( 1 + T_i \right)\\
+    R_{GMIX} &= T_0 \cdot \left(\prod_{i=1}^n(T^{*}_i) \right) ^ \theta \cdot \left( 1 + \sum_{i=1}^n (T^{*}_i - 1) \right)^{1-\theta}\\
     T^{*}_i &= \begin{cases} T_i &\text{Relative Risk} \\ T_i+1 &\text{Excess Risk} \end{cases}\\
 \end{aligned}
 $$
@@ -62,13 +63,13 @@ $$
     S_{LL}&=\prod_{i} \left(\exp{ \left(x_i \cdot \beta_i \right)} \right)\\
     S_{L}&=\sum_i \left(x_i \cdot \beta_i \right)\\
     S_{PL}&=1+ \sum \left(x_i \cdot \beta_i \right)\\
-    S_{NL}&=\sum_i \left(\alpha_i \times \exp \left(x_i \cdot \beta_i \right)\right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right)\\
+    S_{NL}&=\sum_i \left(\alpha_i \cdot \exp \left(x_i \cdot \beta_i \right)\right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right)\\
     & + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
     F_{LT} &= \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
     F_{STP} &= \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
     F_{LQ} &= \begin{cases} \beta_i \cdot x & \left(x>\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} &= \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i + \exp{\left(\nu_i + \mu_i \cdot x \right)} & \left(\beta_i * \mu_i > 0 \right) \\ \lambda_i - \exp{\left(\nu_i + \mu_i \cdot x \right)} &\text{else} \end{cases}\\
-    T_j&=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
+    F_{LEXP} &= \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i + \exp{\left(\nu_i + \mu_i \cdot x \right)} & \left(\beta_i  \cdot  \mu_i > 0 \right) \\ \lambda_i - \exp{\left(\nu_i + \mu_i \cdot x \right)} &\text{else} \end{cases}\\
+    T_j&=S_{LL,j} \cdot S_{L,j} \cdot S_{PL,j} \cdot S_{NL,j}
 \end{aligned}
 $$
 </p>
@@ -91,7 +92,7 @@ In `Colossus`, every equation is defined in a very similar fashion. Elements of 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right)
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \cdot \left(1+\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right)
 \end{aligned}
 $$
 </p>
@@ -109,7 +110,7 @@ If the user wanted to update the model to include a new term with a product-line
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \times \left(1 + \left(\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right) \right) \times \left(2 + \beta_{d} \cdot x_{d} \right)
+    R = \exp{\left(\beta_{a} \cdot x_{a} \right)} \cdot \left(1 + \left(\beta_{b} \cdot x_{b} + \beta_{c} \cdot x_{c} \right) \right) \cdot \left(2 + \beta_{d} \cdot x_{d} \right)
 \end{aligned}
 $$
 </p>
@@ -124,7 +125,7 @@ The final table is also equivalent to the following code.
 names <- c("a", "b", "c", "d")
 term_n <- c(0, 1, 1, 2)
 tform <- c("loglin", "lin", "lin", "plin")
-modelform <- "M"
+modelform <- "ME"
 
 a_n <- c(0.1, 0.1, 0.1, 0.1)
 
@@ -138,44 +139,25 @@ Interior `Colossus` functions convert between the vectors and formula representa
 
 `Colossus` performs survival analysis via either a Cox Proportional Hazards, Poisson, logistic, or matched case control model regression. In any case, the user specifies which columns contain information about the events, such as time duration, event status, or strata. For the Poisson model regression, these would be which column contains the person-years and number of events for each row of data. For the Cox Proportional Hazards regression, the user identifies which columns provide starting and ending times, and what column gives the event status. A logistic model specifies the trials and observed events. A matched case control regression species which columns define time intervals, strata, or both. The event status is assumed to be a binary covariate which is 1 for intervals containing an event. `Colossus` supports left-censored data, right-censored data, and interval-censored data. The data is interval censored by default, so left and right censoring are handled by defining interval endpoints outside the minimum or maximum event times.
 
-On the user side, the names of columns containing the time and events need to be given. Let us assume we have a dataframe organized as follows:
-
-| UserID | Starting_Age | Ending_Age | Cancer_Status |
-| :---------: | :----------: | :-------: |  :-------: |
-| 112           | 18    | 30         | 0 |
-| 114           | 20    | 45         | 0 |
-| 213           | 18    | 57         | 1 |
-| ...           | ...    | ...         | ... |
-
-For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. `Colossus` is designed to allow the user to omit interval columns to represent truncation. `Colossus` assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. In the formula, the interval endpoints can be named "tstart" and "tend". So in code, these variables would look like this:
+On the user side, the names of columns containing the time and events need to be given. Let us assume we have a dataframe with columns for the ID, starting age, ending age, and cancer status. For Cox proportional hazard, we need to provide three column names: the starting age, the ending age, and if an event happened during the interval. In this case that would be "Starting_Age", "Ending_Age", and "Cancer_Status". In this example, we have interval data but that may not always be the case. `Colossus` is designed to allow the user to omit interval columns to represent truncation. `Colossus` assumes that this means that the person has the missing endpoint outside of the available data range and creates a dummy column to reference as the interval endpoint. In the formula, the interval endpoints can be named "tstart" and "tend". So in code, these variables would look like this:
 
 ```{r}
 df <- data.table(
-  UserID = c(112, 114, 213, 214, 115, 116, 117),
-  Starting_Age = c(18, 20, 18, 19, 21, 20, 18),
-  Ending_Age = c(30, 45, 57, 47, 36, 60, 55),
-  Cancer_Status = c(0, 0, 1, 0, 1, 0, 0),
-  a = c(0, 1, 1, 0, 1, 0, 1),
-  b = c(1, 1.1, 2.1, 2, 0.1, 1, 0.2),
-  c = c(10, 11, 10, 11, 12, 9, 11),
-  d = c(0, 0, 0, 1, 1, 1, 1)
+  "UserID" = 1:100,
+  "Starting_Age" = c(rep(10, 25), rep(15, 25), rep(20, 25), rep(25, 25)),
+  "Ending_Age" = c(rep(16, 25), rep(21, 25), rep(26, 25), rep(31, 25)),
+  "a" = rbinom(100, 3, 0.35),
+  "b" = rbinom(100, 5, 0.25)
 )
+## Our event status is dependent on factor 'a'
+df$Cancer_Status <- vapply(df$a, function(x) rbinom(1, 1, x / 4), numeric(1))
 # For the interval case
 tstart <- "Starting_Age"
 tend <- "Ending_Age"
 event <- "Cancer_Status"
 ```
 
-Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. Suppose we are now working with the following table:
-
-| UserID | Starting_Age | Ending_Age | Person_Years | Cancer_Status |
-| :---------: | :----------: | :-------: | :-------: |  :-------: |
-| 112           | 18    | 30  |   12    | 0   |
-| 114           | 20    | 45  |   25    | 0   |
-| 213           | 18    | 57  |   39    | 1   |
-| ...           | ...   | ... | ...     | ... |
-
-We would just provide the duration column and event column, or "Person_Years" and "Cancer_Status". Which in code looks like the following:
+Suppose instead we were interested in a Poisson model regression, the only difference is instead of providing interval endpoints we give a column of interval lengths. If we wanted to use a Poisson model, we would just provide the duration column and event column, or "Person_Years" and "Cancer_Status". Which in code looks like the following:
 
 ```{r}
 df$Person_Years <- df$Ending_Age - df$Starting_Age
@@ -217,7 +199,7 @@ The previous options are all contained within a list of parameters, however, the
 
 Going back to our example, the code may look like the following:
 ```{r}
-keep_constant <- c(0, 0, 0, 0)
+keep_constant <- c(0, 0)
 
 control <- list(
   ncores = 1, maxiter = 100, halfmax = 5,
@@ -235,13 +217,14 @@ Finally, the user calls the regression function they need. The names used throug
 # assuming the table of covariates is stored in a data.table "df"
 
 model_cox <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~ loglinear(a, 0) +
-  linear(b, c, 1) + plinear(d, 2) + multiplicative()
-
+  linear(b, 1) + multiplicative - excess()
+a_n <- c(0.1, 0.1)
 e <- CoxRun(model_cox, df, a_n = a_n, control = control)
 print(e)
 
 # or a Poisson model regression
-model_pois <- Poisson(Person_Years, Cancer_Status)  ~ loglinear(a, 0) + linear(b, c, 1) + plinear(d, 2) + multiplicative()
+model_pois <- Poisson(Person_Years, Cancer_Status)  ~ loglinear(CONST, a, 0) + linear(b, 1) + multiplicative - excess()
+a_n <- c(-1.0, 0.1, 0.1)
 e <- PoisRun(model_pois, df, a_n = a_n, control = control)
 print(e)
 ```
@@ -261,7 +244,7 @@ The following are output in the regression output lists:
 | Control_List | a list containing the number of iterations, the maximum step at the final iteration, and the highest first derivative magnitude |
 |Converged | TRUE/FALSE if the regression converged |
 
-In this case, the poisson regression did not converge. Given that the examples were arbitrary this is not unexpected. The Poisson model regression exited due to the step limit being below the threshold, which means that the score was still changing significantly even at low step sizes. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a `Colossus` run.
+In this case, the Poisson regression did not converge. The specific message was that the log-likelihood did not improve in the last iteration. This means that during the algorithm took a step, found a worse point, and did not find a better value across half-steps. Because the score was not improved, the maximum step size was decreased. The maximum step size (6e-5) was below the default threshold (1e-4), so the regression ended. We can also conclude that the score does not improve in a small region around the final parameter set. To find a better solution the user would likely have to either change the model equation or provide a new starting guess with a lower step size limit. This is an example of how to interpret the results of a `Colossus` run.
 
 There are additional variants of these functions which are described in greater detail in the other vignettes, like the matched case-control regression (`vignette("Matched_Case_Control")`), logistic regression (`vignette("Logistic")`), and alternative run options (`vignette("Alt_Run_Opt")`) vignettes.
 

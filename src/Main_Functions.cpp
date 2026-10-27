@@ -877,7 +877,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         // Normally there is one value being solved, the average rate
         // With strata, the strata values are being solved and the one parameter is treated as fixed
         // So there is one extra degree of freedom removed
-        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)+dev, _["Deviance"] = dev, _["Status"] = "PASSED");
+        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*(Ll[0]), _["BIC"] = (degree_free)*log(mat_row)-2*(Ll[0]), _["Deviance"] = dev, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -1055,8 +1055,8 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         a_n = beta_0;
         beta_fin(guess, _) = a_n;
         LL_fin[guess] = Ll[0];
-        AIC_fin[guess] = 2*(degree_free)-2*Ll[0];
-        BIC_fin[guess] = (degree_free)*log(mat_row)-2*Ll[0];
+        AIC_fin[guess] = 2*(degree_free)-2*(Ll[0]);
+        BIC_fin[guess] = (degree_free)*log(mat_row)-2*(Ll[0]);
         if ((Ll_abs_best > 0) || (Ll_abs_best < Ll[ind0])) {
             Ll_abs_best = Ll[ind0];
             beta_abs_best = beta_c;
@@ -1253,7 +1253,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     List control_list = List::create(_["Iteration"] = iteration, _["Maximum Step"] = dbeta_max, _["Derivative Limiting"] = Lld_worst, _["Ended on Negative Limit"] = neg_limit, _["Delta_LogLik"] = wrap(Ll_improve));  //  stores the total number of iterations used
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)+dev, _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*(Ll[0]), _["BIC"] = (degree_free)*log(mat_row)-2*(Ll[0]), _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -1313,7 +1313,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
             }
         }
     }
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)-2*Ll[0], _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["AIC"] = 2*(degree_free)-2*Ll[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll[0], _["Deviance"] = dev, _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -2094,7 +2094,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
     }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"] = 2*(reqrdnum + reqrdcond)+dev, _["BIC"] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0], _["beta_0"] = wrap(beta_0), _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"] = 2*(reqrdnum + reqrdcond)-2*Ll[0], _["BIC"] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0], _["beta_0"] = wrap(beta_0), _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -2152,7 +2152,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
             }
         }
     }
-    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"] = 2*(reqrdnum + reqrdcond)+dev, _["BIC"] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0], _["beta_0"] = wrap(beta_0), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
+    res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["AIC"] = 2*(reqrdnum + reqrdcond)-2*Ll[0], _["BIC"] = (reqrdnum + reqrdcond)*log(mat_row)-2*Ll[0], _["beta_0"] = wrap(beta_0), _["First_Der"] = wrap(Lld), _["Second_Der"] = Lldd_vec, _["beta_0"] = wrap(beta_0), _["StrataOdds"] = wrap(strata_odds), _["Standard_Error"] = wrap(stdev), _["Covariance"] = wrap(cov), _["Parameter_Lists"] = para_list, _["Control_List"] = control_list, _["Guess_Results"] = guess_list, _["Converged"] = convgd, _["FreeParameters"] = wrap(reqrdnum), _["FreeSets"] = wrap(reqrdcond), _["Status"] = "PASSED");
     //  returns a list of results
     return res_list;
 }
@@ -2257,12 +2257,12 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
     double dev = 0.0;
     if (model_bool["null"]) {
-        double AIC_val = 0;
-        double BIC_val = 0;
+//        double AIC_val = 0;
+//        double BIC_val = 0;
         Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
         LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
         Calc_LogLik_Logist(model_bool, nthreads, totalnum, CountEvent, P, Pnot, Pd, Pdd, PdP, PnotdP, PddP, PnotddP, Ll, Lld, Lldd, KeepConstant);
-        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
+        List res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*Ll[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll[0], _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }
@@ -2785,7 +2785,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
     }
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*Ll[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll[0], _["Parameter_Lists"] = para_list, _["Guess_Results"] = guess_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }

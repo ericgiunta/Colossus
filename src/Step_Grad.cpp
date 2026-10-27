@@ -80,11 +80,13 @@ void Calc_Change_Gradient(const int& nthreads, List& model_bool, const int& tota
     double decay2 = optim_para["learning_decay"];
     double epsilon_momentum = optim_para["epsilon_decay"];
     //  required vectors for storage
+//    Rcout << "step start" << endl;
     if (momentum_bool) {
         for (int ijk = 0; ijk < totalnum; ijk++) {
             if (KeepConstant[ijk] == 0) {
                 int pjk_ind = ijk - sum(head(KeepConstant, ijk));
-                dbeta[ijk] = decay1 * m_g_store[pjk_ind] + lr * Lld_vec[pjk_ind];
+                dbeta[ijk] = lr * (decay1 * m_g_store[pjk_ind] + Lld_vec[pjk_ind]);
+//                Rcout << decay1 << " " << m_g_store[pjk_ind] << " " << lr << " " << Lld_vec[pjk_ind] << ": " << dbeta[ijk] << endl;
                 m_g_store[pjk_ind] = dbeta[ijk];
                 if (abs(dbeta[ijk]) > step_max) {
                     dbeta[ijk] = step_max * sign(dbeta[ijk]);

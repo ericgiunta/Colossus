@@ -30,12 +30,12 @@ if (system.file(package = "ggplot2") != "") {
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    S_{NL}=\sum_i \left(\alpha_i \times \exp \left(x_i \cdot \beta_i \right) \right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right) + \sum_i F_{LT} + \sum_i F_{STP} + \sum_i F_{LQ} + \sum_i F_{LEXP}\\
-    F_{LT} = \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
-    F_{STP} = \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
-    F_{LQ} = \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
-    F_{LEXP} = \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i + \exp{\left(\nu_i + \mu_i \cdot x \right)} & \left(\beta_i * \mu_i > 0 \right) \\ \lambda_i - \exp{\left(\nu_i + \mu_i \cdot x \right)} &\text{else} \end{cases}\\
-    T_j=S_{LL,j} \times S_{L,j} \times S_{PL,j} \times S_{NL,j}
+    S_{NL}=\sum_i \left(\alpha_i \cdot \exp \left(x_i \cdot \beta_i \right) \right) + \sum_i \left(\beta_i \cdot \left(x_i \right)^2 \right) + F_{LT} + F_{STP} + F_{LQ} + F_{LEXP}\\
+    F_{LT} = \sum_i \begin{cases} \alpha_i \cdot \left(x-\beta_i \right) & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
+    F_{STP} = \sum_i \begin{cases} \alpha_i & \left(x>\beta_i \right) \\ 0 &\text{else} \end{cases}\\
+    F_{LQ} = \sum_i \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i \cdot x^2 + \nu_i &\text{else} \end{cases}\\
+    F_{LEXP} = \sum_i \begin{cases} \beta_i \cdot x & \left(x<\alpha_i \right) \\ \lambda_i + \exp{\left(\nu_i + \mu_i \cdot x \right)} & \left(\beta_i \cdot \mu_i > 0 \right) \\ \lambda_i - \exp{\left(\nu_i + \mu_i \cdot x \right)} &\text{else} \end{cases}\\
+    T_j=S_{LL,j} \cdot S_{L,j} \cdot S_{PL,j} \cdot S_{NL,j}
 \end{aligned}
 $$
 </p>
@@ -46,10 +46,10 @@ For every subterm type, there are between 1 and 3 parameters that fully define t
 $$
 \begin{aligned}
     \lambda_{LQ} = \beta_{LQ}/ \left(2\alpha_{LQ} \right)\\
-    \nu_{LQ} = \left(\beta_{LQ}*\alpha_{LQ} \right)/2\\
-    \nu_{LEXP} = \ln \left(\left|\beta_{LEXP} / \mu_{LEXP} \right | \right) - \mu_{LEXP}*\alpha_{LEXP}\\
-    \lambda_{LEXP}(\beta_{LEXP} \cdot \mu_{LEXP} < 0) = \beta_{LEXP}*\alpha_{LEXP}+\exp \left(\nu_{LEXP}+\mu_{LEXP}*\alpha_{LEXP} \right) \\ 
-    \lambda_{LEXP}(\beta_{LEXP} \cdot \mu_{LEXP} > 0) = \beta_{LEXP}*\alpha_{LEXP} - \exp \left(\nu_{LEXP}+\mu_{LEXP}*\alpha_{LEXP} \right)
+    \nu_{LQ} = \left(\beta_{LQ} \cdot \alpha_{LQ} \right)/2\\
+    \nu_{LEXP} = \ln \left(\left|\beta_{LEXP} / \mu_{LEXP} \right | \right) - \mu_{LEXP} \cdot \alpha_{LEXP}\\
+    \lambda_{LEXP}(\beta_{LEXP} \cdot \mu_{LEXP} < 0) = \beta_{LEXP} \cdot \alpha_{LEXP}+\exp \left(\nu_{LEXP}+\mu_{LEXP} \cdot \alpha_{LEXP} \right) \\ 
+    \lambda_{LEXP}(\beta_{LEXP} \cdot \mu_{LEXP} > 0) = \beta_{LEXP} \cdot \alpha_{LEXP} - \exp \left(\nu_{LEXP}+\mu_{LEXP} \cdot \alpha_{LEXP} \right)
 \end{aligned}
 $$
 </p>
@@ -131,12 +131,12 @@ for (slope in c(-0.2, 0.2)) {
     yt <- ifelse(xt < res[1], res[2] * xt, res[3] - sign(slope) * exp(res[4] * xt + res[5]))
     x <- c(x, xt)
     y <- c(y, yt)
-    c <- c(c, rep(i, length(xt)))
+    c <- c(c, rep(paste(sign(slope) * max), length(xt)))
   }
 }
-df <- data.table("x" = x, "y" = y, "model" = c)
+df <- data.table("x" = x, "y" = y, "Trend" = c)
 if (system.file(package = "ggplot2") != "") {
-  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$model, color = .data$model)) +
+  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$Trend, color = .data$Trend)) +
     ggplot2::geom_line(linewidth = 1.2) +
     labs(x = "Dose", y = "Response")
 } else {

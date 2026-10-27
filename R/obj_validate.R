@@ -137,6 +137,72 @@ new_logitresmcml <- function(x = list()) {
   )
 }
 
+check_alias <- function(df, names, term_n, tform, keep_constant, verbose = FALSE) {
+  og_index <- seq_along(tform)
+  keep_constant <- validate_keep_constant(keep_constant, names, verbose)
+  fix_alias <- keep_constant
+  all_remove <- rep(0, length(tform))
+  for (u_tform in unique(tform)) {
+    for (u_term_n in unique(term_n)) {
+      new_name <- names[(tform == u_tform) & (term_n == u_term_n) & (keep_constant == 0)]
+      new_index <- og_index[(tform == u_tform) & (term_n == u_term_n) & (keep_constant == 0)]
+      if (length(new_name) > 1) {
+        df_temp <- df[, new_name, with = FALSE]
+        removed <- 0
+        for (i in 2:length(names(df_temp))) {
+          new_rank <- qr(df_temp[, 1:i])$rank
+          if (new_rank == i - sum(removed)) {
+            # all good
+            removed <- c(removed, 0)
+          } else {
+            # the column was linearly dependent
+            removed <- c(removed, 1)
+            keep_constant[new_index[i]] <- 1 # alias the value
+            fix_alias[new_index[i]] <- 2
+          }
+        }
+      }
+    }
+  }
+  list(keep_constant, fix_alias)
+}
+
+validate_keep_constant <- function(keep_constant, names, verbose = FALSE) {
+  # Check if not numeric
+  if (length(keep_constant) > 0) {
+    if ((any(is.null(keep_constant))) || (anyNA(keep_constant))) {
+      stop("Error: The constant vector must not be NA or NULL.") # nocov
+    }
+    if (is(keep_constant, "logical")) {
+      keep_constant <- as.numeric(keep_constant)
+    } else if (suppressWarnings(!is(keep_constant, "numeric"))) {
+      stop("Error: the constant vector had a non-numeric value")
+    }
+  }
+  #
+  if (length(keep_constant) < length(names)) {
+    keep_constant <- c(keep_constant, rep(0, length(names) -
+      length(keep_constant)))
+  } else if (length(keep_constant) > length(names)) {
+    keep_constant <- keep_constant[seq_along(names)]
+  }
+  if (min(keep_constant) < 0) {
+    stop(
+      "Error: keep_constant expects 0/1 values, minimum value was ",
+      min(keep_constant)
+    )
+  }
+  if (max(keep_constant) > 1) {
+    stop(
+      "Error: keep_constant expects 0/1 values, maximum value was ",
+      max(keep_constant)
+    )
+  }
+  if (any(keep_constant != round(keep_constant))) {
+    stop("Error: keep_constant expects 0/1 values, atleast one value was noninteger")
+  }
+  keep_constant
+}
 
 validate_formula <- function(x, df, verbose = FALSE) {
   verbose <- Check_Verbose(verbose)
@@ -196,37 +262,39 @@ validate_formula <- function(x, df, verbose = FALSE) {
   }
   # --------------------------------------------------------------------- #
   # Check if not numeric
-  if (length(x$keep_constant) > 0) {
-    if ((any(is.null(x$keep_constant))) || (anyNA(x$keep_constant))) {
-      stop("Error: The constant vector must not be NA or NULL.") # nocov
+  x$keep_constant <- validate_keep_constant(x$keep_constant, x$names, verbose)
+  # --------------------------------------------------------------------- #
+  if (length(x$fix_alias) > 0) {
+    if ((any(is.null(x$fix_alias))) || (anyNA(x$fix_alias))) {
+      stop("Error: The fixed/alias vector must not be NA or NULL.") # nocov
     }
-    if (is(x$keep_constant, "logical")) {
-      x$keep_constant <- as.numeric(x$keep_constant)
-    } else if (suppressWarnings(!is(x$keep_constant, "numeric"))) {
-      stop("Error: the constant vector had a non-numeric value")
+    if (is(x$fix_alias, "logical")) {
+      x$fix_alias <- as.numeric(x$fix_alias)
+    } else if (suppressWarnings(!is(x$fix_alias, "numeric"))) {
+      stop("Error: the fixed/alias vector had a non-numeric value")
     }
   }
   #
-  if (length(x$keep_constant) < length(x$names)) {
-    x$keep_constant <- c(x$keep_constant, rep(0, length(x$names) -
-      length(x$keep_constant)))
-  } else if (length(x$keep_constant) > length(x$names)) {
-    x$keep_constant <- x$keep_constant[seq_along(x$names)]
+  if (length(x$fix_alias) < length(x$names)) {
+    x$fix_alias <- c(x$fix_alias, rep(0, length(x$names) -
+      length(x$fix_alias)))
+  } else if (length(x$fix_alias) > length(x$names)) {
+    x$fix_alias <- x$fix_alias[seq_along(x$names)]
   }
-  if (min(x$keep_constant) < 0) {
+  if (min(x$fix_alias) < 0) {
     stop(
-      "Error: keep_constant expects 0/1 values, minimum value was ",
-      min(x$keep_constant)
+      "Error: fix_alias expects 0/1/2 values, minimum value was ",
+      min(x$fix_alias)
     )
   }
-  if (max(x$keep_constant) > 1) {
+  if (max(x$fix_alias) > 2) {
     stop(
-      "Error: keep_constant expects 0/1 values, maximum value was ",
-      max(x$keep_constant)
+      "Error: fix_alias expects 0/1 values, maximum value was ",
+      max(x$fix_alias)
     )
   }
-  if (any(x$keep_constant != round(x$keep_constant))) {
-    stop("Error: keep_constant expects 0/1 values, atleast one value was noninteger")
+  if (any(x$fix_alias != round(x$fix_alias))) {
+    stop("Error: fix_alias expects 0/1/2 values, atleast one value was noninteger")
   }
   # --------------------------------------------------------------------- #
   # Convert to string
@@ -414,6 +482,17 @@ validate_formula <- function(x, df, verbose = FALSE) {
   name_check <- unique(x$names)
   if (!all(name_check %in% names(df))) {
     stop("Error: Atleast one model covariate not in the data")
+  }
+  # --------------------------------------------------------------------- #
+  if (length(x$tform) > 1) {
+    tform <- x$tform
+    term_n <- x$term_n
+    names <- x$names
+    keep_constant <- x$keep_constant
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant, verbose)
+    x$keep_constant <- res_alias[[1]]
+    x$fix_alias <- res_alias[[2]]
   }
   # --------------------------------------------------------------------- #
   term_tot <- max(x$term_n) + 1
@@ -759,6 +838,7 @@ coxmodel <- function(start_age = "",
                      gmix_theta = 0,
                      a_n = list(),
                      keep_constant = NULL,
+                     fix_alias = NULL,
                      df = data.table(),
                      expres_calls = list(),
                      verbose = FALSE) {
@@ -771,7 +851,7 @@ coxmodel <- function(start_age = "",
   #
   cox_obj <- list(
     start_age = start_age, end_age = end_age, event = event, strata = strata, weight = weight, null = null,
-    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, fix_alias = fix_alias, modelform = modelform,
     gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   cox_obj <- new_coxmodel(cox_obj)
@@ -794,6 +874,7 @@ poismodel <- function(person_year = "",
                       gmix_theta = 0,
                       a_n = list(),
                       keep_constant = NULL,
+                      fix_alias = NULL,
                       df = data.table(),
                       expres_calls = list(),
                       verbose = FALSE) {
@@ -804,7 +885,7 @@ poismodel <- function(person_year = "",
   #
   pois_obj <- list(
     person_year = person_year, event = event, strata = strata, null = null,
-    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, fix_alias = fix_alias, modelform = modelform,
     gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   pois_obj <- new_poismodel(pois_obj)
@@ -828,6 +909,7 @@ caseconmodel <- function(start_age = "",
                          gmix_theta = 0,
                          a_n = list(),
                          keep_constant = NULL,
+                         fix_alias = NULL,
                          df = data.table(),
                          expres_calls = list(),
                          verbose = FALSE) {
@@ -839,7 +921,7 @@ caseconmodel <- function(start_age = "",
   #
   casecon_obj <- list(
     start_age = start_age, end_age = end_age, event = event, strata = strata, null = null,
-    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, fix_alias = fix_alias, modelform = modelform,
     gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   casecon_obj <- new_caseconmodel(casecon_obj)
@@ -862,6 +944,7 @@ logitmodel <- function(trials = "",
                        gmix_theta = 0,
                        a_n = list(),
                        keep_constant = NULL,
+                       fix_alias = NULL,
                        df = data.table(),
                        expres_calls = list(),
                        verbose = FALSE) {
@@ -872,7 +955,7 @@ logitmodel <- function(trials = "",
   #
   logit_obj <- list(
     trials = trials, event = event, strata = strata, null = null,
-    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, modelform = modelform,
+    term_n = term_n, tform = tform, names = names, a_n = a_n, keep_constant = keep_constant, fix_alias = fix_alias, modelform = modelform,
     gmix_term = gmix_term, gmix_theta = gmix_theta, expres_calls = expres_calls
   )
   logit_obj <- new_logitmodel(logit_obj)

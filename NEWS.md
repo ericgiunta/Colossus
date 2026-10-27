@@ -245,3 +245,8 @@
 
 * Stratified Cox models now filter out intervals starting/ending not at risk, reduces unused rows kept for regression.
 
+# Colossus 1.6.5
+
+* Poisson log-likelihood has been updated to not be off by a constant dependent on dataset. Previous version omitted the constant sum of log factorial of event count. It has now been approximated using Ramanujan's approximation. Does not impact previous results, deviance is unchanged. The approximation has been tuned to improve accuracy in zero event intervals.
+* AIC and BIC for Poisson models now based on Log-Likelihood instead of deviance. AIC will no longer match 32-bit Epicure, which uses deviance.
+

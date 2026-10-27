@@ -1475,6 +1475,23 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       names(temp) <- i
       keep_constant_list <- c(keep_constant_list, temp)
     }
+    fix_alias_list <- list()
+    if (i %in% names(fix_alias_list)) {
+      temp1 <- unlist(fix_alias_list[i], use.names = FALSE)
+      if (length(temp0) != length(temp1)) {
+        stop(
+          "Error: item ", i, " in name_list has ",
+          length(temp0),
+          " items, but same item in fix_alias_list has ",
+          length(temp1),
+          " items. Omit entry in tform_list to set to default of 0 or add missing values"
+        )
+      }
+    } else {
+      temp <- list(rep(0, length(temp0)))
+      names(temp) <- i
+      fix_alias_list <- c(fix_alias_list, temp)
+    }
     if (i %in% names(a_n_list)) {
       temp1 <- unlist(a_n_list[i], use.names = FALSE)
       if (length(temp0) != length(temp1)) {
@@ -1520,6 +1537,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
   term_n <- NULL
   tform <- NULL
   keep_constant <- NULL
+  fixed_alias <- NULL
   a_n <- NULL
   if ("shared" %in% names(name_list)) {
     names <- c(names, unlist(name_list["shared"], use.names = FALSE))
@@ -1528,6 +1546,7 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
     keep_constant <- c(keep_constant, unlist(keep_constant_list["shared"],
       use.names = FALSE
     ))
+    fixed_alias <- c(fixed_alias, unlist(fix_alias_list["shared"], use.names = FALSE))
     a_n <- c(a_n, unlist(a_n_list["shared"], use.names = FALSE))
   }
   for (i in events) {
@@ -1547,10 +1566,11 @@ Joint_Multiple_Events <- function(df, events, name_list, term_n_list = list(), t
       keep_constant <- c(keep_constant, unlist(keep_constant_list[i],
         use.names = FALSE
       ))
+      fixed_alias <- c(fixed_alias, unlist(fix_alias_list[i], use.names = FALSE))
       a_n <- c(a_n, unlist(a_n_list[i], use.names = FALSE))
     }
   }
-  list(df = df0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, a_n = a_n)
+  list(df = df0, names = names, term_n = term_n, tform = tform, keep_constant = keep_constant, fixed_alias = fixed_alias, a_n = a_n)
 }
 
 #' Defines Interactions
@@ -2298,6 +2318,12 @@ Interpret_Output <- function(out_list, digits = 3) {
           term_n <- out_list$Parameter_Lists$term_n
           beta_0 <- out_list$beta_0
           keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+          fix_alias <- out_list$model$fix_alias
+          fix_alias <- case_when(
+            fix_alias == 0 ~ "Free",
+            fix_alias == 1 ~ "Fixed",
+            fix_alias == 2 ~ "Aliased"
+          )
           if ("Standard_Error" %in% names(out_list)) {
             stdev <- out_list$Standard_Error
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
@@ -2313,7 +2339,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               Covariate = names,
               Subterm = tforms,
               `Term Number` = term_n,
-              Constant = keep_constant,
+              Constant = fix_alias,
               `Central Estimate` = as.numeric(format(beta_0, digits = digits)),
               `Standard Error` = as.numeric(format(stdev, digits = digits)),
               `95% Confidence Interval` = CI,
@@ -2324,7 +2350,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               Covariate = names,
               Subterm = tforms,
               `Term Number` = term_n,
-              Constant = keep_constant,
+              Constant = fix_alias,
               `Central Estimate` = as.numeric(format(beta_0, digits = digits))
             )
           }
@@ -2429,6 +2455,12 @@ Interpret_Output <- function(out_list, digits = 3) {
           term_n <- out_list$Parameter_Lists$term_n
           beta_0 <- out_list$beta_0
           keep_constant <- out_list$Parameter_Lists$keep_constant == 1
+          fix_alias <- out_list$model$fix_alias
+          fix_alias <- case_when(
+            fix_alias == 0 ~ "Free",
+            fix_alias == 1 ~ "Fixed",
+            fix_alias == 2 ~ "Aliased"
+          )
           if ("Standard_Error" %in% names(out_list)) {
             stdev <- out_list$Standard_Error
             pval <- 2 * pnorm(-abs(beta_0 / stdev))
@@ -2443,7 +2475,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               Covariate = names,
               Subterm = tforms,
               `Term Number` = term_n,
-              Constant = keep_constant,
+              Constant = fix_alias,
               `Central Estimate` = as.numeric(format(beta_0, digits = digits)),
               `Standard Error` = as.numeric(format(stdev, digits = digits)),
               `95% Confidence Interval` = CI,
@@ -2454,7 +2486,7 @@ Interpret_Output <- function(out_list, digits = 3) {
               Covariate = names,
               Subterm = tforms,
               `Term Number` = term_n,
-              Constant = keep_constant,
+              Constant = fix_alias,
               `Central Estimate` = as.numeric(format(beta_0, digits = digits))
             )
           }

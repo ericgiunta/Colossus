@@ -1,0 +1,130 @@
+---
+title: "Reference Likelihood and Score Formula"
+output:
+  rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reference Likelihood and Score Formula}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
+library(Colossus)
+library(data.table)
+if (system.file(package = "survival") != "") {
+  library(survival)
+}
+library(dplyr)
+```
+
+## Technical Details
+
+The focus of this vignette is summarizing the likelihood functions used for each model type. These equations may be reproduced from other vignettes.
+
+### Cox Proportional Hazards
+
+Cox proportional hazards models predict the likelihood based on the ratio of hazard ratio ($r$) at event times ($\delta=1$) to the sum of hazard ratio across every interval at risk. The contribution is summed across every event time ($i$).
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L = \prod_{i}^{n} \left[ \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right]^{\delta_i} \\
+    Ll = \sum_{i}^{n} \delta_i \cdot \left[ \ln \left (r_{i} \right) - \ln \left (\sum_{j: t_j \in R_i} r_j \right ) \right ]
+\end{aligned}
+$$
+</p>
+
+Cox models are based around finding risk groups, based on which intervals overlap. The underlying theory requires that event times can not be tied, there must be some true order. In real data, this order might be lost. There are two approaches to "fixing" tied times available, Efron or Breslow. The default, Breslow listed above, uses the same risk group for each tied event time. The alternative, Efron pictured below, assumes that every way of breaking the ties is equally likely. We weight the contribution from all ($d_j$) event intervals.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L(\hat{\beta}) = \prod_j^N \left (   \frac{ \prod_{i \in R_j, \delta_i=1} r_i}{ \prod_{k=1}^{d_j}\left [ \sum_{l \in R_j}r_{l} - k/d_j \sum_{i \in R_j, \delta_i=1} r_i \right]} \right )
+\end{aligned}
+$$
+</p>
+
+### Poisson
+
+Poisson models use the predicted rate ($r$) and person-time ($p$) to calculate an expected number of events ($\lambda$) which is compared to the true number of events ($c$). Contributions are summed over every row ($i$).
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L = \prod_{i} \frac{\lambda_i^{c_i} \cdot e^{-\lambda_i}}{c_i!} \\
+    Ll = \sum_{i} \left [ c_i \cdot \ln \left ( \lambda_i \right ) - \lambda_i - \ln \left ( c_i! \right ) \right ] \\
+    \lambda_i = r_i \cdot p_i
+\end{aligned}
+$$
+</p>
+
+For grouped data, the factorial of observed events can be computationally intensive to calculate. Instead, Ramanujan's approximation is used to quickly calculate the constant contribution from each row within some small error. Due to the abundance of interval data, the value of $\theta$ was adjusted to reduce the error in rows without events. Note that for constant time and event data, the error between the approximation and true value is constant. Confidence intervals and significance are based on differences in log-likelihood, which is unaffected by the error.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \ln \left ( c_i! \right ) \approx c_i \cdot \left(\ln \left (c_i \right ) - 1 \right) + \frac{1}{6} \ln \left ( 8 c_i^3 + 4 c_i^2 + c_i + \frac{\theta}{30} \right) + \frac{1}{2} \ln \left ( \pi \right) \\
+    \theta = 0.967546
+\end{aligned}
+$$
+</p>
+
+In general, the deviance is easier to compare between regressions. The deviance ($D$) is defined as twice the difference between the observed log-likelihood ($Ll$) and the log-likelihood for the fully saturated model ($Ll_s$). The factorial contributions cancel out, so the deviance is not effected by the approximation.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    Ll_s = \sum_{i} \left [ c_i \cdot \ln \left ( c_i \right ) - c_i - \ln \left ( c_i! \right ) \right ] \\
+    D = 2 \sum_{i} \left [ c_i \cdot \ln \left ( \ \frac{c_i}{\lambda_i} \right ) - \left( c_i - \lambda_i \right) \right ]
+\end{aligned}
+$$
+</p>
+
+### Logistic
+
+Logistic models calculate likelihood based on comparing the probability ($p$) of an event to the number of observed events ($y$) across the observed trials ($N$). Multiple options are available to convert between the risk model and the probability (`vignette("Logistic")`), but by default the odds ratio is modeled.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L = \prod_i \left [ p_i^{y_i} \cdot (1-p_i)^{N_i - y_i} \right ] \\
+    Ll = \sum_i \left [ y_i \ln(p_i) + (N_i - y_i) \ln(1-p_i) \right ]
+\end{aligned}
+$$
+</p>
+
+### Matched Case-Control
+
+Matched case-control analysis in Colossus is based on the PECAN module of EPICURE and Jay Lubin's PECAN algorithm. A matched case-control analysis calculates the likelihood by splitting the data into matched cases and controls, and then calculating the probability of the case exposures conditional on all exposures. Each observation has some relative risk ($r$). Suppose a matched set has $m$ cases and $n$ records, the conditional probability is the ratio of the product of each case to the sum of the products of each grouping of $m$ observations of the set.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    L\frac{\prod_{i}^{m} r_i}{\sum_{c \in R} \left ( \prod_{j=1}^{m} r_{c_j} \right )} \\
+    Ll = \sum_{i=1}^{m} \ln(r_i) - \ln \left ( \sum_{c \in R} \left ( \prod_{j=1}^{m} r_{c_j} \right ) \right )
+\end{aligned}
+$$
+</p>
+
+This calculation requires creating a set of every way to select $m$ observations from $n$ records ($R$), which is approximated using the methods presented in Gail et al. (1981) and described in greater detail in the matched case-control vignette (`vignette("Matched_Case_Control")`).
+
+This approximation can be computationally intensive for large numbers of cases, so an alternative is available for approximating the likelihood using an unconditional logistic model. In this simplification, the relative risk is multiplied by the odds ratio of the strata ($O_s$).
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    Ll_i = y_i \ln(O_s r_i) - \ln(1+ O_s r_i)
+\end{aligned}
+$$
+</p>
+
+The records can be matched by strata, time at risk, or both. Matching by time at risk produces comparable risk groups to a Cox regression, just with a different likelihood equation.
+

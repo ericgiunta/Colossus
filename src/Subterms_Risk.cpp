@@ -532,7 +532,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
         }
         int tij = term_n[ij];
         int tjk = term_n[jk];
-        int df0_ij = dfc[ij] - 1;
+        // int df0_ij = dfc[ij] - 1;
         int df0_jk = dfc[jk] - 1;
         if (KeepConstant[ij]+KeepConstant[jk] == 0) {
             int ij_ind = ij - sum(head(KeepConstant, ij));
@@ -1600,8 +1600,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
     } else if (modelform == "GMIX") {
         VectorXd A_vec(TTerm.rows(), 1);
         VectorXd B_vec(TTerm.rows(), 1);
-        MatrixXd TTerm_p = MatrixXd::Zero(TTerm.rows(), TTerm.cols());
-        TTerm_p << TTerm.array();
+        MatrixXd TTerm_p = TTerm;
         for (int ij = 0; ij < TTerm_p.cols(); ij++) {
             if (ij == fir) {
             } else if (gmix_term[ij] == 1) {
@@ -1903,15 +1902,16 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
     } else if (modelform == "GMIX") {
         VectorXd A_vec(TTerm.rows(), 1);
         VectorXd B_vec(TTerm.rows(), 1);
+        MatrixXd TTerm_p = TTerm;
         for (int ij = 0; ij < TTerm.cols(); ij++) {
             if (ij == fir) {
             } else if (gmix_term[ij] == 1) {
-                TTerm.col(ij) = TTerm.col(ij).array() + 1;
+                TTerm_p.col(ij) = TTerm.col(ij).array() + 1;
             }
         }
-        A_vec = TTerm.block(0, 1, TTerm.rows(), TTerm.cols() - 1).array().rowwise().prod().array();
-        B_vec = TTerm.rightCols(TTerm.cols() - 1).array().rowwise().sum().array() - TTerm.cols() + 2;
-        R << TTerm.col(0).array() * A_vec.array().pow(gmix_theta).array() * B_vec.array().pow(1-gmix_theta).array();
+        A_vec = TTerm_p.block(0, 1, TTerm_p.rows(), TTerm_p.cols() - 1).array().rowwise().prod().array();
+        B_vec = TTerm_p.rightCols(TTerm_p.cols() - 1).array().rowwise().sum().array() - TTerm_p.cols() + 2;
+        R << TTerm_p.col(0).array() * A_vec.array().pow(gmix_theta).array() * B_vec.array().pow(1-gmix_theta).array();
         #ifdef _OPENMP
         #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
         #endif
@@ -1932,11 +1932,11 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
                 }
                 norm_term = norm_term.array() * Td0.col(ijk).array();
                 if (tij != fir) {
-                    Rd.col(ijk) = R.col(0).array() * norm_term.array() * ((1-gmix_theta) * B_vec.array().pow(- 1).array() + gmix_theta * TTerm.col(tij).array().pow(- 1).array());
-                    RdR.col(ijk) = norm_term.array() * ((1-gmix_theta) * B_vec.array().pow(- 1).array() + gmix_theta * TTerm.col(tij).array().pow(- 1).array());
+                    Rd.col(ijk) = R.col(0).array() * norm_term.array() * ((1-gmix_theta) * B_vec.array().pow(- 1).array() + gmix_theta * TTerm_p.col(tij).array().pow(- 1).array());
+                    RdR.col(ijk) = norm_term.array() * ((1-gmix_theta) * B_vec.array().pow(- 1).array() + gmix_theta * TTerm_p.col(tij).array().pow(- 1).array());
                 } else {
-                    Rd.col(ijk) = R.col(0).array() * norm_term.array() *  TTerm.col(tij).array().pow(- 1).array();
-                    RdR.col(ijk) = norm_term.array() *  TTerm.col(tij).array().pow(- 1).array();
+                    Rd.col(ijk) = R.col(0).array() * norm_term.array() *  TTerm_p.col(tij).array().pow(- 1).array();
+                    RdR.col(ijk) = norm_term.array() *  TTerm_p.col(tij).array().pow(- 1).array();
                 }
             }
         }

@@ -48,7 +48,7 @@ The second option is the deviance residual. This is equal to the contribution of
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    r_i = 2 \left (y_i \cdot \log \left ( \frac{y_i}{\lambda_i \cdot p_i} \right ) - \left (y_i - \lambda_i \cdot p_i \right ) \right) \\
+    r_i = 2 \left (y_i \cdot \ln \left ( \frac{y_i}{\lambda_i \cdot p_i} \right ) - \left (y_i - \lambda_i \cdot p_i \right ) \right) \\
     r_i(y_i = 0) = 0 - 2\left (y_i - \lambda_i \cdot p_i \right)
 \end{aligned}
 $$
@@ -82,9 +82,9 @@ The second option is the deviance residual, which calculates the contribution of
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    r_i = \frac{\left| y_i - p_i \cdot n_i \right|}{y_i - p_i \cdot n_i} \sqrt{2 \left[ y_i \log \left ( \frac{y_i}{p_i \cdot n_i} \right ) + \left ( n_i - y_i \right) \log \left ( \frac{n_i - y_i}{n_i - n_i \cdot p_i} \right) \right]}\\
-    r_i(y_i = 0) = -\sqrt{2 \left[  n_i \log \left ( \frac{1}{1 - p_i} \right) \right]} \\
-    r_i(y_i = n_i) = \sqrt{2 \left[ y_i \log \left ( \frac{1}{p_i} \right ) \right]}
+    r_i = \frac{\left| y_i - p_i \cdot n_i \right|}{y_i - p_i \cdot n_i} \sqrt{2 \left[ y_i \ln \left ( \frac{y_i}{p_i \cdot n_i} \right ) + \left ( n_i - y_i \right) \ln \left ( \frac{n_i - y_i}{n_i - n_i \cdot p_i} \right) \right]}\\
+    r_i(y_i = 0) = -\sqrt{2 \left[  n_i \ln \left ( \frac{1}{1 - p_i} \right) \right]} \\
+    r_i(y_i = n_i) = \sqrt{2 \left[ y_i \ln \left ( \frac{1}{p_i} \right ) \right]}
 \end{aligned}
 $$
 </p>

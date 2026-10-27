@@ -461,7 +461,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
 //'
 List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, const string& modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     int totalnum = term_n.size();
-    const int mat_row = df0.rows();
+    // const int mat_row = df0.rows();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
@@ -541,7 +541,7 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     //  ------------------------------------------------------------------------- //  initialize
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
-    const int mat_row = df0.rows();
+    // const int mat_row = df0.rows();
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal

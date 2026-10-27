@@ -1729,8 +1729,15 @@ void Poisson_LogLik(List& model_bool, const int& nthreads, const int& totalnum, 
             fill(Lldd.begin(), Lldd.end(), 0.0);
         }
     }
-    MatrixXd temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array());
-    fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp, 0).sum());
+    MatrixXd temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array()).array();
+    // 1/2*log(pi) = 0.5723649429247001
+    // theta, S.T. 1/6*ln(theta/30) + 1/2*ln(pi) = 0
+    MatrixXd temp_Ramanujan = (1.0/6.0) * (8.0 * PyrC.col(1).array().pow(3).array() + 4.0 * PyrC.col(1).array().pow(2).array() + PyrC.col(1).array() + (0.967546/30.0) ).array().log().array() + 0.5723649429247001;  // Ramanujan's approximation with theta set to 0.967 and the pi term pre-calculated, right side always used
+    MatrixXd temp_Ramanujan1 = PyrC.col(1).array() * (PyrC.col(1).array().log().array() - 1.0).array();  // Left side, only used for more than 0 events
+    temp_Ramanujan = temp_Ramanujan.array() + (PyrC.col(1).array() > 0.0).select(temp_Ramanujan1, 0.0).array();
+    temp = (temp.array().isFinite()).select(temp, 0);
+    temp = temp.array() - temp_Ramanujan.array();
+    fill(Ll.begin(), Ll.end(), temp.array().sum());
     if (!model_bool["single"]) {
         VectorXd CoL = PyrC.col(1).array() * R.col(0).array().pow(- 1).array();
         if (model_bool["gradient"]) {
@@ -1855,7 +1862,14 @@ void Poisson_LogLik_Strata(List& model_bool, const int& nthreads, const int& tot
     }
     MatrixXd temp(Rd.rows(), Rd.cols());
     temp = (PyrC.col(1).array() * (PyrC.col(0).array() * R.col(0).array()* s_weights.array()).array().log()).array() - (PyrC.col(0).array() * R.col(0).array()* s_weights.array());
-    fill(Ll.begin(), Ll.end(), (temp.array().isFinite()).select(temp, 0).sum());
+    // 1/2*log(pi) = 0.5723649429247001
+    // theta, S.T. 1/6*ln(theta/30) + 1/2*ln(pi) = 0
+    MatrixXd temp_Ramanujan = (1.0/6.0) * (8.0 * PyrC.col(1).array().pow(3).array() + 4.0 * PyrC.col(1).array().pow(2).array() + PyrC.col(1).array() + (0.967546/30.0) ).array().log().array() + 0.5723649429247001;  // Ramanujan's approximation with theta set to 0.967 and the pi term pre-calculated, right side always used
+    MatrixXd temp_Ramanujan1 = PyrC.col(1).array() * (PyrC.col(1).array().log().array() - 1.0).array();  // Left side, only used for more than 0 events
+    temp_Ramanujan = temp_Ramanujan.array() + (PyrC.col(1).array() > 0.0).select(temp_Ramanujan1, 0.0).array();
+    temp = (temp.array().isFinite()).select(temp, 0);
+    temp = temp.array() - temp_Ramanujan.array();
+    fill(Ll.begin(), Ll.end(), temp.array().sum());
     if (!model_bool["single"]) {
         VectorXd CoL = PyrC.col(1).array() * R.col(0).array().pow(- 1).array();
         if (model_bool["gradient"]) {

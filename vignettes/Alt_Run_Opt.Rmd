@@ -55,7 +55,7 @@ In Cox Proportional Hazards, the Log-Likelihood is calculated by taking the rati
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    Ll = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right)^{\delta_i}
+    L = \prod_{i}^{n} \left( \frac{r_{i}}{\sum_{j: t_j \in R_i} r_j} \right)^{\delta_i}
 \end{aligned}
 $$
 </p>
@@ -94,7 +94,7 @@ Then the stratified model may look like this:
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    R = \left(\sum_i \left(x_i \cdot \beta_i \right) \right) \times \left(\exp{ \left(\sum_{strata} \left(x_{strata} \cdot \beta_{strata} \right) \right)} \right)
+    R = \left(\sum_i \left(x_i \cdot \beta_i \right) \right) \cdot \left(\exp{ \left(\sum_{strata} \left(x_{strata} \cdot \beta_{strata} \right) \right)} \right)
 \end{aligned}
 $$
 </p>
@@ -194,8 +194,8 @@ Suppose one has a table of person-years, a covariate, and counts for two events.
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda_y(a) = \beta*\exp{\left(\mu_y*a \right)}\\
-    \lambda_z(a) = \beta*\exp{\left(\mu_z*a \right)}
+    \lambda_y(a) = \beta \cdot \exp{\left(\mu_y \cdot a \right)}\\
+    \lambda_z(a) = \beta \cdot \exp{\left(\mu_z \cdot a \right)}
 \end{aligned}
 $$
 </p>
@@ -213,7 +213,7 @@ If one were to solve the equations separately the table would be split into two 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda \left(a,\alpha_y,\alpha_z \right) = \beta*\exp{ \left(\mu_y* \left(a*\alpha_y \right) + \mu_z* \left(a*\alpha_z \right) \right)}
+    \lambda \left(a,\alpha_y,\alpha_z \right) = \beta \cdot \exp{ \left(\mu_y \cdot \left(a \cdot \alpha_y \right) + \mu_z \cdot \left(a \cdot \alpha_z \right) \right)}
 \end{aligned}
 $$
 </p>
@@ -310,7 +310,7 @@ To begin, a penalty weight is set by the user through the `penalty_weight` param
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    LL^{*} = LL + \lambda \sum_j \left ( M_{,j} \times \beta - b_j \right )^2 \\
+    LL^{*} = LL + \lambda \sum_j \left ( M_{,j} \cdot \beta - b_j \right )^2 \\
     \frac{\partial LL^{*}}{\partial \beta_k} = \frac{\partial LL}{\partial \beta_k} + 2 \lambda (\Delta b \cdot M_{i,})
 \end{aligned}
 $$
@@ -321,7 +321,7 @@ Unlike the Newton-Raphson approach, this is not guaranteed to produce a result t
  <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda^{*} = \lambda \times 1.1^i
+    \lambda^{*} = \lambda \cdot 1.1^i
 \end{aligned}
 $$
 </p>
@@ -349,9 +349,9 @@ model <- Cox(t0, t1, e) ~ loglinear(fac0, fac1)
 a_ns <- list(c(0.1, 0.1), c(-0.1, 0.1), c(-0.1, -0.1), c(0.1, -0.1))
 
 # The default
-maxiters <- c(1, 1, 1, 20)
+maxiters <- c(1, 1, 1, 1, 20)
 # Running each guess for 5 iterations
-maxiters <- c(5, 5, 5, 20)
+maxiters <- c(5, 5, 5, 5, 20)
 maxiters <- c(5, 20)
 
 e <- CoxRun(model, df, a_n = a_ns, maxiters = maxiters)

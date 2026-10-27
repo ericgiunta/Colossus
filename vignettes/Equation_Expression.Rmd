@@ -83,7 +83,7 @@ formula <- res$model
 new_data <- res$data
 ```
 
-The following tables cover the subterms and term models that are currently implemented. Every option listed has multiple equivalent aliases that all refer to the same subterm or model formula.
+The following tables cover the subterms and term models that are currently implemented. Every option listed has multiple equivalent aliases that all refer to the same subterm or model formula. It is important to keep in mind that spaces are removed prior to processing the formula, words are separated by underscores or dashes.
 
 | Survival Type | Equivalent Aliases |
 | :---------: | :----------: |

@@ -35,7 +35,7 @@ One method to approximate this is to fit a model to the SMR. The simplest model 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda_i = \beta * \lambda^{*}_{i}
+    \lambda_i = \beta  \cdot  \lambda^{*}_{i}
 \end{aligned}
 $$
 </p>

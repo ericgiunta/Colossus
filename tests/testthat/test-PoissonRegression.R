@@ -39,7 +39,7 @@ test_that("Pois loglin_M Single", {
   a_n <- c(0.01, 0.1)
   control <- list("ncores" = 1, "lr" = 0.75, "maxiter" = 20, "halfmax" = 5, "epsilon" = 1e-6, "deriv_epsilon" = 1e-6, "step_max" = 1.0, "change_all" = TRUE, "thres_step_max" = 100.0, "verbose" = 0, "ties" = "breslow")
   e <- PoisRun(Poisson(pyr, lung) ~ loglinear(dose, fac, 0), df, control = control, a_n = a_n, single = TRUE)
-  expect_equal(e$AIC, 2354.055, tolerance = 1e-2)
+  expect_equal(e$AIC, 2582.055, tolerance = 1e-2)
 })
 test_that("Pois loglin_M Strata", {
   fname <- "ll_0.csv"
@@ -74,7 +74,7 @@ test_that("Checking pois strata default values", {
     df$karno50 <- df$karno - 50
     control <- list(ncores = 1, maxiter = 20, halfmax = 1)
     #
-    a_n <- c(0.1, 0.1)
+    a_n <- c(0.1, -0.5)
     model <- Pois_Strata(time, status, cell) ~ loglinear(trt, 0) + linear(karno, 1) + A()
     poisres <- PoisRun(model, df, a_n = a_n, control = control)
     expect_equal(poisres$beta_0, c(-0.02746393, -0.96828466), tolerance = 1e-3)

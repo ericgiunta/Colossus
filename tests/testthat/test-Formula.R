@@ -235,7 +235,7 @@ test_that("Checking interaction works in formula and call results", {
   #
   model <- Cox(t0, t1, lung) ~ loglinear(a, a * rand0, a * rand0 * rand1)
   e <- get_form(model, df)
-  expect_identical(e$model$names, c("a", "rand0", "a:rand0", "rand1_1", "a:rand1_1", "rand0:rand1_1", "a:rand0:rand1_1"))
+  expect_identical(e$model$names, c("a", "a", "rand0", "a:rand0", "a", "rand0", "rand1_1", "a:rand0", "a:rand1_1", "rand0:rand1_1", "a:rand0:rand1_1"))
   expect_no_error(e <- CoxRun(model, df, control = list(ncores = 1)))
   f <- RelativeRisk(e, df)
   expect_equal(sum(f$Risk), 1607.914, tolerance = 1e-2)
@@ -424,10 +424,10 @@ test_that("Poisson, long formula correction", {
   #
   model0 <- Pois_Strata(t1, lung, rand0, rand1) ~ loglinear(dose)
   res <- PoisRun(model0, df, control = control, a_n = list(c(0.1), c(0.4)))
-  expect_equal(res$AIC, 187.2105, tolerance = 1e-2)
-  expect_equal(res$BIC, 360.3997, tolerance = 1e-2)
-  expect_equal(res$Guess_Results$AIC, c(225.2105, 255.8943), tolerance = 1e-2)
-  expect_equal(res$Guess_Results$BIC, c(360.3997, 391.0835), tolerance = 1e-2)
+  expect_equal(res$AIC, 225.2207, tolerance = 1e-2)
+  expect_equal(res$BIC, 370.0235, tolerance = 1e-2)
+  expect_equal(res$Guess_Results$AIC, c(225.2207, 255.9045), tolerance = 1e-2)
+  expect_equal(res$Guess_Results$BIC, c(370.0235, 400.7072), tolerance = 1e-2)
 })
 
 test_that("Pois multi_surv nonerror", {

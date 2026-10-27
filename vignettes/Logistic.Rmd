@@ -36,7 +36,7 @@ We start by describing the structure of the data. The logistic regression models
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    L = \prod_i \left [ p_i^{y_i} \times (1-p_i)^{N_i - y_i} \right ] \\
+    L = \prod_i \left [ p_i^{y_i} \cdot (1-p_i)^{N_i - y_i} \right ] \\
     Ll = \sum_i \left [ y_i \ln(p_i) + (N_i - y_i) \ln(1-p_i) \right ] \\
 \end{aligned}
 $$

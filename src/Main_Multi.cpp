@@ -2196,8 +2196,8 @@ List LogLik_Logist_Multidose_Omnibus_Serial(Ref<MatrixXd> CountEvent, IntegerVec
     MatrixXd Lls1 = MatrixXd::Zero(1, 1);
     MatrixXd Lls2 = MatrixXd::Zero(1, 1);
     MatrixXd Lls3 = MatrixXd::Zero(1, 1);
-    double Lstar = 0.0;
-    int ntime = 1.0;
+    // double Lstar = 0.0;
+    // int ntime = 1.0;
     IntegerMatrix RiskFail(1);
     vector<vector<int> > RiskPairs;
     vector<vector<vector<int> > > RiskPairs_Strata;
@@ -2598,8 +2598,8 @@ List LogLik_Logist_Multidose_Omnibus_Integrated(Ref<MatrixXd> CountEvent, Intege
     //  ------------------------------------------------------------------------- //  initialize
     //  the log-likelihood is calculated in parallel over the risk groups
     vector <double> Ll_comp(2, Ll[0]);  //  vector to compare values
-    double step_max0 = step_max;
-    double thres_step_max0 = thres_step_max;
+    // double step_max0 = step_max;
+    // double thres_step_max0 = thres_step_max;
     vector<double> dbeta(totalnum, 0.0);
     NumericVector m_g_store(reqrdnum);
     NumericVector v_beta_store(reqrdnum);
@@ -2629,8 +2629,8 @@ List LogLik_Logist_Multidose_Omnibus_Integrated(Ref<MatrixXd> CountEvent, Intege
     MatrixXd Lls1 = MatrixXd::Zero(1, 1);
     MatrixXd Lls2 = MatrixXd::Zero(1, 1);
     MatrixXd Lls3 = MatrixXd::Zero(1, 1);
-    double Lstar = 0.0;
-    int ntime = 1.0;
+    // double Lstar = 0.0;
+    // int ntime = 1.0;
     IntegerMatrix RiskFail(1);
     vector<vector<int> > RiskPairs;
     vector<vector<vector<int> > > RiskPairs_Strata;
@@ -2977,7 +2977,7 @@ List LogLik_Logist_Multidose_Omnibus_Integrated(Ref<MatrixXd> CountEvent, Intege
     List res_list;
     List para_list = List::create(_["term_n"] = term_n, _["tforms"] = tform);  //  stores the term information
     if (model_bool["single"]) {
-        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)+dev, _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
+        res_list = List::create(_["LogLik"] = wrap(Ll_Total[0]), _["Deviance"] = wrap(dev), _["beta_0"] = wrap(beta_0), _["AIC"] = 2*(degree_free)-2*Ll_Total[0], _["BIC"] = (degree_free)*log(mat_row)-2*Ll_Total[0], _["Parameter_Lists"] = para_list, _["Status"] = "PASSED");
         //  returns a list of results
         return res_list;
     }

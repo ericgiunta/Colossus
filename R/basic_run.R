@@ -47,7 +47,7 @@ CoxRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list()
     coxmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     coxmodel <- res$model
     df <- res$data
   } else {
@@ -105,9 +105,6 @@ CoxRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list()
   if (!missing(a_n)) {
     coxmodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    coxmodel$keep_constant <- keep_constant
-  }
   #
   if ("CONST" %in% coxmodel$names) {
     if ("CONST" %in% names(df)) {
@@ -115,6 +112,16 @@ CoxRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list()
     } else {
       df$CONST <- 1
     }
+  }
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- coxmodel$tform
+    term_n <- coxmodel$term_n
+    names <- coxmodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    coxmodel$keep_constant <- res_alias[[1]]
+    coxmodel$fix_alias <- res_alias[[2]]
   }
   # nocov start
   # nocov end
@@ -340,7 +347,7 @@ PoisRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(
     poismodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     poismodel <- res$model
     df <- res$data
   } else {
@@ -398,16 +405,22 @@ PoisRun <- function(model, df, a_n = list(0), keep_constant = 0, control = list(
   if (!missing(a_n)) {
     poismodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    poismodel$keep_constant <- keep_constant
-  }
-  #
   if ("CONST" %in% poismodel$names) {
     if ("CONST" %in% names(df)) {
       # fine
     } else {
       df$CONST <- 1
     }
+  }
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- poismodel$tform
+    term_n <- poismodel$term_n
+    names <- poismodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    poismodel$keep_constant <- res_alias[[1]]
+    poismodel$fix_alias <- res_alias[[2]]
   }
   # Checks that the current coxmodel is valid
   validate_poissurv(poismodel, df)
@@ -613,7 +626,7 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
     logitmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     logitmodel <- res$model
     df <- res$data
   } else {
@@ -671,16 +684,22 @@ LogisticRun <- function(model, df, a_n = list(0), keep_constant = 0, control = l
   if (!missing(a_n)) {
     logitmodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    logitmodel$keep_constant <- keep_constant
-  }
-  #
   if ("CONST" %in% c(logitmodel$names, logitmodel$trials)) {
     if ("CONST" %in% names(df)) {
       # fine
     } else {
       df$CONST <- 1
     }
+  }
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- logitmodel$tform
+    term_n <- logitmodel$term_n
+    names <- logitmodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    logitmodel$keep_constant <- res_alias[[1]]
+    logitmodel$fix_alias <- res_alias[[2]]
   }
   # Checks that the current coxmodel is valid
   validate_logitsurv(logitmodel, df)
@@ -922,7 +941,7 @@ CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control 
     caseconmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     caseconmodel <- res$model
     df <- res$data
   } else {
@@ -980,8 +999,15 @@ CaseControlRun <- function(model, df, a_n = list(0), keep_constant = 0, control 
   if (!missing(a_n)) {
     caseconmodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    caseconmodel$keep_constant <- keep_constant
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- caseconmodel$tform
+    term_n <- caseconmodel$term_n
+    names <- caseconmodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    caseconmodel$keep_constant <- res_alias[[1]]
+    caseconmodel$fix_alias <- res_alias[[2]]
   }
   # Checks that the current coxmodel is valid
   validate_caseconsurv(caseconmodel, df)
@@ -1185,7 +1211,7 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
     df <- ColossusExpressionCall(calls, df)
   } else if (is.list(model)) {
     # using a list of formula
-    res <- get_form_joint(model, df)
+    res <- get_form_joint(model, df, keep_constant_list = keep_constant)
     poismodel <- res$model
     df <- res$data
   } else {
@@ -1243,8 +1269,15 @@ PoisRunJoint <- function(model, df, a_n = list(0), keep_constant = 0, control = 
   if (!missing(a_n)) {
     poismodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    poismodel$keep_constant <- keep_constant
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- poismodel$tform
+    term_n <- poismodel$term_n
+    names <- poismodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    poismodel$keep_constant <- res_alias[[1]]
+    poismodel$fix_alias <- res_alias[[2]]
   }
   # Checks that the current coxmodel is valid
   validate_poissurv(poismodel, df)
@@ -2277,7 +2310,7 @@ CoxRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realization
     #
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     coxmodel <- res$model
     df <- res$data
   } else {
@@ -2342,8 +2375,15 @@ CoxRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realization
   if (!missing(a_n)) {
     coxmodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    coxmodel$keep_constant <- keep_constant
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- coxmodel$tform
+    term_n <- coxmodel$term_n
+    names <- coxmodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    coxmodel$keep_constant <- res_alias[[1]]
+    coxmodel$fix_alias <- res_alias[[2]]
   }
   # Checks that the current coxmodel is valid
   validate_coxsurv(coxmodel, df)
@@ -2536,7 +2576,7 @@ PoisRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realizatio
     #
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     poismodel <- res$model
     df <- res$data
   } else {
@@ -2601,8 +2641,15 @@ PoisRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realizatio
   if (!missing(a_n)) {
     poismodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    poismodel$keep_constant <- keep_constant
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- poismodel$tform
+    term_n <- poismodel$term_n
+    names <- poismodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    poismodel$keep_constant <- res_alias[[1]]
+    poismodel$fix_alias <- res_alias[[2]]
   }
   if (poismodel$null) {
     stop("Error: Multiple realization analysis cannot be used with a null model.")
@@ -2773,7 +2820,7 @@ PoisRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, realiza
     #
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     poismodel <- res$model
     df <- res$data
   } else {
@@ -2838,8 +2885,15 @@ PoisRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, realiza
   if (!missing(a_n)) {
     poismodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    poismodel$keep_constant <- keep_constant
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- poismodel$tform
+    term_n <- poismodel$term_n
+    names <- poismodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    poismodel$keep_constant <- res_alias[[1]]
+    poismodel$fix_alias <- res_alias[[2]]
   }
   if (poismodel$null) {
     stop("Error: Multiple realization analysis cannot be used with a null model.")
@@ -2985,7 +3039,7 @@ LogisticRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realiz
     logitmodel$a_n <- model$beta_0
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     logitmodel <- res$model
     df <- res$data
   } else {
@@ -3050,8 +3104,15 @@ LogisticRunMulti <- function(model, df, a_n = list(0), keep_constant = 0, realiz
   if (!missing(a_n)) {
     logitmodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    logitmodel$keep_constant <- keep_constant
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- logitmodel$tform
+    term_n <- logitmodel$term_n
+    names <- logitmodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    logitmodel$keep_constant <- res_alias[[1]]
+    logitmodel$fix_alias <- res_alias[[2]]
   }
   if (logitmodel$null) {
     stop("Error: Multiple realization analysis cannot be used with a null model.")
@@ -3254,7 +3315,7 @@ LogisticRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, rea
     #
   } else if (is(model, "formula")) {
     # using a formula class
-    res <- get_form(model, df)
+    res <- get_form(model, df, keep_constant = keep_constant)
     logitmodel <- res$model
     df <- res$data
   } else {
@@ -3312,9 +3373,6 @@ LogisticRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, rea
   if (!missing(a_n)) {
     logitmodel$a_n <- a_n # assigns the starting parameter values if given
   }
-  if (!missing(keep_constant)) { # assigns the paramter constant values if given
-    logitmodel$keep_constant <- keep_constant
-  }
   #
   if ("CONST" %in% c(logitmodel$names, logitmodel$trials)) {
     if ("CONST" %in% names(df)) {
@@ -3322,6 +3380,16 @@ LogisticRunMultiOut <- function(model, df, a_n = list(0), keep_constant = 0, rea
     } else {
       df$CONST <- 1
     }
+  }
+  if (!missing(keep_constant)) {
+    # We want to reassign the aliasing based on the new keep_constant
+    tform <- logitmodel$tform
+    term_n <- logitmodel$term_n
+    names <- logitmodel$names
+    #
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    logitmodel$keep_constant <- res_alias[[1]]
+    logitmodel$fix_alias <- res_alias[[2]]
   }
   if (logitmodel$null) {
     stop("Error: Multiple realization analysis cannot be used with a null model.")

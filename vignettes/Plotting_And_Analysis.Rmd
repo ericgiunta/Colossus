@@ -66,12 +66,12 @@ In general the `plot.coxres()` function can be used to call the various differen
 
 ## Survival Function Approximation
 
-After fitting a Cox proportional hazards model, one may be interested in what the baseline survival rate is. One method of doing so is by weighting the number of events at each event time by the total hazard ratio. In the absence of excess risk, the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one, so this assumption holds for the case with negligible excess risk.
+After fitting a Cox proportional hazards model, one may be interested in the baseline survival rate. This can be estimated by approximating the baseline instantaneous hazard ($\lambda$). One method of doing so is by weighting the number of events at each event time by the total hazard ratio. In the absence of excess risk, the hazard at any point in time is equal to the event rate and the hazard ratio of every row is equal to one.
 
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \lambda(t) = \frac{d[t]}{n[t]} = \frac{d[t]}{\sum_{i=1}^n(1)} = \frac{d[t]}{\sum_{i=1}^n(r_i)}
+    \lambda(t) = \frac{d[t]}{n[t]} = \frac{d[t]}{\sum_{i=1}^n(1)} \approx \frac{d[t]}{\sum_{i=1}^n(r_i)}
 \end{aligned}
 $$
 </p>
@@ -82,7 +82,7 @@ Suppose every row at risk at a time was twice as likely to experience an event t
 $$
 \begin{aligned}
      \lambda(t) = \frac{d[t]}{\sum_{i=1}^n(r_i)} = \frac{d[t]}{\sum_{i=1}^n(2)} = \frac{d[t]/2}{n[t]}\\
-     \lambda(t) = \frac{d[t]}{\sum_{i=1}^n(r_i)} = \frac{d[t]}{\sum_{i=1}^n(0.5)} = \frac{d[t]*2}{n[t]}
+     \lambda(t) = \frac{d[t]}{\sum_{i=1}^n(r_i)} = \frac{d[t]}{\sum_{i=1}^n(0.5)} = \frac{d[t] \cdot 2}{n[t]}
 \end{aligned}
 $$
 </p>
@@ -98,7 +98,7 @@ $$
 $$
 </p>
 
-We can calculate the instantaneous hazard, cumulative hazard, and baseline surviving fraction using the 'plotSurvival.coxres()` function. We can get the Kaplan-Meier estimates using the KM option.
+We can calculate the instantaneous hazard, cumulative hazard, and baseline surviving fraction using the `plotSurvival.coxres()` function. We can get the Kaplan-Meier estimates using the KM option, which returns the uncorrected estimates.
 
 ```{r, eval=TRUE, fig.width=7,fig.height=4}
 # We can start by obtaining the approximated survival curve data
@@ -193,7 +193,7 @@ Schoenfeld residuals compare the average covariate value of rows with events wit
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    s(t,x) = \frac{\sum_{i \in events} x_i}{d[t]} - \frac{\sum_i^n x_i*r_i}{\sum_i^n r_i}
+    s(t,x) = \frac{\sum_{i \in events} x_i}{d[t]} - \frac{\sum_i^n x_i \cdot r_i}{\sum_i^n r_i}
 \end{aligned}
 $$
 </p>
@@ -264,7 +264,7 @@ Martingale residuals compare the event status and cumulative hazard for each sub
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    m_j = \delta_j - \int_{t_0}^{t_1} \lambda(t) * r_j dt
+    m_j = \delta_j - \int_{t_0}^{t_1} \lambda(t)  \cdot  r_j dt
 \end{aligned}
 $$
 </p>

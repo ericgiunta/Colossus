@@ -30,9 +30,9 @@ The Newton-Raphson algorithm calculates the second derivative matrix, inverts it
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-    \Delta \beta \times \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta} \\
-    \Delta \beta = - \eta \frac{\partial LL}{\partial \beta_{t}} \times \left ( \frac{\partial^2 LL}{\partial \beta_{t}^2} \right)^{-1} \\
-    \beta_{t+1} = \beta_{t} + \frac{\Delta \beta}{\left | \Delta \beta \right |}*\min \left( \left[ \left|\Delta \beta \right|, \beta_{\max} \right] \right)
+    \Delta \beta \cdot \frac{\partial^2 LL}{\partial \beta^2} \approx - \frac{\partial LL}{\partial \beta} \\
+    \Delta \beta = - \eta \frac{\partial LL}{\partial \beta_{t}} \cdot \left ( \frac{\partial^2 LL}{\partial \beta_{t}^2} \right)^{-1} \\
+    \beta_{t+1} = \beta_{t} + \frac{\Delta \beta}{\left | \Delta \beta \right |} \cdot \min \left( \left[ \left|\Delta \beta \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -42,8 +42,8 @@ The alternative is a Gradient descent approach. In this algorithm, the first der
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-   \Delta \beta = \eta * \frac{\partial LL}{\partial \beta}\\
-   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta}{\left | \Delta \beta \right |}*\min \left( \left[ \left|\Delta \beta \right|, \beta_{\max} \right] \right)
+   \Delta \beta = \eta  \cdot  \frac{\partial LL}{\partial \beta}\\
+   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta}{\left | \Delta \beta \right |} \cdot \min \left( \left[ \left|\Delta \beta \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -55,8 +55,8 @@ The first method, momentum, applies a weighted sum ($\gamma$) of the current and
 <p class="text-center" style="background-color: aliceblue">
 $$
 \begin{aligned}
-   \Delta \beta_{t} = \gamma * \Delta \beta_{t-1} + \eta * \frac{\partial LL}{\partial \beta}\\
-   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta_t}{\left | \Delta \beta_t \right |}*\min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
+   \Delta \beta_{t} = \eta  \cdot \left (\gamma  \cdot  \Delta \beta_{t-1} + \frac{\partial LL}{\partial \beta} \right )\\
+   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta_t}{\left | \Delta \beta_t \right |} \cdot \min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -67,12 +67,12 @@ The next method, the adadelta method, applies a parameter-specific learning rate
 $$
 \begin{aligned}
     g_t = \left (\frac{\partial LL}{\partial \beta} \right)_{t} \\
-    E[g^2]_{t} = \gamma * E[g^2]_{t-1} + (1-\gamma) * g^2_{t} \\
-    E[\Delta \beta^2]_{t-1} = \gamma * E[\Delta \beta^2]_{t-2} + (1-\gamma) * \Delta \beta^2_{t-1} \\
+    E[g^2]_{t} = \gamma  \cdot  E[g^2]_{t-1} + (1-\gamma)  \cdot  g^2_{t} \\
+    E[\Delta \beta^2]_{t-1} = \gamma  \cdot  E[\Delta \beta^2]_{t-2} + (1-\gamma)  \cdot  \Delta \beta^2_{t-1} \\
     RMS[g]_t = \sqrt{E[g^2]_{t} + \epsilon} \\
     RMS[\Delta \beta]_{t-1} = \sqrt{E[\Delta \beta^2]_{t-1} + \epsilon} \\
-   \Delta \beta_{t} = \frac{RMS[\Delta \beta]_{t-1}}{RMS[g]_t} * g_t\\
-   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta_t}{\left | \Delta \beta_t \right |}*\min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
+   \Delta \beta_{t} = \frac{RMS[\Delta \beta]_{t-1}}{RMS[g]_t}  \cdot  g_t\\
+   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta_t}{\left | \Delta \beta_t \right |} \cdot \min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -84,12 +84,12 @@ $$
 \begin{aligned}
     g_t = \left (\frac{\partial LL}{\partial \beta} \right)_{t} \\
     m_0, v_0 = 0, 0 \\
-    m_t = \alpha_1 * m_{t-1} + (1-\alpha_1) * g_t \\
-    v_t = \alpha_2 * v_{t-1} + (1-\alpha_2) * g^2_t \\
+    m_t = \alpha_1  \cdot  m_{t-1} + (1-\alpha_1)  \cdot  g_t \\
+    v_t = \alpha_2  \cdot  v_{t-1} + (1-\alpha_2)  \cdot  g^2_t \\
     \hat{m}_t = m_t / (1-\alpha_1^t) \\
     \hat{v}_t = v_t / (1-\alpha_2^t) \\
-   \Delta \beta_{t} = \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon} * \hat{m}_t \\
-   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta_t}{\left | \Delta \beta_t \right |}*\min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
+   \Delta \beta_{t} = \frac{\eta}{\sqrt{\hat{v}_t} + \epsilon}  \cdot  \hat{m}_t \\
+   \beta_{t+1} = \beta_{t} + \frac{\Delta \beta_t}{\left | \Delta \beta_t \right |} \cdot \min \left( \left[ \left|\Delta \beta_{t} \right|, \beta_{\max} \right] \right)
 \end{aligned}
 $$
 </p>
@@ -102,21 +102,22 @@ The first thing to acknowledge is that the gradient descent method may require m
 ```{r, eval=FALSE}
 fname <- "tests/testthat/ll_comp_0.csv"
 colTypes <- c("double", "double", "double", "integer", "integer")
-df <- fread(fname, nThread = 1, data.table = TRUE, header = TRUE, colClasses = colTypes, verbose = 2, fill = TRUE)
+df <- fread(fname, nThread = 1, data.table = TRUE, header = TRUE, colClasses = colTypes, fill = TRUE)
 set.seed(3742)
 df$rand <- floor(runif(nrow(df), min = 0, max = 5))
 
-a_n <- c(-0.1, -0.1)
 keep_constant <- c(0, 0)
 
 # Code not run due to duration
-for (method in c("momentum", "adadelta", "adam", "gradient")) {
-  gradient_control <- list(epsilon_decay = 1e-4)
-  gradient_control[[method]] <- TRUE
-  a_n <- c(-0.1, -0.1)
+for (method in c("none", "momentum", "adadelta", "adam")) {
+  gradient_control <- list()
+  if (method != "none") {
+    gradient_control[[method]] <- TRUE
+  }
+  a_n <- c(0.01, 0.01)
   control <- list(
-    ncores = 1, lr = 0.2, maxiters = c(1, 20),
-    halfmax = 2, epsilon = 1e-6,
+    ncores = 1, lr = 0.2, maxiters = c(1, 50),
+    halfmax = 2, epsilon = 1e-6, step_max = 0.5,
     deriv_epsilon = 1e-6, verbose = 4
   )
   e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + m(), df,
@@ -127,15 +128,19 @@ for (method in c("momentum", "adadelta", "adam", "gradient")) {
 }
 ```
 
-Every gradient descent algorithm available was tested at the same starting point. In all cases, the algorithm approaches the solution at different rates. In this case, there are no local extrema, so the standard approach is fine. These show some fundamental differences between the methods. The effect of momentum is apparent compared to the standard option, the estimates do not oscillate as quickly. The differences between adadelta and adam are also visible, the adam method converged quicker. These results did not necessarily use optimized hyperparameters, and this is not meant to prove which method was the best.
+Every gradient descent algorithm available was tested at the same starting point. In all cases, the algorithm approaches the solution at different rates. In this case, there are no local extrema, so the standard approach is fine. These show some fundamental differences between the methods. The standard and momentum approaches are both subject to oscillation over many iterations, while the adam and adadelta approaches tend to converge. The differences between adadelta and adam are also visible, the adam method converged quicker. However, these results did not necessarily use optimized hyperparameters and this is not meant to prove which method was the best. Next we will look at how the hyperparameters can be tuned, and what effect they have on the convergence.
+
+```{r}
+# Stored results
+x <- c(0.01, 0.51, 0.6418205697, 0.5773045268, 0.5876151951, 0.619008751, 0.5538861575, 0.6450094965, 0.5328171089, 0.6612639831, 0.5196334997, 0.6714384179, 0.5113773921, 0.677811023, 0.506205005, 0.681803693, 0.5029638614, 0.6843056848, 0.5009326462, 0.6858737043, 0.499659605, 0.6868564526, 0.4988617097, 0.6874724066, 0.4983616064, 0.6878584742, 0.4980481482, 0.6881004569, 0.497851675, 0.6882521301, 0.4977285263, 0.6883471983, 0.497651337, 0.6884067868, 0.4976029547, 0.688444137, 0.4975726287, 0.688467548, 0.4975536203, 0.6884822221, 0.4975417059, 0.6884914198, 0.4975342379, 0.688497185, 0.4975295569, 0.6885007986, 0.4975266229, 0.6885030636, 0.4975247838, 0.6885044833, 0.4975236311, 0.6885053732, 0.5876151951, 0.01, 0.51, 0.6418205697, 0.6010322293, 0.570241429, 0.6632246466, 0.5448660079, 0.6664836202, 0.5474287743, 0.6644354416, 0.5482274361, 0.6643487125, 0.5481370301, 0.6644158718, 0.5481119888, 0.6644180613, 0.5481151493, 0.6644158651, 0.5481159314, 0.6644158145, 0.5481158218, 0.6644158861, 0.5481157975, 0.6644158871, 0.5481158013, 0.6644158848, 0.548115802, 0.6644158847, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.5481158019, 0.6644158848, 0.6418205697, 0.01, 0.04162220277, 0.07697669357, 0.1118734029, 0.1456489699, 0.1780155551, 0.2088210475, 0.237988944, 0.265493711, 0.2913442392, 0.315572764, 0.3382273545, 0.3593666809, 0.3790562699, 0.3973657687, 0.4143669184, 0.430132042, 0.4447329162, 0.4582399337, 0.4707214887, 0.4822435356, 0.4928692835, 0.5026589969, 0.5116698797, 0.5199560249, 0.5275684151, 0.5345549633, 0.5409605843, 0.54682729, 0.5521943018, 0.557098177, 0.5615729441, 0.5656502446, 0.5693594785, 0.5727279525, 0.5757810274, 0.578542265, 0.5810335718, 0.5832753388, 0.5852865764, 0.5870850422, 0.5886873619, 0.5901091401, 0.5913650624, 0.592468985, 0.5934340127, 0.5942725639, 0.5949964227, 0.5956167767, 0.5961442423, 0.5965888781, 0.5969601865, 0.01, 0.2099961899, 0.4099903014, 0.5969665475, 0.7439475301, 0.8210717291, 0.8304754786, 0.7933624216, 0.7288326185, 0.6518857577, 0.5756819388, 0.5120421902, 0.4697066066, 0.4523850332, 0.4588566828, 0.4846981923, 0.5239088609, 0.5698164068, 0.6156013816, 0.6548708398, 0.6824388376, 0.6951341829, 0.6922597982, 0.6755017376, 0.6484436641, 0.6159393807, 0.5834252466, 0.556113608, 0.5380885243, 0.5315522005, 0.5365318904, 0.5511100161, 0.5719832422, 0.5951418843, 0.6165675911, 0.632886486, 0.6418751014, 0.6427121862, 0.6359592566, 0.6233453999, 0.6074355338, 0.5912136565, 0.5775934969, 0.5689046926, 0.5664563555, 0.570293822, 0.579221282, 0.5910915465, 0.6032979982, 0.6133559661, 0.6194322277, 0.6206872948, 0.5910915465)
+y <- c(0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.51, 0.01, 0.01, 0.51, 0.01, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, -0.2156982012, 0.2843017988, 0.01, 0.01, 0.04162215872, 0.07697579868, 0.09799160054, 0.1038685152, 0.1047356929, 0.104615435, 0.104331988, 0.1040346045, 0.1037479249, 0.1034755612, 0.1032178671, 0.1029746782, 0.102745698, 0.1025305582, 0.1023288374, 0.1021400723, 0.1019637675, 0.1017994028, 0.1016464403, 0.1015043315, 0.1013725227, 0.1012504608, 0.1011375982, 0.1010333971, 0.1009373331, 0.1008488985, 0.100767604, 0.1006929812, 0.1006245837, 0.1005619875, 0.1005047916, 0.1004526179, 0.1004051108, 0.1003619363, 0.1003227817, 0.1002873539, 0.1002553787, 0.1002265994, 0.1002007756, 0.1001776818, 0.100157106, 0.100138849, 0.1001227227, 0.1001085494, 0.1000961609, 0.1000853976, 0.1000761079, 0.1000681478, 0.1000613811, 0.1000556771, 0.100050919, 0.01, 0.2099960464, 0.009999805782, 0.0105061061, 0.08042884404, 0.1496559341, 0.1733379188, 0.1511489261, 0.1053871318, 0.06154609128, 0.04180364707, 0.05222712304, 0.08342301704, 0.1195017711, 0.1440194238, 0.1473092221, 0.1305443131, 0.1027713047, 0.07653572818, 0.06303534766, 0.06679333692, 0.0842409816, 0.1064803596, 0.1233258732, 0.1278083463, 0.1192005024, 0.1026469224, 0.08645366665, 0.07827638021, 0.08141051338, 0.09345046613, 0.1079160485, 0.1175670315, 0.1179847377, 0.1095965614, 0.09711018108, 0.08699024257, 0.08414452072, 0.08943790419, 0.09950685119, 0.1087848855, 0.1125363128, 0.1093190477, 0.1015186581, 0.09380670948, 0.0904536423, 0.09295145534, 0.09934818056, 0.1056048473, 0.1080600112, 0.1055382106, 0.0998766322, 0.09934818056)
+ll <- c(-119.0887557, -121.2875812, -117.5277666, -121.263657, -117.5232754, -121.2693702, -117.5336059, -121.2808957, -117.5451712, -121.29121, -117.554408, -121.2988839, -117.5609765, -121.3041678, -117.5653993, -121.3076659, -117.5682916, -121.3099315, -117.5701516, -121.3113803, -117.5713359, -121.3122997, -117.5720856, -121.3128804, -117.5725583, -121.3132461, -117.5728557, -121.313476, -117.5730426, -121.3136204, -117.5731599, -121.313711, -117.5732335, -121.3137678, -117.5732797, -121.3138035, -117.5733086, -121.3138258, -117.5733267, -121.3138398, -117.5733381, -121.3138486, -117.5733453, -121.3138541, -117.5733497, -121.3138576, -117.5733525, -121.3138597, -117.5733543, -121.3138611, -117.5733554, -121.3138619, -117.5232754, -119.0887557, -121.2875812, -117.5277666, -118.1555096, -119.9294714, -118.1801599, -119.944788, -118.182409, -119.9429854, -118.1809844, -119.9424353, -118.1809249, -119.9424973, -118.1809709, -119.9425145, -118.1809724, -119.9425123, -118.1809709, -119.9425118, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.180971, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -119.9425119, -118.1809709, -117.5277666, -119.0887557, -118.7942569, -118.5391475, -118.3636472, -118.2218631, -118.0966421, -117.9860491, -117.8890403, -117.8044402, -117.7310217, -117.6675763, -117.6129544, -117.5660875, -117.5259987, -117.4918062, -117.4627211, -117.4380439, -117.4171581, -117.3995235, -117.3846688, -117.3721851, -117.3617184, -117.3529635, -117.345658, -117.3395772, -117.3345288, -117.3303489, -117.3268978, -117.3240571, -117.3217264, -117.3198207, -117.3182682, -117.3170087, -117.3159912, -117.3151732, -117.3145189, -117.3139985, -117.3135871, -117.313264, -117.3130123, -117.3128175, -117.3126683, -117.312555, -117.3124698, -117.3124065, -117.3123601, -117.3123264, -117.3123024, -117.3122855, -117.3122739, -117.312266, -117.3122607, -119.0887557, -118.2658199, -117.6908836, -117.5198314, -117.4143465, -117.6024238, -117.6986373, -117.5540794, -117.3890921, -117.3617422, -117.402909, -117.4069548, -117.3942827, -117.4150526, -117.4445563, -117.423494, -117.3593056, -117.3160207, -117.3274977, -117.3602814, -117.3702138, -117.359257, -117.3528988, -117.3537038, -117.3439642, -117.323224, -117.3133954, -117.3252884, -117.3414057, -117.341799, -117.3306239, -117.3235455, -117.3229212, -117.3204988, -117.3161752, -117.3177043, -117.3246644, -117.327016, -117.321157, -117.3150249, -117.3146278, -117.3164224, -117.3162578, -117.3161419, -117.3179002, -117.3182814, -117.3152542, -117.3125025, -117.3131722, -117.3149761, -117.3150747, -117.3144656, -117.3125025)
+iter <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52)
+model <- c("Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Standard", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Momentum", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adadelta", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam", "Adam")
+```
 
 ```{r, fig.width=7,fig.height=4}
-# Stored results
-x <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-y <- c(-0.1, 0.9, 0.446528, 0.839821, 0.493552, 0.799313, 0.528609, 0.768118, 0.555872, 0.743827, 0.577191, 0.724839, 0.593904, 0.70996, 0.607026, 0.698284, 0.617337, 0.689114, 0.625445, 0.681907, 0.631822, 0.67624, 0.67624, -0.1, 0.9, 0.446528, 0.431696, 0.834161, 0.857333, 0.501858, 0.477865, 0.793264, 0.814217, 0.531039, 0.511871, 0.770217, 0.78877, 0.55277, 0.530413, 0.745479, 0.771659, 0.578773, 0.54938, 0.72037, 0.750178, 0.750178, -0.1, -0.0683777, -0.0236573, 0.0204036, 0.0631351, 0.104199, 0.143407, 0.180661, 0.215914, 0.249159, 0.280419, 0.309735, 0.337162, 0.362769, 0.386631, 0.408828, 0.429444, 0.448562, 0.466269, 0.482647, 0.497779, 0.511745, 0.511745, -0.1, 0.0999967, 0.299992, 0.49416, 0.672686, 0.818272, 0.912721, 0.951325, 0.943139, 0.900966, 0.836339, 0.759197, 0.678706, 0.6037, 0.542181, 0.50002, 0.479848, 0.481022, 0.500511, 0.53392, 0.576232, 0.622276, 0.622276)
-c <- c("standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam")
-
-df <- data.table(x = x, y = y, method = c)
+df <- data.table(x = iter, y = x, method = model)
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
     ggplot2::geom_line(linewidth = 1.2) +
@@ -147,52 +152,34 @@ if (system.file(package = "ggplot2") != "") {
 g
 ```
 
-```{r, fig.width=7,fig.height=4}
-x <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-y <- c(-0.1, 0.382267, 0.481728, 0.371577, 0.474396, 0.383262, 0.464408, 0.392812, 0.456452, 0.40023, 0.45019, 0.406007, 0.445259, 0.41052, 0.441374, 0.414052, 0.438314, 0.416821, 0.435902, 0.418993, 0.434002, 0.420699, 0.420699, -0.1, 0.382267, 0.481728, 0.461092, 0.353981, 0.381487, 0.499642, 0.486223, 0.365388, 0.35904, 0.467404, 0.490215, 0.404434, 0.37681, 0.439266, 0.459563, 0.412495, 0.405195, 0.44752, 0.445014, 0.399118, 0.404763, 0.404763, -0.1, -0.0683799, -0.0236649, 0.0193058, 0.0594837, 0.0964731, 0.130195, 0.160739, 0.188284, 0.213051, 0.235278, 0.255201, 0.273049, 0.289032, 0.303346, 0.316169, 0.327659, 0.337961, 0.347201, 0.355493, 0.36294, 0.36963, 0.36963, -0.1, 0.0999917, 0.299977, 0.469249, 0.559129, 0.571139, 0.537754, 0.485171, 0.434002, 0.399975, 0.38974, 0.400107, 0.422011, 0.444253, 0.456706, 0.453734, 0.435816, 0.40853, 0.380544, 0.36118, 0.357234, 0.370462, 0.370462)
-c <- c("standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam")
-
-df <- data.table(x = x, y = y, method = c)
-
-if (system.file(package = "ggplot2") != "") {
-  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
-    ggplot2::geom_line(linewidth = 1.2) +
-    ggplot2::labs(x = "Iteration", y = "Second Parameter Value") +
-    ggplot2::ggtitle("Second Parameter Value Convergence")
-} else {
-  g <- message("ggplot2 wasn't detected. Please install to see the plot")
-}
-g
-```
-
-```{r, fig.width=7,fig.height=4}
-x <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-y <- c(239.962, 234.592, 234.454, 234.362, 234.282, 234.226, 234.178, 234.144, 234.116, 234.094, 234.076, 234.062, 234.052, 234.044, 234.038, 234.032, 234.028, 234.026, 234.022, 234.02, 234.02, 234.018, 234.018, 239.962, 234.592, 234.454, 234.494, 234.362, 234.416, 234.284, 234.344, 234.226, 234.292, 234.174, 234.244, 234.142, 234.204, 234.112, 234.17, 234.092, 234.144, 234.072, 234.122, 234.06, 234.102, 234.102, 239.962, 239.438, 238.74, 238.104, 237.536, 237.036, 236.598, 236.22, 235.89, 235.608, 235.364, 235.156, 234.978, 234.826, 234.696, 234.586, 234.492, 234.414, 234.348, 234.292, 234.244, 234.206, 234.206, 239.962, 237.064, 235.166, 234.276, 234.118, 234.34, 234.642, 234.804, 234.766, 234.58, 234.334, 234.122, 234.018, 234.042, 234.142, 234.246, 234.298, 234.286, 234.23, 234.158, 234.09, 234.04, 234.04)
-c <- c("standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "standard", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "momentum", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adadelta", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam", "adam")
-
-df <- data.table(x = x, y = y, method = c)
-
-if (system.file(package = "ggplot2") != "") {
-  g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$method, color = .data$method)) +
-    ggplot2::geom_line(linewidth = 1.2) +
-    ggplot2::labs(x = "Iteration", y = "Log-Likelihood Value") +
-    ggplot2::ggtitle("Log-Likelihood Convergence")
-} else {
-  g <- message("ggplot2 wasn't detected. Please install to see the plot")
-}
-g
-```
 
 ### Hyper-parameter Tuning Examples
 
-First, a brief comparison of learning rates with the standard gradient descent method. For this analysis, the gradient was on the scale of (-2,2) so a learning rate on the scale of ~ 1/10 was appropriate. If the gradient were much larger then the learning rate would need to be correspondingly decreased. If the learning rate is too high, then the estimate will be unstable and oscillate. If the learning rate is too low then the estimate will not converge in a reasonable amount of time.
+First, a brief comparison of learning rates with the standard gradient descent method. A high learning rate can lead to oscillations, as the algorithm repeatably oversteps the optimum. When this happens, the learning rate can be decreased. This reduces oscillations, but requires more iterations. In this case, a learning rate around 0.01 led to the second parameter converging.
+
+```{r, eval=FALSE}
+for (lr in c(0.001, 0.01, 0.05, 0.1)) {
+  gradient_control <- list(epsilon_decay = 1e-4)
+  a_n <- c(0.01, 0.01)
+  control <- list(
+    ncores = 1, lr = lr, maxiters = c(1, 20),
+    halfmax = 2, epsilon = 1e-8,
+    deriv_epsilon = 1e-8, verbose = 4
+  )
+  e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + m(), df,
+    a_n = a_n, keep_constant = keep_constant,
+    control = control, gradient_control = gradient_control
+  )
+  print(e)
+}
+```
 
 ```{r, fig.width=7,fig.height=4}
-x <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-y <- c(-0.1, -0.0758866, -0.0524678, -0.0297801, -0.00784991, 0.0133049, 0.0336744, 0.053255, 0.0720488, 0.0900628, 0.107308, 0.123797, 0.139549, 0.154581, 0.168914, 0.18257, 0.195571, 0.207941, 0.219702, 0.230879, 0.241495, 0.251573, 0.251573, -0.1, 0.141134, 0.305602, 0.376672, 0.406159, 0.418355, 0.423402, 0.425492, 0.426358, 0.426717, 0.426865, 0.426927, 0.426952, 0.426963, 0.426967, 0.426969, 0.42697, 0.42697, 0.42697, 0.42697, -0.1, 0.382267, 0.481728, 0.371577, 0.474396, 0.383262, 0.464408, 0.392812, 0.456452, 0.40023, 0.45019, 0.406007, 0.445259, 0.41052, 0.441374, 0.414052, 0.438314, 0.416821, 0.435902, 0.418993, 0.434002, 0.420699, 0.420699, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, -0.1, 0.9, 0.9)
-c <- c("0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.01", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.1", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5")
+y <- c(0.01, 0.01505853526, 0.01984536844, 0.02437517837, 0.02866184692, 0.03271850038, 0.03655754926, 0.04019072647, 0.04362912376, 0.04688322651, 0.04996294681, 0.05287765493, 0.05563620914, 0.05824698399, 0.06071789714, 0.06305643463, 0.06526967491, 0.06736431142, 0.06934667401, 0.07122274915, 0.07299819894, 0.07467837914, 0.01, 0.06058535264, 0.08413272739, 0.09510150078, 0.1001409141, 0.1023657769, 0.1032545413, 0.1035139105, 0.1034826469, 0.1033230728, 0.103112657, 0.1028880141, 0.1026660942, 0.1024543996, 0.1022559137, 0.1020714782, 0.1019009385, 0.101743695, 0.1015989664, 0.1014659159, 0.1013437098, 0.1012315443, 0.01, 0.2629267632, -0.1308861545, 0.4819280403, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, -0.3769561716, 0.6230438284, 0.01, 0.01, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, -0.4841464736, 0.5158535264, 0.01)
+iter <- c(0:21, 0:21, 0:22, 0:22)
+model <- c(rep("0.001", 22), rep("0.01", 22), rep("0.05", 23), rep("0.1", 23))
 
-df <- data.table(x = x, y = y, LearningRate = c)
+df <- data.table(x = iter, y = y, LearningRate = model)
 
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$LearningRate, color = .data$LearningRate)) +
@@ -205,14 +192,31 @@ if (system.file(package = "ggplot2") != "") {
 g
 ```
 
-Next, the momentum decay. The momentum decay term is helpful particularly when the standard method overshoots the solution. In this example, the standard method at a learning rate of 0.1 has no issue overshooting the solution, so the momentum method was tested at a learning rate of 0.2 to induce oscillation. At a learning rate of 0.0, we have the standard gradient descent and as we increase the momentum effect we see faster convergence.
+Next, the momentum decay. The momentum decay term is helpful particularly when the standard method overshoots the solution. In this example, the momentum method was tested at a learning rate of 0.047 to induce oscillation. At a momentum decay of 0.0, we have the standard gradient descent and as we increase the momentum effect we reduce the oscillation. However, at too high of a decay value, we increase the oscillation.
+
+```{r, eval=FALSE}
+for (lr in c(0.0, 5.0, 7.0, 20.0)) {
+  gradient_control <- list(momentum = TRUE, epsilon_decay = 1e-4, momentum_decay = lr)
+  a_n <- c(0.01, 0.01)
+  control <- list(
+    ncores = 1, lr = 0.047, maxiters = c(1, 20),
+    halfmax = 2, epsilon = 1e-8,
+    deriv_epsilon = 1e-8, verbose = 4
+  )
+  e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + m(), df,
+    a_n = a_n, keep_constant = keep_constant,
+    control = control, gradient_control = gradient_control
+  )
+  print(e)
+}
+```
 
 ```{r, fig.width=7,fig.height=4}
-x <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-y <- c(-0.1, 0.382267, 0.481728, 0.371577, 0.474396, 0.383262, 0.464408, 0.392812, 0.456452, 0.40023, 0.45019, 0.406007, 0.445259, 0.41052, 0.441374, 0.414052, 0.438314, 0.416821, 0.435902, 0.418993, 0.434002, 0.420699, 0.420699, -0.1, 0.382267, 0.481728, 0.391469, 0.435244, 0.429155, 0.424804, 0.427892, 0.426568, 0.427082, 0.427015, 0.426915, 0.426992, 0.426967, 0.42697, 0.426971, 0.42697, 0.426971, 0.42697, 0.42697, 0.426971, 0.426971, -0.1, 0.382267, 0.481728, 0.421307, 0.389624, 0.442182, 0.445048, 0.414796, 0.420771, 0.433596, 0.427802, 0.424361, 0.427741, 0.42752, 0.426131, 0.427168, 0.427483, 0.426655, 0.426746, 0.427195, 0.427034, 0.426856, 0.426856)
-c <- c("0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.2", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5", "0.5")
+y <- c(0.01, 0.2477511574, -0.08852988387, 0.3832215918, -0.2404914058, 0.596770674, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, -0.3981938148, 0.6018061852, 0.01, 0.01, 0.2477511574, -0.08852988387, 0.3041955471, -0.0664826622, 0.256930979, -0.02970298252, 0.2210911003, -0.002988989937, 0.196445369, 0.01637502711, 0.1783677558, 0.03116036466, 0.1644415861, 0.04287246599, 0.1533905481, 0.05235314021, 0.1444555285, 0.06012996584, 0.1371416595, 0.06656464824, 0.1311045469, 0.01, 0.2477511574, -0.08852988387, 0.2725851292, -0.004064441088, 0.1596544036, 0.07112768789, 0.1112903397, 0.09709425474, 0.09940022172, 0.1017056023, 0.09849113768, 0.1011916784, 0.09931034545, 0.1004371195, 0.09983178387, 0.1001132658, 0.1000095564, 0.01, 0.2477511574, -0.08852988387, 0.06711741297, 0.2925738893, 0.06072067273, -0.07317170898, 0.2160223822, 0.2135072907, -0.05311818472, 0.0805285785, 0.2609763947, 0.06278079862, -0.03137954177, 0.1987480897, 0.1772964942, -0.03197653373, 0.08985431473, 0.2287197561, 0.06178555102, 0.003557133165, 0.1908374248, 0.08985431473)
+iter <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
+model <- c("0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "0.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "5.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "7.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0", "20.0")
 
-df <- data.table(x = x, y = y, MomentumDecay = c)
+df <- data.table(x = iter, y = y, MomentumDecay = model)
 
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$MomentumDecay, color = .data$MomentumDecay)) +
@@ -227,12 +231,29 @@ g
 
 Finally, we have the epsilon offset used in the adadelta method. In this example, if the offset is too low the change in parameter value per iteration is near zero, then as it is increased the algorithm converges faster until the estimate oscillates.
 
-```{r, fig.width=7,fig.height=4}
-x <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
-y <- c(-0.1, -0.0998946, -0.0997455, -0.0995686, -0.0993678, -0.0991457, -0.0989042, -0.0986448, -0.0983686, -0.0980766, -0.0977695, -0.0974482, -0.0971132, -0.096765, -0.0964041, -0.0960311, -0.0956462, -0.0952498, -0.0948422, -0.0944238, -0.0939948, -0.0935554, -0.0935554, -0.1, -0.0894592, -0.0745523, -0.0569106, -0.0369613, -0.0149815, 0.00881833, 0.0342662, 0.0612136, 0.0895258, 0.119075, 0.149732, 0.181361, 0.213808, 0.246885, 0.280336, 0.313768, 0.346445, 0.376444, 0.393247, 0.380437, 0.397974, 0.397974, -0.1, -0.0666699, -0.0195369, 0.0357806, 0.0976085, 0.164622, 0.235362, 0.307561, 0.375392, 0.39949, 0.393904, 0.42769, 0.416127, 0.448594, 0.412644, 0.445826, 0.410436, 0.445034, 0.409797, 0.444717, 0.409586, 0.444599, 0.444599, -0.1, 0.00530869, 0.154075, 0.317511, 0.438734, 0.311745, 0.479287, 0.359676, 0.509816, 0.380595, 0.519051, 0.390015, 0.516403, 0.39013, 0.51552, 0.389794, 0.484692, 0.374198, 0.483729, 0.372471, 0.483021, 0.372011, 0.372011)
-c <- c("1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2")
+```{r, eval=FALSE}
+for (lr in c(1e-8, 1e-4, 1e-3, 1e-2)) {
+  gradient_control <- list(adadelta = TRUE, epsilon_decay = lr)
+  a_n <- c(0.01, 0.01)
+  control <- list(
+    ncores = 1, lr = 0.75, maxiters = c(1, 20),
+    halfmax = 2, epsilon = 1e-8,
+    deriv_epsilon = 1e-8, verbose = 4
+  )
+  e <- CoxRun(Cox(t0, t1, lung) ~ loglinear(dose, rand, 0) + m(), df,
+    a_n = a_n, keep_constant = keep_constant,
+    control = control, gradient_control = gradient_control
+  )
+  print(e)
+}
+```
 
-df <- data.table(x = x, y = y, Epsilon = c)
+```{r, fig.width=7,fig.height=4}
+y <- c(0.01, 0.01031622777, 0.01066978116, 0.0110300552, 0.01139451195, 0.01176189039, 0.01213143747, 0.01250265335, 0.0128751827, 0.01324876044, 0.01362318168, 0.0139982836, 0.01437393406, 0.01475002383, 0.01512646137, 0.01550316901, 0.01588008013, 0.01625713713, 0.01663428976, 0.0170114939, 0.0173887106, 0.01776590523, 0.01, 0.04162215872, 0.07697579868, 0.09799160054, 0.1038685152, 0.1047356929, 0.104615435, 0.104331988, 0.1040346045, 0.1037479249, 0.1034755612, 0.1032178671, 0.1029746782, 0.102745698, 0.1025305582, 0.1023288374, 0.1021400723, 0.1019637675, 0.1017994028, 0.1016464403, 0.1015043315, 0.1013725227, 0.01, 0.1099804659, 0.006549863165, 0.1578491274, 0.05288919918, 0.1521251089, 0.0519751385, 0.1523041537, 0.04899163428, 0.154876165, 0.05127755617, 0.1481017114, 0.05411641464, 0.1468696001, 0.05750939112, 0.1414814094, 0.06026241939, 0.1402379138, 0.06272198018, 0.13668964, 0.06441228341, 0.1362775592, 0.06441228341, 0.01, 0.325611668, -0.02765136791, 0.2424531679, -0.01767799054, 0.2196787267, -0.01561316142, 0.225900539, -0.01225521607, 0.2166168856, -0.002150545246, 0.2042222766, 0.007801046235, 0.1935594214, 0.01606304216, 0.1851527036, 0.01752998422, 0.1884785888, 0.01548309695, 0.184324296, 0.01935480977, 0.1856385531, 0.01935480977)
+iter <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
+model <- c("1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-8", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-4", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-3", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2", "1e-2")
+
+df <- data.table(x = iter, y = y, Epsilon = model)
 
 if (system.file(package = "ggplot2") != "") {
   g <- ggplot2::ggplot(df, ggplot2::aes(x = .data$x, y = .data$y, group = .data$Epsilon, color = .data$Epsilon)) +

@@ -3,12 +3,13 @@
 #' \code{get_form_joint} uses two event formula, a shared formula,
 #' and data.table, to fully describe the model for a joint Poisson model.
 #'
+#' @param keep_constant_list list of vectors for constant elements for event specific or shared model elements, defaults to free (0)
 #' @inheritParams R_template
 #'
 #' @return returns a class fully describing the model and the updated data
 #' @family Formula Interpretation
 #' @export
-get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()) / 2) {
+get_form_joint <- function(formula_list, df, keep_constant_list = NULL, nthreads = as.numeric(detectCores()) / 2) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
@@ -42,15 +43,33 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   } else {
     stop("Error: Joint formula list wasn't a list or a formula")
   }
+  if (is.list(keep_constant_list)) {
+    if ("shared" %in% names(keep_constant_list)) {
+      keep_constant_shared <- keep_constant_list$shared
+      keep_constant_list <- keep_constant_list[names(keep_constant_list) != "shared"]
+    } else {
+      keep_constant_shared <- 0
+    }
+  } else if (length(keep_constant_list) > 0) {
+    keep_constant_list <- list(keep_constant_list)
+    keep_constant_shared <- 0
+  } else {
+    keep_constant_list <- 0
+    keep_constant_shared <- 0
+  }
+  while (length(keep_constant_list) < length(formula_list)) {
+    keep_constant_list <- c(keep_constant_list, list(0))
+  }
   model_list <- list()
   for (formula_i in seq_along(formula_list)) {
     #
     formula <- formula_list[[formula_i]]
+    keep_constant <- keep_constant_list[[formula_i]]
     surv_obj <- Reduce(paste, deparse(formula[[2]]))
     model_obj <- paste(Reduce(paste, deparse(formula[[3]])), collapse = " ")
     surv_obj <- gsub(" ", "", surv_obj, fixed = TRUE)
     model_obj <- gsub(" ", "", model_obj, fixed = TRUE)
-    res <- get_form_list(surv_obj, model_obj, df)
+    res <- get_form_list(surv_obj, model_obj, df, keep_constant)
     model <- res$model
     df <- res$data
     if (!grepl("pois", model$surv_model_type, fixed = TRUE)) {
@@ -62,7 +81,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   #
   model_obj <- paste(Reduce(paste, deparse(formula_shared[[3]])), collapse = " ")
   if (model_obj != ".") {
-    res <- get_form_risk(model_obj, df)
+    res <- get_form_risk(model_obj, df, keep_constant_shared)
     model_share <- res$model
     df <- res$data
   } else {
@@ -112,22 +131,33 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   tform_list <- list(
     shared = model_share$tform
   )
+  keep_constant_list <- list(
+    shared = model_share$keep_constant
+  )
+  fix_alias_list <- list(
+    shared = model_share$fix_alias
+  )
   for (model_i in seq_along(model_list)) {
     model <- model_list[[model_i]]
     event_temp <- model$event
     name_temp <- list()
     termn_temp <- list()
     tform_temp <- list()
+    keep_constant_temp <- list()
+    fix_alias_temp <- list()
     name_temp[[event_temp]] <- model$names
     termn_temp[[event_temp]] <- model$term_n
     tform_temp[[event_temp]] <- model$tform
+    keep_constant_temp[[event_temp]] <- model$keep_constant
+    fix_alias_temp[[event_temp]] <- model$fix_alias
     #
     events <- c(events, event_temp)
     term_n_list <- c(term_n_list, termn_temp)
     name_list <- c(name_list, name_temp)
     tform_list <- c(tform_list, tform_temp)
+    keep_constant_list <- c(keep_constant_list, keep_constant_temp)
+    fix_alias_list <- c(fix_alias_list, fix_alias_temp)
   }
-  keep_constant_list <- list()
   a_n_list <- list()
   # Combine it
   val <- Joint_Multiple_Events(
@@ -140,6 +170,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   term_n <- val$term_n
   tform <- val$tform
   keep_constant <- val$keep_constant
+  fix_alias <- val$fix_alias
   a_n <- val$a_n
   #
   pyr <- model_1$pyr
@@ -192,7 +223,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
   }
   #
   null <- FALSE
-  model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, df)
+  model <- poismodel(pyr, "events", strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, a_n, keep_constant, fix_alias, df)
   #
   # ------------------------------------------------------------------------------ #
   list(
@@ -228,7 +259,7 @@ get_form_joint <- function(formula_list, df, nthreads = as.numeric(detectCores()
 #' formula <- Cox(Starting_Age, Ending_Age, Cancer_Status) ~
 #'   loglinear(a, b, c, 0) + plinear(d, 0) + multiplicative()
 #' model <- get_form(formula, df, 1)
-get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
+get_form <- function(formula, df, keep_constant = NULL, nthreads = as.numeric(detectCores()) / 2) {
   # ------------------------------------------------------------------------------ #
   # Make data.table use the set number of threads too
   if ((identical(Sys.getenv("TESTTHAT"), "true")) || (identical(Sys.getenv("TESTTHAT_IS_CHECKING"), "true"))) {
@@ -244,7 +275,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   model_obj <- paste(Reduce(paste, deparse(formula[[3]])), collapse = " ")
   surv_obj <- gsub(" ", "", surv_obj, fixed = TRUE)
   model_obj <- gsub(" ", "", model_obj, fixed = TRUE)
-  res <- get_form_list(surv_obj, model_obj, df)
+  res <- get_form_list(surv_obj, model_obj, df, keep_constant)
   model <- res$model
   df <- res$data
   #
@@ -260,6 +291,8 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   term_n <- model$term_n
   tform <- model$tform
   names <- model$names
+  keep_constant <- model$keep_constant
+  fix_alias <- model$fix_alias
   modelform <- model$modelform
   gmix_term <- model$gmix_term
   gmix_theta <- model$gmix_theta
@@ -275,11 +308,11 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
   }
   #
   if (grepl("cox", surv_model_type, fixed = TRUE)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, keep_constant, fix_alias, df, expres_calls)
   } else if (grepl("finegray", surv_model_type, fixed = TRUE)) {
-    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
+    model <- coxmodel(tstart, tend, event, strata, weight, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, keep_constant, fix_alias, df, expres_calls)
   } else if (grepl("pois", surv_model_type, fixed = TRUE)) {
-    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
+    model <- poismodel(pyr, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, keep_constant, fix_alias, df, expres_calls)
     if (all(strata != "NONE")) {
       strata <- vapply(strata, function(x) tryCatch(match.arg(x, choices = names(df)), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")
       if (!all(strata %in% names(df))) {
@@ -287,9 +320,9 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
       }
     } # verifies that a stratified model can be used
   } else if ((grepl("casecon", surv_model_type, fixed = TRUE)) || (grepl("case_con", surv_model_type, fixed = TRUE))) {
-    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
+    model <- caseconmodel(tstart, tend, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, keep_constant, fix_alias, df, expres_calls)
   } else if ((grepl("logit", surv_model_type, fixed = TRUE)) || (grepl("logistic", surv_model_type, fixed = TRUE))) {
-    model <- logitmodel(trials, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, NULL, df, expres_calls)
+    model <- logitmodel(trials, event, strata, null, term_n, tform, names, modelform, gmix_term, gmix_theta, NULL, keep_constant, fix_alias, df, expres_calls)
   } else {
     stop("Error: Bad survival model type passed")
   }
@@ -312,7 +345,7 @@ get_form <- function(formula, df, nthreads = as.numeric(detectCores()) / 2) {
 #' @noRd
 #' @return returns the list of model values
 #' @family Formula Interpretation
-get_form_list <- function(surv_obj, model_obj, df) {
+get_form_list <- function(surv_obj, model_obj, df, keep_constant = NULL) {
   # nocov start
   if (class(df)[[1]] != "data.table") {
     tryCatch(
@@ -340,8 +373,10 @@ get_form_list <- function(surv_obj, model_obj, df) {
   weight <- surv_vals$weight
   trials <- surv_vals$trials
   #
-  model_vals <- get_form_risk(model_obj, df)
+  model_vals <- get_form_risk(model_obj, df, keep_constant)
   model <- model_vals$model
+  keep_constant <- model$keep_constant
+  fix_alias <- model$fix_alias
   term_n <- model$term_n
   tform <- model$tform
   names <- model$names
@@ -365,6 +400,8 @@ get_form_list <- function(surv_obj, model_obj, df) {
       term_n = term_n,
       tform = tform,
       names = names,
+      keep_constant = keep_constant,
+      fix_alias = fix_alias,
       modelform = modelform,
       gmix_term = gmix_term,
       gmix_theta = gmix_theta,
@@ -418,7 +455,13 @@ get_form_surv <- function(surv_obj, df) {
       surv_para_list[[item_name]] <- item_value
     }
   }
-  full_acceptable <- c("cox", "coxph", "cx", "cox_strata", "coxph_strata", "coxstrata", "coxphstrata", "finegray", "fine_gray", "fg", "finegray_strata", "fine_gray_strata", "fg_strata", "finegraystrata", "fgstrata", "poisson", "pois", "poisson_strata", "pois_strata", "poissonstrata", "poisstrata", "casecon", "casecontrol", "case_control", "casecon_time", "casecontrol_time", "case_control_time", "casecon_strata", "casecontrol_strata", "case_control_strata", "casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata", "logit", "logistic")
+  cox_acceptable <- c("cox", "coxph", "cx", "cox_strata", "coxph_strata", "coxstrata", "coxphstrata", "finegray", "fine_gray", "fg", "finegray_strata", "fine_gray_strata", "fg_strata", "finegraystrata", "fgstrata")
+  pois_acceptable <- c("poisson", "pois", "poisson_strata", "pois_strata", "poissonstrata", "poisstrata")
+  logit_acceptable <- c("logit", "logistic")
+  casecon_acceptable <- c("casecon", "casecontrol", "case_control", "casecon_time", "casecontrol_time", "case_control_time", "casecon_strata", "casecontrol_strata", "case_control_strata", "casecon_strata_time", "casecontrol_strata_time", "case_control_strata_time", "casecon_time_strata", "casecontrol_time_strata", "case_control_time_strata")
+  #
+  full_acceptable <- c(cox_acceptable, pois_acceptable, logit_acceptable, casecon_acceptable)
+  surv_obj <- gsub("-", "_", surv_obj, fixed = TRUE) # The survival type uses underscores to separate, but we can convert dashes to catch mistakes
   surv_type <- match.arg(surv_type, full_acceptable)
   ## Try to fix any issues with the survival parameter names
   if (!is.null(names(surv_para_list))) {
@@ -540,7 +583,7 @@ get_form_surv <- function(surv_obj, df) {
 #' @noRd
 #' @return returns the right hand side of a formula reading
 #' @family Formula Interpretation
-get_form_risk <- function(model_obj, df) {
+get_form_risk <- function(model_obj, df, keep_constant) {
   #
   model_obj <- gsub(" ", "", model_obj, fixed = TRUE)
   term_n <- NULL
@@ -551,7 +594,6 @@ get_form_risk <- function(model_obj, df) {
   modelform <- "NONE"
   null <- FALSE
   expres_calls <- list() # storing any variables transformed, ie factor, ns, bs, etc. to be recalled when the data is reloaded
-  #
   right_model_terms <- strsplit(model_obj, "+", fixed = TRUE)[[1]]
   for (term_i in seq_along(right_model_terms)) {
     # seperate the term type or model-formula from parameters
@@ -577,6 +619,9 @@ get_form_risk <- function(model_obj, df) {
       "gmix", "geometric-mixture", "gmix-r", "relative-geometric-mixture",
       "gmix-e", "excess-geometric-mixture"
     )
+    #
+    model_type <- gsub("_", "-", model_type, fixed = TRUE) # The model type uses dashes to separate, but we can convert underscores to catch mistakes
+    #
     model_type <- match.arg(model_type, c(tform_acceptable, modelform_acceptable, "null"))
     if (model_type == "null") {
       null <- TRUE
@@ -1137,39 +1182,19 @@ get_form_risk <- function(model_obj, df) {
     }
   }
   #
+  fix_alias <- keep_constant
   if (length(tform) > 1) {
-    og_index <- seq_along(tform)
-    all_remove <- rep(0, length(tform))
-    for (u_tform in unique(tform)) {
-      for (u_term_n in unique(term_n)) {
-        new_name <- names[(tform == u_tform) & (term_n == u_term_n)]
-        new_index <- og_index[(tform == u_tform) & (term_n == u_term_n)]
-        if (length(new_name) > 1) {
-          df_temp <- df[, new_name, with = FALSE]
-          removed <- 0
-          for (i in 2:length(names(df_temp))) {
-            new_rank <- qr(df_temp[, 1:i])$rank
-            if (new_rank == i - sum(removed)) {
-              # all good
-              removed <- c(removed, 0)
-            } else {
-              # the column was linearly dependent
-              removed <- c(removed, 1)
-              all_remove[new_index[i]] <- 1
-            }
-          }
-        }
-      }
-    }
-    term_n <- term_n[all_remove == 0]
-    tform <- tform[all_remove == 0]
-    names <- names[all_remove == 0]
+    res_alias <- check_alias(df, names, term_n, tform, keep_constant)
+    keep_constant <- res_alias[[1]]
+    fix_alias <- res_alias[[2]]
   }
   #
   model <- list(
     term_n = term_n,
     tform = tform,
     names = names,
+    keep_constant = keep_constant,
+    fix_alias = fix_alias,
     modelform = modelform,
     gmix_term = gmix_term,
     gmix_theta = gmix_theta,

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">Colossus</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.6.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,7 @@
     <li><a class="dropdown-item" href="../articles/Script_Comparison_Epicure.html">Script comparisons with 32-bit Epicure</a></li>
     <li><a class="dropdown-item" href="../articles/SMR_Analysis.html">SMR Analysis</a></li>
     <li><a class="dropdown-item" href="../articles/Starting-Description.html">Colossus Starting Description</a></li>
+    <li><a class="dropdown-item" href="../articles/Technical.html">Reference Likelihood and Score Formula</a></li>
     <li><a class="dropdown-item" href="../articles/Time_Dep_Cov.html">Time Dependent Covariate Use</a></li>
     <li><a class="dropdown-item" href="../articles/Wald_and_Log_Bound.html">Confidence Interval Selection</a></li>
   </ul></li>
@@ -286,8 +287,24 @@
 <li>Residual functions improved for Poisson and Logistic regressions, with vignette describing options.</li>
 </ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.6.2" id="colossus-162">Colossus 1.6.2<a class="anchor" aria-label="anchor" href="#colossus-162"></a></h2>
+<h2 class="pkg-version" data-toc-text="1.6.2" id="colossus-162">Colossus 1.6.2<a class="anchor" aria-label="anchor" href="#colossus-162"></a></h2><p class="text-muted">CRAN release: 2026-09-22</p>
 <ul><li>Guess results now reverse the normalization as well.</li>
+<li>Stratified poisson models now report results relative to the total observed strata, and list the number of non-zero strata and rows.</li>
+<li>Fixed bug in likelihood-based boundaries in models with constant parameters</li>
+<li>formula missing term 0 will automatically assign an intercept covariate to the loglinear subterm of term 0. By default, this intercept is not constant.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.3" id="colossus-163">Colossus 1.6.3<a class="anchor" aria-label="anchor" href="#colossus-163"></a></h2><p class="text-muted">CRAN release: 2026-10-06</p>
+<ul><li>Added fix for upcoming RcppEigen update</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.4" id="colossus-164">Colossus 1.6.4<a class="anchor" aria-label="anchor" href="#colossus-164"></a></h2>
+<ul><li>Stratified Cox models now filter out intervals starting/ending not at risk, reduces unused rows kept for regression.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.6.5" id="colossus-165">Colossus 1.6.5<a class="anchor" aria-label="anchor" href="#colossus-165"></a></h2>
+<ul><li>Poisson log-likelihood has been updated to not be off by a constant dependent on dataset. Previous version omitted the constant sum of log factorial of event count. It has now been approximated using Ramanujan’s approximation. Does not impact previous results, deviance is unchanged. The approximation has been tuned to improve accuracy in zero event intervals.</li>
+<li>AIC and BIC for Poisson models now based on Log-Likelihood instead of deviance. AIC will no longer match 32-bit Epicure, which uses deviance.</li>
 </ul></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

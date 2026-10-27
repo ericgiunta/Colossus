@@ -4,12 +4,19 @@
 \alias{get_form}
 \title{Interprets a Colossus formula and makes necessary changes to data}
 \usage{
-get_form(formula, df, nthreads = as.numeric(detectCores())/2)
+get_form(
+  formula,
+  df,
+  keep_constant = NULL,
+  nthreads = as.numeric(detectCores())/2
+)
 }
 \arguments{
 \item{formula}{a formula object, written in Colossus notation. See the \href{../articles/Equation_Expression.html}{unified equation expression vignette} vignette for details.}
 
 \item{df}{a data.table containing the columns of interest}
+
+\item{keep_constant}{binary values to denote which parameters to change}
 
 \item{nthreads}{number of threads to use, do not use more threads than available on your machine}
 }

@@ -181,7 +181,7 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
     Lldd_vec.attr("dim") = Dimension(kept_covs, kept_covs);
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
-    VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
+    VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);  // fullPivHouseholderQr, colPivHouseholderQr
     double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
     for (int i = 0; i < kept_covs; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
         for (int j = i; j < kept_covs; j++) {
@@ -193,7 +193,8 @@ void Calc_Change(const int& nthreads, const int& totalnum, const double& thres_s
         }
     }
     if (ll_change < 0) {
-        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
+        Lldd_solve0 = Lld_mat;
+//        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
     }
     VectorXd Lldd_solve = VectorXd::Zero(totalnum);
     for (int ij = 0; ij < totalnum; ij++) {
@@ -277,7 +278,8 @@ void Calc_Change_Basic(const int& nthreads, const int& totalnum, const double& l
         }
     }
     if (ll_change < 0) {
-        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
+        Lldd_solve0 = Lld_mat;
+//        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
     }
     VectorXd Lldd_solve = VectorXd::Zero(totalnum);
     for (int ij = 0; ij < totalnum; ij++) {
@@ -450,8 +452,8 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
     const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
     VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
     double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
-    for (int i = 0; i < kept_covs; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
-        for (int j = 0; j < kept_covs; j++) {
+    for (int i = 0; i < total_val; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
+        for (int j = 0; j < total_val; j++) {
             if (i == j) {
                 ll_change += 1/2 * Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
             } else {
@@ -460,7 +462,8 @@ void Calc_Change_Background(const int& nthreads, const int& totalnum, const int&
         }
     }
     if (ll_change < 0) {
-        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
+        Lldd_solve0 = Lld_mat;
+//        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
     }
     VectorXd Lldd_beta_solve = VectorXd::Zero(totalnum);
     VectorXd Lldd_strata_solve = VectorXd::Zero(group_num);
@@ -603,19 +606,20 @@ void Calc_Change_Background_Cons(const MatrixXd& Lin_Sys, const VectorXd& Lin_Re
     const Map<MatrixXd> Lldd_mat(as<Map<MatrixXd> >(Lldd_vec));
     const Map<VectorXd> Lld_mat(as<Map<VectorXd> >(Lld_vec));
     VectorXd Lldd_solve0 = Lldd_mat.colPivHouseholderQr().solve(- 1*Lld_mat);
-    double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
-    for (int i = 0; i < kept_covs; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
-        for (int j = 0; j < kept_covs; j++) {
-            if (i == j) {
-                ll_change += 1/2 * Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
-            } else {
-                ll_change += Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
-            }
-        }
-    }
-    if (ll_change < 0) {
-        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
-    }
+//    double ll_change = (Lldd_solve0.array() * Lld_mat.array()).sum();  //  We want to make sure it is moving toward the a maximum
+//    for (int i = 0; i < total_val; i++) {  //  The predicted change should be positive, accounting for the second order taylor expansion
+//        for (int j = 0; j < total_val; j++) {
+//            if (i == j) {
+//                ll_change += 1/2 * Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
+//            } else {
+//                ll_change += Lldd_solve0(i) * Lldd_solve0(j) * Lldd_mat(i, j);
+//            }
+//        }
+//    }
+//    if (ll_change < 0) {
+//        Lldd_solve0 = Lld_mat;
+//        Lldd_solve0 *= -1;  //  If it is moving in the wrong direction, turn it around
+//    }
     VectorXd Lldd_beta_solve = VectorXd::Zero(totalnum);
     VectorXd Lldd_strata_solve = VectorXd::Zero(group_num);
     for (int ij = 0; ij < totalnum; ij++) {
