@@ -18,6 +18,10 @@ knitr::opts_chunk$set(
 Sys.setenv(OMP_THREAD_LIMIT = 1) # Reducing core use, to avoid accidental use of too many cores
 library(Colossus)
 library(data.table)
+if (system.file(package = "survival") != "") {
+  library(survival)
+}
+library(dplyr)
 ```
 
 ## Optimization Theory
@@ -264,4 +268,124 @@ if (system.file(package = "ggplot2") != "") {
   g <- message("ggplot2 wasn't detected. Please install to see the plot")
 }
 g
+```
+
+## Optimization Over Nested Model Subsets
+
+Another level of optimization available is the number of parameters optimized in each iteration. By default, every iteration we optimize over every free parameter. When the likelihood is well described by a quadratic or linear function, we can optimize every parameter simultaneously using our Hessian or Gradient algorithms. However, this is not always the case. When these approximations are inaccurate, the algorithm may take a step that worsens the score. For a Hessian approach we then take half-steps until our approximation is more accurate and we improve the score. For the gradient approach we use some type of weighting to take a corrective step. The premise of the block descent options is to instead break the model into components and optimize a nested model for which the approximation is more accurate.
+
+A common approach in epidemiological modeling is to start with a simplified model and slowly add new components. As an example, suppose we are modeling cancer deaths in the Veterans' Administration Lung Cancer study data from the `{survival}` package. The final goal may be to model the effects of cell type and Karnofsky performance modified by treatment. A start may be to model the simple effects of cell type first, and then add in the effects of Karnofsky performance and treatment. In effect there are three nested model we can optimize, each slightly more complicated than the last.
+
+<p class="text-center" style="background-color: aliceblue">
+$$
+\begin{aligned}
+    \lambda(t, c) = \lambda_0(t) \cdot \exp \left ( \sum_j \alpha_j \cdot c_j \right) \\
+    \lambda(t, c, k) = \lambda_0(t) \cdot \exp \left ( \sum_j \alpha_j \cdot c_j \right) \cdot  \left (1 + \beta_1 \cdot k \right ) \\
+    \lambda(t, c, k, tr) = \lambda_0(t) \cdot \exp \left ( \sum_j \alpha_j \cdot c_j \right) \cdot  \left (1 + \beta_1 \cdot k \cdot \exp \left ( \beta_2 \cdot tr \right ) \right )
+\end{aligned}
+$$
+</p>
+
+
+```{r, eval=TRUE}
+if (system.file(package = "survival") != "") {
+  veteran %>% setDT()
+  df <- copy(veteran)
+} else {
+  karno <- c(60, 70, 60, 60, 70, 20, 40, 80, 50, 70, 60, 40, 30, 80, 70, 60, 60, 40, 80, 60, 40, 60, 60, 30, 80, 30, 50, 60, 80, 40, 20, 80, 30, 75, 70, 60, 30, 60, 80, 60, 70, 50, 50, 40, 40, 20, 70, 40, 80, 80, 50, 80, 30, 80, 50, 80, 50, 70, 60, 40, 80, 80, 70, 90, 90, 80, 80, 70, 60, 90, 80, 80, 50, 50, 70, 70, 20, 60, 90, 30, 20, 70, 90, 80, 50, 70, 60, 90, 50, 30, 70, 20, 30, 60, 40, 30, 20, 60, 70, 80, 85, 70, 70, 70, 50, 30, 40, 40, 40, 99, 80, 60, 60, 60, 60, 50, 70, 10, 40, 70, 90, 80, 50, 40, 40, 60, 70, 30, 60, 30, 60, 80, 75, 60, 70, 80, 30)
+  trt <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2)
+  cell <- c("squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "squamous", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "smallcell", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "adeno", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large", "large")
+  status <- c(1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+
+  df <- data.table(
+    karno = karno,
+    trt = trt,
+    cell = cell,
+    status = status
+  )
+}
+# Applying corrections, in line with other vignettes
+karno <- df$karno
+karno[93] <- 20
+df$karno <- karno
+df$trt <- df$trt - 1
+df$trt <- as.integer(df$trt == 0)
+cell_lvl <- c("large", "squamous", "smallcell", "adeno")
+df$cell <- as.integer(factor(df$celltype, level = cell_lvl)) - 1
+df$status <- as.integer(df$status > 0)
+
+df$karno50 <- df$karno - 50
+
+# The three nested models, from the baseline to the full effect
+cx_model <- Cox(time, status) ~ loglinear(factor(cell), 0) + ME()
+cx_model <- Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + ME()
+cx_model <- Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME()
+```
+
+When this model every parameter is optimized simultaneously the algorithm fails to converge. It is very unlikely that the model just happens to be optimized by the default values, so this is a sign that at this point the algorithm is not taking correct steps.
+
+```{r, eval=TRUE}
+# We can try optimizing the entire model from the default parameter values
+control <- list(verbose = 0, step_max = 0.1, ncores = 1, maxiters = c(20, 20))
+cx_3 <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME(), df, control = control)
+print(cx_3)
+# Our final parameters match the initial guess
+# Not a single valid step was taken
+```
+
+The next step would be to optimize each nested model. This has two main benefits. The first is that we can try to optimize the cell type and Karnofsky performance effects separately. This is important because the cell type effect is exponential and may need many large steps, while the Karnofsky effect is linear and may need to take many small steps. Solving the two separately means that overstepping in the linear effect will not inhibit convergence in the cell type effect. The second benefit is that the highly correlated Karnofsky and treatment effects are not optimized directly from the null model. If the quadratic or linear approximations do not properly capture the correlation between the effects, then the algorithm may repeatably take large steps in both parameters, overstep, and fail to improve the score. By optimizing the Karnofsky effect first, the algorithm will likely take much smaller steps and be more likely to find slight improvements.
+
+When we split the model into each component the algorithm converges. Clearly the model was not actually optimized by the default parameters. We can look at the AIC values and find that including Karnofsky performance improved the model, while accounting for treatment effect may not have improved the Karnofsky performance effect.
+
+```{r, eval=TRUE}
+control <- list(verbose = 0, step_max = 0.1, ncores = 1, maxiters = c(20, 20))
+# We can split our regression into nested models, and optimize each in succession
+cx_0 <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + ME(), df, control = control)
+cx_1 <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + ME(), df, control = control, a_n = cx_0$beta_0)
+cx_2 <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME(), df, control = control, a_n = cx_1$beta_0)
+aic_values <- c(cx_0$AIC, cx_1$AIC, cx_2$AIC)
+names(aic_values) <- c("Cell Type", "Non-Modified Karno", "Full")
+print(aic_values)
+
+print(cx_2)
+```
+
+This approach allows us to circumvent some points where the quadratic likelihood approximation fails. Another alternative approach would be to fix some components of the model. By fixing some components we can simplify our algorithm to optimize along some fixed hyperplane. This is the basic theory surrounding the coordinate descent optimization strategy. In coordinate descent, we optimize a single parameter in each iteration and iterate over the parameters. Multidimensional versions have been applied to blocks of parameters instead. As an alternative to standard regressions, Colossus allows the user to apply different types of coordinate descent blocking.
+
+### Coordinate Descent Blocking Options
+
+Colossus offers multiple options for performing coordinate descent optimization, each changes which parameters are blocked. Splitting the model into more components makes each component more likely to be optimized in each iteration, at the expense of requiring more iterations to optimize the full model. We can go from no blocking to optimizing each parameter individually. The choice of blocking depends on what effects are believed to be causing issues. In the previous example, we were blocking by sub-term to separate the exponential and linear effects. If the model were using both a linear and quadratic effect, we might want to block by individual parameters to avoid overstepping each effect. These different options are controlled by the `descent` control option.
+
+| Option | Description |
+| :---------: | :----------: |
+| Full | The default, no blocking is used and every parameter is optimized simultaneously |
+| Term | Blocking by term number. Each iteration optimizes a single term. |
+| Subterm | Blocking by both term and subterm. Each iteration optimizes a single subterm in a term. |
+| Individual | Blocking by parameter. Each iteration optimizes a single parameter, or group of parameters for the dose response subterm (both slope and intercept for example). |
+
+```{r, eval=TRUE}
+# We can use the descent option to pick different blocking
+control <- list(verbose = 0, step_max = 0.1, ncores = 1, maxiters = c(20, 20))
+cx_t <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME(), df, control = control, descent = "term")
+cx_s <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME(), df, control = control, descent = "subterm")
+cx_i <- CoxRun(Cox(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME(), df, control = control, descent = "individual")
+
+aic_values <- c(cx_3$AIC, cx_t$AIC, cx_s$AIC, cx_i$AIC)
+names(aic_values) <- c("Full", "Term", "Subterm", "Individual")
+print(aic_values)
+# We were able to improve the results by using blocked optimization
+```
+
+As always, results from regressions can be used as the initial start for a new regression. By combining different options we can check if a regression has truly converged.
+```{r, eval=TRUE}
+control <- list(verbose = 0, step_max = 0.1, ncores = 1, maxiters = c(20, 20))
+# What if we wanted to just continue the regression, using a blocked option
+cx_t <- CoxRun(cx_2, df, control = control, descent = "term")
+cx_s <- CoxRun(cx_2, df, control = control, descent = "subterm")
+cx_i <- CoxRun(cx_2, df, control = control, descent = "individual")
+
+aic_values <- c(cx_2$AIC, cx_t$AIC, cx_s$AIC, cx_i$AIC)
+names(aic_values) <- c("Previous", "Term", "Subterm", "Individual")
+print(aic_values)
+# In this case our analysis has actually converged
 ```

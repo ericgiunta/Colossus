@@ -845,8 +845,8 @@ NULL
 #' @return LogLik_Cox_PH output
 #' @noRd
 #'
-cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_cox_ph_Omnibus_transition`, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
+cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, Block_Descent, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_cox_ph_Omnibus_transition`, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, Block_Descent, term_tot, Strata_vals, cens_weight, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the poisson omnibus regression function
@@ -857,8 +857,8 @@ cox_ph_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelf
 #' @return LogLik_Cox_PH output
 #' @noRd
 #'
-pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_pois_Omnibus_transition`, PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
+pois_Omnibus_transition <- function(PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, Block_Descent, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_pois_Omnibus_transition`, PyrC, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, Block_Descent, term_tot, Strata_vals, dfs, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the event assignment omnibus function
@@ -1025,8 +1025,8 @@ logist_multidose_Omnibus_transition <- function(CountEvent, term_n, tform, a_n, 
 #' @return LogLik_CaseCon_Omnibus output
 #' @noRd
 #'
-caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_caco_Omnibus_transition`, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res)
+caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, Block_Descent, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_caco_Omnibus_transition`, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, df_m, tu, KeepConstant, Block_Descent, term_tot, Strata_vals, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the logistic omnibus regression function
@@ -1037,8 +1037,8 @@ caco_Omnibus_transition <- function(term_n, tform, a_ns, dfc, df0, fir, modelfor
 #' @return LogLik_Logist_Omnibus output
 #' @noRd
 #'
-logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res) {
-    .Call(`_Colossus_logist_Omnibus_transition`, CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, term_tot, model_control, Lin_Sys, Lin_Res)
+logist_Omnibus_transition <- function(CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, Block_Descent, term_tot, model_control, Lin_Sys, Lin_Res) {
+    .Call(`_Colossus_logist_Omnibus_transition`, CountEvent, term_n, tform, a_ns, dfc, df0, fir, modelform, Control, KeepConstant, Block_Descent, term_tot, model_control, Lin_Sys, Lin_Res)
 }
 
 #' Interface between R code and the logistic multicome omnibus regression function

@@ -104,6 +104,10 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
   } else {
     res <- Check_Iters(control, length(a_n))
     control <- res$control
+    block_descent <- gen_descent_block(control$descent, term_n, tform, keep_constant)
+    if ((max(control$maxiters) < nrow(block_descent)) && (max(control$maxiters) > 0) && (control$verbose <= 2)) {
+      warning("Warning: the maximum number of iterations is less than the number of blocks, use atleast ", nrow(block_descent), " to check every block.")
+    }
     #
     e <- logist_Omnibus_transition(
       as.matrix(df[, ce, with = FALSE]),
@@ -112,12 +116,13 @@ RunLogisticRegression_Omnibus <- function(df, trial0 = "CONST", event0 = "event"
         byrow = TRUE
       ), dfc, x_all, 0,
       modelform, control, keep_constant,
-      term_tot,
+      block_descent, term_tot,
       model_control, cons_mat, cons_vec
     )
     if (is.nan(e$LogLik)) {
       stop(e$Status)
     }
+    e$blocks <- block_descent
   }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant

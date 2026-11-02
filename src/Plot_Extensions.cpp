@@ -330,6 +330,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     }
     //  ------------------------------------------------------------------------- //  initialize
     totalnum = term_n.size();
+    IntegerVector constant_descent(totalnum);
     reqrdnum = totalnum - sum(KeepConstant);
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
     //  ---------------------------------------------
@@ -370,7 +371,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     vector<double> Lldd(pow(reqrdnum, 2), 0.0);  //  the second derivative matrix has room for every combination, but only the lower triangle is calculated initially
     //  ------------------------------------------------------------------------- //  initialize
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, constant_descent, verbose, model_bool, gmix_theta, gmix_term);
     List res_list;
     if (Risk_bool) {
         res_list = List::create(_["x"] = wrap(df0.col(ijk_risk)), _["y"] = wrap(R.col(0)));  //  returns list of covariate values and risk
@@ -406,7 +407,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
     Cox_Refresh_R_SIDES(reqrdnum, ntime, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, Strata_vals, model_bool);
     //  Calculates the side sum terms used
     int iter_stop = 0;
-    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, ties_method, verbose, model_bool, iter_stop);
+    Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail, RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, constant_descent, ties_method, verbose, model_bool, iter_stop);
     int kept_covs = totalnum - sum(KeepConstant);  //  does !base the standard deviation off of constant parameters
     NumericVector Lldd_vec(kept_covs * kept_covs);
     #ifdef _OPENMP
@@ -461,6 +462,7 @@ List Plot_Omnibus_Cox(IntegerVector& term_n, const StringVector& tform, Ref<Vect
 //'
 List Assign_Events_Pois(IntegerVector& term_n, const StringVector& tform, Ref<VectorXd> beta_0, Ref<MatrixXd> df0, const IntegerVector& dfc, const Ref<const MatrixXd>& PyrC, NumericVector& Strata_vals, const Ref<const MatrixXd>& dfs, int fir, const string& modelform, int verbose, IntegerVector KeepConstant, int term_tot, int nthreads, const double gmix_theta, const IntegerVector gmix_term, List model_bool) {
     int totalnum = term_n.size();
+    IntegerVector constant_descent(totalnum);
     // const int mat_row = df0.rows();
     List res_list = List::create(_["Status"] = "FAILED");  //  used as a dummy return value for code checking
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
@@ -540,6 +542,7 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     //  totalnum: number of terms used
     //  ------------------------------------------------------------------------- //  initialize
     int totalnum = term_n.size();
+    IntegerVector constant_descent(totalnum);
     int reqrdnum = totalnum - sum(KeepConstant);
     // const int mat_row = df0.rows();
     //  cout.precision: controls the number of significant digits printed
@@ -577,7 +580,7 @@ List Poisson_Residuals(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n, c
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Pois_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, dint, dslp, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, dfs, PyrC, s_weights, nthreads, KeepConstant, constant_descent, verbose, model_bool, gmix_theta, gmix_term);
     if (model_bool["strata"]) {
         Make_Strata(Strata_vals, dfs, RiskPairs_Strata_Pois, nthreads);
         s_weights = VectorXd::Zero(df0.rows());
@@ -642,6 +645,7 @@ List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& te
     int totalnum = term_n.size();
     int reqrdnum = totalnum - sum(KeepConstant);
     const int mat_row = df0.rows();
+    IntegerVector constant_descent(totalnum);
     //  cout.precision: controls the number of significant digits printed
     //  nthreads: number of threads used for parallel operations
     Rcout.precision(10);  //  forces higher precision numbers printed to terminal
@@ -680,7 +684,7 @@ List Logistic_Residuals(const Ref<const MatrixXd>& CountEvent, IntegerVector& te
     //  ---------------------------------------------
     //  To Start, needs to seperate the derivative terms
     //  ---------------------------------------------
-    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, verbose, model_bool, gmix_theta, gmix_term);
+    Cox_Term_Risk_Calc(modelform, tform, term_n, totalnum, fir, dfc, term_tot, T0, Td0, Tdd0, Te, R, Rd, Rdd, Dose, nonDose, beta_0, df0, thres_step_max, step_max, TTerm, nonDose_LIN, nonDose_PLIN, nonDose_LOGLIN, RdR, RddR, nthreads, KeepConstant, constant_descent, verbose, model_bool, gmix_theta, gmix_term);
     LinkCovertRP(model_bool, reqrdnum, R, Rd, Rdd, RdR, RddR, P, Pd, Pdd, Pnot, PdP, PddP, PnotdP, PnotddP);
     // Now we calculate residuals
     MatrixXd p_residual = MatrixXd::Zero(df0.rows(), 1);

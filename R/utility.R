@@ -82,6 +82,93 @@ parse_literal_string <- function(string) {
   string
 }
 
+#' generates rows for different types of coordinate descent
+#'
+#' \code{gen_descent_block} creates the block_descent matrix used for coordinate descent options
+#'
+#' @noRd
+#' @param block_type the type of blocking used, for splitting by terms, sub-terms, individual parameters, etc.
+#' @family Data Cleaning Functions
+#' @return returns the matrix to be used for analysis
+gen_descent_block <- function(block_type, term_n, tform, keep_constant) {
+  block_descent <- matrix(rep(0, length(term_n)), nrow = 1, byrow = TRUE)
+  og_index <- seq_along(tform)
+  if (block_type == "full") {
+    block_descent <- matrix(rep(0, length(term_n)), nrow = 1, byrow = TRUE)
+  } else if (block_type == "term") {
+    # Each row should make a single term free
+    # We have at most max(term_n)+1 terms
+    row_count <- max(term_n) + 1
+    block_descent <- matrix(rep(1, row_count * length(term_n)), nrow = row_count, byrow = TRUE)
+    row_val <- 0
+    for (u_term_n in unique(term_n)) {
+      row_val <- row_val + 1 # iterate
+      new_index <- og_index[(term_n == u_term_n)] # get the column index for the term
+      new_constant <- keep_constant[new_index] # we want to check if the term is already constant
+      if (min(new_constant) == 0) { # atleast one is free
+        block_descent[row_val, new_index] <- 0 # set to free
+      }
+    }
+  } else if (block_type == "subterm") {
+    # Each row should set a single term/subterm pair free
+    # We can find the number of unique combinations
+    row_count <- length(unique(paste(term_n, tform)))
+    block_descent <- matrix(rep(1, row_count * length(term_n)), nrow = row_count, byrow = TRUE)
+    row_val <- 0
+    for (u_tform in unique(tform)) {
+      for (u_term_n in unique(term_n)) {
+        new_index <- og_index[(tform == u_tform) & (term_n == u_term_n)]
+        if (length(new_index) > 0) { # the combination may not exist
+          row_val <- row_val + 1
+          new_constant <- keep_constant[new_index] # we want to check if the term is already constant
+          if (min(new_constant) == 0) { # atleast one is free
+            block_descent[row_val, new_index] <- 0 # set to free
+          }
+        }
+      }
+    }
+  } else if (block_type == "individual") {
+    # Each row should free a single parameter, or grouping for the dose subterm options
+    row_count <- length(term_n)
+    block_descent <- matrix(rep(1, row_count * length(term_n)), nrow = row_count, byrow = TRUE)
+    #
+    a <- tform
+    for (i in seq_along(a)) {
+      new_index <- c(i)
+      if (a[i] %in% c("loglin_top", "lin_slope", "step_slope", "lin_exp_int", "lin_quad_slope")) {
+        # Next value is also used
+        new_index <- c(new_index, i + 1)
+      }
+      if (a[i] %in% c("loglin_slope", "lin_int", "step_int", "lin_exp_int", "lin_quad_int")) {
+        # Previous value is also used
+        new_index <- c(new_index, i - 1)
+      }
+      if (a[i] == "lin_exp_slope") {
+        # Next two values are also used
+        new_index <- c(new_index, i + 1, i + 2)
+      }
+      if (a[i] == "lin_exp_exp_slope") {
+        # Previous two values are also used
+        new_index <- c(new_index, i - 1, i - 2)
+      }
+      new_constant <- keep_constant[new_index] # we want to check if the values are already constant
+      if (min(new_constant) == 0) { # atleast one is free
+        block_descent[i, new_index] <- 0 # set to free
+      }
+    }
+    # Each step with multi-parameter responses will be run multiple times
+    # This will likely help the more complicated values converge easier
+  } else {
+    warning("Warning: invalid descent type was used, defaulting to no blocking.")
+  }
+  # We want to remove any row that is all 1, also removes any rows that were not edited
+  row_removed <- c(apply(block_descent, 1, min)) # gets the minimum of each row
+  block_descent <- matrix(block_descent[(row_removed == 0), ], nrow = nrow(block_descent) - sum(row_removed)) # removes rows, and keeps as a matrix
+  # It might be better if we randomize the order?
+  #
+  block_descent
+}
+
 #' checks the input constraint matrix, to verify that it is valid
 #'
 #' \code{check_constraints} checks the input constraint matrix, applies fixes, and updates the model_control
@@ -341,7 +428,7 @@ Def_Control <- function(control) {
     halfmax = 5, epsilon = 1e-4, ll_epsilon = 1e-4,
     deriv_epsilon = 1e-4, step_max = 1.0,
     change_all = TRUE, thres_step_max = 100.0,
-    ties = "breslow",
+    ties = "breslow", descent = "full",
     ncores = as.numeric(detectCores())
   )
   #
@@ -393,6 +480,9 @@ Def_Control <- function(control) {
     }
   }
   # nocov end
+  if (!("descent" %in% names(control))) {
+    control["descent"] <- control_def["descent"]
+  }
   if ("verbose" %in% names(control)) {
     control$verbose <- Check_Verbose(control$verbose)
   } else {
@@ -2370,6 +2460,8 @@ Interpret_Output <- function(out_list, digits = 3) {
         #
         iter_lim <- out_list$control$maxiter
         step_lim <- out_list$control$epsilon
+        desc_opt <- out_list$control$descent
+        desc_block <- out_list$blocks
         #
         freestrata <- out_list$FreeSets
         strata <- out_list$model$strata
@@ -2407,6 +2499,13 @@ Interpret_Output <- function(out_list, digits = 3) {
           message("Model stratified by time at risk")
         } else {
           message("No risk grouping applied")
+        }
+        if (desc_opt == "term") {
+          message("Optimization blocked by term number, into ", nrow(desc_block), " blocks.")
+        } else if (desc_opt == "subterm") {
+          message("Optimization blocked by sub-term in each term, into ", nrow(desc_block), " blocks.")
+        } else if (desc_opt == "individual") {
+          message("Optimization blocked by individual parameter, into ", nrow(desc_block), " blocks.")
         }
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         message("Deviance: ", round(deviance, digits))
@@ -2531,6 +2630,8 @@ Interpret_Output <- function(out_list, digits = 3) {
         #
         iter_lim <- out_list$control$maxiter
         step_lim <- out_list$control$epsilon
+        desc_opt <- out_list$control$descent
+        desc_block <- out_list$blocks
         #
         message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
         if (is(out_list, "coxres")) {
@@ -2564,6 +2665,13 @@ Interpret_Output <- function(out_list, digits = 3) {
           }
           risk_groups <- out_list$RiskGroups
           message("Risk Groups Used: ", risk_groups)
+          if (desc_opt == "term") {
+            message("Optimization blocked by term number, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "subterm") {
+            message("Optimization blocked by sub-term in each term, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "individual") {
+            message("Optimization blocked by individual parameter, into ", nrow(desc_block), " blocks.")
+          }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits))
         } else if (is(out_list, "coxresmcml")) {
@@ -2618,6 +2726,13 @@ Interpret_Output <- function(out_list, digits = 3) {
             strata_count <- out_list$strata_count
             message("Note: Regression based on non-zero event strata, ", strata_count$used, " strata and ", row_count$used, " rows.")
           }
+          if (desc_opt == "term") {
+            message("Optimization blocked by term number, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "subterm") {
+            message("Optimization blocked by sub-term in each term, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "individual") {
+            message("Optimization blocked by individual parameter, into ", nrow(desc_block), " blocks.")
+          }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
         } else if (is(out_list, "poisresmcml")) {
@@ -2633,44 +2748,6 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
             message("Strata split into ", strata_level, " distinct levels")
-          }
-          realizations <- out_list$realizations
-          message("Exposure Realizations Used: ", realizations)
-          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
-          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
-        } else if (is(out_list, "logitres")) {
-          # logistic model
-          message("\nLogisitic Model Used")
-          trial_col <- out_list$model$trials
-          evt_col <- out_list$model$event
-          message("Trials Column: '", trial_col, "'")
-          message("Event Column: '", evt_col, "'")
-          odds <- out_list$modelcontrol$logit_odds
-          link <- "Unknown"
-          if (odds) {
-            link <- "Odds Ratio"
-          } else {
-            ident <- out_list$modelcontrol$logit_ident
-            if (ident) {
-              link <- "Identity"
-            } else {
-              loglink <- out_list$modelcontrol$logit_loglink
-              if (loglink) {
-                link <- "Complementary Log"
-              } else {
-                probit <- out_list$modelcontrol$logit_probit
-                if (probit) {
-                  link <- "Probability Unit (probit)"
-                }
-              }
-            }
-          }
-          message(link, " Linking Function Used")
-          if ((!null_model) && (min(term_n) != max(term_n))) {
-            message(form_type)
-          }
-          if (all(strata != "NONE")) {
-            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
           realizations <- out_list$realizations
           message("Exposure Realizations Used: ", realizations)
@@ -2710,6 +2787,51 @@ Interpret_Output <- function(out_list, digits = 3) {
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
           }
+          realizations <- out_list$realizations
+          message("Exposure Realizations Used: ", realizations)
+          message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
+          message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
+        } else if (is(out_list, "logitres")) {
+          # logistic model
+          message("\nLogisitic Model Used")
+          trial_col <- out_list$model$trials
+          evt_col <- out_list$model$event
+          message("Trials Column: '", trial_col, "'")
+          message("Event Column: '", evt_col, "'")
+          odds <- out_list$modelcontrol$logit_odds
+          link <- "Unknown"
+          if (odds) {
+            link <- "Odds Ratio"
+          } else {
+            ident <- out_list$modelcontrol$logit_ident
+            if (ident) {
+              link <- "Identity"
+            } else {
+              loglink <- out_list$modelcontrol$logit_loglink
+              if (loglink) {
+                link <- "Complementary Log"
+              } else {
+                probit <- out_list$modelcontrol$logit_probit
+                if (probit) {
+                  link <- "Probability Unit (probit)"
+                }
+              }
+            }
+          }
+          message(link, " Linking Function Used")
+          if ((!null_model) && (min(term_n) != max(term_n))) {
+            message(form_type)
+          }
+          if (all(strata != "NONE")) {
+            message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
+          if (desc_opt == "term") {
+            message("Optimization blocked by term number, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "subterm") {
+            message("Optimization blocked by sub-term in each term, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "individual") {
+            message("Optimization blocked by individual parameter, into ", nrow(desc_block), " blocks.")
+          }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  Deviance: ", round(deviation, digits), ",  AIC: ", round(AIC, digits), ",  BIC: ", round(BIC, digits))
         } else {
@@ -2719,6 +2841,13 @@ Interpret_Output <- function(out_list, digits = 3) {
           }
           if (all(strata != "NONE")) {
             message("Model stratified by ", paste(shQuote(strata), collapse = ", "))
+          }
+          if (desc_opt == "term") {
+            message("Optimization blocked by term number, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "subterm") {
+            message("Optimization blocked by sub-term in each term, into ", nrow(desc_block), " blocks.")
+          } else if (desc_opt == "individual") {
+            message("Optimization blocked by individual parameter, into ", nrow(desc_block), " blocks.")
           }
           message("|", paste(rep("-", as.integer(options()$width / 2)), collapse = " "), "|")
           message("-2*Log-Likelihood: ", round(-2 * LogLik, digits), ",  AIC: ", round(AIC, digits))

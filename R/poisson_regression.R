@@ -125,6 +125,10 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
   } else {
     res <- Check_Iters(control, length(a_n))
     control <- res$control
+    block_descent <- gen_descent_block(control$descent, term_n, tform, keep_constant)
+    if ((max(control$maxiters) < nrow(block_descent)) && (max(control$maxiters) > 0) && (control$verbose <= 2)) {
+      warning("Warning: the maximum number of iterations is less than the number of blocks, use atleast ", nrow(block_descent), " to check every block.")
+    }
     #
     e <- pois_Omnibus_transition(
       as.matrix(df[, ce, with = FALSE]),
@@ -132,7 +136,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
         nrow = length(control$maxiters) - 1,
         byrow = TRUE
       ), dfc, x_all, 0,
-      modelform, control, keep_constant,
+      modelform, control, keep_constant, block_descent,
       term_tot, strata_vals, as.matrix(df[, val_cols,
         with = FALSE
       ]),
@@ -141,6 +145,7 @@ RunPoissonRegression_Omnibus <- function(df, pyr0 = "pyr", event0 = "event", nam
     if (is.nan(e$LogLik)) {
       stop(e$Status)
     }
+    e$blocks <- block_descent
   }
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant

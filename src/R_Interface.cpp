@@ -61,7 +61,7 @@ using Rcpp::Rcout;
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List cox_ph_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List cox_ph_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, IntegerMatrix& Block_Descent, int term_tot, NumericVector Strata_vals, VectorXd cens_weight, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
@@ -103,9 +103,10 @@ List cox_ph_Omnibus_transition(IntegerVector& term_n, const StringVector& tform,
             optim_para["penalty_method"] = model_control["penalty_method"];
         }
     }
+    int totalnum = term_n.size();
     //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Cox_PH_Omnibus(term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, df_m, tu, verbose, KeepConstant, Block_Descent, term_tot, ties_method, nthreads, Strata_vals, cens_weight, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -119,7 +120,7 @@ List cox_ph_Omnibus_transition(IntegerVector& term_n, const StringVector& tform,
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List pois_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List pois_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, IntegerMatrix& Block_Descent, int term_tot, NumericVector Strata_vals, MatrixXd dfs, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     int nthreads = Control["ncores"];
     double gmix_theta = model_control["gmix_theta"];
@@ -160,9 +161,10 @@ List pois_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, const String
             optim_para["penalty_method"] = model_control["penalty_method"];
         }
     }
+    int totalnum = term_n.size();
     //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, verbose, KeepConstant, term_tot, nthreads, Strata_vals, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Pois_Omnibus(PyrC, term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, verbose, KeepConstant, Block_Descent, term_tot, nthreads, Strata_vals, dfs, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -786,6 +788,8 @@ List cox_ph_multidose_Omnibus_transition(IntegerVector& term_n, const StringVect
     }
     //  Performs regression
     //----------------------------------------------------------------------------------------------------------------//
+    int totalnum = term_n.size();
+    IntegerMatrix Block_Descent(2, totalnum);
     List res;
     bool IntegratedSerial = model_control["mcml"];
     if (IntegratedSerial) {
@@ -848,6 +852,8 @@ List pois_multidose_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n, co
         }
     }
     //  Performs regression
+    int totalnum = term_n.size();
+    IntegerMatrix Block_Descent(2, totalnum);
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     bool IntegratedSerial = model_control["mcml"];
@@ -915,6 +921,8 @@ List logist_multidose_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& te
         }
     }
     //  Performs regression
+    int totalnum = term_n.size();
+    IntegerMatrix Block_Descent(2, totalnum);
     //----------------------------------------------------------------------------------------------------------------//
     List res;
     bool IntegratedSerial = model_control["mcml"];
@@ -936,7 +944,7 @@ List logist_multidose_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& te
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List caco_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, int term_tot, NumericVector Strata_vals, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List caco_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, const MatrixXd df_m, NumericVector tu, IntegerVector KeepConstant, IntegerMatrix& Block_Descent, int term_tot, NumericVector Strata_vals, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     string ties_method = Control["ties"];
     int nthreads = Control["ncores"];
@@ -981,8 +989,9 @@ List caco_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, N
         }
     }
     //  Performs regression
+    int totalnum = term_n.size();
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, df_m, tu, verbose, KeepConstant, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_CaseCon_Omnibus(term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, df_m, tu, verbose, KeepConstant, Block_Descent, term_tot, ties_method, nthreads, Strata_vals, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -996,7 +1005,7 @@ List caco_Omnibus_transition(IntegerVector& term_n, const StringVector& tform, N
 //' @noRd
 //'
 //  [[Rcpp::export]]
-List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
+List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, const StringVector& tform, NumericMatrix& a_ns, IntegerVector& dfc, MatrixXd df0, int fir, const string& modelform, List Control, IntegerVector KeepConstant, IntegerMatrix& Block_Descent, int term_tot, List model_control, MatrixXd Lin_Sys, VectorXd Lin_Res) {
     int verbose = Control["verbose"];
     int nthreads = Control["ncores"];
     double gmix_theta = model_control["gmix_theta"];
@@ -1042,8 +1051,9 @@ List logist_Omnibus_transition(MatrixXd& CountEvent, IntegerVector& term_n, cons
         }
     }
     //  Performs regression
+    int totalnum = term_n.size();
     //----------------------------------------------------------------------------------------------------------------//
-    List res = LogLik_Logist_Omnibus(CountEvent, term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
+    List res = LogLik_Logist_Omnibus(CountEvent, term_n, tform, a_ns, df0, dfc, fir, modelform, optim_para, verbose, KeepConstant, Block_Descent, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
     return res;
 }
@@ -1103,6 +1113,8 @@ List logist_multioutcome_Omnibus_transition(MatrixXd& CountEvent, IntegerVector&
         }
     }
     //  Performs regression
+    int totalnum = term_n.size();
+    IntegerMatrix Block_Descent(2, totalnum);
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Logist_Multioutcome_Omnibus_Serial(CountEvent, term_n, tform, beta_0, df0, df1, event_cols, dfc, fir, modelform, optim_para, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//
@@ -1160,6 +1172,8 @@ List pois_multioutcome_Omnibus_transition(MatrixXd& PyrC, IntegerVector& term_n,
         }
     }
     //  Performs regression
+    int totalnum = term_n.size();
+    IntegerMatrix Block_Descent(2, totalnum);
     //----------------------------------------------------------------------------------------------------------------//
     List res = LogLik_Pois_Multioutcome_Omnibus_Serial(PyrC, term_n, tform, beta_0, df0, df1, event_cols, dfc, fir, modelform, optim_para, Strata_vals, dfs, verbose, KeepConstant, term_tot, nthreads, model_bool, gmix_theta, gmix_term, Lin_Sys, Lin_Res);
     //----------------------------------------------------------------------------------------------------------------//

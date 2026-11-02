@@ -56,7 +56,7 @@ using Rcpp::head;
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
 //
-void Make_subterms(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant) {
+void Make_subterms(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
     //  Calculates the sub term values
     //  reset the subterm counts
     Dose = MatrixXd::Constant(T0.rows(), Dose.cols(), 0.0);  //  matrix of the total dose term values
@@ -181,7 +181,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
         int tn = term_n[ij];
-        if (KeepConstant[ij] == 0) {
+        if (KeepConstant[ij] + constant_descent[ij] == 0) {
             int jk = ij - sum(head(KeepConstant, ij));
             if (as<string>(tform[ij]) == "loglin") {
                 T0.col(ij) = nonDose_LOGLIN.col(tn);
@@ -209,7 +209,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                     Td0.col(jk) = T0.col(ij).array() * df0.col(df0_c).array();
                     Tdd0.col(jk * (jk + 1)/2 + jk) = T0.col(ij).array() * df0.col(df0_c).array().square().array();
                     T0.col(ij) = Dose.col(tn);
-                } else if ((tform[ij - 1] == "loglin_slope") && (KeepConstant[ij - 1] == 1)) {
+                } else if ((tform[ij - 1] == "loglin_slope") && (KeepConstant[ij - 1] +  + constant_descent[ij - 1] == 1)) {
                     T0.col(ij) = beta_0[ij - 1] * (beta_0[ij] * df0.col(df0_c)).array().exp();
                     Td0.col(jk) = T0.col(ij).array() * df0.col(df0_c).array();
                     Tdd0.col(jk * (jk + 1)/2 + jk) = T0.col(ij).array() * df0.col(df0_c).array().square().array();
@@ -218,7 +218,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 }
             } else if (as<string>(tform[ij]) == "lin_slope") {
                 int df0_int = dfc[ij+1] - 1;
-                if (KeepConstant[ij + 1] == 0) {
+                if (KeepConstant[ij + 1] +  + constant_descent[ij + 1] == 0) {
                     Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     T0.col(ij)  = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                     T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
@@ -241,7 +241,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
                 T0.col(ij) = Dose.col(tn);
             } else if (as<string>(tform[ij]) == "step_slope") {
                 int df0_int = dfc[ij+1] - 1;
-                if (KeepConstant[ij + 1] == 0) {
+                if (KeepConstant[ij + 1] +  + constant_descent[ij + 1] == 0) {
                     Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                     T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
@@ -534,7 +534,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
         int tjk = term_n[jk];
         // int df0_ij = dfc[ij] - 1;
         int df0_jk = dfc[jk] - 1;
-        if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+        if (KeepConstant[ij]+KeepConstant[jk] +  + constant_descent[ij] +  + constant_descent[jk] == 0) {
             int ij_ind = ij - sum(head(KeepConstant, ij));
             int jk_ind = jk - sum(head(KeepConstant, jk));
             if (tij == tjk) {
@@ -557,7 +557,7 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
 //
-void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant) {
+void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
     //  Calculates the sub term values
     //  reset the subterm counts
     Dose = MatrixXd::Constant(T0.rows(), Dose.cols(), 0.0);  //  matrix of the total dose term values
@@ -678,7 +678,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
     for (int ij = 0; ij < totalnum; ij++) {
         int df0_c = dfc[ij] - 1;
         int tn = term_n[ij];
-        if (KeepConstant[ij] == 0) {
+        if (KeepConstant[ij]  + constant_descent[ij] == 0) {
             int jk = ij - sum(head(KeepConstant, ij));
             if (as<string>(tform[ij]) == "loglin") {
                 T0.col(ij) = nonDose_LOGLIN.col(tn);
@@ -705,7 +705,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                     T0.col(ij) = (beta_0[ij] * df0.col(df0_c)).array().exp();
                     Td0.col(jk) = T0.col(ij).array() * df0.col(df0_c).array();
                     T0.col(ij) = Dose.col(tn);
-                } else if ((tform[ij - 1] == "loglin_slope") && (KeepConstant[ij - 1] == 1)) {
+                } else if ((tform[ij - 1] == "loglin_slope") && (KeepConstant[ij - 1] + constant_descent[ij - 1] == 1)) {
                     T0.col(ij) = beta_0[ij - 1] * (beta_0[ij] * df0.col(df0_c)).array().exp();
                     Td0.col(jk) = T0.col(ij).array() * df0.col(df0_c).array();
                     T0.col(ij) = Dose.col(tn);
@@ -713,7 +713,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 }
             } else if (as<string>(tform[ij]) == "lin_slope") {
                 int df0_int = dfc[ij+1] - 1;
-                if (KeepConstant[ij + 1] == 0) {
+                if (KeepConstant[ij + 1] + constant_descent[ij + 1] == 0) {
                     Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     T0.col(ij)  = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                     T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
@@ -734,7 +734,7 @@ void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, co
                 T0.col(ij) = Dose.col(tn);
             } else if (as<string>(tform[ij]) == "step_slope") {
                 int df0_int = dfc[ij+1] - 1;
-                if (KeepConstant[ij + 1] == 0) {
+                if (KeepConstant[ij + 1] + constant_descent[ij + 1] == 0) {
                     Td0.col(jk) = (df0.col(df0_int).array() - beta_0[ij + 1]);
                     T0.col(ij) = (df0.col(df0_int).array() - beta_0[ij + 1]+dint);
                     T0.col(ij + 1) = (df0.col(df0_int).array() - beta_0[ij + 1]-dint);
@@ -1108,7 +1108,7 @@ void Make_subterms_Basic(const int& totalnum, const IntegerVector& dfc, MatrixXd
 //' @return Updates matrices in place: subterm matrices, Term matrices
 //' @noRd
 //
-void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, const IntegerVector& dfc, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const int& nthreads, const IntegerVector& KeepConstant) {
+void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, const IntegerVector& dfc, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
     //  Calculates the sub term values
     //  reset the subterm counts
     const int mat_row = df0.rows();
@@ -1143,7 +1143,7 @@ void Make_subterms_Linear_ERR(const int& totalnum, const StringVector&  tform, c
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 //
-void Make_Risks(const string& modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
+void Make_Risks(const string& modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, const MatrixXd& Tdd0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent, const double gmix_theta, const IntegerVector& gmix_term) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");
@@ -1178,7 +1178,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
                 }
                 int tij = term_n[ij];
                 int tjk = term_n[jk];
-                if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+                if (KeepConstant[ij]+KeepConstant[jk] + constant_descent[ij] + constant_descent[jk] == 0) {
                     int ij_ind = ij - sum(head(KeepConstant, ij));
                     int jk_ind = jk - sum(head(KeepConstant, jk));
                     int p_ijk = ij_ind*(ij_ind + 1)/2 + jk_ind;
@@ -1260,7 +1260,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
                 }
                 int tij = term_n[ij];
                 int tjk = term_n[jk];
-                if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+                if (KeepConstant[ij]+KeepConstant[jk] + constant_descent[ij] + constant_descent[jk] == 0) {
                     int ij_ind = ij - sum(head(KeepConstant, ij));
                     int jk_ind = jk - sum(head(KeepConstant, jk));
                     int p_ijk = ij_ind*(ij_ind + 1)/2 + jk_ind;
@@ -1503,7 +1503,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
         #endif
         for (int ij = 0; ij < totalnum; ij++) {
             int tij = term_n[ij];
-            if (KeepConstant[ij] == 0) {
+            if (KeepConstant[ij] + constant_descent[ij] == 0) {
                 int ijk = ij - sum(head(KeepConstant, ij));
                 if (tform[ij] == "loglin") {
                     Tterm_ratio.col(ijk) = TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array();
@@ -1533,7 +1533,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
             }
             int tij = term_n[ij];
             int tjk = term_n[jk];
-            if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+            if (KeepConstant[ij]+KeepConstant[jk] + constant_descent[ij] + constant_descent[jk] == 0) {
                 int ij_ind = ij - sum(head(KeepConstant, ij));
                 int jk_ind = jk - sum(head(KeepConstant, jk));
                 int p_ijk = ij_ind*(ij_ind + 1)/2 + jk_ind;
@@ -1615,7 +1615,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
         #endif
         for (int ij = 0; ij < totalnum; ij++) {
             int tij = term_n[ij];
-            if (KeepConstant[ij] == 0) {
+            if (KeepConstant[ij] + constant_descent[ij] == 0) {
                 int ijk = ij - sum(head(KeepConstant, ij));
                 VectorXd norm_term = TTerm.col(tij).array();
                 // Find the derivative of the term
@@ -1650,7 +1650,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
             }
             int tij = term_n[ij];
             int tjk = term_n[jk];
-            if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+            if (KeepConstant[ij]+KeepConstant[jk] + constant_descent[ij] + constant_descent[jk] == 0) {
                 int ij_ind = ij - sum(head(KeepConstant, ij));
                 int jk_ind = jk - sum(head(KeepConstant, jk));
                 int p_ijk = ij_ind*(ij_ind + 1)/2 + jk_ind;
@@ -1778,7 +1778,7 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 //
-void Make_Risks_Gradient(const string& modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, const IntegerVector& KeepConstant, const double gmix_theta, const IntegerVector& gmix_term) {
+void Make_Risks_Gradient(const string& modelform, const StringVector& tform, const IntegerVector& term_n, const int& totalnum, const int& fir, const MatrixXd& T0, const MatrixXd& Td0, MatrixXd& Te, MatrixXd& R, MatrixXd& Rd, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent, const double gmix_theta, const IntegerVector& gmix_term) {
     set<string> Dose_Iden;  //  list of dose subterms
     Dose_Iden.insert("loglin_top");
     Dose_Iden.insert("loglin_slope");
@@ -1803,7 +1803,7 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
             #endif
             for (int ij = 0; ij < totalnum; ij++) {
                 int tij = term_n[ij];
-                if (KeepConstant[ij] == 0) {
+                if (KeepConstant[ij] + constant_descent[ij] == 0) {
                     int ij_ind = ij - sum(head(KeepConstant, ij));
                     if (tform[ij] == "loglin") {
                         Rd.col(ij_ind) =  TTerm.col(tij).array() * nonDose_LOGLIN.col(tij).array().pow(- 1).array() * Td0.col(ij_ind).array();
@@ -1828,7 +1828,7 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
             #endif
             for (int ij = 0; ij < totalnum; ij++) {
                 int tij = term_n[ij];
-                if (KeepConstant[ij]) {
+                if (KeepConstant[ij] + constant_descent[ij] == 0) {
                     int ij_ind = ij - sum(head(KeepConstant, ij));
                     if (tij == fir) {
                         if (Dose_Iden.find(as<string>(tform[ij])) != Dose_Iden.end()) {
@@ -1879,7 +1879,7 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
         #endif
         for (int ij = 0; ij < totalnum; ij++) {
             int tij = term_n[ij];
-            if (KeepConstant[ij] == 0) {
+            if (KeepConstant[ij] + constant_descent[ij] == 0) {
                 int ijk = ij - sum(head(KeepConstant, ij));
                 if (tij != fir) {
                     Tterm_ratio.col(ijk) = TTerm.col(tij).array() * TTerm_p.col(tij).array().pow(- 1).array();
@@ -1917,7 +1917,7 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
         #endif
         for (int ij = 0; ij < totalnum; ij++) {
             int tij = term_n[ij];
-            if (KeepConstant[ij] == 0) {
+            if (KeepConstant[ij] + constant_descent[ij] == 0) {
                 int ijk = ij - sum(head(KeepConstant, ij));
                 VectorXd norm_term = TTerm.col(tij).array();
                 // Find the derivative of the term
@@ -2067,13 +2067,13 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //' @return Updates matrices in place: Risk, Risk ratios
 //' @noRd
 //
-void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant) {
+void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
     R = nonDose_PLIN.array() * nonDose_LOGLIN.array();
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
     #endif
     for (int ij = 0; ij < totalnum; ij++) {
-        if (KeepConstant[ij] == 0) {
+        if (KeepConstant[ij] + constant_descent[ij] == 0) {
             int df0_c = dfc[ij] - 1;
             int ijk = ij - sum(head(KeepConstant, ij));
             if (tform[ij] == "loglin") {
@@ -2095,7 +2095,7 @@ void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, 
             ij++;
             jk -= ij;
         }
-        if (KeepConstant[ij]+KeepConstant[jk] == 0) {
+        if (KeepConstant[ij]+KeepConstant[jk] + constant_descent[ij] + constant_descent[jk] == 0) {
             int ij_ind = ij - sum(head(KeepConstant, ij));
             int jk_ind = jk - sum(head(KeepConstant, jk));
             int p_ijk = ij_ind*(ij_ind + 1)/2 + jk_ind;

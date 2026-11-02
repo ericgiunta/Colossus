@@ -978,6 +978,7 @@ ColossusControl <- function(verbose = 1,
                             step_max = 1.0,
                             thres_step_max = 1.0,
                             ties = "breslow",
+                            descent = "full",
                             ncores = as.numeric(detectCores())) {
   # Check if maxiter is non-numeric
   if ((length(maxiter) > 1) || is.list(maxiter)) {
@@ -1027,6 +1028,7 @@ ColossusControl <- function(verbose = 1,
     step_max = step_max,
     thres_step_max = thres_step_max,
     ties = ties,
+    descent = descent,
     ncores = ncores
   )
   control_def <- list(
@@ -1034,7 +1036,7 @@ ColossusControl <- function(verbose = 1,
     halfmax = 5, epsilon = 1e-4, ll_epsilon = 1e-4,
     deriv_epsilon = 1e-4, step_max = 1.0,
     thres_step_max = 100.0,
-    ties = "breslow",
+    ties = "breslow", descent = "full",
     ncores = as.numeric(detectCores())
   )
   #
@@ -1067,6 +1069,8 @@ ColossusControl <- function(verbose = 1,
   #
   control["ties"] <- tolower(control["ties"])
   control["ties"] <- vapply(control["ties"], function(x) tryCatch(match.arg(x, choices = c("breslow", "efron")), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
+  control["descent"] <- tolower(control["descent"])
+  control["descent"] <- vapply(control["descent"], function(x) tryCatch(match.arg(x, choices = c("full", "term", "subterm", "individual")), error = function(error_message) x), USE.NAMES = FALSE, FUN.VALUE = "character")[[1]]
   control_int <- list(
     verbose = 0, maxiter = -1,
     halfmax = 0

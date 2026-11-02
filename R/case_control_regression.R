@@ -183,11 +183,16 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
     a_ns <- matrix(a_ns, nrow = length(control$maxiters) - 1, byrow = TRUE)
   }
   #
+  block_descent <- gen_descent_block(control$descent, term_n, tform, keep_constant)
+  if ((max(control$maxiters) < nrow(block_descent)) && (max(control$maxiters) > 0) && (control$verbose <= 2)) {
+    warning("Warning: the maximum number of iterations is less than the number of blocks, use atleast ", nrow(block_descent), " to check every block.")
+  }
+  #
   run_size <- nrow(df)
   e <- caco_Omnibus_transition(
     term_n, tform, a_ns, dfc, x_all, 0,
     modelform, control, as.matrix(df[, ce, with = FALSE]), tu,
-    keep_constant, term_tot, uniq, model_control,
+    keep_constant, block_descent, term_tot, uniq, model_control,
     cons_mat, cons_vec
   )
   if ("Status" %in% names(e)) {
@@ -195,6 +200,7 @@ RunCaseControlRegression_Omnibus <- function(df, time1 = "%trunc%", time2 = "%tr
       stop(e$Status)
     }
   }
+  e$blocks <- block_descent
   e$Parameter_Lists$names <- names
   e$Parameter_Lists$keep_constant <- keep_constant
   e$Parameter_Lists$modelformula <- modelform
