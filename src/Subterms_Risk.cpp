@@ -58,6 +58,9 @@ using Rcpp::head;
 //
 void Make_subterms(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Tdd0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
     //  Calculates the sub term values
+    // Reset the derivative values
+    Td0 = MatrixXd::Constant(Td0.rows(), Td0.cols(), 0.0);
+    Tdd0 = MatrixXd::Constant(Tdd0.rows(), Tdd0.cols(), 0.0);
     //  reset the subterm counts
     Dose = MatrixXd::Constant(T0.rows(), Dose.cols(), 0.0);  //  matrix of the total dose term values
     nonDose_LIN = MatrixXd::Constant(T0.rows(), Dose.cols(), 0.0);  //  matrix of Linear subterm values
@@ -559,6 +562,8 @@ void Make_subterms(const int& totalnum, const IntegerVector& term_n, const Strin
 //
 void Make_subterms_Gradient(const int& totalnum, const IntegerVector& term_n, const StringVector&  tform, const IntegerVector& dfc, const int& fir, MatrixXd& T0, MatrixXd& Td0, MatrixXd& Dose, MatrixXd& nonDose, MatrixXd& TTerm, MatrixXd& nonDose_LIN, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, const  VectorXd& beta_0, const Ref<const MatrixXd>& df0, const double& dint, const double& dslp, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
     //  Calculates the sub term values
+    // Reset the derivative values
+    Td0 = MatrixXd::Constant(Td0.rows(), Td0.cols(), 0.0);
     //  reset the subterm counts
     Dose = MatrixXd::Constant(T0.rows(), Dose.cols(), 0.0);  //  matrix of the total dose term values
     nonDose_LIN = MatrixXd::Constant(T0.rows(), Dose.cols(), 0.0);  //  matrix of Linear subterm values
@@ -1159,6 +1164,9 @@ void Make_Risks(const string& modelform, const StringVector& tform, const Intege
     Dose_Iden.insert("lin_exp_exp_slope");
     MatrixXd Tterm_ratio = MatrixXd::Constant(Td0.rows(), Td0.cols(), 1.0);
     int reqrdnum = totalnum - sum(KeepConstant);
+    // Reset the derivative values
+    Rd = MatrixXd::Constant(Rd.rows(), Rd.cols(), 0.0);
+    Rdd = MatrixXd::Constant(Rdd.rows(), Rdd.cols(), 0.0);
     RdR = MatrixXd::Zero(RdR.rows(), reqrdnum);  //  preallocates matrix for Risk to derivative ratios
     RddR = MatrixXd::Zero(RddR.rows(), reqrdnum*(reqrdnum + 1)/2);  //  preallocates matrix for Risk to second derivative ratios
     if (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() > 1)) {  //  same process used for all of the additive type models
@@ -1792,6 +1800,10 @@ void Make_Risks_Gradient(const string& modelform, const StringVector& tform, con
     Dose_Iden.insert("lin_exp_slope");
     Dose_Iden.insert("lin_exp_int");
     Dose_Iden.insert("lin_exp_exp_slope");
+    // Reset the derivative values
+    Rd = MatrixXd::Constant(Rd.rows(), Rd.cols(), 0.0);
+    RdR = MatrixXd::Constant(RdR.rows(), RdR.cols(), 0.0);
+    //
     MatrixXd Tterm_ratio = MatrixXd::Constant(Td0.rows(), Td0.cols(), 1.0);
     if (((modelform == "A") || (modelform == "PA") || (modelform == "PAE")) && (TTerm.cols() > 1)) {  //  same process used for all of the additive type models
         Te = TTerm.array().rowwise().sum().array();
@@ -2023,6 +2035,11 @@ void Make_Risks_Single(const string& modelform, const StringVector& tform, const
 //' @noRd
 //
 void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& RdR, const int& nthreads, const Ref<const MatrixXd>& df0, const IntegerVector& dfc, const IntegerVector& KeepConstant) {
+    // Reset the derivative values
+    Rd = MatrixXd::Constant(Rd.rows(), Rd.cols(), 0.0);
+    Rdd = MatrixXd::Constant(Rdd.rows(), Rdd.cols(), 0.0);
+    RdR = MatrixXd::Constant(RdR.rows(), RdR.cols(), 0.0);
+    //
     R.col(0) = T0.rowwise().prod();
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)
@@ -2068,6 +2085,12 @@ void Make_Risks_Basic(const int& totalnum, const MatrixXd& T0, MatrixXd& R, Matr
 //' @noRd
 //
 void Make_Risks_Linear_ERR(const StringVector& tform, const IntegerVector& dfc, const Ref<const MatrixXd>& df0, const int& totalnum, MatrixXd& R, MatrixXd& Rd, MatrixXd& Rdd, MatrixXd& nonDose_PLIN, MatrixXd& nonDose_LOGLIN, MatrixXd& RdR, MatrixXd& RddR, const int& nthreads, const IntegerVector& KeepConstant, const IntegerVector& constant_descent) {
+    // Reset the derivative values
+    Rd = MatrixXd::Constant(Rd.rows(), Rd.cols(), 0.0);
+    Rdd = MatrixXd::Constant(Rdd.rows(), Rdd.cols(), 0.0);
+    RdR = MatrixXd::Constant(RdR.rows(), RdR.cols(), 0.0);
+    RddR = MatrixXd::Constant(RddR.rows(), RddR.cols(), 0.0);
+    //
     R = nonDose_PLIN.array() * nonDose_LOGLIN.array();
     #ifdef _OPENMP
     #pragma omp parallel for schedule(dynamic) num_threads(nthreads)

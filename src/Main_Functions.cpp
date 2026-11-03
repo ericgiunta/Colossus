@@ -268,7 +268,7 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
         }
-        if (verbose >= 4) {
+        if (verbose >= 3) {
             Rcout << "C++ Note: starting guess " << guess << " with " << maxiter << " maximum iterations" << endl;
         }
         if (Block_Descent.nrow() > 1) {
@@ -373,6 +373,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
                         iter_stop = 1;
                     }
                 }
+            }
+            if (verbose >= 3) {
+                Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+                for (int ij = 1; ij < totalnum; ij++) {
+                    Rcout << beta_0[ij] << " ";
+                }
+                Rcout << " " << endl;
             }
             Lld_worst = abs(Lld[0]);
             for (int ij = 1; ij < reqrdnum; ij++) {
@@ -599,6 +606,13 @@ List LogLik_Cox_PH_Omnibus(IntegerVector& term_n, const StringVector& tform, Num
         }
         Cox_Side_LL_Calc(reqrdnum, ntime, tform, RiskFail,  RiskPairs, RiskPairs_Strata, totalnum, fir, R, Rd, Rdd, Rls1, Rls2, Rls3, Lls1, Lls2, Lls3, cens_weight, Strata_vals, beta_0, RdR, RddR, Ll, Lld, Lldd, nthreads, KeepConstant, constant_descent, ties_method, verbose, model_bool, iter_stop);
         Print_LL(reqrdnum, totalnum, beta_0, Ll, Lld, Lldd, verbose, model_bool);
+        if (verbose >= 3) {
+            Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+            for (int ij = 1; ij < totalnum; ij++) {
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
+        }
         Lld_worst = abs(Lld[0]);
         for (int ij = 1; ij < reqrdnum; ij++) {
             if (abs(Lld[ij]) > Lld_worst) {
@@ -958,7 +972,7 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
         Ll_iter_best = 10;
         convgd = FALSE;
         iter_stop  = 0;  //  tracks if the iterations should be stopped for convergence
-        if (verbose >= 4) {
+        if (verbose >= 3) {
             Rcout << "C++ Note: starting guess " << guess+1 << " with " << maxiter << " maximum iterations" << endl;
         }
         maxiter = maxiters[guess];
@@ -1069,6 +1083,13 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
                         iter_stop = 1;
                     }
                 }
+            }
+            if (verbose >= 3) {
+                Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+                for (int ij = 1; ij < totalnum; ij++) {
+                    Rcout << beta_0[ij] << " ";
+                }
+                Rcout << " " << endl;
             }
             Lld_worst = abs(Lld[0]);
             for (int ij = 1; ij < reqrdnum; ij++) {
@@ -1286,6 +1307,13 @@ List LogLik_Pois_Omnibus(const Ref<const MatrixXd>& PyrC, IntegerVector& term_n,
                     convgd = TRUE;
                 }
             }
+        }
+        if (verbose >= 3) {
+            Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+            for (int ij = 1; ij < totalnum; ij++) {
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
         }
         Lld_worst = abs(Lld[0]);
         for (int ij = 1; ij < reqrdnum; ij++) {
@@ -1651,7 +1679,7 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
         for (int i = 0; i < group_num; i++) {
             strata_odds[i] = strata_def[i];
         }
-        if (verbose >= 4) {
+        if (verbose >= 3) {
             Rcout << "C++ Note: starting guess " << guess << endl;
         }
         if (Block_Descent.nrow() > 1) {
@@ -1850,6 +1878,13 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
                         iter_stop = 1;
                     }
                 }
+            }
+            if (verbose >= 3) {
+                Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+                for (int ij = 1; ij < totalnum; ij++) {
+                    Rcout << beta_0[ij] << " ";
+                }
+                Rcout << " " << endl;
             }
             for (int ij = 0; ij < reqrdnum; ij++) {
                 if (abs(Lld[ij]) > Lld_worst) {
@@ -2191,6 +2226,13 @@ List LogLik_CaseCon_Omnibus(IntegerVector& term_n, const StringVector& tform, Nu
                     convgd = TRUE;
                 }
             }
+        }
+        if (verbose >= 3) {
+            Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+            for (int ij = 1; ij < totalnum; ij++) {
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
         }
         for (int ij = 0; ij < reqrdnum; ij++) {
             if (abs(Lld[ij]) > Lld_worst) {
@@ -2545,7 +2587,7 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
         for (int i = 0; i < beta_0.size(); i++) {
             beta_0[i] = a_n[i];
         }
-        if (verbose >= 4) {
+        if (verbose >= 3) {
             Rcout << "C++ Note: starting guess " << guess << " with " << maxiter << " maximum iterations" << endl;
         }
         if (Block_Descent.nrow() > 1) {
@@ -2705,6 +2747,13 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
                         iter_stop = 1;
                     }
                 }
+            }
+            if (verbose >= 3) {
+                Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+                for (int ij = 1; ij < totalnum; ij++) {
+                    Rcout << beta_0[ij] << " ";
+                }
+                Rcout << " " << endl;
             }
             Lld_worst = abs(Lld[0]);
             for (int ij = 1; ij < reqrdnum; ij++) {
@@ -2971,6 +3020,13 @@ List LogLik_Logist_Omnibus(const Ref<const MatrixXd>& CountEvent, IntegerVector&
                     convgd = TRUE;
                 }
             }
+        }
+        if (verbose >= 3) {
+            Rcout << "Iteration " << iteration << " LL: " << Ll[0] << " beta: ";
+            for (int ij = 1; ij < totalnum; ij++) {
+                Rcout << beta_0[ij] << " ";
+            }
+            Rcout << " " << endl;
         }
         Lld_worst = abs(Lld[0]);
         for (int ij = 1; ij < reqrdnum; ij++) {

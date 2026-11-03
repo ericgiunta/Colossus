@@ -22,10 +22,10 @@ test_that("Basic check and expected value", {
     lo_model <- Logit(CONST, status) ~       loglinear(CONST, factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME()
     cc_model <- CaseCon_Time(time, status) ~ loglinear(factor(cell), 0) + linear(karno50, 1) + loglinear(trt, 1) + ME()
     # full term subterm individual bad
-    cx_ll <- c(-480.4063, -486.9656, -488.379, -508.5446)
-    ps_ll <- c(-217.5047, -353.0032, -212.2417, -226.0036)
-    lo_ll <- c(-30.4672, -37.07517, -32.60318, -40.10826)
-    cc_ll <- c(-453.031, -481.0651, -453.8187, -459.5792)
+    cx_ll <- c(-480.4063, -505.4994, -478.2765, -480.466)
+    ps_ll <- c(-217.5047, -300.6482, -299.5807, -299.5324)
+    lo_ll <- c(-30.4672, -33.83429, -29.58049, -32.52137)
+    cc_ll <- c(-453.031, -480.3437, -453.0454, -454.0614)
     i_val <- 1
     for (des in c("full", "term", "subterm", "individual")) {
       expect_no_error(e0 <- CoxRun(cx_model, df, control = control, descent = des))
@@ -63,12 +63,12 @@ test_that("dose subterm checks", {
     control <- list(verbose = 2, step_max = 1.0, ncores = 1, maxiters = c(1, 1))
     expect_warning(e0 <- CoxRun(cx_model, df, control = control, descent = "individual"))
     # full term subterm individual bad
-    cx_ll <- c(-484.4242, -490.9032, -502.2574, -502.0175)
+    cx_ll <- c(-484.4242, -484.4243, -487.9913, -485.201)
     control <- list(verbose = 2, step_max = 1.0, ncores = 1, maxiters = c(-1, 14))
     i_val <- 1
     for (des in c("full", "term", "subterm", "individual")) {
       expect_no_error(e0 <- CoxRun(cx_model, df, control = control, descent = des))
-      expect_equal(cx_ll[i_val], e0$LogLik, tolerance = 1e-3)
+      expect_equal(e0$LogLik, cx_ll[i_val], tolerance = 1e-3)
       i_val <- i_val + 1
     }
   }
