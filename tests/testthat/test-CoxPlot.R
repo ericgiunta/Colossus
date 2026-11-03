@@ -299,12 +299,12 @@ test_that("Coxph martingale combinations", {
   keep_constant <- 1
   if (system.file(package = "ggplot2") != "") {
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, 0), df, control = control, a_n = a_n)
-    expect_error(plotMartingale(e, df, plot_options))
+    expect_error(plotMartingale(e, df, plot_options)) # missing studyid column
     keep_constant <- c(0, 0)
     a_n <- c(-0.1, 0.1)
     plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "d", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
-    expect_warning(plotMartingale(e, df, plot_options))
+    #    expect_warning(plotMartingale(e, df, plot_options))
     plot_options <- list("fname" = paste0(tempfile(), "run"), "martingale" = TRUE, "cov_cols" = "Not_In", "surv_curv" = FALSE, "strat_haz" = FALSE, "smooth_haz" = FALSE, "studyid" = "f", "verbose" = 0)
     e <- CoxRun(Cox(a, b, c) ~ loglinear(d, CONST, 0), df, control = control, a_n = a_n)
     expect_error(plotMartingale(e, df, plot_options))

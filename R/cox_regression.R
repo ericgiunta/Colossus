@@ -658,18 +658,19 @@ RunCoxPlots <- function(df, time1 = "%trunc%", time2 = "%trunc%", event0 = "even
           h <- c(h, ch[length(ch)] - ch[length(ch) - 1])
         }
         surv <- c(surv, exp(-1 * ch_temp))
-        green_temp <- sum(df_temp$greener)
-        for (i in 1:beta_cols) {
-          beta_vec[i] <- sum(df_temp[[paste0("betaer_", i)]])
-        }
-        if (beta_cols == 1) {
-          beta_temp <- beta_vec * cov_mat * beta_vec
-        } else {
-          beta_mat <- as.matrix(beta_vec, ncol = 1)
-          beta_temp <- t(beta_mat) %*% cov_mat %*% beta_mat
-          beta_temp <- beta_temp[1, 1]
-        }
-        surv_se <- c(surv_se, exp(-1 * ch_temp) * sqrt(green_temp + beta_temp))
+        # The survival curve SE needs more checking, particularly the behavior if a negative value comes up
+        #        green_temp <- sum(df_temp$greener)
+        #        for (i in 1:beta_cols) {
+        #          beta_vec[i] <- sum(df_temp[[paste0("betaer_", i)]])
+        #        }
+        #        if (beta_cols == 1) {
+        #          beta_temp <- beta_vec * cov_mat * beta_vec
+        #        } else {
+        #          beta_mat <- as.matrix(beta_vec, ncol = 1)
+        #          beta_temp <- t(beta_mat) %*% cov_mat %*% beta_mat
+        #          beta_temp <- beta_temp[1, 1]
+        #        }
+        surv_se <- c(surv_se, exp(-1 * ch_temp)) # * sqrt(green_temp + beta_temp))
       }
       age_unit <- plot_options$age_unit
       if (plot_options$martingale) {
